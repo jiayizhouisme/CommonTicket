@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>通用订票.Application</name>
+    </assembly>
+    <members>
+        <member name="M:通用订票.Application.System.ServiceBases.IService.ITicketService`1.TicketCheck(`0)">
+            <summary>
+            验票
+            </summary>
+            <param name="ticket"></param>
+            <returns></returns>
+        </member>
+        <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`1.DisableTicket(`0)">
+            <summary>
+            订单冻结
+            </summary>
+            <param name="ticket"></param>
+        </member>
+        <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`1.EnableTicket(`0)">
+            <summary>
+            激活订单
+            </summary>
+            <param name="ticket"></param>
+        </member>
+        <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`1.GenerateTicket(System.DateTime,System.DateTime)">
+            <summary>
+            生成一张空票
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`1.TicketCheck(`0)">
+            <summary>
+            验票
+            </summary>
+            <param name="ticket"></param>
+            <returns></returns>
+        </member>
+        <member name="M:通用订票.Application.System.Services.IService.IAppointmentService.RefreshAppoints(System.Guid)">
+            <summary>
+            循环刷新每天的库存
+            </summary>
+            <param name="exhibitionID"></param>
+            <returns></returns>
+        </member>
+        <member name="M:通用订票.Application.System.Services.Service.AppointmentService.vaildStock(通用订票.Core.Entity.Appointment)">
+            <summary>
+            队列之前进行基本判断
+            </summary>
+            <param name="stock"></param>
+            <returns></returns>
+        </member>
+        <member name="M:通用订票.Application.System.Services.Service.MyTicketService.GenarateTickets(System.DateTime,System.DateTime,通用订票.Core.Entity.Order,System.Guid[])">
+            <summary>
+            根据选择的用户数生成对应数量的门票
+            </summary>
+            <param name="startTime"></param>
+            <param name="endTime"></param>
+            <param name="order"></param>
+            <param name="uids"></param>
+            <returns></returns>
+        </member>
+        <member name="M:通用订票.Application.System.Services.Service.MyTicketService.Vaild(System.Guid[],System.Guid)">
+            <summary>
+            仅仅判断是否重复
+            </summary>
+            <param name="uids"></param>
+            <param name="appointmentId"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

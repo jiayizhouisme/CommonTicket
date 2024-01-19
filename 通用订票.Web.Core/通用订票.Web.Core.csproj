@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<NoWarn>1701;1702;1591</NoWarn>
+		<DocumentationFile>通用订票.Web.Core.xml</DocumentationFile>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<None Remove="通用订票.Web.Core.xml" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <PackageReference Include="Essensoft.Paylink.WeChatPay" Version="4.1.2" />
+	  <PackageReference Include="InitQ" Version="1.0.0.18" />
+	  <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="7.0.14" />
+	  <PackageReference Include="ShardingCore" Version="7.7.1.20" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Core.SignalR\Core.SignalR.csproj" />
+		<ProjectReference Include="..\Task\通用订票.Task.csproj" />
+		<ProjectReference Include="..\通用订票.Application\通用订票.Application.csproj" />
+		<ProjectReference Include="..\通用订票.cache\Core.Cache.csproj" />
+		<ProjectReference Include="..\通用订票.Database.Migrations\通用订票.Database.Migrations.csproj" />
+		<ProjectReference Include="..\通用订票.RedisMQ\通用订票.RedisMQ.csproj" />
+	</ItemGroup>
+
+</Project>

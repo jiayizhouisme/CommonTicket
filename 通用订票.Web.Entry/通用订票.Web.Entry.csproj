@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
+		<PublishReadyToRunComposite>true</PublishReadyToRunComposite>
+	</PropertyGroup>
+
+
+
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.14" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.9">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<ProjectReference Include="..\MiddelWares\Core.MiddelWares.csproj" />
+		<ProjectReference Include="..\通用订票.RedisMQ\通用订票.RedisMQ.csproj" />
+		<ProjectReference Include="..\通用订票.Web.Core\通用订票.Web.Core.csproj" />
+		<ProjectReference Include="..\通用订票.沙沟古镇\通用订票.沙沟古镇.csproj" />
+		<ProjectReference Include="..\通用订票.马家荡\通用订票.马家荡.csproj" />
+	</ItemGroup>
+
+</Project>

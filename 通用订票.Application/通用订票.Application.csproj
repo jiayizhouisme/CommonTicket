@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<NoWarn>1701;1702;1591</NoWarn>
+		<DocumentationFile>通用订票.Application.xml</DocumentationFile>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<None Remove="applicationsettings.json" />
+		<None Remove="通用订票.Application.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="applicationsettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="..\.editorconfig" Link=".editorconfig" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="BeetleX.Redis" Version="1.4.9.1803" />
+	  <PackageReference Include="Essensoft.Paylink.WeChatPay" Version="4.1.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Core.Service\Core.Services.csproj" />
+		<ProjectReference Include="..\Core.SignalR\Core.SignalR.csproj" />
+		<ProjectReference Include="..\订票系统.Rules\订票系统.Rules.csproj" />
+		<ProjectReference Include="..\通用订票.cache\Core.Cache.csproj" />
+		<ProjectReference Include="..\通用订票.Core\通用订票.Core.csproj" />
+		<ProjectReference Include="..\通用订票.Stock\通用订票.Stock.csproj" />
+		<ProjectReference Include="..\通用订票Auth\Core.Auth.csproj" />
+	</ItemGroup>
+
+</Project>

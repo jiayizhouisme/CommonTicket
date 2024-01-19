@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<ProjectReference Include="..\Core.EntityFrameWork\Core.EntityFrameWork.csproj" />
+		<ProjectReference Include="..\通用订票.Core\通用订票.Core.csproj" />
+	</ItemGroup>
+
+</Project>

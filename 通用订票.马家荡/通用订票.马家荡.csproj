@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\通用订票.Application\通用订票.Application.csproj" />
+    <ProjectReference Include="..\通用订票.cache\Core.Cache.csproj" />
+  </ItemGroup>
+
+</Project>

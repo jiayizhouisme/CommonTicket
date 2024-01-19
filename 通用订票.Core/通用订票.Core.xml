@@ -1,0 +1,264 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>通用订票.Core</name>
+    </assembly>
+    <members>
+        <member name="P:通用订票.Core.Entity.JobCluster.Description">
+            <summary>
+            描述信息
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobCluster.UpdatedTime">
+            <summary>
+            作业更新时间
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobDetail.JobId">
+            <summary>
+            作业 Id
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobDetail.GroupName">
+            <summary>
+            作业组名称
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobDetail.JobType">
+            <summary>
+            作业处理程序类型
+            </summary>
+            <remarks>存储的是类型的 FullName</remarks>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobDetail.AssemblyName">
+            <summary>
+            作业处理程序类型所在程序集
+            </summary>
+            <remarks>存储的是程序集 Name</remarks>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobDetail.Description">
+            <summary>
+            描述信息
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobDetail.Concurrent">
+            <summary>
+            是否采用并行执行
+            </summary>
+            <remarks>如果设置为 false，那么使用串行执行</remarks>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobDetail.IncludeAnnotations">
+            <summary>
+            是否扫描 IJob 实现类 [Trigger] 特性触发器
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobDetail.Properties">
+            <summary>
+            作业信息额外数据
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobDetail.UpdatedTime">
+            <summary>
+            作业更新时间
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.TriggerId">
+            <summary>
+            作业触发器 Id
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.JobId">
+            <summary>
+            作业 Id
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.TriggerType">
+            <summary>
+            作业触发器类型
+            </summary>
+            <remarks>存储的是类型的 FullName</remarks>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.AssemblyName">
+            <summary>
+            作业触发器类型所在程序集
+            </summary>
+            <remarks>存储的是程序集 Name</remarks>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.Args">
+            <summary>
+            作业触发器参数
+            </summary>
+            <remarks>运行时将反序列化为 object[] 类型并作为构造函数参数</remarks>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.Description">
+            <summary>
+            描述信息
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.Status">
+            <summary>
+            作业触发器状态
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.StartTime">
+            <summary>
+            起始时间
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.EndTime">
+            <summary>
+            结束时间
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.LastRunTime">
+            <summary>
+            最近运行时间
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.NextRunTime">
+            <summary>
+            下一次运行时间
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.NumberOfRuns">
+            <summary>
+            触发次数
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.MaxNumberOfRuns">
+            <summary>
+            最大触发次数
+            </summary>
+            <remarks>
+            <para>0：不限制</para>
+            <para>n：N 次</para>
+            </remarks>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.NumberOfErrors">
+            <summary>
+            出错次数
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.MaxNumberOfErrors">
+            <summary>
+            最大出错次数
+            </summary>
+            <remarks>
+            <para>0：不限制</para>
+            <para>n：N 次</para>
+            </remarks>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.NumRetries">
+            <summary>
+            重试次数
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.RetryTimeout">
+            <summary>
+            重试间隔时间
+            </summary>
+            <remarks>默认1000毫秒</remarks>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.StartNow">
+            <summary>
+            是否立即启动
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.RunOnStart">
+            <summary>
+            是否启动时执行一次
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.ResetOnlyOnce">
+            <summary>
+            是否在启动时重置最大触发次数等于一次的作业
+            </summary>
+            <remarks>解决因持久化数据已完成一次触发但启动时不再执行的问题</remarks>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.Result">
+            <summary>
+            本次执行结果
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.ElapsedTime">
+            <summary>
+            本次执行耗时
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.JobTrigger.UpdatedTime">
+            <summary>
+            作业触发器更新时间
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.Ticket.TUserId">
+            <summary>
+            购票人选择的用户
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBill.id">
+            <summary>
+            支付单号
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBill.sourceId">
+            <summary>
+            资源编号
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBill.money">
+            <summary>
+            支付金额
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBill.userId">
+            <summary>
+            用户ID 关联user.id
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBill.type">
+            <summary>
+            单据类型
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBill.status">
+            <summary>
+            支付状态
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBill.paymentCode">
+            <summary>
+            支付类型编码 关联payments.code
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBill.ip">
+            <summary>
+            支付单生成IP
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBill.parameters">
+            <summary>
+            支付的时候需要的参数，存的是json格式的一维数组
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBill.payedMsg">
+            <summary>
+            支付回调后的状态描述
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBill.tradeNo">
+            <summary>
+            第三方平台交易流水号
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBill.createTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBill.updateTime">
+            <summary>
+            更新时间
+            </summary>
+        </member>
+    </members>
+</doc>

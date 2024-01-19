@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<NoWarn>1701;1702;1591</NoWarn>
+		<DocumentationFile>通用订票.Core.xml</DocumentationFile>
+	</PropertyGroup>
+
+
+
+	<ItemGroup>
+	  <Compile Remove="SignalR\**" />
+	  <EmbeddedResource Remove="SignalR\**" />
+	  <None Remove="SignalR\**" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<None Remove="通用订票.Core.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Furion" Version="4.8.8.40" />
+		<PackageReference Include="Furion.Extras.Authentication.JwtBearer" Version="4.8.8.40" />
+		<PackageReference Include="Furion.Extras.ObjectMapper.Mapster" Version="4.8.8.40" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Core.User\Core.User.csproj" />
+	  <ProjectReference Include="..\Order\通用订票.Order.csproj" />
+	  <ProjectReference Include="..\通用订票.Stock\通用订票.Stock.csproj" />
+	  <ProjectReference Include="..\通用订票.Ticket\通用订票.Ticket.csproj" />
+	  <ProjectReference Include="..\通用订票Auth\Core.Auth.csproj" />
+	</ItemGroup>
+
+</Project>

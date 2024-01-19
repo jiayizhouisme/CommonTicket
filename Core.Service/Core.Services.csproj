@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Furion" Version="4.8.8.40" />
+    <PackageReference Include="Furion.Extras.DatabaseAccessor.SqlSugar" Version="4.8.8.40" />
+  </ItemGroup>
+
+</Project>
