@@ -1,6 +1,8 @@
 ﻿"use strict";
 
-var connection = new signalR.HubConnectionBuilder().withUrl("/hubs/chathub", { accessTokenFactory: () => "Your JWT Token" }
+var connection = new signalR.HubConnectionBuilder().withUrl("/hubs/chathub", {
+    accessTokenFactory: () => "Your JWT Token"
+}
     ).build();
 
 //Disable the send button until connection is established.
