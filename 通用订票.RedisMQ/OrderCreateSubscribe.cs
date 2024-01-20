@@ -119,7 +119,7 @@ namespace 通用订票.RedisMQ
                             JsonConvert.SerializeObject(
                                 new OrderClose() { orderid = order.id, app = stockret, tickets = null, delay = 10, tenantId = data.tenantId ,realTenantId = data.realTenantId}
                                 ),
-                            DateTime.Now.AddSeconds(700));
+                            DateTime.Now.AddSeconds(600));
 
                         await sendMessage(client, JsonConvert.SerializeObject(new
                         {

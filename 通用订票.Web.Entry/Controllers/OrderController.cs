@@ -59,7 +59,7 @@ namespace 通用订票.Web.Entry.Controllers
         }
 
         [Authorize]
-        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        //[TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpPost(Name = "CreateOrder")]
         public async Task<dynamic> CreateOrder([FromBody]BaseOrderCreate oc)
         {
