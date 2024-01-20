@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Core.EntityFrameWork
 {
-    [AppDbContext("SqlConnection", DbProvider.MySql)]
+    [AppDbContext("SqlConnection", DbProvider.SqlServer)]
     public class MultiTenantDbContext : AppDbContext<MultiTenantDbContext, MultiTenantDbContextLocator>
     {
         public MultiTenantDbContext(DbContextOptions<MultiTenantDbContext> options) : base(options)
