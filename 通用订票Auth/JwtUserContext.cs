@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -37,6 +38,10 @@ namespace Core.Auth
             if (_accessor.HttpContext != null)
             {
                 string _token = _accessor.HttpContext.Request.Headers["Authorization"];
+                if (_token == null)
+                {
+                    _token = _accessor.HttpContext.Request.Query["access_token"];
+                }
                 if (_token != null)
                 {
                     string token = _token.ToString().Replace("Bearer ", "");

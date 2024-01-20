@@ -11,7 +11,7 @@ using Core.Auth;
 
 namespace Core.SignalR
 {
-    //[Authorize]
+    [Authorize]
     [MapHub("/hubs/chathub")]   
     public class ChatHub : Hub<IChatClient>
     {
