@@ -41,7 +41,7 @@ namespace Core.SignalR
                 ConnectServerTime = DateTime.Now
             };
             if (real == null)
-                userapp.AddClient(name, client);
+                userapp.AddClient(name, client); //新增
             else
             {
                 //1、移除
