@@ -41,6 +41,7 @@ namespace Core.Auth
                 if (_token == null)
                 {
                     _token = _accessor.HttpContext.Request.Query["access_token"];
+
                 }
                 if (_token != null)
                 {
