@@ -41,13 +41,13 @@ namespace Core.SignalR
                 ConnectServerTime = DateTime.Now
             };
             if (real == null)
-                userapp.AddClient(connId, client);
+                userapp.AddClient(name, client);
             else
             {
                 //1、移除
-                userapp.RemoveClient(real.ConnId);
+                userapp.RemoveClient(real.UserId);
                 //2、新增
-                userapp.AddClient(connId, client);
+                userapp.AddClient(name, client);
             }
             await base.OnConnectedAsync();
             await Task.CompletedTask;
