@@ -60,6 +60,7 @@ namespace 通用订票.RedisMQ
                 return;
             }
 
+            DateTime now = DateTime.Now;
             var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
             var client = userapp.isOnline(data.userid.ToString());
             using (var scope = _serviceProvider.CreateScope())
@@ -68,52 +69,46 @@ namespace 通用订票.RedisMQ
                 #region 获取services
                 var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IAppointmentService>>();
                 var _orderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IMyOrderServices>>();
-                var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IMyTicketService>>();
 
                 var s_service = factory.GetStockService(_stockProvider);
                 var o_service = factory.GetOrderService(_orderProvider);
-                var t_service = factory.GetTicketService(_ticketProvider);
                 
                 s_service = ServiceFactory.GetNamedSaasService<IAppointmentService, Appointment>(scope.ServiceProvider, s_service, data.tenantId);
                 o_service = ServiceFactory.GetNamedSaasService<IMyOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
-                t_service = ServiceFactory.GetNamedSaasService<IMyTicketService, Core.Entity.Ticket>(scope.ServiceProvider, t_service, data.tenantId);
-                //var s_service = ServiceFactory.GetSaasService<IAppointmentService, Appointment>(scope.ServiceProvider, data.tenantId);
-                //var o_service = ServiceFactory.GetSaasService<IMyOrderServices, Core.Entity.Order>(scope.ServiceProvider, data.tenantId);
-                //var t_service = ServiceFactory.GetSaasService<IMyTicketService, Core.Entity.Ticket>(scope.ServiceProvider, data.tenantId);
                 #endregion
 
                 o_service.SetUserContext(data.userid);
-                t_service.SetUserContext(data.userid);
                 通用订票.Core.Entity.Order order = null;
                 using (var transaction = dbContext.Database.BeginTransaction())
                 {
                     try
                     {
-                        var vaild = t_service.Vaild(data.ids.ToArray(), data.appid).Result;
-                        if (vaild == false)
-                        {
-                            await sendMessage(client, JsonConvert.SerializeObject(new { code = 0, message = "用户重复" }));
-                            await ValueTask.CompletedTask;
-                            throw new Exception("用户重复");
-                        }
                         var stockret = s_service.SaleStock(data.appid, data.ids.Count).Result;
 
                         if (stockret != null)
                         {
                             order = o_service.CreateOrder(stockret.id,stockret.stockName,data.price * data.ids.Count).Result;
-
-                            DateTime now = DateTime.Now;
-                            var startTime = now.AddDays(stockret.day).Date.Add(stockret.startTime.TimeOfDay);
-                            var endTime = now.AddDays(stockret.day).Date.Add(stockret.endTime.TimeOfDay);
-                            t_service.GenarateTickets(startTime, endTime, order, data.ids.ToArray()).Wait();
                         }
                         else
                         {
                             await sendMessage(client, JsonConvert.SerializeObject(new { code = 0, message = "库存不足" }));
                             await ValueTask.CompletedTask;
-                            throw new Exception("用户重复");
+                            throw new Exception("库存不足");
                         }
                         await transaction.CommitAsync();
+
+                        var startTime = now.AddDays(stockret.day).Date.Add(stockret.startTime.TimeOfDay);
+                        var endTime = now.AddDays(stockret.day).Date.Add(stockret.endTime.TimeOfDay);
+                        await _initQRedis.ListLeftPushAsync("CreateTickets",
+                            JsonConvert.SerializeObject(new TicketCreate() {
+                                    startTime = startTime,
+                                    endTime = endTime,
+                                    order = order,
+                                    tenantId = data.tenantId,
+                                    uid = data.ids,
+                                    userid = data.userid
+                                }
+                                ));
 
                         await _initQRedis.SortedSetAddAsync("CloseOrder",
                             JsonConvert.SerializeObject(
@@ -141,10 +136,6 @@ namespace 通用订票.RedisMQ
                         }
                         catch (Exception e) { throw e; }
 
-                    }
-                    finally
-                    {
-                        await _cache.ReleaseLock("UserLock_" + data.userid, null);
                     }
                 }
             }

@@ -60,7 +60,7 @@
             <param name="uids"></param>
             <returns></returns>
         </member>
-        <member name="M:通用订票.Application.System.Services.Service.MyTicketService.Vaild(System.Guid[],System.Guid)">
+        <member name="M:通用订票.Application.System.Services.Service.MyTicketService.Vaild(System.Guid[],通用订票.Core.Entity.Appointment)">
             <summary>
             仅仅判断是否重复
             </summary>

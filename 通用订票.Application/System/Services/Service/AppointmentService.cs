@@ -13,6 +13,7 @@ using 通用订票.Application.System.Services.IService;
 using Core.Cache;
 using 通用订票.Core.BaseEntity;
 using 通用订票.Core.Entity;
+using SqlSugar;
 
 namespace 通用订票.Application.System.Services.Service
 {
@@ -133,16 +134,17 @@ namespace 通用订票.Application.System.Services.Service
             var notZero = await query.Where(a => a.day != 0).Select(a => new { a.id, a.day, a.sale }).ToArrayAsync();
             for(int i = 0;i < zero.Length;i++)
             {
-                await RefreshAppoint(zero[i].id, notZero[notZero.Length - 1].day,0);
+                await RefreshAppoint(zero[i].id, notZero[notZero.Length - 1].day,0,true);
             }
             
             for (int i = 0; i < notZero.Length; i++)
             {
-                await RefreshAppoint(notZero[i].id, notZero[i].day - 1, notZero[i].sale);
+                await RefreshAppoint(notZero[i].id, notZero[i].day - 1, notZero[i].sale,false);
             }
         }
 
-        private async Task RefreshAppoint(Guid id,int day,int sale)
+        [UnitOfWork]
+        private async Task RefreshAppoint(Guid id,int day,int sale,bool newone)
         {
             Guid lockerId = Guid.NewGuid();
             try
@@ -150,10 +152,25 @@ namespace 通用订票.Application.System.Services.Service
                 await _cache.Lock("StockUpdateLocker" + id, lockerId);
                 var app = await this.GetAppointmentById(id);
                 app.day = day;
-                if (sale == 0) {
+
+                if (sale == 0)
+                {
                     app.sale = 0;
                 }
-                await this.UpdateNow(app);
+
+                if (newone == true)
+                {
+                    app.createTime = DateTime.Now;
+                    await this.DeleteNow(app);
+
+                    var _app = app.Adapt<Appointment>();
+                    _app.id = Guid.NewGuid();
+                    await this.AddNow(_app);
+                }
+                else
+                {
+                    await this.UpdateNow(app);
+                }
                 await this.DelStockFromCache(id);
             }
             catch (Exception e)

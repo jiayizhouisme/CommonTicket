@@ -138,21 +138,23 @@ namespace 通用订票.Application.System.Services.Service
         /// <param name="uids"></param>
         /// <param name="appointmentId"></param>
         /// <returns></returns>
-        public virtual async Task<bool> Vaild(Guid[] uids, Guid appointmentId)
+        public virtual async Task<bool> Vaild(Guid[] uids, Appointment appointment)
         {
             int count = 0;
+            var startTime = DateTime.Now.Date.AddDays(appointment.day);
             foreach (var uid in uids)
             {
-                var result = await _cache.Get<string>(GetKey(appointmentId,uid));
+                var result = await _cache.Get<string>(GetKey(appointment.id, uid));
                 if (result != null && result == "1")
                 {
                     return false;
                 }
 
-                var anyret = await this._dal.AnyAsync(a => a.AppointmentId == appointmentId && a.stauts != Ticket.Entity.TicketStatus.已冻结 && a.TUserId == uid);
+                var anyret = await this._dal.
+                    AnyAsync(a => startTime == a.startTime.Date && a.TUserId == uid && a.isDeleted == false);
                 if (anyret == true)
                 {
-                    await _cache.Set(GetKey(appointmentId, uid), "1", 20);
+                    await _cache.Set(GetKey(appointment.id, uid), "1", 20);
                     return false;
                 }
             }

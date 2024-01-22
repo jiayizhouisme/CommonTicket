@@ -22,7 +22,7 @@ namespace Core.Cache
             this.DataFormater = new JsonFormater();
         }
 
-        public async Task<long> Lock(string key, object value)
+        public async Task<long> Lock(string key, object value,int expireTime = 10)
         {
             var result = await this.SetNX(key, value);
             while (result != 1)
@@ -30,18 +30,18 @@ namespace Core.Cache
                 await Task.Delay(200);
                 result = this.SetNX(key, value).Result;
             }
-            await this.Expire(key, 10);
+            await this.Expire(key, expireTime);
             return result;
         }
 
-        public async Task<long> LockNoWait(string key, object value)
+        public async Task<long> LockNoWait(string key, object value,int expireTime = 10)
         {
             var result = await this.SetNX(key, value);
             if (result != 1)
             {
                 return 0;
             }
-            await this.Expire(key, 10);
+            await this.Expire(key, expireTime);
             return 1;
         }
 

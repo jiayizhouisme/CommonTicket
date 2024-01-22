@@ -1,8 +1,7 @@
 ﻿"use strict";
 
 var connection = new signalR.HubConnectionBuilder().withUrl("/hubs/chathub", {
-    accessTokenFactory: () => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0Mzc1MWQxNy1lMjZiLTRlMWUtYWIyNS0yNjczYjM5ZGYzZmMiLCJuYW1lIjoiYWRtaW4iLCJ0ZW5hbnQtaWQiOiJzaGFnb3UyIiwiaWF0IjoxNzA1NDgyMDY0LCJuYmYiOjE3MDU0ODIwNjQsImV4cCI6MTcwNTkxNDA2NCwiaXNzIjoiemhvdWppYXlpIiwiYXVkIjoic3Vubnlza3kifQ.3VeG_j60Y8zrROg3VnA-J5wctsnkUA7u2zHWp3LHX2w",
-    transport: () => signalR.HttpTransportType.WebSockets,
+    accessTokenFactory: () => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0Mzc1MWQxNy1lMjZiLTRlMWUtYWIyNS0yNjczYjM5ZGYzZmMiLCJuYW1lIjoiYWRtaW4iLCJ0ZW5hbnQtaWQiOiJzaGFnb3UxIiwiaWF0IjoxNzA1OTE2ODc4LCJuYmYiOjE3MDU5MTY4NzgsImV4cCI6MTcwNjM0ODg3OCwiaXNzIjoiemhvdWppYXlpIiwiYXVkIjoic3Vubnlza3kifQ.MOcHWwETQkj-_Y6W61ReGPiF0mJ7yPy_sNeHlyS1lZY",
 }
     ).build();
 

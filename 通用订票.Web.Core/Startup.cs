@@ -87,7 +87,8 @@ namespace 通用订票.Web.Core
                 m.ListSubscribe = new List<Type>() {
                     typeof(OrderCloseSubscribe),
                     typeof(OrderCreateSubscribe),
-                    typeof(WeChatPayNoticeSubscribe)
+                    typeof(WeChatPayNoticeSubscribe),
+                    typeof(TicketGenerateSubscribe)
                 };
                 //显示日志
                 m.ShowLog = false;
