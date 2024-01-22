@@ -1,12 +1,5 @@
-﻿using Furion;
-using Furion.DatabaseAccessor;
-using Furion.DataEncryption;
-using Furion.DataValidation;
+﻿using Furion.DatabaseAccessor;
 using Furion.DynamicApiController;
-using Furion.Schedule;
-using Furion.TaskQueue;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Core.MiddelWares;
