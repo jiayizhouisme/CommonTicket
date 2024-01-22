@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/通用订票.Web.Entry/WxPayCert/证书使用说明.txt
+/通用订票.Web.Entry/WxPayCert/apiclient_key.pem
+/通用订票.Web.Entry/WxPayCert/apiclient_cert.pem
+/通用订票.Web.Entry/WxPayCert/apiclient_cert.p12
