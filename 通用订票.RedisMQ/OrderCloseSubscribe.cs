@@ -99,7 +99,7 @@ namespace 通用订票.RedisMQ
                             throw new Exception("app不能为空");
                         }
 
-                        transaction.Commit();
+                        await transaction.CommitAsync();
                         await t_service.AfterTicketToke(order.id);
                     }
                     catch (Exception e1)

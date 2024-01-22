@@ -94,7 +94,7 @@ namespace 通用订票.RedisMQ
                         {
                             await sendMessage(client, JsonConvert.SerializeObject(new { code = 0, message = "用户重复" }));
                             await ValueTask.CompletedTask;
-                            return;
+                            throw new Exception("用户重复");
                         }
                         var stockret = s_service.SaleStock(data.appid, data.ids.Count).Result;
 
@@ -111,15 +111,15 @@ namespace 通用订票.RedisMQ
                         {
                             await sendMessage(client, JsonConvert.SerializeObject(new { code = 0, message = "库存不足" }));
                             await ValueTask.CompletedTask;
-                            return;
+                            throw new Exception("用户重复");
                         }
-                        transaction.Commit();
+                        await transaction.CommitAsync();
 
                         await _initQRedis.SortedSetAddAsync("CloseOrder",
                             JsonConvert.SerializeObject(
                                 new OrderClose() { orderid = order.id, app = stockret, tickets = null, delay = 10, tenantId = data.tenantId ,realTenantId = data.realTenantId}
                                 ),
-                            DateTime.Now.AddSeconds(700));
+                            DateTime.Now.AddSeconds(60));
 
                         await sendMessage(client, JsonConvert.SerializeObject(new
                         {
