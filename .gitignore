@@ -365,3 +365,4 @@ FodyWeavers.xsd
 /通用订票.Web.Entry/WxPayCert/apiclient_key.pem
 /通用订票.Web.Entry/WxPayCert/apiclient_cert.pem
 /通用订票.Web.Entry/WxPayCert/apiclient_cert.p12
+/通用订票.Web.Entry/appsettings.json
