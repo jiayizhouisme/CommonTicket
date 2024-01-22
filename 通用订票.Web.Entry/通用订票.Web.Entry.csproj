@@ -11,6 +11,15 @@
 
 
 
+	<ItemGroup>
+	  <None Remove="WxPayCert\apiclient_cert.p12" />
+	  <None Remove="WxPayCert\apiclient_cert.pem" />
+	  <None Remove="WxPayCert\apiclient_key.pem" />
+	  <None Remove="WxPayCert\证书使用说明.txt" />
+	</ItemGroup>
+
+
+
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.14" />
@@ -27,6 +36,11 @@
 		<ProjectReference Include="..\通用订票.Web.Core\通用订票.Web.Core.csproj" />
 		<ProjectReference Include="..\通用订票.沙沟古镇\通用订票.沙沟古镇.csproj" />
 		<ProjectReference Include="..\通用订票.马家荡\通用订票.马家荡.csproj" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <Folder Include="WxPayCert\" />
 	</ItemGroup>
 
 </Project>
