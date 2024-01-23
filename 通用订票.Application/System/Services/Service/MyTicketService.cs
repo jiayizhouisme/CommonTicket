@@ -140,8 +140,11 @@ namespace 通用订票.Application.System.Services.Service
         /// <returns></returns>
         public virtual async Task<bool> Vaild(Guid[] uids, Appointment appointment)
         {
-            int count = 0;
-            var startTime = DateTime.Now.Date.AddDays(appointment.day);
+            DateTime now = DateTime.Now.Date;
+            var startTimeSpan = appointment.startTime.TimeOfDay;
+            var endTimeSpan = appointment.endTime.TimeOfDay;
+            var startTime = now.AddDays(appointment.day).Add(startTimeSpan);
+            var endTime = now.AddDays(appointment.day).Add(endTimeSpan);
             foreach (var uid in uids)
             {
                 var result = await _cache.Get<string>(GetKey(appointment.id, uid));
@@ -151,7 +154,8 @@ namespace 通用订票.Application.System.Services.Service
                 }
 
                 var anyret = await this._dal.
-                    AnyAsync(a => startTime == a.startTime.Date && a.TUserId == uid && a.isDeleted == false);
+                    AnyAsync(a => startTime == a.startTime && a.endTime == endTime
+                    && a.TUserId == uid && a.stauts <= Ticket.Entity.TicketStatus.未激活);
                 if (anyret == true)
                 {
                     await _cache.Set(GetKey(appointment.id, uid), "1", 20);

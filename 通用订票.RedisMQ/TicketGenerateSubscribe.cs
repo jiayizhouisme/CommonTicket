@@ -43,6 +43,7 @@ namespace 通用订票.RedisMQ
                 var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IMyTicketService>>();
                 var t_service = factory.GetTicketService(_ticketProvider);
                 t_service = ServiceFactory.GetNamedSaasService<IMyTicketService, Core.Entity.Ticket>(scope.ServiceProvider, t_service, data.tenantId);
+                t_service.SetUserContext(data.userid);
                 await t_service.GenarateTickets(data.startTime,data.endTime,data.order,data.uid.ToArray());
             }
             await _cache.ReleaseLock("UserLock_" + data.userid, null);
