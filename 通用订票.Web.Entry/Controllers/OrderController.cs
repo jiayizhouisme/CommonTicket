@@ -252,7 +252,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("FEC13F32-564D-4210-8D1B-14478C78A365");
+                            Guid stockid = Guid.Parse("090BDE33-EA12-40AC-875B-40F8DB350AB8");
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
@@ -264,7 +264,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("aec13f32-564d-4210-8d1b-14478c78a365");
+                            Guid stockid = Guid.Parse("3DC16154-C4F5-42D6-BEEC-CC3B09D2D2D6");
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
@@ -285,7 +285,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("AAA09127-6044-4B40-A394-9968D7E132C4");
+                            Guid stockid = Guid.Parse("0F7CE6AC-F34B-40A2-895F-2014E55A04C6");
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
@@ -297,7 +297,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("afc13f32-564d-4210-8d1b-14478c78a365");
+                            Guid stockid = Guid.Parse("B53BBFAD-A7A5-49C4-A0DD-BB0849501A45");
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
