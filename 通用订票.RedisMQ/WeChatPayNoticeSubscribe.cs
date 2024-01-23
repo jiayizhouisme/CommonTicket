@@ -64,19 +64,19 @@ namespace 通用订票.RedisMQ
                         await _cache.Lock("OrderLocker_" + notify.Attach, lockerId);
                         try
                         {
-                            order = await o_service.GetOrderById(Guid.Parse(notify.Attach));
-                            var tickets = await t_service.GetTickets(order.id);
+                            order = await o_service.GetOrderById(notify.Attach);
+                            var tickets = await t_service.GetTickets(order.trade_no);
 
                             var result = await o_service.PayFinished(order);
                             var ticket = await t_service.EnableTickets(tickets);
                         }
                         catch (Exception e)
                         {
-                            await o_service.AfterOrderToke(order.id);
+                            await o_service.AfterOrderToke(order.trade_no);
                         }
                         finally
                         {
-                            await t_service.AfterTicketToke(order.id);
+                            await t_service.AfterTicketToke(order.trade_no);
                             await _cache.ReleaseLock("OrderLocker_" + notify.Attach, lockerId.ToString());
                         }
                     }

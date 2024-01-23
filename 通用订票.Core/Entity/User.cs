@@ -20,26 +20,19 @@ namespace 通用订票.Core.Entity
 
         public IEnumerable<User> HasData(DbContext dbContext, Type dbContextLocator)
         {
-            return null;
             //List<User> users = new List<User>();
-            //for (int i = 0;i < 1000;i++)
+            //users.Add(new User()
             //{
-            //    users.Add(new User() { id = Guid.NewGuid(), isDeleted = false, CreateTime = DateTime.Now, 
-            //        username = "user_" + i, password = "1233211234567",authLevel = 0 });
-            //}
-            //for (int i = 0; i < 100; i++)
-            //{
-            //    users.Add(new User()
-            //    {
-            //        id = Guid.NewGuid(),
-            //        isDeleted = false,
-            //        CreateTime = DateTime.Now,
-            //        username = "SupserUser_" + i,
-            //        password = "1233211234567",
-            //        authLevel = 1
-            //    }); ;
-            //}
+            //    id = Guid.Parse("43751D17-E26B-4E1E-AB25-2673B39DF3FC"),
+            //    isDeleted = false,
+            //    authLevel = 1,
+            //    CreateTime = DateTime.Now,
+            //    password = "afdd0b4ad2ec172c586e2150770fbf9e",
+            //    username = "admin"
+
+            //});
             //return users;
+            return null;
         }
     }
 }

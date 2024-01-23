@@ -57,13 +57,13 @@ namespace 通用订票.JobTask
             var now = DateTime.Now.AddMinutes(0);
 
             var orders = await o_service.GetQueryableNt(a => a.status == 通用订票Order.Entity.OrderStatus.未付款 &&
-            now.CompareTo(a.createTime.Value) > 0).Select(a => new { a.objectId, a.id }).ToListAsync();
+            now.CompareTo(a.createTime.Value) > 0).Select(a => new { a.objectId, a.trade_no }).ToListAsync();
             foreach (var order in orders)
             {
                 var app = await s_service.GetAppointmentById(order.objectId);
                 await _initQRedis.SortedSetAddAsync("CloseOrder",
                 JsonConvert.SerializeObject(
-                                new OrderClose() { orderid = order.id, app = app, tickets = null, delay = 10,tenantId = id }
+                                new OrderClose() { trade_no = order.trade_no, app = app, tickets = null, delay = 10,tenantId = id }
                                 ),
                             DateTime.Now.AddSeconds(10));
             }

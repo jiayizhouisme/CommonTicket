@@ -15,6 +15,6 @@ namespace 通用订票.Application.System.ServiceBases.IService
         /// <param name="ticket"></param>
         /// <returns></returns>
         bool TicketCheck(T ticket);
-        Task AfterTicketToke(Guid objectId);
+        Task AfterTicketToke(string objectId);
     }
 }

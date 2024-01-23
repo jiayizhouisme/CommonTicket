@@ -11,6 +11,11 @@ using 通用订票.Application.System.Services.IService;
 using Core.Cache;
 using Core.Auth;
 using 通用订票.Core.Entity;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using StackExchange.Redis;
+using BeetleX.Redis;
+using System.Security.AccessControl;
+using static BeetleX.Redis.Commands.HSCAN;
 
 namespace 通用订票.Application.System.Services.Service
 {
@@ -34,6 +39,7 @@ namespace 通用订票.Application.System.Services.Service
         public override async Task<Core.Entity.Order> CreateOrder(Guid objectId, string name, decimal amount)
         {
             var result = await base.CreateOrder(objectId, name, amount);
+            result.trade_no = await GetTradeNoAsync(result.trade_no);
             var r = await this._dal.InsertNowAsync(result);
             await SetOrderToCache(r.Entity);
             return r.Entity;
@@ -83,23 +89,22 @@ namespace 通用订票.Application.System.Services.Service
             {
                 return;
             }
-            var key = "Order_" + order.id;
+            var key = "Order_" + order.trade_no;
             await _cache.Set(key,order,650);
         }
 
-        public virtual async Task<Core.Entity.Order> GetOrderById(Guid orderId)
+        public virtual async Task<Core.Entity.Order> GetOrderById(string trade_no)
         {
-            var key = "Order_" + orderId.ToString();
+            var key = "Order_" + trade_no;
             var orderCache = await _cache.Get<Core.Entity.Order>(key);
             if (orderCache != null)
             {
                 return orderCache;
             }
 
-            var result = this.GetQueryableNt(a => a.id == orderId).Select(a => new Core.Entity.Order
+            var result = this.GetQueryableNt(a => a.trade_no == trade_no).Select(a => new Core.Entity.Order
             {
                 amount = a.amount,
-                id = a.id,
                 _id = a._id,
                 createTime = a.createTime,
                 name = a.name,
@@ -118,13 +123,30 @@ namespace 通用订票.Application.System.Services.Service
             return _result;
         }
 
-        public override async Task AfterOrderToke(Guid orderId)
+        public override async Task AfterOrderToke(string trande_no)
         {
-            await this.DelOrderFromCache(orderId);
+            await this.DelOrderFromCache(trande_no);
         }
-        private async Task DelOrderFromCache(Guid id)
+
+        protected async Task<string> GetTradeNoAsync(string before)
         {
-            var key = "Order_" + id.ToString();
+            string prefixOrder = before;
+            //通过key，采用redis自增函数，实现单秒自增；不同的key，从0开始自增，同时设置60秒过期
+            long? res = await _cache.Get<long>("TradeNo");
+            if (res == null)
+            {
+                await _cache.Set("TradeNo", 0, 60);
+            }
+            res = await _cache.Incr("TradeNo");
+            
+            //生成订单编号
+            string orderNo = prefixOrder + res.ToString().PadLeft(4, '0');
+            return orderNo;
+        }
+
+        private async Task DelOrderFromCache(string trande_no)
+        {
+            var key = "Order_" + trande_no;
             await _cache.Del(key);
         }
     }

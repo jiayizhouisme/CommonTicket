@@ -64,11 +64,11 @@ namespace 通用订票.RedisMQ
                 #endregion
 
                 Guid lockerId = Guid.NewGuid();
-                var lo = _cache.Lock("OrderLocker_" + data.orderid, lockerId).Result;
-                var order = o_service.GetOrderById(data.orderid).Result;
+                var lo = _cache.Lock("OrderLocker_" + data.trade_no, lockerId).Result;
+                var order = o_service.GetOrderById(data.trade_no).Result;
                 if (order.status != OrderStatus.未付款)
                 {
-                    await _cache.ReleaseLock("OrderLocker_" + data.orderid, lockerId.ToString());
+                    await _cache.ReleaseLock("OrderLocker_" + data.trade_no, lockerId.ToString());
                     throw new Exception("");
                 }
                 using (var transaction = dbContext.Database.BeginTransaction())
@@ -80,7 +80,7 @@ namespace 通用订票.RedisMQ
                         {
                             throw new Exception("订单已支付或不存在");
                         }
-                        data.tickets = t_service.GetTickets(data.orderid).Result;
+                        data.tickets = t_service.GetTickets(o.trade_no).Result;
 
                         t_service.DisableTickets(data.tickets).Wait();
 
@@ -100,11 +100,11 @@ namespace 通用订票.RedisMQ
                         }
 
                         await transaction.CommitAsync();
-                        await t_service.AfterTicketToke(order.id);
+                        await t_service.AfterTicketToke(order.trade_no);
                     }
                     catch (Exception e1)
                     {
-                        await o_service.AfterOrderToke(order.id);
+                        await o_service.AfterOrderToke(order.trade_no);
                         await s_service.DelStockFromCache(data.app.id);
                         //await OrderCancelTask(orderid, appid, tickets, delay);//失败循环关闭
                         try
@@ -116,7 +116,7 @@ namespace 通用订票.RedisMQ
                     finally
                     {
 
-                        await _cache.ReleaseLock("OrderLocker_" + data.orderid, lockerId.ToString());
+                        await _cache.ReleaseLock("OrderLocker_" + data.trade_no, lockerId.ToString());
                     }
                 }
             }

@@ -8,7 +8,7 @@ namespace 通用订票.Application.System.Models
 {
     public class BaseOrderCreate {
         public Guid appid { get; set; }
-        public ICollection<Guid> ids { get; set; }
+        public ICollection<int> ids { get; set; }
     }
 
 

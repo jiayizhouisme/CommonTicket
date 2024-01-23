@@ -39,7 +39,6 @@ namespace 通用订票.Application.System.ServiceBases.Service
         {
             if (ticket.stauts != TicketStatus.已使用)
             {
-                ticket.isDeleted = false;
                 ticket.stauts = TicketStatus.未使用;
             }
             
@@ -54,13 +53,11 @@ namespace 通用订票.Application.System.ServiceBases.Service
         {
             Random rand = new Random();
             T ticket = new T();
-            ticket.id = Guid.NewGuid();
-            ticket.isDeleted = false;
             ticket.stauts = TicketStatus.未激活;
             ticket.createTime = DateTime.Now;
             ticket.startTime = startTime;
             ticket.endTime = endTime;
-            ticket.ticketNumber = Msectime() + Math.Abs(ticket.id.GetHashCode());
+            ticket.ticketNumber = Msectime() + Math.Abs(Guid.NewGuid().GetHashCode());
             return ticket;
         }
 
@@ -87,7 +84,7 @@ namespace 通用订票.Application.System.ServiceBases.Service
             return timeTicks.ToString();
         }
 
-        public virtual async Task AfterTicketToke(Guid objectId)
+        public virtual async Task AfterTicketToke(string objectId)
         {
 
         }

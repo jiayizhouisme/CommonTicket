@@ -17,6 +17,7 @@ using 通用订票.沙沟古镇.Service;
 using 通用订票.Application.System.Services.Service;
 using 通用订票.Application.System.Factory.Service;
 using StackExchange.Redis;
+using 通用订票.Application.System.ServiceBases.IService;
 
 namespace 通用订票.Web.Entry.Controllers
 {
@@ -64,11 +65,11 @@ namespace 通用订票.Web.Entry.Controllers
         public async Task<dynamic> CreateOrder([FromBody]BaseOrderCreate oc)
         {
             var userid = Guid.Parse(httpContextUser.ID);
-            var _lock = await _cache.LockNoWait("UserLock_" + userid, null,60);
-            if (_lock == 0)
-            {
-                return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
-            }
+            //var _lock = await _cache.LockNoWait("UserLock_" + userid, null,60);
+            //if (_lock == 0)
+            //{
+            //    return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
+            //}
 
             //去重
             oc.ids = oc.ids.Distinct().ToArray();
@@ -85,13 +86,14 @@ namespace 通用订票.Web.Entry.Controllers
                 return new {code = 0,message = "库存不足" };
             }
 
+            ticketService.SetUserContext(userid);
             var vaild = await ticketService.Vaild(oc.ids.ToArray(), stock);
             if (vaild == false)
             {
                 await _cache.ReleaseLock("UserLock_" + userid, null);
                 return new { status = 1,message = "用户重复" };
             }
-
+            
             var exhibition = await exhibitionService.GetExhibitionByID(stock.objectId);
             await _redisCache.ListLeftPushAsync("CreateOrder", JsonConvert.SerializeObject(new OrderCreate()
             {
@@ -108,12 +110,12 @@ namespace 通用订票.Web.Entry.Controllers
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "PayOrder")]
-        public async Task<WechatBill> PayOrder(Guid orderId)
+        public async Task<WechatBill> PayOrder(string trade_no)
         {
             Guid lockid = Guid.NewGuid();
 
-            await _cache.Lock("OrderLocker_" + orderId, lockid);
-            var order = await myOrderService.GetOrderById(orderId);
+            await _cache.Lock("OrderLocker_" + trade_no, lockid);
+            var order = await myOrderService.GetOrderById(trade_no);
             var stock = await stockService.checkStock(order.objectId);
             try
             {
@@ -135,11 +137,11 @@ namespace 通用订票.Web.Entry.Controllers
             }
             catch (Exception e)
             {
-                await myOrderService.AfterOrderToke(order.id);
+                await myOrderService.AfterOrderToke(trade_no);
             }
             finally
             {
-                await _cache.ReleaseLock("OrderLocker_" + orderId, lockid.ToString());
+                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockid.ToString());
             }
             return null;   
         }
@@ -147,11 +149,11 @@ namespace 通用订票.Web.Entry.Controllers
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "PaidOrder")]
-        public async Task<dynamic> PaidOrder(Guid orderId)
+        public async Task<dynamic> PaidOrder(string trade_no)
         {
             Guid lockid = Guid.NewGuid();
-            await _cache.Lock("OrderLocker_" + orderId, lockid);
-            var order = await myOrderService.GetOrderById(orderId);
+            await _cache.Lock("OrderLocker_" + trade_no, lockid);
+            var order = await myOrderService.GetOrderById(trade_no);
             try
             {
                 if (order.status != OrderStatus.已付款)
@@ -162,11 +164,11 @@ namespace 通用订票.Web.Entry.Controllers
             }
             catch (Exception e)
             {
-                await myOrderService.AfterOrderToke(order.id);
+                await myOrderService.AfterOrderToke(order.trade_no);
             }
             finally
             {
-                await _cache.ReleaseLock("OrderLocker_" + orderId, lockid.ToString());
+                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockid.ToString());
             }
             return null;
         }
@@ -175,20 +177,20 @@ namespace 通用订票.Web.Entry.Controllers
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "CloseOrder")]
         [UnitOfWork]
-        public async Task<dynamic> CloseOrder(Guid orderId)
+        public async Task<dynamic> CloseOrder(string trade_no)
         {
             Guid lockerId = Guid.NewGuid();
-            var lo = await _cache.Lock("OrderLocker_" + orderId, lockerId);
-            var order = await myOrderService.GetOrderById(orderId);
+            var lo = await _cache.Lock("OrderLocker_" + trade_no, lockerId);
+            var order = await myOrderService.GetOrderById(trade_no);
             if (order.status != OrderStatus.未付款)
             {
-                await _cache.ReleaseLock("OrderLocker_" + orderId,lockerId.ToString());
+                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId.ToString());
                 throw new Exception("目前状态不可关闭订单");
             }
 
             try
             {
-                var tickets = await ticketService.GetTickets(orderId);
+                var tickets = await ticketService.GetTickets(order.trade_no);
                 var o = await myOrderService.CancelOrder(order);
                 Appointment app = null;
                 if (tickets != null)
@@ -212,13 +214,13 @@ namespace 通用订票.Web.Entry.Controllers
                     throw new Exception("app不能为空");
                 }
 
-                await ticketService.AfterTicketToke(order.id);
+                await ticketService.AfterTicketToke(order.trade_no);
             }
             catch(Exception e)
             {
                 if (order != null)
                 {
-                    await myOrderService.AfterOrderToke(order.id);
+                    await myOrderService.AfterOrderToke(order.trade_no);
                 }
                 await stockService.DelStockFromCache(order.objectId);
                 
@@ -227,7 +229,7 @@ namespace 通用订票.Web.Entry.Controllers
             finally
             {
 
-                await _cache.ReleaseLock("OrderLocker_" + orderId, lockerId.ToString());
+                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId.ToString());
             }
 
             return null;
@@ -240,7 +242,7 @@ namespace 通用订票.Web.Entry.Controllers
         {
             if (httpContextUser.TenantId.Contains("5003"))
             {
-                var normaluser = await userinfoService.GetWithConditionNt(a => a.isDeleted == false);
+                var normaluser = await userinfoService.GetWithConditionNt(a => a.id > 0);
                 var adminuser = await userService.GetWithConditionNt(a => a.authLevel == 1);
                 var num = normaluser.Count() / adminuser.Count();
                 for (int k = 0; k < adminuser.Count; k++)
@@ -250,7 +252,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("6B7907AE-C63F-487F-A862-04A9D3811455");
+                            Guid stockid = Guid.Parse("FEC13F32-564D-4210-8D1B-14478C78A365");
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
@@ -262,7 +264,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("BAC29F1A-7C9D-4458-99E9-04E7D8FB7E74");
+                            Guid stockid = Guid.Parse("aec13f32-564d-4210-8d1b-14478c78a365");
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
@@ -273,7 +275,7 @@ namespace 通用订票.Web.Entry.Controllers
             }
             else
             {
-                var normaluser = await userinfoService.GetWithConditionNt(a => a.isDeleted == false);
+                var normaluser = await userinfoService.GetWithConditionNt(a => a.id > 0);
                 var adminuser = await userService.GetWithConditionNt(a => a.authLevel == 1);
                 var num = normaluser.Count() / adminuser.Count();
                 for (int k = 0; k < adminuser.Count; k++)
@@ -283,7 +285,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("94D175BB-4F46-4E9D-B593-32782DE5D33C");
+                            Guid stockid = Guid.Parse("AAA09127-6044-4B40-A394-9968D7E132C4");
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
@@ -295,7 +297,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("2E7D27DA-5444-485F-8C4B-444A103634A0");
+                            Guid stockid = Guid.Parse("afc13f32-564d-4210-8d1b-14478c78a365");
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });

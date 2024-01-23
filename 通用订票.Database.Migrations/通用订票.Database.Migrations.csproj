@@ -18,10 +18,4 @@
 		<ProjectReference Include="..\通用订票.EntityFramework.Core\通用订票.EntityFramework.Core.csproj" />
 	</ItemGroup>
 
-
-	<ItemGroup>
-	  <Folder Include="Migrations\" />
-	  <Folder Include="Migrations\MultiTenantDb\" />
-	</ItemGroup>
-
 </Project>

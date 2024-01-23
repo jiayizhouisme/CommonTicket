@@ -129,7 +129,8 @@ namespace 通用订票.Database.Migrations.Migrations
                 name: "UserInfo",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     phoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     idCard = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -158,7 +159,7 @@ namespace 通用订票.Database.Migrations.Migrations
                     createTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     isDeleted = table.Column<bool>(type: "bit", nullable: false),
                     AppointmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TUserId = table.Column<int>(type: "int", nullable: false),
                     ticketNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     startTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     endTime = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -182,9 +183,9 @@ namespace 通用订票.Database.Migrations.Migrations
                 column: "objectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Ticket_startTime_endTime",
+                name: "IX_Ticket_startTime_endTime_TUserId",
                 table: "Ticket",
-                columns: new[] { "startTime", "endTime" });
+                columns: new[] { "startTime", "endTime", "TUserId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Ticket_TUserId",

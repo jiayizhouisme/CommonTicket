@@ -38,7 +38,7 @@ namespace 通用订票.Application.System.Services.Service
         /// <param name="order"></param>
         /// <param name="uids"></param>
         /// <returns></returns>
-        public virtual async Task<List<Core.Entity.Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, Core.Entity.Order order, Guid[] uids)
+        public virtual async Task<List<Core.Entity.Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, Core.Entity.Order order, int[] uids)
         {
             List<Core.Entity.Ticket> result = new List<Core.Entity.Ticket>();
             foreach (var id in uids)
@@ -46,7 +46,7 @@ namespace 通用订票.Application.System.Services.Service
                 var ticket = base.GenerateTicket(startTime, endTime);
                 ticket.TUserId = id;
                 ticket.userID = userId;
-                ticket.objectId = order.id;//应该替换成tradeNo
+                ticket.objectId = order.trade_no;//应该替换成tradeNo
                 ticket.AppointmentId = order.objectId;
                 result.Add(ticket);
             }
@@ -59,7 +59,7 @@ namespace 通用订票.Application.System.Services.Service
                 throw new ArgumentException("用户不存在");
             }
 
-            await SetTicketToCache(order.id,result);
+            await SetTicketToCache(order.trade_no,result);
             await SetTicketUserToCache(order.objectId, uids);
             return result;
         }
@@ -67,9 +67,8 @@ namespace 通用订票.Application.System.Services.Service
         {
             foreach (var item in ticket)
             {
-                item.isDeleted = true;
                 var temp = await base.EnableTicket(item);
-                await _cache.Del(GetKey(item.AppointmentId, item.userID));
+                await _cache.Del(GetKey(item.AppointmentId, item.TUserId));
             }
             await this.UpdateNow(ticket);
             return 1;
@@ -77,7 +76,6 @@ namespace 通用订票.Application.System.Services.Service
         public async override Task<Core.Entity.Ticket> EnableTicket(Core.Entity.Ticket ticket)
         {
             var temp = await base.EnableTicket(ticket);
-            ticket.isDeleted = false;
             await this.UpdateNow(ticket);
 
             return temp;
@@ -85,25 +83,23 @@ namespace 通用订票.Application.System.Services.Service
 
         public virtual async Task<int> DisableTickets(ICollection<Core.Entity.Ticket> ticket)
         {
-            if (ticket.Count == 0)
+            if (ticket == null || ticket.Count == 0)
             {
                 return 0;
             }
             foreach (var item in ticket)
             {
-                item.isDeleted = true;
                 var temp = await base.DisableTicket(item);
-                await _cache.Del(GetKey(item.AppointmentId, item.userID));
+                await _cache.Del(GetKey(item.AppointmentId, item.TUserId));
             }
             await this.UpdateNow(ticket);
             return 1;
         }
         public async override Task<Core.Entity.Ticket> DisableTicket(Core.Entity.Ticket ticket)
         {
-            ticket.isDeleted = true;
             var temp = await base.DisableTicket(ticket);
             await this.UpdateNow(ticket);
-            await _cache.Del(GetKey(ticket.AppointmentId, ticket.userID));
+            await _cache.Del(GetKey(ticket.AppointmentId, ticket.TUserId));
             //await this.DeleteNow(temp);
 
             return temp;
@@ -114,7 +110,7 @@ namespace 通用订票.Application.System.Services.Service
             this.userId = user;
         }
 
-        private async Task SetTicketUserToCache(Guid appointmentId,Guid[] uids)
+        private async Task SetTicketUserToCache(Guid appointmentId,int[] uids)
         {
             foreach (var uid in uids)
             {
@@ -122,13 +118,13 @@ namespace 通用订票.Application.System.Services.Service
             }
         }
 
-        private async Task SetTicketToCache(Guid orderId, IEnumerable<Core.Entity.Ticket> tickets)
+        private async Task SetTicketToCache(string orderId, IEnumerable<Core.Entity.Ticket> tickets)
         {
-            var list = _cache.CreateList<Core.Entity.Ticket>("Tickets:" + orderId.ToString());
+            var list = _cache.CreateList<Core.Entity.Ticket>("Tickets:" + orderId);
             foreach (var ticket in tickets) {
                 await list.Push(ticket);
             }
-            string cacheKey = "Tickets:" + orderId.ToString();
+            string cacheKey = "Tickets:" + orderId;
             await _cache.Expire(cacheKey, 650);
         }
 
@@ -138,7 +134,7 @@ namespace 通用订票.Application.System.Services.Service
         /// <param name="uids"></param>
         /// <param name="appointmentId"></param>
         /// <returns></returns>
-        public virtual async Task<bool> Vaild(Guid[] uids, Appointment appointment)
+        public virtual async Task<bool> Vaild(int[] uids, Appointment appointment)
         {
             DateTime now = DateTime.Now.Date;
             var startTimeSpan = appointment.startTime.TimeOfDay;
@@ -165,14 +161,14 @@ namespace 通用订票.Application.System.Services.Service
             return true;
         }
 
-        private string GetKey(Guid appointmentId,Guid Tuid)
+        private string GetKey(Guid appointmentId,int Tuid)
         {
             return "UserId_" + userId + "Appointment_" + appointmentId + "TUserId_" + Tuid;
         }
 
-        public virtual async Task<List<Core.Entity.Ticket>> GetTickets(Guid orderId)
+        public virtual async Task<List<Core.Entity.Ticket>> GetTickets(string orderId)
         {
-            var key = "Tickets:" + orderId.ToString();
+            var key = "Tickets:" + orderId;
             var list = _cache.CreateList<Core.Entity.Ticket>(key);
             var len = await list.Len();
             var tickets = (await list.Range(0,(int)len)).ToList();
@@ -203,14 +199,14 @@ namespace 通用订票.Application.System.Services.Service
             return result;
         }
 
-        public override async Task AfterTicketToke(Guid objectId)
+        public override async Task AfterTicketToke(string trade_no)
         {
-            await this.DelTicketsFromCache(objectId);
+            await this.DelTicketsFromCache(trade_no);
         }
 
-        private async Task DelTicketsFromCache(Guid orderId)
+        private async Task DelTicketsFromCache(string trade_no)
         {
-            var key = "Tickets:" + orderId.ToString();
+            var key = "Tickets:" + trade_no;
             await _cache.Del(key);
         }
     }

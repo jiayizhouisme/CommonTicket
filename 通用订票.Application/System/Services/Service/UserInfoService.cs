@@ -25,21 +25,11 @@ namespace 通用订票.Application.System.Services.Service
 
         public async Task<UserInfo> Add(UserInfo user)
         {
-            if (user.id != Guid.Empty)
-            {
-                user.userID = userid;
-                await this.UpdateNow(user);
-            }
-            else
-            {
-                user.id = Guid.NewGuid();
-                user.userID = userid;
-                return await this.AddNow(user);
-            }
-            return user;
+            user.userID = userid;
+            return await this.AddNow(user);
         }
 
-        public async Task<UserInfo> GetUserInfoByID(Guid id)
+        public async Task<UserInfo> GetUserInfoByID(int id)
         {
             var entity = this.GetQueryableNt(a => a.id == id);
             return await entity.FirstOrDefaultAsync();

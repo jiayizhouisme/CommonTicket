@@ -12,8 +12,8 @@ using 通用订票.EntityFramework.Core;
 namespace 通用订票.Database.Migrations.Migrations
 {
     [DbContext(typeof(MyDefaultDbContext))]
-    [Migration("20240120084533_v1.0.0")]
-    partial class v100
+    [Migration("20240123062934_v1.0.3")]
+    partial class v103
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -160,8 +160,8 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<Guid>("AppointmentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("TUserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("TUserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("createTime")
                         .HasColumnType("datetime2");
@@ -195,7 +195,7 @@ namespace 通用订票.Database.Migrations.Migrations
 
                     b.HasIndex("TUserId");
 
-                    b.HasIndex("startTime", "endTime");
+                    b.HasIndex("startTime", "endTime", "TUserId");
 
                     b.ToTable("Ticket");
                 });
@@ -226,13 +226,26 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.HasKey("id");
 
                     b.ToTable("User");
+
+                    b.HasData(
+                        new
+                        {
+                            id = new Guid("43751d17-e26b-4e1e-ab25-2673b39df3fc"),
+                            CreateTime = new DateTime(2024, 1, 23, 14, 29, 34, 751, DateTimeKind.Local).AddTicks(5177),
+                            authLevel = 1,
+                            isDeleted = false,
+                            password = "afdd0b4ad2ec172c586e2150770fbf9e",
+                            username = "admin"
+                        });
                 });
 
             modelBuilder.Entity("通用订票.Core.Entity.UserInfo", b =>
                 {
-                    b.Property<Guid>("id")
+                    b.Property<int>("id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
                     b.Property<DateTime>("createTime")
                         .HasColumnType("datetime2");

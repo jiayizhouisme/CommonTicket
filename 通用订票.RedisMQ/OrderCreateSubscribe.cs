@@ -112,7 +112,7 @@ namespace 通用订票.RedisMQ
 
                         await _initQRedis.SortedSetAddAsync("CloseOrder",
                             JsonConvert.SerializeObject(
-                                new OrderClose() { orderid = order.id, app = stockret, tickets = null, delay = 10, tenantId = data.tenantId ,realTenantId = data.realTenantId}
+                                new OrderClose() { trade_no = order.trade_no, app = stockret, tickets = null, delay = 10, tenantId = data.tenantId ,realTenantId = data.realTenantId}
                                 ),
                             DateTime.Now.AddSeconds(60));
 
@@ -127,7 +127,7 @@ namespace 通用订票.RedisMQ
                     {
                         if (order != null)
                         {
-                            await o_service.AfterOrderToke(order.id);
+                            await o_service.AfterOrderToke(order.trade_no);
                         }
                         await s_service.DelStockFromCache(data.appid);
                         try

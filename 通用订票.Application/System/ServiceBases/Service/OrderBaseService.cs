@@ -9,6 +9,8 @@ using 通用订票.Application.System.ServiceBases.IService;
 using Core.Services;
 using Core.Auth;
 using 通用订票Order.Entity;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Security.AccessControl;
 
 namespace 通用订票.Application.System.ServiceBases.Service
 {
@@ -26,13 +28,10 @@ namespace 通用订票.Application.System.ServiceBases.Service
             }
             Random rand = new Random();
             T order = new T();
-            long timeTicks = (DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000;
-            order.id = Guid.NewGuid();
-            order.trade_no = timeTicks.ToString() + rand.Next(0, 9);
-            order.isDeleted = false;
-            order.payedAmount = 0;
-            
+
             order.status = OrderStatus.未付款;
+            order.trade_no = (int)order.status + GetTradeNo();
+            order.payedAmount = 0;
             order.amount = amount;
             /*
              * 微信下单,支付宝下单...
@@ -107,9 +106,19 @@ namespace 通用订票.Application.System.ServiceBases.Service
             return order;
         }
 
-        public virtual async Task AfterOrderToke(Guid orderId)
+        public virtual async Task AfterOrderToke(string orderId)
         {
 
+        }
+
+        protected virtual string GetTradeNo()
+        {
+            DateTime currentTime = DateTime.Now;
+            string originDateStr = currentTime.ToString("yyMMdd");
+            long differSecond = currentTime.Minute * 60 + currentTime.Second;
+
+            string yyMMddSecond = originDateStr + differSecond.ToString().PadLeft(5,'0');
+            return yyMMddSecond;
         }
 
     }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using 通用订票.EntityFramework.Core;
 
@@ -11,9 +12,11 @@ using 通用订票.EntityFramework.Core;
 namespace 通用订票.Database.Migrations.Migrations
 {
     [DbContext(typeof(MyDefaultDbContext))]
-    partial class MyDefaultDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240123071854_v1.0.8")]
+    partial class v108
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -103,270 +106,270 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.HasData(
                         new
                         {
-                            id = new Guid("03ea0dd6-ef4e-4d43-aede-1363af5238c1"),
+                            id = new Guid("4ed6b9b3-4584-4e3d-a1dc-791546fed9f9"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2909),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4059),
                             isDeleted = false,
                             name = "展馆0",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("02522d9d-8d5e-4c95-828f-b968e11773d3"),
+                            id = new Guid("33db0a37-416b-46f6-ad18-d43e341daf40"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2930),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4073),
                             isDeleted = false,
                             name = "展馆1",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("2ce30480-9e69-4689-ae7c-3586431775fe"),
+                            id = new Guid("ddce1676-0ffd-41fc-8b36-d0356e6e0e6f"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2931),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4087),
                             isDeleted = false,
                             name = "展馆2",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("f13c0afb-4c38-4278-8964-932b15a9f3b9"),
+                            id = new Guid("bd3d8e68-d79f-4c52-8420-6fc447e8fe00"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2933),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4088),
                             isDeleted = false,
                             name = "展馆3",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("b7776a3f-83e5-44c4-8c31-1c8ee9d21ad0"),
+                            id = new Guid("ea366433-74e2-4429-a702-fccfdc223ef4"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2934),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4089),
                             isDeleted = false,
                             name = "展馆4",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("27f13de8-da4e-46f8-8231-09ce70126858"),
+                            id = new Guid("1f79cb85-8a97-4112-8510-649163fdb639"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2945),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4091),
                             isDeleted = false,
                             name = "展馆5",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("121d3512-9d2d-4105-b32c-1c68581b2e76"),
+                            id = new Guid("b837b254-f091-4a18-80ea-da66e02f9d1b"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2946),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4092),
                             isDeleted = false,
                             name = "展馆6",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("a479a1b3-4d3a-4f7f-a848-75a5ccc4725b"),
+                            id = new Guid("4696b35e-9358-4c57-b847-464fed6e6640"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2947),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4093),
                             isDeleted = false,
                             name = "展馆7",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("1a63bb5a-a01e-4ba0-83f9-3a8dab2b5fb9"),
+                            id = new Guid("34fb8b7e-5136-4740-adea-95f1a9c4b45b"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2948),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4094),
                             isDeleted = false,
                             name = "展馆8",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("ae3fe0f2-26b5-4de5-8169-80a69bf0eac1"),
+                            id = new Guid("b2c88838-a45c-4fc4-9101-758fd7477ba3"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2950),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4096),
                             isDeleted = false,
                             name = "展馆9",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("1afe5652-e789-40d9-be19-eddf9a029cb4"),
+                            id = new Guid("4ee67853-4169-4451-8b0f-d3f0e998c7ca"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2952),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4099),
                             isDeleted = false,
                             name = "展馆10",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("a4b76a29-bfe0-4ce3-9c5f-a2a0c4661141"),
+                            id = new Guid("d69b6be1-3cc0-4f1d-8004-5e0fcf1ddb6b"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2953),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4099),
                             isDeleted = false,
                             name = "展馆11",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("78810c7d-1b68-4093-b36e-67f063da5667"),
+                            id = new Guid("6e2e5918-fd88-46de-9bbb-df88b99bad76"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2954),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4100),
                             isDeleted = false,
                             name = "展馆12",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("ac1a14b8-a4c2-4e5f-b1e2-54622d66d55f"),
+                            id = new Guid("795966f7-ffa6-4f51-95a4-3565879bb2cd"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2957),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4101),
                             isDeleted = false,
                             name = "展馆13",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("3b8ae92b-6aa2-45bf-ac37-357255e6cbef"),
+                            id = new Guid("c7431144-a585-453e-afc6-f539492d33a3"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2959),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4102),
                             isDeleted = false,
                             name = "展馆14",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("35bf73db-c633-425a-98ed-b9de9231fef7"),
+                            id = new Guid("44f363fb-0185-46c1-a75d-bb145a026ec8"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2960),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4103),
                             isDeleted = false,
                             name = "展馆15",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("9450312f-b714-49b7-80ec-f1a320e491c3"),
+                            id = new Guid("5dd82b1c-cd7b-4a6d-9665-d76b31f0c1db"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2961),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4104),
                             isDeleted = false,
                             name = "展馆16",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("8bd5f6e3-f551-483a-8749-544d2e43926b"),
+                            id = new Guid("68a52747-132f-49cc-a631-e0ce4124f71d"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2963),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4106),
                             isDeleted = false,
                             name = "展馆17",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("930801e3-f155-4621-9fc7-2e31fdc717ba"),
+                            id = new Guid("f9496255-e8ef-4d8e-a452-43a0664a0317"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2964),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4108),
                             isDeleted = false,
                             name = "展馆18",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("f8cacbb5-d442-4fe8-8463-e3bfd8921d46"),
+                            id = new Guid("147ea712-2302-48d2-9f68-cbcbe3bde8cc"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2965),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4109),
                             isDeleted = false,
                             name = "展馆19",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("ba7acc6a-acf8-4942-82c8-378de432f570"),
+                            id = new Guid("d1797bee-8787-4ec3-b018-e0326fa458ea"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2966),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4110),
                             isDeleted = false,
                             name = "展馆20",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("5b28f01b-9c08-4a91-8c63-66420e854f98"),
+                            id = new Guid("3d66ba02-7d75-41d2-a8da-eded810b819f"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2969),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4110),
                             isDeleted = false,
                             name = "展馆21",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("3c64b8a4-2e14-4066-bab3-04c2d7298992"),
+                            id = new Guid("706bd6bf-8fa1-4526-83ff-5b77ed38581e"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2970),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4111),
                             isDeleted = false,
                             name = "展馆22",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("d6c40fbb-e1b9-410d-8cdb-ca35f3cfda8f"),
+                            id = new Guid("80b9a62e-2228-474e-924a-a3196634c1b5"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2971),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4112),
                             isDeleted = false,
                             name = "展馆23",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("c3547a92-ed1c-4f11-92d0-24f6452f79af"),
+                            id = new Guid("fb5a986f-d93d-4ea8-8c76-00d17be67126"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2972),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4113),
                             isDeleted = false,
                             name = "展馆24",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("78818101-7cc6-41be-95c5-d35add495709"),
+                            id = new Guid("c40aff43-9651-4aad-93ce-818487b122de"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2973),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4114),
                             isDeleted = false,
                             name = "展馆25",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("f8329b39-84d8-43e5-8aec-f65bdf36298d"),
+                            id = new Guid("777dfb3a-b3d7-4b0a-afe3-1db2d6d67d5c"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2974),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4116),
                             isDeleted = false,
                             name = "展馆26",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("e0e332d3-1193-46c0-971f-0ece48e2fb11"),
+                            id = new Guid("9b091e2d-1592-494e-b275-ee20e2b2fdde"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2975),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4117),
                             isDeleted = false,
                             name = "展馆27",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("d2d326cd-3606-4df3-a26c-5a8067bc4f90"),
+                            id = new Guid("5218e573-aa65-4c98-a600-e4a2f0abb1af"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2977),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4118),
                             isDeleted = false,
                             name = "展馆28",
                             status = 1
                         },
                         new
                         {
-                            id = new Guid("5b60749d-e6b5-412b-a5dc-9ae868b32dcb"),
+                            id = new Guid("2c5f0c40-4c97-4b74-a0c9-593ecd533e0f"),
                             basicPrice = 10m,
-                            createTime = new DateTime(2024, 1, 23, 16, 48, 56, 61, DateTimeKind.Local).AddTicks(2979),
+                            createTime = new DateTime(2024, 1, 23, 15, 18, 53, 483, DateTimeKind.Local).AddTicks(4118),
                             isDeleted = false,
                             name = "展馆29",
                             status = 1
@@ -387,6 +390,9 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<DateTime?>("createTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("id")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -402,14 +408,12 @@ namespace 通用订票.Database.Migrations.Migrations
 
                     b.Property<string>("trade_no")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("userId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("_id");
-
-                    b.HasIndex("trade_no");
 
                     b.ToTable("Order");
                 });
@@ -434,9 +438,8 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<DateTime>("endTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("objectId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("objectId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("startTime")
                         .HasColumnType("datetime2");
@@ -455,7 +458,7 @@ namespace 通用订票.Database.Migrations.Migrations
 
                     b.HasIndex("TUserId");
 
-                    b.HasIndex("startTime", "endTime", "TUserId", "objectId");
+                    b.HasIndex("startTime", "endTime", "TUserId");
 
                     b.ToTable("Ticket");
                 });
