@@ -66,11 +66,11 @@ namespace 通用订票.Web.Entry.Controllers
         public async Task<dynamic> CreateOrder([FromBody]BaseOrderCreate oc)
         {
             var userid = Guid.Parse(httpContextUser.ID);
-            //var _lock = await _cache.LockNoWait("UserLock_" + userid, null,60);
-            //if (_lock == 0)
-            //{
-            //    return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
-            //}
+            var _lock = await _cache.LockNoWait("UserLock_" + userid, null, 60);
+            if (_lock == 0)
+            {
+                return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
+            }
 
             //去重
             oc.ids = oc.ids.Distinct().ToArray();
