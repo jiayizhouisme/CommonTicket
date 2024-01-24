@@ -87,6 +87,16 @@ namespace 通用订票.Web.Entry.Controllers
                 return new { code = 0, message = "库存不足" };
             }
 
+            foreach (var item in oc.ids)
+            {
+                var query = await userinfoService.Exist(a => a.id == item && a.userID == userid);
+                if (query == false)
+                {
+                    await _cache.Decr("QueueIn_" + oc.appid);
+                    return new { code = 0, message = "所选择的用户不存在" };
+                }
+            }
+
             var myid = await _cache.Incr("QueueIn_" + oc.appid);
 
             var left = stock.amount - stock.sale; //获取剩余票数
@@ -94,16 +104,6 @@ namespace 通用订票.Web.Entry.Controllers
             {
                 await _cache.Decr("QueueIn_" + oc.appid);
                 return new { code = 0, message = "库存不足" };
-            }
-
-            foreach (var item in oc.ids)
-            {
-                var query = await userinfoService.Exist(a => a.id == item && a.userID == userid);
-                if(query == false)
-                {
-                    await _cache.Decr("QueueIn_" + oc.appid);
-                    return new { code = 0, message = "所选择的用户不存在" };
-                }
             }
 
             ticketService.SetUserContext(userid);
