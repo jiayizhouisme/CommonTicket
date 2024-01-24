@@ -18,6 +18,7 @@ using 通用订票.Application.System.Services.Service;
 using 通用订票.Application.System.Factory.Service;
 using StackExchange.Redis;
 using 通用订票.Application.System.ServiceBases.IService;
+using Microsoft.EntityFrameworkCore;
 
 namespace 通用订票.Web.Entry.Controllers
 {
@@ -79,6 +80,15 @@ namespace 通用订票.Web.Entry.Controllers
                 return new { code = 0, message = "请至少选择一个人" };
             }
 
+            foreach (var item in oc.ids)
+            {
+                var query = await userinfoService.Exist(a => a.id == item && a.userID == userid);
+                if(query == false)
+                {
+                    return new { code = 0, message = "所选择的用户不存在" };
+                }
+            }
+
             var stock = await stockService.checkStock(oc.appid);
             if (stock == null)
             {
@@ -110,7 +120,7 @@ namespace 通用订票.Web.Entry.Controllers
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "PayOrder")]
-        public async Task<WechatBill> PayOrder(string trade_no)
+        public async Task<WechatBill> PayOrder(long trade_no)
         {
             Guid lockid = Guid.NewGuid();
 
@@ -149,7 +159,7 @@ namespace 通用订票.Web.Entry.Controllers
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "PaidOrder")]
-        public async Task<dynamic> PaidOrder(string trade_no)
+        public async Task<dynamic> PaidOrder(long trade_no)
         {
             Guid lockid = Guid.NewGuid();
             await _cache.Lock("OrderLocker_" + trade_no, lockid);
@@ -177,7 +187,7 @@ namespace 通用订票.Web.Entry.Controllers
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "CloseOrder")]
         [UnitOfWork]
-        public async Task<dynamic> CloseOrder(string trade_no)
+        public async Task<dynamic> CloseOrder(long trade_no)
         {
             Guid lockerId = Guid.NewGuid();
             var lo = await _cache.Lock("OrderLocker_" + trade_no, lockerId);
@@ -252,7 +262,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("090BDE33-EA12-40AC-875B-40F8DB350AB8");
+                            Guid stockid = Guid.Parse("3DC16154-C4F5-42D6-BEEC-CC3B09D2D2D6");
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
@@ -264,7 +274,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("3DC16154-C4F5-42D6-BEEC-CC3B09D2D2D6");
+                            Guid stockid = Guid.Parse("BA050247-0548-4A05-9C60-1D8D6672A05B");
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
@@ -285,7 +295,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("0F7CE6AC-F34B-40A2-895F-2014E55A04C6");
+                            Guid stockid = Guid.Parse("B53BBFAD-A7A5-49C4-A0DD-BB0849501A45");
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
@@ -297,7 +307,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("B53BBFAD-A7A5-49C4-A0DD-BB0849501A45");
+                            Guid stockid = Guid.Parse("8A181236-9ACF-4442-B8DF-46649D7C5953");
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });

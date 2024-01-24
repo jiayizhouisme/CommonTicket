@@ -15,6 +15,7 @@ namespace Core.Services
         public Task<List<T>> GetWithConditionNt(Expression<Func<T, bool>> predicate);
         public IQueryable<T> GetQueryableNt(Expression<Func<T, bool>> predicate);
         public IQueryable<T> GetQueryable(Expression<Func<T, bool>> predicate);
+        public Task<bool> Exist(Expression<Func<T, bool>> predicate);
         public Task<T> Add(T entity);
         public Task Add(ICollection<T> entity);
         public Task<T> AddNow(T entity);

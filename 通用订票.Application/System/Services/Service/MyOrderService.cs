@@ -93,7 +93,7 @@ namespace 通用订票.Application.System.Services.Service
             await _cache.Set(key,order,650);
         }
 
-        public virtual async Task<Core.Entity.Order> GetOrderById(string trade_no)
+        public virtual async Task<Core.Entity.Order> GetOrderById(long trade_no)
         {
             var key = "Order_" + trade_no;
             var orderCache = await _cache.Get<Core.Entity.Order>(key);
@@ -123,14 +123,14 @@ namespace 通用订票.Application.System.Services.Service
             return _result;
         }
 
-        public override async Task AfterOrderToke(string trande_no)
+        public override async Task AfterOrderToke(long trande_no)
         {
             await this.DelOrderFromCache(trande_no);
         }
 
-        protected async Task<string> GetTradeNoAsync(string before)
+        protected async Task<long> GetTradeNoAsync(long before)
         {
-            string prefixOrder = before;
+            long prefixOrder = before;
             //通过key，采用redis自增函数，实现单秒自增；不同的key，从0开始自增，同时设置60秒过期
             long? res = await _cache.Get<long>("TradeNo");
             if (res == null)
@@ -140,11 +140,11 @@ namespace 通用订票.Application.System.Services.Service
             res = await _cache.Incr("TradeNo");
             
             //生成订单编号
-            string orderNo = prefixOrder + res.ToString().PadLeft(4, '0');
-            return orderNo;
+            string orderNo = prefixOrder.ToString() + res.ToString().PadLeft(4, '0');
+            return long.Parse(orderNo);
         }
 
-        private async Task DelOrderFromCache(string trande_no)
+        private async Task DelOrderFromCache(long trande_no)
         {
             var key = "Order_" + trande_no;
             await _cache.Del(key);

@@ -161,16 +161,8 @@ namespace 通用订票.Application.System.Services.Service
                 if (newone == true)
                 {
                     app.createTime = DateTime.Now;
-                    await this.DeleteNow(app);
-
-                    var _app = app.Adapt<Appointment>();
-                    _app.id = Guid.NewGuid();
-                    await this.AddNow(_app);
                 }
-                else
-                {
-                    await this.UpdateNow(app);
-                }
+                await this.UpdateNow(app);
                 await this.DelStockFromCache(id);
             }
             catch (Exception e)

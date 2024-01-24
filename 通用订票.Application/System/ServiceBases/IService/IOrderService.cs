@@ -12,6 +12,6 @@ namespace 通用订票.Application.System.ServiceBases.IService
     {
         public Task<T> CreateOrder(Guid objectId,string name,decimal amount);
         public Task<T> PayFinished(T order);
-        public Task AfterOrderToke(string orderId);
+        public Task AfterOrderToke(long orderId);
     }
 }

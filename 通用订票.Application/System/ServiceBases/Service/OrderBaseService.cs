@@ -30,7 +30,7 @@ namespace 通用订票.Application.System.ServiceBases.Service
             T order = new T();
 
             order.status = OrderStatus.未付款;
-            order.trade_no = (int)order.status + GetTradeNo();
+            order.trade_no = GetTradeNo();
             order.payedAmount = 0;
             order.amount = amount;
             /*
@@ -106,19 +106,19 @@ namespace 通用订票.Application.System.ServiceBases.Service
             return order;
         }
 
-        public virtual async Task AfterOrderToke(string orderId)
+        public virtual async Task AfterOrderToke(long orderId)
         {
 
         }
 
-        protected virtual string GetTradeNo()
+        protected virtual long GetTradeNo()
         {
             DateTime currentTime = DateTime.Now;
             string originDateStr = currentTime.ToString("yyMMdd");
             long differSecond = currentTime.Minute * 60 + currentTime.Second;
 
             string yyMMddSecond = originDateStr + differSecond.ToString().PadLeft(5,'0');
-            return yyMMddSecond;
+            return long.Parse(yyMMddSecond);
         }
 
     }

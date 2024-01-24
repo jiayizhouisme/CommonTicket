@@ -28,7 +28,8 @@ namespace 通用订票.Core.Entity
         {
             entityBuilder.HasKey(a => a._id );
 
-            entityBuilder.HasIndex(a => new { a.startTime,a.endTime,a.TUserId,a.objectId});
+            entityBuilder.HasIndex(a => new {a.TUserId,a.startTime,a.endTime});
+            entityBuilder.HasIndex(a => a.objectId);
 
             entityBuilder.Property(x => x._id).ValueGeneratedOnAdd();
             entityBuilder.HasOne(a => a.userInfo).WithMany().HasForeignKey(a => a.TUserId).OnDelete(DeleteBehavior.ClientSetNull);

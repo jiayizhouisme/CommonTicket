@@ -84,7 +84,7 @@ namespace 通用订票.Application.System.ServiceBases.Service
             return timeTicks.ToString();
         }
 
-        public virtual async Task AfterTicketToke(string objectId)
+        public virtual async Task AfterTicketToke(long objectId)
         {
 
         }

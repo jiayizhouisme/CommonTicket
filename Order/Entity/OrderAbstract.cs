@@ -13,7 +13,7 @@ namespace 通用订票Order.Entity
         /// <summary>
         /// 订单编号
         /// </summary>
-        public string trade_no { get; set; }
+        public long trade_no { get; set; }
 
         /// <summary>
         /// 金额总数

@@ -15,6 +15,6 @@ namespace 通用订票.Ticket.Entity
         /// <summary>
         /// 门票关联字段
         /// </summary>
-        public string objectId { get; set; }
+        public long objectId { get; set; }
     }
 }

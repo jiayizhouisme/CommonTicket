@@ -64,7 +64,7 @@ namespace 通用订票.RedisMQ
                         await _cache.Lock("OrderLocker_" + notify.Attach, lockerId);
                         try
                         {
-                            order = await o_service.GetOrderById(notify.Attach);
+                            order = await o_service.GetOrderById(long.Parse(notify.Attach));
                             var tickets = await t_service.GetTickets(order.trade_no);
 
                             var result = await o_service.PayFinished(order);

@@ -118,7 +118,7 @@ namespace 通用订票.Application.System.Services.Service
             }
         }
 
-        private async Task SetTicketToCache(string orderId, IEnumerable<Core.Entity.Ticket> tickets)
+        private async Task SetTicketToCache(long orderId, IEnumerable<Core.Entity.Ticket> tickets)
         {
             var list = _cache.CreateList<Core.Entity.Ticket>("Tickets:" + orderId);
             foreach (var ticket in tickets) {
@@ -150,8 +150,8 @@ namespace 通用订票.Application.System.Services.Service
                 }
 
                 var anyret = await this._dal.
-                    AnyAsync(a => startTime == a.startTime && a.endTime == endTime
-                    && a.TUserId == uid && a.stauts <= Ticket.Entity.TicketStatus.未激活);
+                    AnyAsync(a => a.TUserId == uid && startTime == a.startTime && a.endTime == endTime
+                    && a.stauts != Ticket.Entity.TicketStatus.已冻结);
                 if (anyret == true)
                 {
                     await _cache.Set(GetKey(appointment.id, uid), "1", 20);
@@ -166,7 +166,7 @@ namespace 通用订票.Application.System.Services.Service
             return "UserId_" + userId + "Appointment_" + appointmentId + "TUserId_" + Tuid;
         }
 
-        public virtual async Task<List<Core.Entity.Ticket>> GetTickets(string orderId)
+        public virtual async Task<List<Core.Entity.Ticket>> GetTickets(long orderId)
         {
             var key = "Tickets:" + orderId;
             var list = _cache.CreateList<Core.Entity.Ticket>(key);
@@ -183,7 +183,6 @@ namespace 通用订票.Application.System.Services.Service
                     _id = a._id,
                     AppointmentId = a.AppointmentId,
                     endTime = a.endTime,
-                    objectId = a.objectId,
                     TUserId = a.TUserId,
                     startTime = a.startTime,
                     ticketNumber = a.ticketNumber,
@@ -199,12 +198,12 @@ namespace 通用订票.Application.System.Services.Service
             return result;
         }
 
-        public override async Task AfterTicketToke(string trade_no)
+        public override async Task AfterTicketToke(long trade_no)
         {
             await this.DelTicketsFromCache(trade_no);
         }
 
-        private async Task DelTicketsFromCache(string trade_no)
+        private async Task DelTicketsFromCache(long trade_no)
         {
             var key = "Tickets:" + trade_no;
             await _cache.Del(key);

@@ -11,6 +11,6 @@ namespace 通用订票.Application.System.Services.IService
 {
     public interface IMyOrderServices : IOrderService<Core.Entity.Order>,IUserContext<Guid>
     {
-        Task<Core.Entity.Order> GetOrderById(string orderId);
+        Task<Core.Entity.Order> GetOrderById(long orderId);
     }
 }

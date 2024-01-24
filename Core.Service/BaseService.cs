@@ -104,5 +104,10 @@ namespace Core.Services
             _dal.ChangeDatabase(connStr);
             return this;
         }
+
+        public async Task<bool> Exist(Expression<Func<T, bool>> predicate)
+        {
+            return await _dal.AnyAsync(predicate);
+        }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using 通用订票.EntityFramework.Core;
 
@@ -11,9 +12,11 @@ using 通用订票.EntityFramework.Core;
 namespace 通用订票.Database.Migrations.Migrations
 {
     [DbContext(typeof(MyDefaultDbContext))]
-    partial class MyDefaultDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240124024511_v1.1.3")]
+    partial class v113
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -128,8 +131,9 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<int>("status")
                         .HasColumnType("int");
 
-                    b.Property<long>("trade_no")
-                        .HasColumnType("bigint");
+                    b.Property<string>("trade_no")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid>("userId")
                         .HasColumnType("uniqueidentifier");
@@ -161,8 +165,9 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<DateTime>("endTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("objectId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("objectId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("startTime")
                         .HasColumnType("datetime2");
@@ -286,8 +291,9 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<int>("status")
                         .HasColumnType("int");
 
-                    b.Property<long>("tradeNo")
-                        .HasColumnType("bigint");
+                    b.Property<string>("tradeNo")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("type")
                         .HasColumnType("int");

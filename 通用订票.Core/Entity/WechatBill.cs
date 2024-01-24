@@ -93,8 +93,7 @@ namespace 通用订票.Core.Entity
         /// 第三方平台交易流水号
         /// </summary>
         [Display(Name = "第三方平台交易流水号")]
-        [StringLength(maximumLength: 50, ErrorMessage = "{0}不能超过{1}字")]
-        public System.String tradeNo { get; set; }
+        public long tradeNo { get; set; }
 
         /// <summary>
         /// 创建时间

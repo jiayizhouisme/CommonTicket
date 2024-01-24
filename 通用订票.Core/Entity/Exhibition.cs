@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace 通用订票.Core.Entity
 {
-    public class Exhibition :IEntity,IEntitySeedData<Exhibition>
+    public class Exhibition :IEntity
     {
         public Guid id { get; set; }
         public string name{ get;set;}
@@ -19,24 +19,5 @@ namespace 通用订票.Core.Entity
         public DateTime createTime { get; set; }
         public decimal basicPrice { get; set; }
 
-        public IEnumerable<Exhibition> HasData(DbContext dbContext, Type dbContextLocator)
-        {
-            List<Exhibition> list = new List<Exhibition>();
-            for (int i = 0;i < 30;i ++)
-            {
-                list.Add(new Exhibition()
-                {
-                    id = Guid.NewGuid(),
-                    name = "展馆" + i,
-                    basicPrice = 10,
-                    description = name,
-                    createTime = DateTime.Now,
-                    isDeleted = false,
-                    status = 1,
-                    imgs = null
-                });
-            }
-            return list;
-        }
     }
 }
