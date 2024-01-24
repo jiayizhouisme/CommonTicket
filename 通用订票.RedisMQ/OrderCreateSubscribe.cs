@@ -114,7 +114,7 @@ namespace 通用订票.RedisMQ
                             JsonConvert.SerializeObject(
                                 new OrderClose() { trade_no = order.trade_no, app = stockret, tickets = null, delay = 10, tenantId = data.tenantId ,realTenantId = data.realTenantId}
                                 ),
-                            DateTime.Now.AddSeconds(60));
+                            DateTime.Now.AddSeconds(600));
 
                         await sendMessage(client, JsonConvert.SerializeObject(new
                         {
@@ -136,6 +136,10 @@ namespace 通用订票.RedisMQ
                         }
                         catch (Exception e) { throw e; }
 
+                    }
+                    finally
+                    {
+                        await _cache.Decr("QueueIn_" + data.appid);
                     }
                 }
             }

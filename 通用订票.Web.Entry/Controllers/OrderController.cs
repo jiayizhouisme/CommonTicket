@@ -80,30 +80,41 @@ namespace 通用订票.Web.Entry.Controllers
                 return new { code = 0, message = "请至少选择一个人" };
             }
 
+            var stock = await stockService.checkStock(oc.appid);
+            if (stock == null)
+            {
+                await _cache.ReleaseLock("UserLock_" + userid, null);
+                return new { code = 0, message = "库存不足" };
+            }
+
+            var myid = await _cache.Incr("QueueIn_" + oc.appid);
+
+            var left = stock.amount - stock.sale; //获取剩余票数
+            if (myid > left)
+            {
+                await _cache.Decr("QueueIn_" + oc.appid);
+                return new { code = 0, message = "库存不足" };
+            }
+
             foreach (var item in oc.ids)
             {
                 var query = await userinfoService.Exist(a => a.id == item && a.userID == userid);
                 if(query == false)
                 {
+                    await _cache.Decr("QueueIn_" + oc.appid);
                     return new { code = 0, message = "所选择的用户不存在" };
                 }
-            }
-
-            var stock = await stockService.checkStock(oc.appid);
-            if (stock == null)
-            {
-                await _cache.ReleaseLock("UserLock_" + userid, null);
-                return new {code = 0,message = "库存不足" };
             }
 
             ticketService.SetUserContext(userid);
             var vaild = await ticketService.Vaild(oc.ids.ToArray(), stock);
             if (vaild == false)
             {
+                await _cache.Decr("QueueIn_" + oc.appid);
                 await _cache.ReleaseLock("UserLock_" + userid, null);
                 return new { status = 1,message = "用户重复" };
             }
-            
+
             var exhibition = await exhibitionService.GetExhibitionByID(stock.objectId);
             await _redisCache.ListLeftPushAsync("CreateOrder", JsonConvert.SerializeObject(new OrderCreate()
             {
@@ -114,6 +125,7 @@ namespace 通用订票.Web.Entry.Controllers
                 price = exhibition.basicPrice,
                 realTenantId = httpContextUser.RealTenantId
             }));
+
             return new { status = 1,message = "下单请求成功，请等待下单结果" };
         }
 
