@@ -12,13 +12,9 @@ using Core.Auth;
 using 通用订票Order.Entity;
 using Core.MiddelWares;
 using Furion.DependencyInjection;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using 通用订票.沙沟古镇.Service;
-using 通用订票.Application.System.Services.Service;
 using 通用订票.Application.System.Factory.Service;
-using StackExchange.Redis;
-using 通用订票.Application.System.ServiceBases.IService;
-using Microsoft.EntityFrameworkCore;
+using Core.Queue.IQueue;
+using 通用订票.RedisMQ.Entity;
 
 namespace 通用订票.Web.Entry.Controllers
 {
@@ -33,7 +29,7 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IWechatBillService billService;
         private readonly IExhibitionService exhibitionService;
         private readonly MyBeetleX _cache;
-        private readonly RedisOperationRepository _redisCache;
+        private readonly IQueuePushInfo _queue;
 
         public OrderController(IUserInfoService userinfoService,
             MyBeetleX _cache, 
@@ -41,18 +37,18 @@ namespace 通用订票.Web.Entry.Controllers
             IWechatBillService billService, 
             IExhibitionService exhibitionService,
             IUserService userService,
-            RedisOperationRepository _redisCache,
             INamedServiceProvider<IAppointmentService> _stockProvider,
             INamedServiceProvider<IMyOrderServices> _orderProvider,
-            INamedServiceProvider<IMyTicketService> _ticketProvider)
+            INamedServiceProvider<IMyTicketService> _ticketProvider,
+            IQueuePushInfo _queue)
         {
             this._cache = _cache;
             this.httpContextUser = httpContextUser;
-            this._redisCache = _redisCache;
             this.userinfoService = userinfoService;
             this.billService = billService;
             this.userService = userService;
             this.exhibitionService = exhibitionService;
+            this._queue = _queue;
 
             var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
             this.stockService = factory.GetStockService(_stockProvider);
@@ -66,11 +62,11 @@ namespace 通用订票.Web.Entry.Controllers
         public async Task<dynamic> CreateOrder([FromBody]BaseOrderCreate oc)
         {
             var userid = Guid.Parse(httpContextUser.ID);
-            var _lock = await _cache.LockNoWait("UserLock_" + userid, null, 60);
-            if (_lock == 0)
-            {
-                return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
-            }
+            //var _lock = await _cache.LockNoWait("UserLock_" + userid, null, 60);
+            //if (_lock == 0)
+            //{
+            //    return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
+            //}
 
             //去重
             oc.ids = oc.ids.Distinct().ToArray();
@@ -116,7 +112,8 @@ namespace 通用订票.Web.Entry.Controllers
             }
 
             var exhibition = await exhibitionService.GetExhibitionByID(stock.objectId);
-            await _redisCache.ListLeftPushAsync("CreateOrder", JsonConvert.SerializeObject(new OrderCreate()
+
+            var CreateOrder = new OrderCreateQueueEntity(new OrderCreate()
             {
                 appid = oc.appid,
                 ids = oc.ids,
@@ -124,7 +121,9 @@ namespace 通用订票.Web.Entry.Controllers
                 tenantId = httpContextUser.TenantId,
                 price = exhibition.basicPrice,
                 realTenantId = httpContextUser.RealTenantId
-            }));
+            });
+
+            await _queue.PushMessage(CreateOrder);
 
             return new { status = 1,message = "下单请求成功，请等待下单结果" };
         }

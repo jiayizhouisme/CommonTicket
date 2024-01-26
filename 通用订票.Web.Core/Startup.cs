@@ -33,6 +33,9 @@ using 通用订票.Application.System.Factory.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Threading.Tasks;
 using System.Net.Http;
+using Core.Queue.IQueue;
+using Quick.RabbitMQPlus;
+using 通用订票.RedisMQ.Entity;
 
 namespace 通用订票.Web.Core
 {
@@ -93,6 +96,10 @@ namespace 通用订票.Web.Core
                 //显示日志
                 m.ShowLog = false;
             });
+            services.AddSingleton<IQueuePushInfo, InitQRedisPushMessage>();
+
+            services.AddRabbitMQPlus();
+            services.AddHostedService<Worker>();
 
             services.AddResponseCaching();
             services.AddCorsAccessor();

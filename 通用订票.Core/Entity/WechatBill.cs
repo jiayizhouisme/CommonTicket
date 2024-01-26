@@ -21,6 +21,8 @@ namespace 通用订票.Core.Entity
         [StringLength(maximumLength: 20, ErrorMessage = "{0}不能超过{1}字")]
         public Guid id { get; set; }
 
+        public int _id { get; set; }
+
         /// <summary>
         /// 资源编号
         /// </summary>
@@ -71,7 +73,7 @@ namespace 通用订票.Core.Entity
         /// <summary>
         /// 支付单生成IP
         /// </summary>
-        [Display(Name = "支付单生成IP")]
+        [Display(Name = "支付单生成的真实IP")]
         [StringLength(maximumLength: 50, ErrorMessage = "{0}不能超过{1}字")]
         public System.String ip { get; set; }
 

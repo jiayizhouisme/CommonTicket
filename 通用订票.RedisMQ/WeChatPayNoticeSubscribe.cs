@@ -30,15 +30,13 @@ namespace 通用订票.RedisMQ
         private readonly MyBeetleX _cache;
         private DbContext dbContext;
         private readonly IServiceProvider _serviceProvider;
-        private readonly ICacheService _initQRedis;
 
-        public WeChatPayNoticeSubscribe(ILogger<WeChatPayNoticeSubscribe> _logger, IServiceProvider _serviceProvider, ICacheService _initQRedis,
+        public WeChatPayNoticeSubscribe(ILogger<WeChatPayNoticeSubscribe> _logger, IServiceProvider _serviceProvider,
             MyBeetleX _cache)
         {
             this._logger = _logger;
             this._cache = _cache;
             this._serviceProvider = _serviceProvider;
-            this._initQRedis = _initQRedis;
         }
 
         [Subscribe("WeChatPayNotice")]

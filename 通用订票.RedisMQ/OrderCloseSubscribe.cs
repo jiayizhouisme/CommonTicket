@@ -17,7 +17,6 @@ using Core.Services.ServiceFactory;
 using Furion.DependencyInjection;
 using ProtoBuf.Serializers;
 using 通用订票.Application.System.IService.Factory;
-using 通用订票.沙沟古镇.Factory;
 using 通用订票.Application.System.Factory.Service;
 
 namespace 通用订票.RedisMQ

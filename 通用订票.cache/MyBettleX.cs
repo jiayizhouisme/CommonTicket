@@ -1,12 +1,5 @@
 ﻿using BeetleX.Redis;
-using BeetleX.Redis.Commands;
 using Furion;
-using Furion.DataEncryption.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Cache
 {
@@ -81,6 +74,7 @@ namespace Core.Cache
         {
             return await base.Get<T>(key);
         }
+
         public RedisList<T> CreateList<T>(string key)
         {
             return base.CreateList<T>(key);

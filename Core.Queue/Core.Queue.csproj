@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core.Queue\Core.Queue.csproj" />
-    <ProjectReference Include="..\通用订票.Application\通用订票.Application.csproj" />
+    <PackageReference Include="InitQ" Version="1.0.0.18" />
+    <PackageReference Include="Quick.RabbitMQPlus.Furion" Version="1.0.10" />
   </ItemGroup>
 
 </Project>
