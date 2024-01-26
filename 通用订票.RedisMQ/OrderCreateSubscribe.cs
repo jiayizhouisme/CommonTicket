@@ -1,22 +1,21 @@
 ﻿using Furion.DatabaseAccessor;
-using InitQ.Abstractions;
-using InitQ.Attributes;
-using InitQ.Cache;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Furion.DependencyInjection;
+using 通用订票.RedisMQ.Entity;
+using Core.Queue.IQueue;
+using Core.Cache;
+using Core.SignalR;
+using InitQ.Abstractions;
 using 通用订票.Application.System.Models;
+using InitQ.Attributes;
+using 通用订票.Application.System.Factory.Service;
 using Core.Services.ServiceFactory;
 using 通用订票.Application.System.Services.IService;
-using Core.Cache;
 using 通用订票.Core.Entity;
-using Core.SignalR;
-using Furion.DependencyInjection;
-using 通用订票.Application.System.Factory.Service;
-using Core.Queue.IQueue;
-using 通用订票.RedisMQ.Entity;
 
 namespace 通用订票.RedisMQ
 {
