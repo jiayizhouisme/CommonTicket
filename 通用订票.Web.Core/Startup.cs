@@ -33,6 +33,7 @@ using 通用订票.Application.System.Factory.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Threading.Tasks;
 using System.Net.Http;
+using Core.Queue.IQueue;
 
 namespace 通用订票.Web.Core
 {
@@ -93,6 +94,7 @@ namespace 通用订票.Web.Core
                 //显示日志
                 m.ShowLog = false;
             });
+            services.AddSingleton<IQueuePushInfo, InitQRedisPushMessage>();
 
             services.AddResponseCaching();
             services.AddCorsAccessor();

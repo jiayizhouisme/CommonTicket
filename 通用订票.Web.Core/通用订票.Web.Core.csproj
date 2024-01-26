@@ -15,13 +15,11 @@
 
 
 	<ItemGroup>
-	  <PackageReference Include="Essensoft.Paylink.WeChatPay" Version="4.1.2" />
-	  <PackageReference Include="InitQ" Version="1.0.0.18" />
 	  <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="7.0.14" />
-	  <PackageReference Include="ShardingCore" Version="7.7.1.20" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Core.Queue\Core.Queue.csproj" />
 		<ProjectReference Include="..\Core.SignalR\Core.SignalR.csproj" />
 		<ProjectReference Include="..\Task\通用订票.Task.csproj" />
 		<ProjectReference Include="..\通用订票.Application\通用订票.Application.csproj" />

@@ -20,6 +20,8 @@ using 通用订票.Core.Entity;
 using 通用订票.JobTask;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using 通用订票.Application.System.Factory.Service;
+using Core.Queue.IQueue;
+using 通用订票.RedisMQ.Entity;
 
 namespace 通用订票.JobTask
 {
@@ -27,13 +29,13 @@ namespace 通用订票.JobTask
     {
         private readonly ILogger<AutoCloseOrderEveryDay> _logger;
         private readonly IServiceProvider _serviceProvider;
-        private readonly ICacheService _initQRedis;
+        private readonly IQueuePushInfo _queue;
 
-        public AutoCloseOrderEveryDay(ILogger<AutoCloseOrderEveryDay> _logger, IServiceProvider _serviceProvider, ICacheService _initQRedis)
+        public AutoCloseOrderEveryDay(ILogger<AutoCloseOrderEveryDay> _logger, IServiceProvider _serviceProvider, IQueuePushInfo _queue)
         {
             this._logger = _logger;
             this._serviceProvider = _serviceProvider;
-            this._initQRedis = _initQRedis;
+            this._queue = _queue;
         }
 
         public async System.Threading.Tasks.Task ExecuteAsync(JobExecutingContext context, CancellationToken stoppingToken)
@@ -61,11 +63,9 @@ namespace 通用订票.JobTask
             foreach (var order in orders)
             {
                 var app = await s_service.GetAppointmentById(order.objectId);
-                await _initQRedis.SortedSetAddAsync("CloseOrder",
-                JsonConvert.SerializeObject(
-                                new OrderClose() { trade_no = order.trade_no, app = app, tickets = null, delay = 10,tenantId = id }
-                                ),
-                            DateTime.Now.AddSeconds(10));
+
+                var CreateOrder = new OrderCloseQueueEntity(new OrderClose() { trade_no = order.trade_no, app = app, tickets = null, delay = 10, tenantId = id });
+                await _queue.PushMessageDelay(CreateOrder, DateTime.Now.AddSeconds(10));
             }
         }
     }
