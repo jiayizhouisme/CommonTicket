@@ -34,8 +34,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Core.Queue.IQueue;
+<<<<<<< HEAD
 using Quick.RabbitMQPlus;
 using 通用订票.RedisMQ.Entity;
+=======
+>>>>>>> 12a4c7cd6b3502d90e1aa93b2ed2fd70f4613377
 
 namespace 通用订票.Web.Core
 {
@@ -97,9 +100,12 @@ namespace 通用订票.Web.Core
                 m.ShowLog = false;
             });
             services.AddSingleton<IQueuePushInfo, InitQRedisPushMessage>();
+<<<<<<< HEAD
 
             services.AddRabbitMQPlus();
             services.AddHostedService<Worker>();
+=======
+>>>>>>> 12a4c7cd6b3502d90e1aa93b2ed2fd70f4613377
 
             services.AddResponseCaching();
             services.AddCorsAccessor();

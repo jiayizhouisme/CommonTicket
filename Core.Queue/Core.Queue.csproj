@@ -8,7 +8,10 @@
 
   <ItemGroup>
     <PackageReference Include="InitQ" Version="1.0.0.18" />
+<<<<<<< HEAD
     <PackageReference Include="Quick.RabbitMQPlus.Furion" Version="1.0.10" />
+=======
+>>>>>>> 12a4c7cd6b3502d90e1aa93b2ed2fd70f4613377
   </ItemGroup>
 
 </Project>
