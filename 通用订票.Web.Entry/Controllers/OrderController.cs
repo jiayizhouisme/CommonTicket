@@ -15,6 +15,7 @@ using Furion.DependencyInjection;
 using 通用订票.Application.System.Factory.Service;
 using Core.Queue.IQueue;
 using 通用订票.RedisMQ.Entity;
+using 通用订票.Core.BaseEntity;
 
 namespace 通用订票.Web.Entry.Controllers
 {
@@ -244,8 +245,7 @@ namespace 通用订票.Web.Entry.Controllers
                     await myOrderService.AfterOrderToke(order.trade_no);
                 }
                 await stockService.DelStockFromCache(order.objectId);
-                
-                //await OrderCancelTask(orderid, appid, tickets, delay);//失败后循环关闭订单
+                throw e;
             }
             finally
             {
