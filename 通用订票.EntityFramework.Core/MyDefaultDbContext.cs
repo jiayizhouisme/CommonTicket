@@ -34,8 +34,6 @@ namespace 通用订票.EntityFramework.Core
                     options.MigrationsAssembly("通用订票.Database.Migrations");
                 });
             }
-
-
             base.OnConfiguring(optionsBuilder);
         }
     }
