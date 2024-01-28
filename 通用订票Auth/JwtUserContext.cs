@@ -27,7 +27,7 @@ namespace Core.Auth
         public string ID => GetUserInfoFromToken("jti").FirstOrDefault();
 
         public string RealTenantId => GetRealTenantId();
-
+        public string clientIp => GetClientIp();
         public bool IsAuthenticated()
         {
             return _accessor.HttpContext.User.Identity.IsAuthenticated;
@@ -101,6 +101,15 @@ namespace Core.Auth
                 return GetUserInfoFromToken("tenant-id").FirstOrDefault();
             }
             return null;
+        }
+        private string GetClientIp()
+        {
+            var realip = _accessor.HttpContext.GetRemoteIpAddressToIPv4();
+            if (realip.IsNullOrEmpty())
+            {
+                realip = _accessor.HttpContext.GetRemoteIpAddressToIPv6();
+            }
+            return realip;
         }
     }
 }
