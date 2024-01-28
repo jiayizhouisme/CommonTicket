@@ -93,9 +93,11 @@ namespace 通用订票.Web.Entry.Controllers
                 }
             }
 
-            var myid = await _cache.Incrby("QueueIn_" + oc.appid,oc.ids.Count);
+            var myid = await _cache.Incr("QueueIn_" + oc.appid);
 
             var left = stock.amount - stock.sale; //获取剩余票数
+            var myid = await _cache.Incrby("QueueIn_" + oc.appid,oc.ids.Count);
+
             if (myid > left)
             {
                 await _cache.Decrby("QueueIn_" + oc.appid, oc.ids.Count);
