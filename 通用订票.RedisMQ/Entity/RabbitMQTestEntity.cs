@@ -68,9 +68,8 @@ namespace 通用订票.RedisMQ.Entity
                 //接收队列2的消息
                 var retRec2 = await _quickRabbitMqPlus.Receive<RabbitMQTestEntity2>(async (data, msg) =>
                 {
-                    _logger.LogInformation("接收到消息2");
-                    await Task.Delay(2000);
-                   
+                    await Task.Delay(2500);
+
 
                     //返回true代表业务逻辑处理成功，会告知MQ这条消息已经接收成功，会从MQ队列中删除
                     //返回false代表业务逻辑处理失败，会告知MQ这条消息没有处理成功，则MQ会继续推送这条消息
