@@ -14,15 +14,16 @@ using Core.Cache;
 using 通用订票.Core.BaseEntity;
 using 通用订票.Core.Entity;
 using SqlSugar;
+using StackExchange.Redis;
 
 namespace 通用订票.Application.System.Services.Service
 {
     [Injection(Order = 1)]
-    public class AppointmentService : StockBaseService<Appointment>, IAppointmentService,ITransient
+    public class AppointmentService : StockBaseService<Appointment>, IAppointmentService, ITransient
     {
         private Guid userId;
         private MyBeetleX _cache;
-        public AppointmentService(IRepository<Appointment> _dal,MyBeetleX _cache) : base(_dal, _cache)
+        public AppointmentService(IRepository<Appointment> _dal, MyBeetleX _cache) : base(_dal, _cache)
         {
             this._cache = _cache;
         }
@@ -30,11 +31,11 @@ namespace 通用订票.Application.System.Services.Service
         public override async Task<Appointment> SaleStock(Guid stockId, int count = 1)
         {
             Guid lockerId = Guid.NewGuid();
+            Appointment stock = null;
+            await _cache.Lock("StockUpdateLocker" + stockId, lockerId);
             try
             {
-                await _cache.Lock("StockUpdateLocker" + stockId, lockerId);
-                var stock = await base.SaleStock(stockId, count);
-
+                stock = await base.SaleStock(stockId, count);
                 if (stock.sale > stock.amount || stock.sale < 0)
                 {
                     return null;
@@ -42,8 +43,6 @@ namespace 通用订票.Application.System.Services.Service
                 stock.exhibition = null;
                 await this.UpdateNow(stock);
                 await SetStockToCache(stock);
-                await _cache.ReleaseLock("StockUpdateLocker" + stockId, lockerId.ToString());
-                return stock;
             }
             catch (Exception e)
             {
@@ -53,6 +52,7 @@ namespace 通用订票.Application.System.Services.Service
             {
                 await _cache.ReleaseLock("StockUpdateLocker" + stockId, lockerId.ToString());
             }
+            return stock;
         }
 
         public override async Task<Appointment> checkStock(Guid stockId)
@@ -110,16 +110,16 @@ namespace 通用订票.Application.System.Services.Service
             return result;
         }
 
-        public virtual async Task<IQueryable<Appointment>> GetAppointmentsByDay(Guid exhibitionID,int day)
+        public virtual async Task<IQueryable<Appointment>> GetAppointmentsByDay(Guid exhibitionID, int day)
         {
             return this._dal.Where(a => a.objectId == exhibitionID && a.day < day).AsNoTracking();
         }
-        
+
         public virtual async Task<IQueryable<Appointment>> GetAppointmentsByDate(Guid exhibitionID, DateTime date)
         {
             var day = date.Date.Subtract(DateTime.Now.Date).TotalDays;
             var entity = this._dal.Where(a => a.objectId == exhibitionID && a.day == day).AsNoTracking();
-            return entity; 
+            return entity;
         }
 
         public virtual async Task RefreshAppoints(Guid exhibitionID)
@@ -130,21 +130,21 @@ namespace 通用订票.Application.System.Services.Service
                 return;
             }
 
-            var zero = await query.Where(a => a.day == 0).Select(a => new { a.id,a.day,a.sale }).ToArrayAsync();
+            var zero = await query.Where(a => a.day == 0).Select(a => new { a.id, a.day, a.sale }).ToArrayAsync();
             var notZero = await query.Where(a => a.day != 0).Select(a => new { a.id, a.day, a.sale }).ToArrayAsync();
-            for(int i = 0;i < zero.Length;i++)
+            for (int i = 0; i < zero.Length; i++)
             {
-                await RefreshAppoint(zero[i].id, notZero[notZero.Length - 1].day,0,true);
+                await RefreshAppoint(zero[i].id, notZero[notZero.Length - 1].day, 0, true);
             }
-            
+
             for (int i = 0; i < notZero.Length; i++)
             {
-                await RefreshAppoint(notZero[i].id, notZero[i].day - 1, notZero[i].sale,false);
+                await RefreshAppoint(notZero[i].id, notZero[i].day - 1, notZero[i].sale, false);
             }
         }
 
         [UnitOfWork]
-        private async Task RefreshAppoint(Guid id,int day,int sale,bool newone)
+        private async Task RefreshAppoint(Guid id, int day, int sale, bool newone)
         {
             Guid lockerId = Guid.NewGuid();
             try

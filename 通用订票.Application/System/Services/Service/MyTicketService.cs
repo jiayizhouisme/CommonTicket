@@ -17,11 +17,12 @@ using Core.Cache;
 using 通用订票.Core.Entity;
 using Core.Auth;
 using 通用订票.Application.System.Models;
+using 通用订票.Ticket.Entity;
 
 namespace 通用订票.Application.System.Services.Service
 {
     [Injection(Order = 1)]
-    public class MyTicketService : TicketBaseService<Core.Entity.Ticket>, IMyTicketService,ITransient
+    public class MyTicketService : TicketBaseService<Core.Entity.Ticket>, IMyTicketService, ITransient
     {
         private Guid userId;
         private readonly MyBeetleX _cache;
@@ -38,7 +39,7 @@ namespace 通用订票.Application.System.Services.Service
         /// <param name="order"></param>
         /// <param name="uids"></param>
         /// <returns></returns>
-        public virtual async Task<List<Core.Entity.Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, Core.Entity.Order order, int[] uids)
+        public virtual async Task<List<Core.Entity.Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, Core.Entity.Order order, int[] uids, TicketStatus status = TicketStatus.未激活)
         {
             List<Core.Entity.Ticket> result = new List<Core.Entity.Ticket>();
             foreach (var id in uids)
@@ -48,6 +49,7 @@ namespace 通用订票.Application.System.Services.Service
                 ticket.userID = userId;
                 ticket.objectId = order.trade_no;//应该替换成tradeNo
                 ticket.AppointmentId = order.objectId;
+                ticket.stauts = status;
                 result.Add(ticket);
             }
             try
@@ -59,7 +61,7 @@ namespace 通用订票.Application.System.Services.Service
                 throw new ArgumentException("用户不存在");
             }
 
-            await SetTicketToCache(order.trade_no,result);
+            await SetTicketToCache(order.trade_no, result);
             await SetTicketUserToCache(order.objectId, uids);
             return result;
         }
@@ -110,18 +112,19 @@ namespace 通用订票.Application.System.Services.Service
             this.userId = user;
         }
 
-        private async Task SetTicketUserToCache(Guid appointmentId,int[] uids)
+        private async Task SetTicketUserToCache(Guid appointmentId, int[] uids)
         {
             foreach (var uid in uids)
             {
-                await _cache.Set(GetKey(appointmentId, uid), "1",20);
+                await _cache.Set(GetKey(appointmentId, uid), "1", 20);
             }
         }
 
         private async Task SetTicketToCache(long orderId, IEnumerable<Core.Entity.Ticket> tickets)
         {
             var list = _cache.CreateList<Core.Entity.Ticket>("Tickets:" + orderId);
-            foreach (var ticket in tickets) {
+            foreach (var ticket in tickets)
+            {
                 await list.Push(ticket);
             }
             string cacheKey = "Tickets:" + orderId;
@@ -161,7 +164,7 @@ namespace 通用订票.Application.System.Services.Service
             return true;
         }
 
-        private string GetKey(Guid appointmentId,int Tuid)
+        private string GetKey(Guid appointmentId, int Tuid)
         {
             return "UserId_" + userId + "Appointment_" + appointmentId + "TUserId_" + Tuid;
         }
@@ -171,7 +174,7 @@ namespace 通用订票.Application.System.Services.Service
             var key = "Tickets:" + orderId;
             var list = _cache.CreateList<Core.Entity.Ticket>(key);
             var len = await list.Len();
-            var tickets = (await list.Range(0,(int)len)).ToList();
+            var tickets = (await list.Range(0, (int)len)).ToList();
 
             if (tickets.Count() > 0)
             {

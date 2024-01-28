@@ -33,7 +33,7 @@ namespace 通用订票.Application.System.Services.Service
             this._userServices = _userServices;
             this._user = _user;
             this._client = _client;
-            this._wechatpay = _wechatpay.Value;
+            //this._wechatpay = _wechatpay.Value;
             this._cache = _cache;
         }
 
