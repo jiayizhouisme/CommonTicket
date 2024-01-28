@@ -89,17 +89,16 @@ namespace 通用订票.Web.Entry.Controllers
                 var query = await userinfoService.Exist(a => a.id == item && a.userID == userid);
                 if (query == false)
                 {
-                    await _cache.Decr("QueueIn_" + oc.appid);
                     return new { code = 0, message = "所选择的用户不存在" };
                 }
             }
 
-            var myid = await _cache.Incr("QueueIn_" + oc.appid);
+            var myid = await _cache.Incrby("QueueIn_" + oc.appid,oc.ids.Count);
 
             var left = stock.amount - stock.sale; //获取剩余票数
             if (myid > left)
             {
-                await _cache.Decr("QueueIn_" + oc.appid);
+                await _cache.Decrby("QueueIn_" + oc.appid, oc.ids.Count);
                 return new { code = 0, message = "库存不足" };
             }
 
@@ -107,7 +106,7 @@ namespace 通用订票.Web.Entry.Controllers
             var vaild = await ticketService.Vaild(oc.ids.ToArray(), stock);
             if (vaild == false)
             {
-                await _cache.Decr("QueueIn_" + oc.appid);
+                await _cache.Decrby("QueueIn_" + oc.appid, oc.ids.Count);
                 await _cache.ReleaseLock("UserLock_" + userid, null);
                 return new { status = 1,message = "用户重复" };
             }

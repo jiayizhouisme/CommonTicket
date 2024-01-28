@@ -138,7 +138,7 @@ namespace 通用订票.RedisMQ
                     }
                     finally
                     {
-                        await _cache.Decr("QueueIn_" + data.appid);
+                        await _cache.Decrby("QueueIn_" + data.appid, data.ids.Count);
                     }
                 }
             }
