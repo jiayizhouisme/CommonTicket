@@ -20,6 +20,8 @@ using 通用订票.Application.System.Services.IService;
 using 通用订票.Application.System.Services.Service;
 using Core.Cache;
 using 通用订票.Core.Entity;
+using Core.Queue.IQueue;
+using 通用订票.RedisMQ.Entity;
 
 namespace 通用订票.Web.Entry.Controllers
 {
@@ -28,9 +30,9 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IWeChatPayNotifyClient _client;
         private readonly IOptions<WeChatPayOptions> _optionsAccessor;
-        private readonly RedisOperationRepository _redisOperationRepository;
+        private readonly IQueuePushInfo _redisOperationRepository;
         public PayNotifyController(IWeChatPayNotifyClient _client, IOptions<WeChatPayOptions> optionsAccessor,
-            RedisOperationRepository _redisOperationRepository,IHttpContextAccessor contextAccessor)
+            IQueuePushInfo _redisOperationRepository,IHttpContextAccessor contextAccessor)
         {
             _contextAccessor = contextAccessor;
             this._client = _client;
@@ -49,7 +51,9 @@ namespace 通用订票.Web.Entry.Controllers
                 var notify = await _client.ExecuteAsync<WeChatPayUnifiedOrderNotify>(_contextAccessor.HttpContext.Request, _optionsAccessor.Value);
                 if (notify.ReturnCode == WeChatPayCode.Success)
                 {
-                    await _redisOperationRepository.ListLeftPushAsync("WeChatPayNotice", JsonConvert.SerializeObject(notify));
+                    var entity = new WechatPayCallBackQueueEntity(notify);
+
+                    await _redisOperationRepository.PushMessage(entity);
                     return WeChatPayNotifyResult.Success;
                 }
                 return new NoContentResult();

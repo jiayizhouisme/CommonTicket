@@ -63,7 +63,6 @@ namespace 通用订票.Web.Core
 
             });
             services.Add(ServiceDescriptor.Singleton<MyBeetleX, MyBeetleX>());
-            services.Add(ServiceDescriptor.Singleton<RedisOperationRepository, RedisOperationRepository>());
             services.Add(ServiceDescriptor.Singleton<ISignalRUserService, JwtCacheUserService>());
             services.AddWeChatPay();
             services.Configure<WeChatPayOptions>(App.Configuration.GetSection("WeChatPay"));
