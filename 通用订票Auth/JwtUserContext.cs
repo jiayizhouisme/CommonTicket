@@ -28,7 +28,7 @@ namespace Core.Auth
         public string TenantId => GetTenantId();
         public string RealTenantId => GetRealTenantId();
         public string ClientIp => GetClientIp();
-        public Permissions Permissions => (Permissions)int.Parse(GetUserInfoFromToken("permissions").FirstOrDefault());
+        public Permissions Permissions => GetPermissions();
         public bool IsAuthenticated()
         {
             return _accessor.HttpContext.User.Identity.IsAuthenticated;
@@ -112,5 +112,20 @@ namespace Core.Auth
             }
             return realip;
         }
+
+        private Permissions GetPermissions()
+        {
+            var str = GetUserInfoFromToken("permissions").FirstOrDefault();
+            if (!str.IsNullOrEmpty())
+            {
+                return (Permissions)int.Parse(str);
+            }
+            else
+            {
+                return Permissions.Unreconized;
+            }
+            
+        }
+
     }
 }

@@ -21,6 +21,7 @@ namespace Core.Auth
     public enum Permissions
     {
         Administrator,
-        Normal
+        Normal,
+        Unreconized
     }
 }
