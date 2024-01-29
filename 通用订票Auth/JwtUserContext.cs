@@ -29,6 +29,7 @@ namespace Core.Auth
         public string RealTenantId => GetRealTenantId();
         public string ClientIp => GetClientIp();
         public Permissions Permissions => GetPermissions();
+        public string Agent => GetAgent();
         public bool IsAuthenticated()
         {
             return _accessor.HttpContext.User.Identity.IsAuthenticated;
@@ -125,6 +126,11 @@ namespace Core.Auth
                 return Permissions.Unreconized;
             }
             
+        }
+
+        private string GetAgent()
+        {
+            return _accessor.HttpContext.Request.Headers["User-Agent"];
         }
 
     }
