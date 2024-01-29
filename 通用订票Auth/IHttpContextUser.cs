@@ -10,6 +10,7 @@ namespace Core.Auth
         string RealTenantId { get; }
         string ClientIp { get; }
         Permissions Permissions { get; }
+        string Agent { get;}
         bool IsAuthenticated();
         IEnumerable<Claim> GetClaimsIdentity();
         List<string> GetClaimValueByType(string ClaimType);

@@ -102,7 +102,7 @@ namespace 通用订票.RedisMQ
 
                         await _queue.PushMessage(CreateTickets);
 
-                        var CreateOrder = new OrderCloseQueueEntity(
+                        var CloseOrder = new OrderCloseQueueEntity(
                             new OrderClose()
                             {       
                                 trade_no = order.trade_no, 
@@ -113,7 +113,7 @@ namespace 通用订票.RedisMQ
                                 realTenantId = data.realTenantId }
                             );
 
-                        await _queue.PushMessageDelay(CreateOrder,DateTime.Now.AddSeconds(60));
+                        await _queue.PushMessageDelay(CloseOrder, DateTime.Now.AddSeconds(60));
 
                         await sendMessage(client, JsonConvert.SerializeObject(new
                         {
