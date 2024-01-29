@@ -21,11 +21,11 @@ namespace Core.Auth
             _accessor = accessor;
         }
 
-        public string TenantId => GetTenantId();
         public string Name => _accessor.HttpContext.User.Identity.Name;
 
         public string ID => GetUserInfoFromToken("jti").FirstOrDefault();
 
+        public string TenantId => GetTenantId();
         public string RealTenantId => GetRealTenantId();
         public string clientIp => GetClientIp();
         public bool IsAuthenticated()

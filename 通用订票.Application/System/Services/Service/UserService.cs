@@ -10,6 +10,7 @@ using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
 using Core.Services;
 using Core.User.Service;
+using Core.Auth;
 
 namespace 通用订票.Application.System.Services.Service
 {
@@ -30,7 +31,8 @@ namespace 通用订票.Application.System.Services.Service
             {
                 { "jti", _user.id},  // 存储Id
                 { "name",_user.username }, // 存储用户名
-                { "tenant-id",extra_info}
+                { "tenant-id",extra_info},
+                { "permissions",Permissions.Normal}
             }, 7200);
             // 获取刷新 token
             var refreshToken = JWTEncryption.GenerateRefreshToken(accessToken, 43200); // 第二个参数是刷新 token 的有效期（分钟），默认三十天

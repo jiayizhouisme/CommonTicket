@@ -16,4 +16,10 @@ namespace Core.Auth
         string GetToken();
         List<string> GetUserInfoFromToken(string ClaimType);
     }
+
+    public enum Permissions
+    {
+        Administrator,
+        Normal
+    }
 }
