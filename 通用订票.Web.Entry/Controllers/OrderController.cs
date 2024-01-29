@@ -242,11 +242,6 @@ namespace 通用订票.Web.Entry.Controllers
                 }
                 await ticketService.DisableTickets(tickets);
 
-                //foreach (var ticket in tickets)
-                //{
-                //    var _result = await ticketService.DisableTicket(ticket);
-                //}
-
                 if (app == null)
                 {
                     throw new Exception("app不能为空");
