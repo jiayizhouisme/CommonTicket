@@ -93,7 +93,6 @@ namespace 通用订票.Web.Entry.Controllers
                 }
             }
 
-
             var left = stock.amount - stock.sale; //获取剩余票数
             var myid = await _cache.Incrby("QueueIn_" + oc.appid,oc.ids.Count);
 
@@ -138,6 +137,12 @@ namespace 通用订票.Web.Entry.Controllers
 
             await _cache.Lock("OrderLocker_" + trade_no, lockid);
             var order = await myOrderService.GetOrderById(trade_no);
+
+            if (order == null || order.userId.ToString() != httpContextUser.ID)
+            {
+                throw new ArgumentException("订单已不可支付");
+            }
+
             var stock = await stockService.checkStock(order.objectId);
             try
             {
@@ -176,6 +181,12 @@ namespace 通用订票.Web.Entry.Controllers
             Guid lockid = Guid.NewGuid();
             await _cache.Lock("OrderLocker_" + trade_no, lockid);
             var order = await myOrderService.GetOrderById(trade_no);
+
+            if (order == null || order.userId.ToString() != httpContextUser.ID)
+            {
+                throw new ArgumentException("订单已不可支付");
+            }
+
             try
             {
                 if (order.status != OrderStatus.已付款)
@@ -204,6 +215,11 @@ namespace 通用订票.Web.Entry.Controllers
             Guid lockerId = Guid.NewGuid();
             var lo = await _cache.Lock("OrderLocker_" + trade_no, lockerId);
             var order = await myOrderService.GetOrderById(trade_no);
+            if (order == null || order.userId.ToString() != httpContextUser.ID)
+            {
+                throw new ArgumentException("目前状态不可关闭订单");
+            }
+
             if (order.status != OrderStatus.未付款)
             {
                 await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId.ToString());
