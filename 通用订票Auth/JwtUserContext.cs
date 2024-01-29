@@ -27,7 +27,8 @@ namespace Core.Auth
 
         public string TenantId => GetTenantId();
         public string RealTenantId => GetRealTenantId();
-        public string clientIp => GetClientIp();
+        public string ClientIp => GetClientIp();
+        public Permissions Permissions => (Permissions)int.Parse(GetUserInfoFromToken("permissions").FirstOrDefault());
         public bool IsAuthenticated()
         {
             return _accessor.HttpContext.User.Identity.IsAuthenticated;
