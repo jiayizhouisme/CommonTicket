@@ -18,7 +18,7 @@ using 通用订票.Stock.Entity;
 using Core.User.Entity;
 using Furion.LinqBuilder;
 using Mapster;
-
+using System.ComponentModel.DataAnnotations;
 namespace 通用订票.Web.Entry.Controllers
 {
     public class LoginController : IDynamicApiController
@@ -62,7 +62,9 @@ namespace 通用订票.Web.Entry.Controllers
     }
     public class Login_Web
     {
+        [Required, Display(Name = "用户姓名")]
         public string username { get; set; }
+        [Required, Display(Name = "用户密码")]
         public string password { get; set; }
     }
 }
