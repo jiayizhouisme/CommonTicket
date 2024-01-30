@@ -71,11 +71,6 @@ namespace 通用订票.Web.Entry.Controllers
 
             //去重
             oc.ids = oc.ids.Distinct().ToArray();
-            if (oc.ids.Count == 0)
-            {
-                await _cache.ReleaseLock("UserLock_" + userid, null);
-                return new { code = 0, message = "请至少选择一个人" };
-            }
 
             var stock = await stockService.checkStock(oc.appid);
             if (stock == null)
