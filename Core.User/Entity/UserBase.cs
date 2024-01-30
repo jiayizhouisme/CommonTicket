@@ -1,8 +1,12 @@
-﻿namespace Core.User.Entity
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Core.User.Entity
 {
     public abstract class UserBase
     {
+        [Required, Display(Name = "用户姓名")]
         public string username { get; set; }
+        [Required, Display(Name = "用户姓名")]
         public string password { get; set; }
     }
 }

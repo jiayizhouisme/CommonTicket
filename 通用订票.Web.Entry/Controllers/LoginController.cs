@@ -15,6 +15,9 @@ using 通用订票.Application.System.Services.Service;
 using Core.Cache;
 using 通用订票.Core.Entity;
 using 通用订票.Stock.Entity;
+using Core.User.Entity;
+using Furion.LinqBuilder;
+using Mapster;
 
 namespace 通用订票.Web.Entry.Controllers
 {
@@ -29,15 +32,15 @@ namespace 通用订票.Web.Entry.Controllers
         }
 
         [HttpPost(Name = "Login")]
-        public async Task<IActionResult> Login(User user)
+        public async Task<IActionResult> Login([FromBody]Login_Web user)
         {
             var tenant_id = _contextAccessor.HttpContext.Request.Headers["Tenant-Id"].ToString();
-            if (tenant_id == null)
+            if (tenant_id.IsNullOrEmpty())
             {
                 return new UnauthorizedResult();
             }
 
-            var result = await userService.GetToken(user,tenant_id);
+            var result = await userService.GetToken(user.Adapt<User>(),tenant_id);
             if (result == null)
             {
                 return new UnauthorizedResult();
@@ -56,5 +59,10 @@ namespace 通用订票.Web.Entry.Controllers
             _contextAccessor.HttpContext.Response.Headers["x-access-token"] = "";
             return true;
         }
+    }
+    public class Login_Web
+    {
+        public string username { get; set; }
+        public string password { get; set; }
     }
 }
