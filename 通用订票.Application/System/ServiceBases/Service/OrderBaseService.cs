@@ -1,16 +1,6 @@
-﻿using Furion.DatabaseAccessor;
-using Furion.DistributedIDGenerator;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Core.Services;
 using 通用订票.Application.System.ServiceBases.IService;
-using Core.Services;
-using Core.Auth;
 using 通用订票Order.Entity;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Security.AccessControl;
 
 namespace 通用订票.Application.System.ServiceBases.Service
 {

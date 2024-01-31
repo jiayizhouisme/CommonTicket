@@ -1,13 +1,5 @@
-﻿using Essensoft.Paylink.WeChatPay.V3.Domain;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using 通用订票.Application.System.IService.Factory;
-using static System.Collections.Specialized.BitVector32;
 
 namespace 通用订票.Application.System.Factory.Service
 {

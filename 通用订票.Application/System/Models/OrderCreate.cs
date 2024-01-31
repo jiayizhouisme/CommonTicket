@@ -1,11 +1,4 @@
-﻿using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace 通用订票.Application.System.Models
+﻿namespace 通用订票.Application.System.Models
 {
     public class BaseOrderCreate {
         [Required(ErrorMessage = "请选择预约日期")]

@@ -1,20 +1,8 @@
-﻿using Furion;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using 订票系统.Rules.IService;
-using 通用订票.Application.System.ServiceBases.IService;
+﻿using Core.Cache;
+using SqlSugar;
 using 通用订票.Application.System.ServiceBases.Service;
 using 通用订票.Application.System.Services.IService;
-using Core.Cache;
-using 通用订票.Core.BaseEntity;
 using 通用订票.Core.Entity;
-using SqlSugar;
-using StackExchange.Redis;
 
 namespace 通用订票.Application.System.Services.Service
 {

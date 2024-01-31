@@ -1,17 +1,6 @@
-﻿using BeetleX.Redis.Commands;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using 订票系统.Rules.IService;
-using 通用订票.Application.System.ServiceBases.IService;
+﻿using Core.Cache;
 using Core.Services;
-using Core.Cache;
-using 通用订票.Core.BaseEntity;
-using 通用订票.Core.Entity;
-using 通用订票.Stock.Entity;
+using 通用订票.Application.System.ServiceBases.IService;
 
 namespace 通用订票.Application.System.ServiceBases.Service
 {

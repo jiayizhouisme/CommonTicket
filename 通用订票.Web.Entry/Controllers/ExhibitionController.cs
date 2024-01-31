@@ -1,16 +1,10 @@
-﻿using Furion.DatabaseAccessor;
+﻿using Core.MiddelWares;
+using Furion.DatabaseAccessor;
 using Furion.DynamicApiController;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Core.MiddelWares;
-using System.Security.Claims;
-using 通用订票.Application.System.ServiceBases.IService;
-using 通用订票.Application.System.Services.IService;
-using 通用订票.Application.System.Services.Service;
-using Core.Cache;
-using 通用订票.Core.Entity;
-using 通用订票.Stock.Entity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using 通用订票.Application.System.Services.IService;
+using 通用订票.Core.Entity;
 
 namespace 通用订票.Web.Entry.Controllers
 {

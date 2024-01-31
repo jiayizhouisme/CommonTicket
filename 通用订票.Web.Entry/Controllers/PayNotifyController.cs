@@ -1,26 +1,10 @@
-﻿using Azure.Core;
-using BeetleX.EventArgs;
+﻿using Core.Queue.IQueue;
 using Essensoft.Paylink.WeChatPay;
 using Essensoft.Paylink.WeChatPay.V2;
 using Essensoft.Paylink.WeChatPay.V2.Notify;
-using Furion.DatabaseAccessor;
-using Furion.DataEncryption;
-using Furion.DataValidation;
 using Furion.DynamicApiController;
-using Furion.TaskQueue;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System.Security.Claims;
-using 通用订票.Application.System.ServiceBases.IService;
-using 通用订票.Application.System.Services.IService;
-using 通用订票.Application.System.Services.Service;
-using Core.Cache;
-using 通用订票.Core.Entity;
-using Core.Queue.IQueue;
 using 通用订票.RedisMQ.Entity;
 
 namespace 通用订票.Web.Entry.Controllers

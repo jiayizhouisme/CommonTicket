@@ -1,21 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using 订票系统.Rules.IService;
-using 通用订票.Application.System.Models;
+﻿using Core.Cache;
 using 通用订票.Application.System.ServiceBases.Service;
 using 通用订票.Application.System.Services.IService;
-using Core.Cache;
-using Core.Auth;
-using 通用订票.Core.Entity;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using StackExchange.Redis;
-using BeetleX.Redis;
-using System.Security.AccessControl;
-using static BeetleX.Redis.Commands.HSCAN;
 
 namespace 通用订票.Application.System.Services.Service
 {

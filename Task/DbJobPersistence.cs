@@ -1,15 +1,7 @@
 ﻿using Furion;
 using Furion.DatabaseAccessor;
-using Furion.JsonSerialization;
 using Furion.Schedule;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using ProtoBuf.Meta;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using 通用订票.Core.Entity;
 
 namespace 通用订票.JobTask

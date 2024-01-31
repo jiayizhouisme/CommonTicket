@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using 通用订票.Stock.Entity;
+﻿using 通用订票.Stock.Entity;
 
 namespace 通用订票.Stock.IService
 {

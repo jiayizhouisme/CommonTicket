@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Core.Services;
 using 通用订票.Application.System.ServiceBases.IService;
-using Core.Services;
-using 通用订票.Core.Entity;
 using 通用订票.Ticket.Entity;
-using Core.Auth;
 
 namespace 通用订票.Application.System.ServiceBases.Service
 {

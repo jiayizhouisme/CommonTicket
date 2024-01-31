@@ -1,16 +1,13 @@
-﻿using Furion;
+﻿using Core.Services.ServiceFactory;
 using Furion.DatabaseAccessor;
+using Furion.DependencyInjection;
 using Furion.Schedule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ProtoBuf.Meta;
-using Core.Services.ServiceFactory;
+using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using 通用订票.Application.System.Factory.Service;
-using Furion.DependencyInjection;
 
 namespace 通用订票.JobTask
 {

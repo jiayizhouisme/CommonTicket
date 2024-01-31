@@ -1,9 +1,6 @@
-﻿using Core.Queue.IQueue;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Quick.RabbitMQPlus;
-using 通用订票.Application;
 using 通用订票.Application.System.Models;
 using 通用订票.RedisMQ.Entity;
 

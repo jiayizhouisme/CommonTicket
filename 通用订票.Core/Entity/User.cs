@@ -1,12 +1,8 @@
 ﻿using Core.User.Entity;
 using Furion.DatabaseAccessor;
-using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace 通用订票.Core.Entity
 {

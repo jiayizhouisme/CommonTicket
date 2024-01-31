@@ -1,26 +1,15 @@
-﻿using Essensoft.Paylink.WeChatPay.V2;
+﻿using Core.Cache;
+using Core.Services.ServiceFactory;
+using Essensoft.Paylink.WeChatPay.V2;
 using Essensoft.Paylink.WeChatPay.V2.Notify;
-using Furion;
 using Furion.DatabaseAccessor;
 using InitQ.Abstractions;
 using InitQ.Attributes;
-using InitQ.Cache;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using ProtoBuf.Meta;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Core.Services.ServiceFactory;
 using 通用订票.Application.System.Services.IService;
-using Core.Cache;
-using 通用订票.Core.Entity;
-using 通用订票.Ticket.Entity;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace 通用订票.RedisMQ
 {

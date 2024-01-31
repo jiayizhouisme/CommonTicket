@@ -1,21 +1,18 @@
-﻿using Furion.DatabaseAccessor;
+﻿using Core.Auth;
+using Core.Cache;
+using Core.MiddelWares;
+using Core.Queue.IQueue;
+using Furion.DatabaseAccessor;
+using Furion.DependencyInjection;
 using Furion.DynamicApiController;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
-using Core.Cache;
 using 通用订票.Core.Entity;
-using Core.SignalR;
-using Core.Auth;
-using 通用订票Order.Entity;
-using Core.MiddelWares;
-using Furion.DependencyInjection;
-using 通用订票.Application.System.Factory.Service;
-using Core.Queue.IQueue;
 using 通用订票.RedisMQ.Entity;
-using 通用订票.Core.BaseEntity;
+using 通用订票Order.Entity;
 
 namespace 通用订票.Web.Entry.Controllers
 {

@@ -1,14 +1,8 @@
-﻿using Furion.DatabaseAccessor;
+﻿using Core.Cache;
+using Furion.DatabaseAccessor;
 using Furion.Schedule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Core.Cache;
 using 通用订票.Core.Entity;
 
 namespace 通用订票.JobTask
