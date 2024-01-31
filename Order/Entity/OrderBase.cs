@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using 通用订票.Order.IService;
-using 通用订票Order.Entity;
+﻿using 通用订票Order.Entity;
 
 namespace 通用订票.Order.Entity
 {

@@ -1,14 +1,7 @@
 ﻿using Furion.DatabaseAccessor;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using 通用订票.Ticket.Entity;
 
 namespace 通用订票.Core.Entity

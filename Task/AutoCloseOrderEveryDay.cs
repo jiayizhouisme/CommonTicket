@@ -1,26 +1,13 @@
-﻿using Furion;
+﻿using Core.Queue.IQueue;
+using Core.Services.ServiceFactory;
 using Furion.DatabaseAccessor;
 using Furion.Schedule;
-using InitQ.Cache;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using ProtoBuf.Meta;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 using 通用订票.Application.System.Models;
-using Core.Services.ServiceFactory;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
-using 通用订票.JobTask;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using 通用订票.Application.System.Factory.Service;
-using Core.Queue.IQueue;
 using 通用订票.RedisMQ.Entity;
 
 namespace 通用订票.JobTask
