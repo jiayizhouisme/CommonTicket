@@ -86,6 +86,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Queue", "Core.Queue\Co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Entity", "Core.Entity\Core.Entity.csproj", "{24404DB6-77B3-44BA-BA32-A2D1B385C735}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "看门狗程序", "..\看门狗程序\看门狗程序.csproj", "{E7B07E42-5199-451C-95DF-3E22EAF13DB9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -228,6 +230,10 @@ Global
 		{24404DB6-77B3-44BA-BA32-A2D1B385C735}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24404DB6-77B3-44BA-BA32-A2D1B385C735}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24404DB6-77B3-44BA-BA32-A2D1B385C735}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7B07E42-5199-451C-95DF-3E22EAF13DB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7B07E42-5199-451C-95DF-3E22EAF13DB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7B07E42-5199-451C-95DF-3E22EAF13DB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7B07E42-5199-451C-95DF-3E22EAF13DB9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -268,6 +274,7 @@ Global
 		{9CD4A895-016E-4C7B-A136-61232A7202FA} = {8D7F4DED-2583-4C40-B390-44BDF2F47E36}
 		{38F31309-A9A8-4704-9E1F-886A987B81DC} = {C11C3504-64B5-46FE-8AC4-8204FAFB094C}
 		{24404DB6-77B3-44BA-BA32-A2D1B385C735} = {C11C3504-64B5-46FE-8AC4-8204FAFB094C}
+		{E7B07E42-5199-451C-95DF-3E22EAF13DB9} = {85EF8586-765E-41B4-B475-2B9925B82C71}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C53A7C6F-76AF-4F0F-95B5-BE403989F34F}
