@@ -18,7 +18,7 @@ namespace 通用订票.Application.System.Services.Service
 
         public override async Task<Appointment> SaleStock(Guid stockId, int count = 1)
         {
-            Guid lockerId = Guid.NewGuid();
+            string lockerId = Guid.NewGuid().ToString();
             Appointment stock = null;
             await _cache.Lock("StockUpdateLocker" + stockId, lockerId);
             try
@@ -38,7 +38,7 @@ namespace 通用订票.Application.System.Services.Service
             }
             finally
             {
-                await _cache.ReleaseLock("StockUpdateLocker" + stockId, lockerId.ToString());
+                await _cache.ReleaseLock("StockUpdateLocker" + stockId, lockerId);
             }
             return stock;
         }
@@ -134,7 +134,7 @@ namespace 通用订票.Application.System.Services.Service
         [UnitOfWork]
         private async Task RefreshAppoint(Guid id, int day, int sale, bool newone)
         {
-            Guid lockerId = Guid.NewGuid();
+            string lockerId = Guid.NewGuid().ToString();
             try
             {
                 await _cache.Lock("StockUpdateLocker" + id, lockerId);
@@ -159,7 +159,7 @@ namespace 通用订票.Application.System.Services.Service
             }
             finally
             {
-                await _cache.ReleaseLock("StockUpdateLocker" + id, lockerId.ToString());
+                await _cache.ReleaseLock("StockUpdateLocker" + id, lockerId);
             }
         }
     }

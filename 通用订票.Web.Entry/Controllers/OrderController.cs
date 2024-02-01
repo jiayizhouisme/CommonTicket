@@ -68,11 +68,12 @@ namespace 通用订票.Web.Entry.Controllers
 
             //去重
             oc.ids = oc.ids.Distinct().ToArray();
+            string lockierid = Guid.NewGuid().ToString();
 
             var stock = await stockService.checkStock(oc.appid);
             if (stock == null)
             {
-                await _cache.ReleaseLock("UserLock_" + userid, null);
+                await _cache.ReleaseLock("UserLock_" + userid, lockierid);
                 return new { code = 0, message = "库存不足" };
             }
 
@@ -99,7 +100,7 @@ namespace 通用订票.Web.Entry.Controllers
             if (vaild == false)
             {
                 await _cache.Decrby("QueueIn_" + oc.appid, oc.ids.Count);
-                await _cache.ReleaseLock("UserLock_" + userid, null);
+                await _cache.ReleaseLock("UserLock_" + userid, lockierid);
                 return new { status = 1,message = "用户重复" };
             }
 
@@ -125,7 +126,7 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpGet(Name = "PayOrder")]
         public async Task<WechatBill> PayOrder(long trade_no)
         {
-            Guid lockid = Guid.NewGuid();
+            string lockid = Guid.NewGuid().ToString();
 
             await _cache.Lock("OrderLocker_" + trade_no, lockid);
             var order = await myOrderService.GetOrderById(trade_no);
@@ -160,7 +161,7 @@ namespace 通用订票.Web.Entry.Controllers
             }
             finally
             {
-                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockid.ToString());
+                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockid);
             }
             return null;   
         }
@@ -170,7 +171,7 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpGet(Name = "PaidOrder")]
         public async Task<dynamic> PaidOrder(long trade_no)
         {
-            Guid lockid = Guid.NewGuid();
+            string lockid = Guid.NewGuid().ToString();
             await _cache.Lock("OrderLocker_" + trade_no, lockid);
             var order = await myOrderService.GetOrderById(trade_no);
 
@@ -193,7 +194,7 @@ namespace 通用订票.Web.Entry.Controllers
             }
             finally
             {
-                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockid.ToString());
+                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockid);
             }
             return null;
         }
@@ -204,7 +205,7 @@ namespace 通用订票.Web.Entry.Controllers
         [UnitOfWork]
         public async Task<dynamic> CloseOrder(long trade_no)
         {
-            Guid lockerId = Guid.NewGuid();
+            string lockerId = Guid.NewGuid().ToString();
             var lo = await _cache.Lock("OrderLocker_" + trade_no, lockerId);
             var order = await myOrderService.GetOrderById(trade_no);
             if (order == null || order.userId.ToString() != httpContextUser.ID)
@@ -214,7 +215,7 @@ namespace 通用订票.Web.Entry.Controllers
 
             if (order.status != OrderStatus.未付款)
             {
-                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId.ToString());
+                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId);
                 throw new Exception("目前状态不可关闭订单");
             }
 
@@ -253,7 +254,7 @@ namespace 通用订票.Web.Entry.Controllers
             finally
             {
 
-                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId.ToString());
+                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId);
             }
 
             return null;

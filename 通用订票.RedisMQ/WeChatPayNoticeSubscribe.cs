@@ -47,7 +47,7 @@ namespace 通用订票.RedisMQ
                     if (notify.ResultCode == WeChatPayCode.Success)
                     {
                         //支付成功
-                        Guid lockerId = Guid.NewGuid();
+                        string lockerId = Guid.NewGuid().ToString();
                         await _cache.Lock("OrderLocker_" + notify.Attach, lockerId);
                         try
                         {
@@ -64,7 +64,7 @@ namespace 通用订票.RedisMQ
                         finally
                         {
                             await t_service.AfterTicketToke(order.trade_no);
-                            await _cache.ReleaseLock("OrderLocker_" + notify.Attach, lockerId.ToString());
+                            await _cache.ReleaseLock("OrderLocker_" + notify.Attach, lockerId);
                         }
                     }
                     else

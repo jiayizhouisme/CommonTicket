@@ -58,7 +58,7 @@ namespace 通用订票.JobTask
         public async Task WaitingForAsync(JobClusterContext context)
         {
             var clusterId = int.Parse(context.ClusterId);
-
+            string lockerId = Guid.NewGuid().ToString();
             while (true)
             {
                 try
@@ -67,7 +67,7 @@ namespace 通用订票.JobTask
                     // 1) 如果作业集群表已有 status 为 ClusterStatus.Working 则继续循环
                     // 2) 如果作业集群表中还没有其他服务或只有自己，则插入一条集群服务或调用 await WorkNowAsync(clusterId); 之后 return;
                     // 3) 如果作业集群表中没有 status 为 ClusterStatus.Working 的，调用 await WorkNowAsync(clusterId); 之后 return;
-                    await _cache.Lock("JobLock",null);
+                    await _cache.Lock("JobLock", lockerId);
                     if (_jobClusterRepository.Count() == 1 && _jobClusterRepository.Any(a => a.Id == clusterId))
                     {
                         await WorkNowAsync(clusterId);
@@ -76,7 +76,7 @@ namespace 通用订票.JobTask
 
                     if (_jobClusterRepository.Any(a => a.Status == Core.Entity.ClusterStatus.Working))
                     {
-                        await _cache.ReleaseLock("JobLock", null);
+                        await _cache.ReleaseLock("JobLock", lockerId);
                         await Task.Delay(30000);
                         continue;
                     }
@@ -90,9 +90,8 @@ namespace 通用订票.JobTask
                 catch { 
                 
                 }
-                
             }
-            await _cache.ReleaseLock("JobLock", null);
+            await _cache.ReleaseLock("JobLock", lockerId);
             return;
         }
 

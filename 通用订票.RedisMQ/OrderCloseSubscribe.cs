@@ -57,14 +57,16 @@ namespace 通用订票.RedisMQ
                 t_service = ServiceFactory.GetNamedSaasService<IMyTicketService, Core.Entity.Ticket>(scope.ServiceProvider, t_service, data.tenantId);
                 #endregion
 
-                Guid lockerId = Guid.NewGuid();
+                Core.Entity.Order order = null;
+                string lockerId = Guid.NewGuid().ToString();
                 var lo = _cache.Lock("OrderLocker_" + data.trade_no, lockerId).Result;
-                var order = o_service.GetOrderById(data.trade_no).Result;
+                order = o_service.GetOrderById(data.trade_no).Result;
                 if (order.status != OrderStatus.未付款)
                 {
                     await _cache.ReleaseLock("OrderLocker_" + data.trade_no, lockerId.ToString());
                     throw new Exception("");
                 }
+
                 using (var transaction = dbContext.Database.BeginTransaction())
                 {
                     try

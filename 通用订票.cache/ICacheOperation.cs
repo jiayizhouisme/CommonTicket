@@ -9,9 +9,9 @@ namespace Core.Cache
 {
     public interface ICacheOperation
     {
-        ValueTask<long> Lock(string key, object value, int expireTime = 10);
+        ValueTask<long> Lock(string key, string value, int expireTime = 10);
 
-        ValueTask<long> LockNoWait(string key, object value, int expireTime = 10);
+        ValueTask<long> LockNoWait(string key, string value, int expireTime = 10);
 
         ValueTask<long> ReleaseLock(string key, string value);
 

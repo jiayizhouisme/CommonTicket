@@ -31,7 +31,7 @@ namespace 通用订票.RedisMQ
                 return;
             }
 
-            Guid lockerId = Guid.NewGuid();
+            string lockerId = Guid.NewGuid().ToString();
             var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
             using (var scope = _serviceProvider.CreateScope())
             {
@@ -59,7 +59,7 @@ namespace 通用订票.RedisMQ
                     }
                 }
             }
-            await _cache.ReleaseLock("OrderLocker_" + data.order.trade_no, lockerId.ToString());
+            await _cache.ReleaseLock("OrderLocker_" + data.order.trade_no, lockerId);
             await _cache.ReleaseLock("UserLock_" + data.userid, null);
             await Task.CompletedTask;
         }

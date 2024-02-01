@@ -11,7 +11,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Core.Cache
 {
-    public class RedisOperationRepository
+    public class RedisOperationRepository : ICacheOperation
     {
         private readonly ILogger<RedisOperationRepository> _logger;
         private readonly ConnectionMultiplexer _redis;
@@ -40,205 +40,129 @@ namespace Core.Cache
                 }
             }
         }
-
-        public async Task<bool> Exist(string key)
+        public async ValueTask<long> Lock(string key, string value, int expireTime = 10)
         {
-            return await _database.KeyExistsAsync(key);
-        }
-
-        public async Task<string> Get(string key)
-        {
-            return await _database.StringGetAsync(key);
-        }
-
-        public async Task Remove(string key)
-        {
-            await _database.KeyDeleteAsync(key);
-        }
-
-        public async Task Set(string key, object value, TimeSpan cacheTime)
-        {
-            if (value != null)
+            var _lock = await this._database.LockTakeAsync(key, value, TimeSpan.FromSeconds(expireTime));
+            while (_lock != true)
             {
-                //序列化，将object值生成RedisValue
-                await _database.StringSetAsync(key, JsonConvert.SerializeObject(value), cacheTime);
+                await Task.Delay(200);
+                _lock = await this._database.LockTakeAsync(key, value, TimeSpan.MaxValue);
+            }
+            return 1;
+        }
+
+        public async ValueTask<long> LockNoWait(string key, string value, int expireTime = 10)
+        {
+            long result;
+            var ret = await this._database.LockQueryAsync(key);
+            ret.TryParse(out result);
+            return result;
+        }
+
+        public async ValueTask<long> ReleaseLock(string key, string value)
+        {
+            var _lock = await this._database.LockReleaseAsync(key,value);
+            if (_lock == true)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
             }
         }
 
-        public async Task<TEntity> Get<TEntity>(string key)
+        public async ValueTask<string> Set(string key, object value)
+        {
+            string ret = null;
+            if (value != null)
+            {   ret = JsonConvert.SerializeObject(value);
+                await _database.StringSetAsync(key, JsonConvert.SerializeObject(value));
+            }
+            return ret;
+        }
+
+        public async ValueTask<string> Set(string key, object value, int? extime)
+        {
+            string ret = null;
+            if (value != null)
+            {
+                ret = JsonConvert.SerializeObject(value);
+                await _database.StringSetAsync(key, ret,TimeSpan.FromSeconds(extime.Value));
+            }
+            return ret;
+        }
+
+        public async ValueTask<long> Del(params string[] key)
+        {
+            var _lock = await _database.KeyDeleteAsync(key[0]);
+            if (_lock == true)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        public async ValueTask<T> Get<T>(string key)
         {
             var value = await _database.StringGetAsync(key);
             if (value.HasValue)
             {
                 //需要用的反序列化，将Redis存储的Byte[]，进行反序列化
-                return JsonConvert.DeserializeObject<TEntity>(value);
+                return JsonConvert.DeserializeObject<T>(value);
             }
             else
             {
-                return default;
+                return default(T);
             }
         }
 
-        /// <summary>
-        /// 根据key获取RedisValue
-        /// </summary>
-        /// <param name="redisKey"></param>
-        /// <returns></returns>
-        public async Task<RedisValue[]> ListRangeAsync(string redisKey)
+        public async ValueTask<long> Expire(string key, int extime)
         {
-            return await _database.ListRangeAsync(redisKey);
-        }
-
-        /// <summary>
-        /// 在列表头部插入值。如果键不存在，先创建再插入值
-        /// </summary>
-        /// <param name="redisKey"></param>
-        /// <param name="redisValue"></param>
-        /// <returns></returns>
-        public async Task<long> ListLeftPushAsync(string redisKey, string redisValue)
-        {
-            return await _database.ListLeftPushAsync(redisKey, redisValue);
-        }
-        /// <summary>
-        /// 在列表尾部插入值。如果键不存在，先创建再插入值
-        /// </summary>
-        /// <param name="redisKey"></param>
-        /// <param name="redisValue"></param>
-        /// <returns></returns>
-        public async Task<long> ListRightPushAsync(string redisKey, string redisValue)
-        {
-            return await _database.ListRightPushAsync(redisKey, redisValue);
-        }
-
-        /// <summary>
-        /// 在列表尾部插入数组集合。如果键不存在，先创建再插入值
-        /// </summary>
-        /// <param name="redisKey"></param>
-        /// <param name="redisValue"></param>
-        /// <returns></returns>
-        public async Task<long> ListRightPushAsync(string redisKey, IEnumerable<string> redisValue)
-        {
-            var redislist = new List<RedisValue>();
-            foreach (var item in redisValue)
+            var ret = await _database.KeyExpireAsync(key,TimeSpan.FromSeconds(extime));
+            if (ret == true)
             {
-                redislist.Add(item);
+                return 1;
             }
-            return await _database.ListRightPushAsync(redisKey, redislist.ToArray());
+            else
+            {
+                return 0;
+            }
         }
 
-
-        /// <summary>
-        /// 移除并返回存储在该键列表的第一个元素  反序列化
-        /// </summary>
-        /// <param name="redisKey"></param>
-        /// <returns></returns>
-        public async Task<T> ListLeftPopAsync<T>(string redisKey) where T : class
+        public async ValueTask<long> PushToList<T>(string key, T value)
         {
-            var cacheValue = await _database.ListLeftPopAsync(redisKey);
-            if (string.IsNullOrEmpty(cacheValue)) return null;
-            var res = JsonConvert.DeserializeObject<T>(cacheValue);
-            return res;
+            return await _database.ListRightPushAsync(key, JsonConvert.SerializeObject(value));
         }
 
-        /// <summary>
-        /// 移除并返回存储在该键列表的最后一个元素   反序列化
-        /// 只能是对象集合
-        /// </summary>
-        /// <param name="redisKey"></param>
-        /// <returns></returns>
-        public async Task<T> ListRightPopAsync<T>(string redisKey) where T : class
+        public async ValueTask<ICollection<T>> GetList<T>(string key, int start)
         {
-            var cacheValue = await _database.ListRightPopAsync(redisKey);
-            if (string.IsNullOrEmpty(cacheValue)) return null;
-            var res = JsonConvert.DeserializeObject<T>(cacheValue);
-            return res;
+            var result = await _database.ListRangeAsync(key, start, 1);
+            var list = result.Select(o => JsonConvert.DeserializeObject<T>(o)).ToList();
+            return list;
         }
 
-        /// <summary>
-        /// 移除并返回存储在该键列表的第一个元素   
-        /// </summary>
-        /// <param name="redisKey"></param>
-        /// <returns></returns>
-        public async Task<string> ListLeftPopAsync(string redisKey)
+        public async ValueTask<long> Incrby(string key, int num)
         {
-            return await _database.ListLeftPopAsync(redisKey);
+            return await _database.StringIncrementAsync(key,num);
         }
 
-        /// <summary>
-        /// 移除并返回存储在该键列表的最后一个元素   
-        /// </summary>
-        /// <param name="redisKey"></param>
-        /// <returns></returns>
-        public async Task<string> ListRightPopAsync(string redisKey)
+        public async ValueTask<long> Decrby(string key, int num)
         {
-            return await _database.ListRightPopAsync(redisKey);
+            return await _database.StringDecrementAsync(key,num);
         }
 
-        /// <summary>
-        /// 列表长度
-        /// </summary>
-        /// <param name="redisKey"></param>
-        /// <returns></returns>
-        public async Task<long> ListLengthAsync(string redisKey)
+        public async ValueTask<long> Incr(string key)
         {
-            return await _database.ListLengthAsync(redisKey);
+            return await _database.StringIncrementAsync(key);
         }
 
-        /// <summary>
-        /// 返回在该列表上键所对应的元素
-        /// </summary>
-        /// <param name="redisKey"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<string>> ListRangeAsync(string redisKey, int db = -1)
+        public async ValueTask<long> Decr(string key)
         {
-            var result = await _database.ListRangeAsync(redisKey);
-            return result.Select(o => o.ToString());
-        }
-
-        /// <summary>
-        /// 根据索引获取指定位置数据
-        /// </summary>
-        /// <param name="redisKey"></param>
-        /// <param name="start"></param>
-        /// <param name="stop"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<string>> ListRangeAsync(string redisKey, int start, int stop)
-        {
-            var result = await _database.ListRangeAsync(redisKey, start, stop);
-            return result.Select(o => o.ToString());
-        }
-
-        /// <summary>
-        /// 删除List中的元素 并返回删除的个数
-        /// </summary>
-        /// <param name="redisKey">key</param>
-        /// <param name="redisValue">元素</param>
-        /// <param name="type">大于零 : 从表头开始向表尾搜索，小于零 : 从表尾开始向表头搜索，等于零：移除表中所有与 VALUE 相等的值</param>
-        /// <returns></returns>
-        public async Task<long> ListDelRangeAsync(string redisKey, string redisValue, long type = 0)
-        {
-            return await _database.ListRemoveAsync(redisKey, redisValue, type);
-        }
-
-        /// <summary>
-        /// 清空List
-        /// </summary>
-        /// <param name="redisKey"></param>
-        public async Task ListClearAsync(string redisKey)
-        {
-            await _database.ListTrimAsync(redisKey, 1, 0);
-        }
-
-
-        /// <summary>
-        /// 有序集合/定时任务延迟队列用的多
-        /// </summary>
-        /// <param name="redisKey">key</param>
-        /// <param name="redisValue">元素</param>
-        /// <param name="score">分数</param>
-        public async Task SortedSetAddAsync(string redisKey, string redisValue, double score)
-        {
-            await _database.SortedSetAddAsync(redisKey, redisValue, score);
+            return await _database.StringDecrementAsync(key);
         }
     }
 }

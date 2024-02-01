@@ -15,19 +15,19 @@ namespace Core.Cache
             this.DataFormater = new JsonFormater();
         }
 
-        public async ValueTask<long> Lock(string key, object value,int expireTime = 10)
+        public async ValueTask<long> Lock(string key, string value,int expireTime = 10)
         {
             var result = await this.SetNX(key, value);
             while (result != 1)
             {
                 await Task.Delay(200);
-                result = this.SetNX(key, value).Result;
+                result = await this.SetNX(key, value);
             }
             await this.Expire(key, expireTime);
             return result;
         }
 
-        public async ValueTask<long> LockNoWait(string key, object value,int expireTime = 10)
+        public async ValueTask<long> LockNoWait(string key, string value,int expireTime = 10)
         {
             var result = await this.SetNX(key, value);
             if (result != 1)
