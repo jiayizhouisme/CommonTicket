@@ -1,13 +1,10 @@
-﻿using Castle.Core.Logging;
-using Core.Cache;
+﻿using Core.Cache;
 using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using 通用订票.Application.System.ServiceBases.IService;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Application.System.Services.Service;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
-using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
 namespace 通用订票.沙沟古镇.Service
 {

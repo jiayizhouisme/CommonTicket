@@ -1,5 +1,4 @@
-﻿using Castle.Core.Logging;
-using Core.Cache;
+﻿using Core.Cache;
 using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Microsoft.Extensions.Logging;
