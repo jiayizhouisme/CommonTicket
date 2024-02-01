@@ -36,21 +36,21 @@
             <param name="ticket"></param>
             <returns></returns>
         </member>
-        <member name="M:通用订票.Application.System.Services.IService.IAppointmentService.RefreshAppoints(System.Guid)">
+        <member name="M:通用订票.Application.System.Services.IService.IDefaultAppointmentService.RefreshAppoints(System.Guid)">
             <summary>
             循环刷新每天的库存
             </summary>
             <param name="exhibitionID"></param>
             <returns></returns>
         </member>
-        <member name="M:通用订票.Application.System.Services.Service.AppointmentService.vaildStock(通用订票.Core.Entity.Appointment)">
+        <member name="M:通用订票.Application.System.Services.Service.DefaultAppointmentService.vaildStock(通用订票.Core.Entity.Appointment)">
             <summary>
             队列之前进行基本判断
             </summary>
             <param name="stock"></param>
             <returns></returns>
         </member>
-        <member name="M:通用订票.Application.System.Services.Service.MyTicketService.GenarateTickets(System.DateTime,System.DateTime,通用订票.Core.Entity.Order,System.Int32[],通用订票.Ticket.Entity.TicketStatus)">
+        <member name="M:通用订票.Application.System.Services.Service.DefaultTicketService.GenarateTickets(System.DateTime,System.DateTime,通用订票.Core.Entity.Order,System.Int32[],通用订票.Ticket.Entity.TicketStatus)">
             <summary>
             根据选择的用户数生成对应数量的门票
             </summary>
@@ -60,7 +60,7 @@
             <param name="uids"></param>
             <returns></returns>
         </member>
-        <member name="M:通用订票.Application.System.Services.Service.MyTicketService.Vaild(System.Int32[],通用订票.Core.Entity.Appointment)">
+        <member name="M:通用订票.Application.System.Services.Service.DefaultTicketService.Vaild(System.Int32[],通用订票.Core.Entity.Appointment)">
             <summary>
             仅仅判断是否重复
             </summary>

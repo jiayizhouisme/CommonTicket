@@ -9,7 +9,7 @@ using Core.Auth;
 
 namespace 通用订票.Application.System.Services.IService
 {
-    public interface IAppointmentService : IStockService<Appointment>,IUserContext<Guid>
+    public interface IDefaultAppointmentService : IStockService<Appointment>,IUserContext<Guid>
     {
         Task<Appointment> GetAppointmentById(Guid appid);
         Task<IQueryable<Appointment>> GetAppointmentsByDay(Guid exhibtionID,int day);

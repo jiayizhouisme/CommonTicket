@@ -5,11 +5,11 @@ using 通用订票.Application.System.Services.IService;
 namespace 通用订票.Application.System.Services.Service
 {
     [Injection(Order = 1)]
-    public class MyOrderService : OrderBaseService<Core.Entity.Order>, IMyOrderServices, ITransient
+    public class DefaultOrderService : OrderBaseService<Core.Entity.Order>, IDefaultOrderServices, ITransient
     {
         private Guid userId { get; set; }
         private readonly ICacheOperation _cache;
-        public MyOrderService(IRepository<Core.Entity.Order> _dal, ICacheOperation cache) : base(_dal)
+        public DefaultOrderService(IRepository<Core.Entity.Order> _dal, ICacheOperation cache) : base(_dal)
         {
             _cache = cache;
         }

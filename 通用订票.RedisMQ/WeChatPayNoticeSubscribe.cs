@@ -35,8 +35,8 @@ namespace 通用订票.RedisMQ
             {
                 dbContext = Db.GetDbContext(scope.ServiceProvider);
 
-                var o_service = ServiceFactory.GetSaasService<IMyOrderServices, Core.Entity.Order>(scope.ServiceProvider, "默认租户");
-                var t_service = ServiceFactory.GetSaasService<IMyTicketService, Core.Entity.Ticket>(scope.ServiceProvider, "默认租户");
+                var o_service = ServiceFactory.GetSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, "默认租户");
+                var t_service = ServiceFactory.GetSaasService<IDefaultTicketService, Core.Entity.Ticket>(scope.ServiceProvider, "默认租户");
 
 
                 Core.Entity.Order order = null;
