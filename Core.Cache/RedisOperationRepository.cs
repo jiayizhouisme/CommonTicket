@@ -59,10 +59,15 @@ namespace Core.Cache
         public async ValueTask<long> LockNoWait(string key, string value, int expireTime = 10)
         {
             key = keyprefix + key;
-            long result;
-            var ret = await this._database.LockQueryAsync(key);
-            ret.TryParse(out result);
-            return result;
+            var ret = await this._database.LockTakeAsync(key, value, TimeSpan.FromSeconds(expireTime));
+            if (ret == true)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         public async ValueTask<long> ReleaseLock(string key, string value)

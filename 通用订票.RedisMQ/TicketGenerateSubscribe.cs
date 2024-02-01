@@ -61,7 +61,7 @@ namespace 通用订票.RedisMQ
                 }
             }
             await _cache.ReleaseLock("OrderLocker_" + data.order.trade_no, lockerId);
-            await _cache.ReleaseLock("UserLock_" + data.userid, null);
+            await _cache.ReleaseLock("UserLock_" + data.userid, data.userid.ToString());
             await Task.CompletedTask;
         }
     }
