@@ -8,7 +8,7 @@ using 通用订票.Application.System.Services.Service;
 namespace 通用订票.马家荡.Service
 {
     [Injection(Order = 0)]
-    public class MaJiaDangTicketService : Application.System.Services.Service.DefaultTicketService, ITransient
+    public class MaJiaDangTicketService : DefaultTicketService, ITransient
     {
         public MaJiaDangTicketService(IRepository<Core.Entity.Ticket> _dal, ICacheOperation _cache) : base(_dal, _cache)
         {
