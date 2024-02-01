@@ -140,7 +140,8 @@ namespace Core.Cache
 
         public async ValueTask<ICollection<T>> GetList<T>(string key, int start)
         {
-            var result = await _database.ListRangeAsync(key, start, 1);
+            var length = await _database.ListLengthAsync(key);
+            var result = await _database.ListRangeAsync(key, start, length);
             var list = result.Select(o => JsonConvert.DeserializeObject<T>(o)).ToList();
             return list;
         }
