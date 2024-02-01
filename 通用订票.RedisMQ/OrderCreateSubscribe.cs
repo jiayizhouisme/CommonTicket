@@ -107,10 +107,8 @@ namespace 通用订票.RedisMQ
                             {       
                                 trade_no = order.trade_no, 
                                 app = stockret, 
-                                tickets = null,
                                 delay = 10, 
-                                tenantId = data.tenantId,
-                                realTenantId = data.realTenantId }
+                                tenantId = data.tenantId}
                             );
 
                         await _queue.PushMessageDelay(CloseOrder, DateTime.Now.AddSeconds(60));

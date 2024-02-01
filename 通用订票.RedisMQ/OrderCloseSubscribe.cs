@@ -76,9 +76,9 @@ namespace 通用订票.RedisMQ
                         {
                             throw new Exception("订单已支付或不存在");
                         }
-                        data.tickets = t_service.GetTickets(o.trade_no).Result;
+                        var tickets = t_service.GetTickets(o.trade_no).Result;
 
-                        t_service.DisableTickets(data.tickets).Wait();
+                        t_service.DisableTickets(tickets).Wait();
 
                         //if (data.tickets != null)
                         //{
@@ -89,7 +89,7 @@ namespace 通用订票.RedisMQ
                         //    }
                         //}
 
-                        var app = s_service.SaleStock(data.app.id, -data.tickets.Count).Result;
+                        var app = s_service.SaleStock(data.app.id, -tickets.Count).Result;
                         if (app == null)
                         {
                             throw new Exception("app不能为空");

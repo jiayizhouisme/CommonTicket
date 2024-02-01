@@ -14,7 +14,6 @@
     {
         public Guid userid { get; set; }
         public string tenantId { get; set; }
-        public string realTenantId { get; set; }
         public decimal price { get; set; }
         
     }

@@ -23,7 +23,7 @@ namespace 通用订票.Web.Entry.Controllers
             _logger.LogInformation("test");
             var entity1 = new RabbitMQTestEntity1();
             var entity2 = new RabbitMQTestEntity2();
-            entity1.entity = new OrderCreate() { realTenantId = "mylittle shit1"};
+            entity1.entity = new OrderCreate() { };
             await _queuePushInfo.Send(entity1, "TestRouteKey1");
             await _queuePushInfo.Send(entity2, "TestRouteKey2");
             return View();

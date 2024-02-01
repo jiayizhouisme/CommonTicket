@@ -116,8 +116,7 @@ namespace 通用订票.Web.Entry.Controllers
                 ids = oc.ids,
                 userid = userid,
                 tenantId = httpContextUser.TenantId,
-                price = exhibition.basicPrice,
-                realTenantId = httpContextUser.RealTenantId
+                price = exhibition.basicPrice
             });
 
             await _queue.PushMessage(CreateOrder);
