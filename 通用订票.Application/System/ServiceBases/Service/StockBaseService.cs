@@ -6,10 +6,10 @@ namespace 通用订票.Application.System.ServiceBases.Service
 {
     public abstract class StockBaseService<T> : BaseService<T>, IStockService<T> where T : Core.BaseEntity.Stock, new()
     {
-        private readonly MyBeetleX _cache;
+        private readonly ICacheOperation _cache;
         private long lo = 0;
 
-        public StockBaseService(IRepository<T> _dal, MyBeetleX _cache)
+        public StockBaseService(IRepository<T> _dal, ICacheOperation _cache)
         {
             this._dal = _dal;
             this._cache = _cache;

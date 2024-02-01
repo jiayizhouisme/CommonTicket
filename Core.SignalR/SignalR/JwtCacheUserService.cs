@@ -9,9 +9,9 @@ namespace Core.SignalR
 {
     public class JwtCacheUserService : ISignalRUserService
     {
-        private readonly MyBeetleX _cache;
+        private readonly ICacheOperation _cache;
 
-        public JwtCacheUserService(MyBeetleX _cache)
+        public JwtCacheUserService(ICacheOperation _cache)
         {
             this._cache = _cache;
         }

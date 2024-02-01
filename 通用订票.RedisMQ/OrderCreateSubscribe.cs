@@ -21,7 +21,7 @@ namespace 通用订票.RedisMQ
 {
     public class OrderCreateSubscribe : IRedisSubscribe
     {
-        private readonly MyBeetleX _cache;
+        private readonly ICacheOperation _cache;
         private readonly IHubContext<ChatHub> _hubContext;
         private readonly ILogger<OrderCreateSubscribe> _logger;
         private readonly IServiceProvider _serviceProvider;
@@ -29,7 +29,7 @@ namespace 通用订票.RedisMQ
         private readonly IQueuePushInfo _queue;
 
         public OrderCreateSubscribe(ILogger<OrderCreateSubscribe> _logger, IServiceProvider _serviceProvider,
-            MyBeetleX _cache, ISignalRUserService userapp, IHubContext<ChatHub> _hubContext,IQueuePushInfo _queue)
+            ICacheOperation _cache, ISignalRUserService userapp, IHubContext<ChatHub> _hubContext,IQueuePushInfo _queue)
         {
             this._logger = _logger;
             this._cache = _cache;

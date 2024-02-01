@@ -10,8 +10,8 @@ namespace 通用订票.Application.System.Services.Service
     public class AppointmentService : StockBaseService<Appointment>, IAppointmentService, ITransient
     {
         private Guid userId;
-        private MyBeetleX _cache;
-        public AppointmentService(IRepository<Appointment> _dal, MyBeetleX _cache) : base(_dal, _cache)
+        private ICacheOperation _cache;
+        public AppointmentService(IRepository<Appointment> _dal, ICacheOperation _cache) : base(_dal, _cache)
         {
             this._cache = _cache;
         }

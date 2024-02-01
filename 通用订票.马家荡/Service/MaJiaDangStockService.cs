@@ -11,7 +11,7 @@ namespace 通用订票.马家荡.Service
     [Injection(Order = 0)]
     public class MaJiaDangStockService : AppointmentService, ITransient
     {
-        public MaJiaDangStockService(IRepository<Appointment> _dal, MyBeetleX _cache) : base(_dal, _cache)
+        public MaJiaDangStockService(IRepository<Appointment> _dal, ICacheOperation _cache) : base(_dal, _cache)
         {
         }
     }

@@ -26,11 +26,11 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IHttpContextUser httpContextUser;
         private readonly IWechatBillService billService;
         private readonly IExhibitionService exhibitionService;
-        private readonly MyBeetleX _cache;
+        private readonly ICacheOperation _cache;
         private readonly IQueuePushInfo _queue;
 
         public OrderController(IUserInfoService userinfoService,
-            MyBeetleX _cache, 
+            ICacheOperation _cache, 
             IHttpContextUser httpContextUser, 
             IWechatBillService billService, 
             IExhibitionService exhibitionService,

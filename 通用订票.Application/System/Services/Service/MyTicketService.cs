@@ -25,8 +25,8 @@ namespace 通用订票.Application.System.Services.Service
     public class MyTicketService : TicketBaseService<Core.Entity.Ticket>, IMyTicketService, ITransient
     {
         private Guid userId;
-        private readonly MyBeetleX _cache;
-        public MyTicketService(IRepository<Core.Entity.Ticket> _dal, MyBeetleX _cache) : base(_dal)
+        private readonly ICacheOperation _cache;
+        public MyTicketService(IRepository<Core.Entity.Ticket> _dal, ICacheOperation _cache) : base(_dal)
         {
             this._cache = _cache;
         }
@@ -122,12 +122,19 @@ namespace 通用订票.Application.System.Services.Service
 
         private async Task SetTicketToCache(long orderId, IEnumerable<Core.Entity.Ticket> tickets)
         {
-            var list = _cache.CreateList<Core.Entity.Ticket>("Tickets:" + orderId);
-            foreach (var ticket in tickets)
-            {
-                await list.Push(ticket);
-            }
             string cacheKey = "Tickets:" + orderId;
+            foreach (var item in tickets)
+            {
+                await _cache.PushToList<Core.Entity.Ticket>("Tickets:" + orderId, item);
+            }
+
+            //string cacheKey = "Tickets:" + orderId;
+            //var list = _cache.CreateList<Core.Entity.Ticket>(cacheKey);
+            //foreach (var ticket in tickets)
+            //{
+            //    await list.Push(ticket);
+            //}
+
             await _cache.Expire(cacheKey, 650);
         }
 
@@ -169,14 +176,15 @@ namespace 通用订票.Application.System.Services.Service
             return "UserId_" + userId + "Appointment_" + appointmentId + "TUserId_" + Tuid;
         }
 
-        public virtual async Task<List<Core.Entity.Ticket>> GetTickets(long orderId)
+        public virtual async Task<ICollection<Core.Entity.Ticket>> GetTickets(long orderId)
         {
             var key = "Tickets:" + orderId;
-            var list = _cache.CreateList<Core.Entity.Ticket>(key);
-            var len = await list.Len();
-            var tickets = (await list.Range(0, (int)len)).ToList();
+            var tickets = await _cache.GetList<Core.Entity.Ticket>(key,0);
+            //var list = _cache.CreateList<Core.Entity.Ticket>(key);
+            //var len = await list.Len();
+            //var tickets = (await list.Range(0, (int)len)).ToList();
 
-            if (tickets.Count() > 0)
+            if (tickets.Count > 0)
             {
                 return tickets;
             }

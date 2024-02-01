@@ -16,7 +16,7 @@ namespace 通用订票.沙沟古镇.Service
     {
         private ILogger _log { get; set; }
 
-        public ShagouOrderService(IRepository<Core.Entity.Order> _dal, MyBeetleX cache, ILoggerFactory logger) : base(_dal, cache)
+        public ShagouOrderService(IRepository<Core.Entity.Order> _dal, ICacheOperation cache, ILoggerFactory logger) : base(_dal, cache)
         {
             _log = logger.CreateLogger("ShagouOrder");
         }

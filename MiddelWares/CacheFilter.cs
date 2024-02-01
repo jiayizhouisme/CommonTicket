@@ -7,11 +7,11 @@ namespace Core.MiddelWares
 {
     public class CacheFilter : IResourceFilter
     {
-        protected readonly MyBeetleX _cache;
+        protected readonly ICacheOperation _cache;
         protected string suffixed;
         public static int _expireTime = 30;
 
-        public CacheFilter(MyBeetleX _cache)
+        public CacheFilter(ICacheOperation _cache)
         {
             this._cache = _cache;
         }

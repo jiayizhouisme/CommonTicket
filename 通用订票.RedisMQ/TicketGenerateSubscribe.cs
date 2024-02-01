@@ -14,8 +14,8 @@ namespace 通用订票.RedisMQ
     public class TicketGenerateSubscribe : IRedisSubscribe
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly MyBeetleX _cache;
-        public TicketGenerateSubscribe(IServiceProvider _serviceProvider, MyBeetleX _cache)
+        private readonly ICacheOperation _cache;
+        public TicketGenerateSubscribe(IServiceProvider _serviceProvider, ICacheOperation _cache)
         {
             this._serviceProvider = _serviceProvider;
             this._cache = _cache;

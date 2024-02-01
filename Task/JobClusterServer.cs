@@ -12,9 +12,9 @@ namespace 通用订票.JobTask
         private readonly IServiceScope _serviceScope;
         private readonly IRepository<JobCluster,MultiTenantDbContextLocator> _jobClusterRepository;
         private readonly ISchedulerFactory _schedulerFactory;
-        private readonly MyBeetleX _cache;
+        private readonly ICacheOperation _cache;
 
-        public JobClusterServer(IServiceScopeFactory serviceScope, ISchedulerFactory _schedulerFactory, MyBeetleX _cache)
+        public JobClusterServer(IServiceScopeFactory serviceScope, ISchedulerFactory _schedulerFactory, ICacheOperation _cache)
         {
             this._schedulerFactory = _schedulerFactory;
             this._cache = _cache;

@@ -13,8 +13,8 @@ namespace 通用订票.Application.System.Services.Service
 {
     public class ExhibitionService : BaseService<Exhibition>,IExhibitionService, ITransient
     {
-        private readonly MyBeetleX _cache;
-        public ExhibitionService(IRepository<Exhibition> _dal,MyBeetleX _cache)
+        private readonly ICacheOperation _cache;
+        public ExhibitionService(IRepository<Exhibition> _dal, ICacheOperation _cache)
         {
             this._dal = _dal;
             this._cache = _cache;

@@ -8,8 +8,8 @@ namespace 通用订票.Application.System.Services.Service
     public class MyOrderService : OrderBaseService<Core.Entity.Order>, IMyOrderServices, ITransient
     {
         private Guid userId { get; set; }
-        private readonly MyBeetleX _cache;
-        public MyOrderService(IRepository<Core.Entity.Order> _dal, MyBeetleX cache) : base(_dal)
+        private readonly ICacheOperation _cache;
+        public MyOrderService(IRepository<Core.Entity.Order> _dal, ICacheOperation cache) : base(_dal)
         {
             _cache = cache;
         }

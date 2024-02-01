@@ -19,10 +19,10 @@ namespace 通用订票.RedisMQ
     public class OrderCloseSubscribe : IRedisSubscribe
     {
         private readonly ILogger<OrderCloseSubscribe> _logger;
-        private readonly MyBeetleX _cache;
+        private readonly ICacheOperation _cache;
         private readonly IServiceProvider _serviceProvider;
 
-        public OrderCloseSubscribe(ILogger<OrderCloseSubscribe> _logger, IServiceProvider _serviceProvider,MyBeetleX _cache)
+        public OrderCloseSubscribe(ILogger<OrderCloseSubscribe> _logger, IServiceProvider _serviceProvider, ICacheOperation _cache)
         {
             this._logger = _logger;
             this._cache = _cache;

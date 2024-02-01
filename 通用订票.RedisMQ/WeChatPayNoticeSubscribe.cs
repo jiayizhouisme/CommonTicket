@@ -16,12 +16,12 @@ namespace 通用订票.RedisMQ
     public class WeChatPayNoticeSubscribe : IRedisSubscribe
     {
         private readonly ILogger<WeChatPayNoticeSubscribe> _logger;
-        private readonly MyBeetleX _cache;
+        private readonly ICacheOperation _cache;
         private DbContext dbContext;
         private readonly IServiceProvider _serviceProvider;
 
         public WeChatPayNoticeSubscribe(ILogger<WeChatPayNoticeSubscribe> _logger, IServiceProvider _serviceProvider,
-            MyBeetleX _cache)
+            ICacheOperation _cache)
         {
             this._logger = _logger;
             this._cache = _cache;

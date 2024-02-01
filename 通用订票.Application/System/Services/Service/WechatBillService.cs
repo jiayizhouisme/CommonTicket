@@ -25,9 +25,9 @@ namespace 通用订票.Application.System.Services.Service
         private readonly IWeChatPayClient _client;
         private readonly IHttpContextUser _user;
         private readonly IUserService _userServices;
-        private readonly MyBeetleX _cache;
+        private readonly ICacheOperation _cache;
         public WechatBillService(IOptions<WeChatPayOptions> _wechatpay, IRepository<WechatBill> _dal, IUserService _userServices,
-            IWeChatPayClient _client, IHttpContextUser _user, MyBeetleX _cache)
+            IWeChatPayClient _client, IHttpContextUser _user, ICacheOperation _cache)
         {
             this._dal = _dal;
             this._userServices = _userServices;
