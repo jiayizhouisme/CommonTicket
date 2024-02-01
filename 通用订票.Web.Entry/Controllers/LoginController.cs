@@ -24,7 +24,7 @@ namespace 通用订票.Web.Entry.Controllers
             var tenant_id = _contextAccessor.HttpContext.Request.Headers["Tenant-Id"].ToString();
             if (tenant_id.IsNullOrEmpty())
             {
-                return new UnauthorizedResult();
+                //return new UnauthorizedResult();
             }
 
             var result = await userService.GetToken(user.Adapt<User>(),tenant_id);

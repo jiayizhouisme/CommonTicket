@@ -21,7 +21,7 @@ namespace 通用订票.Web.Entry.Controllers
         }
 
         [Authorize]
-        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        //[TypeFilter(typeof(SaaSAuthorizationFilter))]
         [TypeFilter(typeof(CacheFilter))]
         [NonUnify]
         [HttpGet(Name = "Get")]
