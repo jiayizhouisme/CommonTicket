@@ -9,7 +9,7 @@ using 通用订票.Core.Entity;
 namespace 通用订票.马家荡.Service
 {
     [Injection(Order = 0)]
-    public class MaJiaDangStockService : AppointmentService, ITransient
+    public class MaJiaDangStockService : DefaultAppointmentService, ITransient
     {
         public MaJiaDangStockService(IRepository<Appointment> _dal, ICacheOperation _cache) : base(_dal, _cache)
         {

@@ -20,9 +20,9 @@ namespace 通用订票.Web.Entry.Controllers
     {
         private readonly IUserInfoService userinfoService;
         private readonly IUserService userService;
-        private readonly IAppointmentService stockService;
-        private readonly IMyTicketService ticketService;
-        private readonly IMyOrderServices myOrderService;
+        private readonly IDefaultAppointmentService stockService;
+        private readonly IDefaultTicketService ticketService;
+        private readonly IDefaultOrderServices myOrderService;
         private readonly IHttpContextUser httpContextUser;
         private readonly IWechatBillService billService;
         private readonly IExhibitionService exhibitionService;
@@ -35,9 +35,9 @@ namespace 通用订票.Web.Entry.Controllers
             IWechatBillService billService, 
             IExhibitionService exhibitionService,
             IUserService userService,
-            INamedServiceProvider<IAppointmentService> _stockProvider,
-            INamedServiceProvider<IMyOrderServices> _orderProvider,
-            INamedServiceProvider<IMyTicketService> _ticketProvider,
+            INamedServiceProvider<IDefaultAppointmentService> _stockProvider,
+            INamedServiceProvider<IDefaultOrderServices> _orderProvider,
+            INamedServiceProvider<IDefaultTicketService> _ticketProvider,
             IQueuePushInfo _queue)
         {
             this._cache = _cache;

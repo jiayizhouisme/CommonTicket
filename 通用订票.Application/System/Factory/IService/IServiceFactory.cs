@@ -4,8 +4,8 @@ namespace 通用订票.Application.System.IService.Factory
 {
     public interface IServiceFactory
     {
-        public IMyOrderServices GetOrderService(INamedServiceProvider<IMyOrderServices> _orderProvider);
-        public IAppointmentService GetStockService(INamedServiceProvider<IAppointmentService> _stockProvider);
-        public IMyTicketService GetTicketService(INamedServiceProvider<IMyTicketService> _ticketProvider);
+        public IDefaultOrderServices GetOrderService(INamedServiceProvider<IDefaultOrderServices> _orderProvider);
+        public IDefaultAppointmentService GetStockService(INamedServiceProvider<IDefaultAppointmentService> _stockProvider);
+        public IDefaultTicketService GetTicketService(INamedServiceProvider<IDefaultTicketService> _ticketProvider);
     }
 }

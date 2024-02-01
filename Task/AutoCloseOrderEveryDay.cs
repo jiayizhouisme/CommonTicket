@@ -40,8 +40,8 @@ namespace 通用订票.JobTask
 
         private async Task CloseOrdersByid(IServiceScope scope, string id)
         {
-            var s_service = ServiceFactory.GetSaasService<IAppointmentService, Appointment>(scope.ServiceProvider, id);
-            var o_service = ServiceFactory.GetSaasService<IMyOrderServices, Core.Entity.Order>(scope.ServiceProvider, id);
+            var s_service = ServiceFactory.GetSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, id);
+            var o_service = ServiceFactory.GetSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, id);
             var te = Db.GetRepository<Tenant, MultiTenantDbContextLocator>(scope.ServiceProvider);
             var now = DateTime.Now.AddMinutes(0);
 
