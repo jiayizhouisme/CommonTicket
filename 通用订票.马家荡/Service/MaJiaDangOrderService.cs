@@ -12,7 +12,7 @@ using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 namespace 通用订票.马家荡.Service
 {
     [Injection(Order = 0)]
-    public class MaJiaDangOrderService : IDefaultOrderService, ITransient
+    public class MaJiaDangOrderService : DefaultOrderService, ITransient
     {
         private ILogger _log { get; set; }
 
