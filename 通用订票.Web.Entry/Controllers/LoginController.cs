@@ -1,4 +1,5 @@
-﻿using Furion.DynamicApiController;
+﻿using Core.User.Entity;
+using Furion.DynamicApiController;
 using Furion.LinqBuilder;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
@@ -45,12 +46,5 @@ namespace 通用订票.Web.Entry.Controllers
             _contextAccessor.HttpContext.Response.Headers["x-access-token"] = "";
             return true;
         }
-    }
-    public class Login_Web
-    {
-        [Required, Display(Name = "用户姓名")]
-        public string username { get; set; }
-        [Required, Display(Name = "用户密码")]
-        public string password { get; set; }
     }
 }
