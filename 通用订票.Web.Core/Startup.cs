@@ -61,7 +61,7 @@ namespace 通用订票.Web.Core
                 string redisConfiguration = App.Configuration["RedisConfig:ConnectionString"];
                 var configuration = ConfigurationOptions.Parse(redisConfiguration, true);
                 configuration.ResolveDns = true;
-                configuration.ChannelPrefix = App.Configuration["ServerConfig:CachePrefix"];
+                configuration.DefaultDatabase = 0;
                 return ConnectionMultiplexer.Connect(configuration);
             });
 
