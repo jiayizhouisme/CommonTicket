@@ -136,7 +136,7 @@ namespace 通用订票.JobTask
             await _jobClusterRepository.UpdateNowAsync(item);
 
             _schedulerFactory.AddJob<AutoRefreshStockEveryDay>(Triggers.Daily()); // 表示每天执行
-            _schedulerFactory.AddJob<AutoCloseOrderEveryDay>(Triggers.DailyAt(23).SetRunOnStart(true));
+            _schedulerFactory.AddJob<AutoCloseOrderEveryDay>(Triggers.DailyAt(23).SetRunOnStart(false));
 
         }
     }
