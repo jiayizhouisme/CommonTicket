@@ -11,21 +11,14 @@ namespace 通用订票.Web.Entry.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        private readonly IQuickRabbitMQPlus _queuePushInfo;
-        public HomeController(IQuickRabbitMQPlus _queuePushInfo, ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger)
         {
-            this._queuePushInfo = _queuePushInfo;
             _logger = logger;
         }
 
         public async Task<IActionResult> Index()
         {
             _logger.LogInformation("test");
-            var entity1 = new RabbitMQTestEntity1();
-            var entity2 = new RabbitMQTestEntity2();
-            entity1.entity = new OrderCreate() { };
-            await _queuePushInfo.Send(entity1, "TestRouteKey1");
-            await _queuePushInfo.Send(entity2, "TestRouteKey2");
             return View();
         }
     }

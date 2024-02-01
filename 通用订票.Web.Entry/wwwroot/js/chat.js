@@ -1,7 +1,7 @@
 ﻿"use strict";
 
 var connection = new signalR.HubConnectionBuilder().withUrl("/hubs/chathub", {
-    accessTokenFactory: () => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0Mzc1MWQxNy1lMjZiLTRlMWUtYWIyNS0yNjczYjM5ZGYzZmMiLCJuYW1lIjoiYWRtaW4iLCJ0ZW5hbnQtaWQiOiJzaGFnb3UxIiwiaWF0IjoxNzA1OTE2ODc4LCJuYmYiOjE3MDU5MTY4NzgsImV4cCI6MTcwNjM0ODg3OCwiaXNzIjoiemhvdWppYXlpIiwiYXVkIjoic3Vubnlza3kifQ.MOcHWwETQkj-_Y6W61ReGPiF0mJ7yPy_sNeHlyS1lZY",
+    accessTokenFactory: () => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4MGZiM2E3MC1hMjE0LTZmZGQtZjFmMy0xYTM2MDk4NGRhNjgiLCJuYW1lIjoiYWRtaW4iLCJ0ZW5hbnQtaWQiOiIiLCJwZXJtaXNzaW9ucyI6MSwiaWF0IjoxNzA2ODA3NzY4LCJuYmYiOjE3MDY4MDc3NjgsImV4cCI6MTcwNzIzOTc2OCwiaXNzIjoiemhvdWppYXlpIiwiYXVkIjoic3Vubnlza3kifQ.xO3JHJP1Sg-fuIVvXIAasKgXucnYG6Z1ANfEv-qDj0M",
 }
     ).build();
 
