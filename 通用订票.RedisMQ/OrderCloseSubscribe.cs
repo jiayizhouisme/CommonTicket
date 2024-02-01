@@ -80,15 +80,6 @@ namespace 通用订票.RedisMQ
 
                         t_service.DisableTickets(tickets).Wait();
 
-                        //if (data.tickets != null)
-                        //{
-                        //    foreach (var ticket in data.tickets)
-                        //    {
-                        //        //ticket.isDeleted = true;
-                        //        var _result = t_service.DisableTicket(ticket).Result;
-                        //    }
-                        //}
-
                         var app = s_service.SaleStock(data.app.id, -tickets.Count).Result;
                         if (app == null)
                         {
