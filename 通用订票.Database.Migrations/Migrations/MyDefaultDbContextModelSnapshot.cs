@@ -66,7 +66,7 @@ namespace 通用订票.Database.Migrations.Migrations
 
                     b.HasIndex("objectId");
 
-                    b.ToTable("Appointment");
+                    b.ToTable("Appointment", (string)null);
                 });
 
             modelBuilder.Entity("通用订票.Core.Entity.Exhibition", b =>
@@ -98,7 +98,7 @@ namespace 通用订票.Database.Migrations.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("Exhibition");
+                    b.ToTable("Exhibition", (string)null);
                 });
 
             modelBuilder.Entity("通用订票.Core.Entity.Order", b =>
@@ -138,7 +138,7 @@ namespace 通用订票.Database.Migrations.Migrations
 
                     b.HasIndex("trade_no");
 
-                    b.ToTable("Order");
+                    b.ToTable("Order", (string)null);
                 });
 
             modelBuilder.Entity("通用订票.Core.Entity.Ticket", b =>
@@ -183,7 +183,7 @@ namespace 通用订票.Database.Migrations.Migrations
 
                     b.HasIndex("TUserId", "startTime", "endTime");
 
-                    b.ToTable("Ticket");
+                    b.ToTable("Ticket", (string)null);
                 });
 
             modelBuilder.Entity("通用订票.Core.Entity.User", b =>
@@ -211,7 +211,7 @@ namespace 通用订票.Database.Migrations.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("User");
+                    b.ToTable("User", (string)null);
                 });
 
             modelBuilder.Entity("通用订票.Core.Entity.UserInfo", b =>
@@ -241,7 +241,7 @@ namespace 通用订票.Database.Migrations.Migrations
 
                     b.HasIndex("userID");
 
-                    b.ToTable("UserInfo");
+                    b.ToTable("UserInfo", (string)null);
                 });
 
             modelBuilder.Entity("通用订票.Core.Entity.WechatBill", b =>
@@ -305,7 +305,7 @@ namespace 通用订票.Database.Migrations.Migrations
 
                     b.HasIndex("orderId");
 
-                    b.ToTable("WechatBill");
+                    b.ToTable("WechatBill", (string)null);
                 });
 
             modelBuilder.Entity("通用订票.Core.Entity.Appointment", b =>

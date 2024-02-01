@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace 通用订票.EntityFramework.Core
 {
-    public class MyDefaultDbContext : DefaultDbContext<MyDefaultDbContext>
+    public class MyDefaultDbContext_MYSQL : DefaultDbContext<MyDefaultDbContext_MYSQL>
     {
-        public MyDefaultDbContext(DbContextOptions<MyDefaultDbContext> options, IHttpContextUser user) : base(options, user)
+        public MyDefaultDbContext_MYSQL(DbContextOptions<MyDefaultDbContext_MYSQL> options, IHttpContextUser user) : base(options, user)
         {
             this.SetConnectString(App.Configuration["ConnectionStrings:SqlConnection"]);
         }
@@ -15,7 +15,8 @@ namespace 通用订票.EntityFramework.Core
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             var connStr = GetDatabaseConnectionString();
-            optionsBuilder.UseSqlServer(connStr, options =>
+            ServerVersion sv = ServerVersion.AutoDetect(connStr);
+            optionsBuilder.UseMySql(connStr, sv, options =>
             {
                 options.MigrationsAssembly("通用订票.Database.Migrations");
             });

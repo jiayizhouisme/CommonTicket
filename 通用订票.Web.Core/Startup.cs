@@ -47,7 +47,6 @@ namespace 通用订票.Web.Core
                         return Task.CompletedTask;
                     }
                 };
-
             });
             services.Add(ServiceDescriptor.Singleton<MyBeetleX, MyBeetleX>());
             services.Add(ServiceDescriptor.Singleton<ISignalRUserService, JwtCacheUserService>());
@@ -55,7 +54,6 @@ namespace 通用订票.Web.Core
             services.Configure<WeChatPayOptions>(App.Configuration.GetSection("WeChatPay"));
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IHttpContextUser, JwtUserContext>();
-            
             services.AddSingleton<ConnectionMultiplexer>(sp =>
             {
                 //获取连接字符串
@@ -84,8 +82,8 @@ namespace 通用订票.Web.Core
             });
             services.AddSingleton<IQueuePushInfo, InitQRedisPushMessage>();
 
-            services.AddRabbitMQPlus();
-            services.AddHostedService<Worker>();
+            //services.AddRabbitMQPlus();
+            //services.AddHostedService<Worker>();
 
             services.AddResponseCaching();
             services.AddCorsAccessor();
@@ -128,7 +126,6 @@ namespace 通用订票.Web.Core
             app.UseDefaultFiles();
             StaticFileOptions options = new StaticFileOptions { 
                 ContentTypeProvider = new FileExtensionContentTypeProvider()
-            
             };
 
             ((FileExtensionContentTypeProvider)options.ContentTypeProvider).

@@ -9,20 +9,22 @@ using System.Threading.Tasks;
 
 namespace Core.EntityFrameWork
 {
-    public class MultiTenantDbContext : AppDbContext<MultiTenantDbContext, MultiTenantDbContextLocator>
+    public class MultiTenantDbContext_MYSQL : AppDbContext<MultiTenantDbContext_MYSQL, MultiTenantDbContextLocator>
     {
-        public MultiTenantDbContext(DbContextOptions<MultiTenantDbContext> options) : base(options)
+        public MultiTenantDbContext_MYSQL(DbContextOptions<MultiTenantDbContext_MYSQL> options) : base(options)
         {
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             var connStr = App.Configuration["ConnectionStrings:SqlConnection"];
-            optionsBuilder.UseSqlServer(connStr, options =>
+            ServerVersion sv = ServerVersion.AutoDetect(connStr);
+            optionsBuilder.UseMySql(connStr, sv, options =>
             {
                 options.MigrationsAssembly("通用订票.Database.Migrations");
             });
             base.OnConfiguring(optionsBuilder);
         }
+
     }
 }

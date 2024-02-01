@@ -15,10 +15,16 @@ namespace Core.EntityFrameWork
     public abstract class DefaultDbContext<T> : AppDbContext<T>, IMultiTenantOnDatabase where T : DbContext
     {
         private readonly IHttpContextUser user;
+        private string defaultConnectString;
 
         public DefaultDbContext(DbContextOptions<T> options, IHttpContextUser user) : base(options)
         {
             this.user = user;
+        }
+
+        protected void SetConnectString(string connectString)
+        {
+            this.defaultConnectString = connectString;
         }
 
         public string GetDatabaseConnectionString()
@@ -38,7 +44,7 @@ namespace Core.EntityFrameWork
             }
             else
             {
-                return App.Configuration["ConnectionStrings:SqlConnection"];
+                return defaultConnectString;
             }
         }
 

@@ -11,8 +11,19 @@ namespace 通用订票.EntityFramework.Core
         {
             services.AddDatabaseAccessor(options =>
             {
-                options.AddDb<MyDefaultDbContext>();
-                options.AddDbPool<MultiTenantDbContext, MultiTenantDbContextLocator>();
+                var dbType = App.Configuration["ConnectionStrings:DbType"];
+                if (dbType == "SqlServer")
+                {
+                    options.AddDb<MyDefaultDbContext>();
+                    options.AddDbPool<MultiTenantDbContext, MultiTenantDbContextLocator>();
+                }
+                else if(dbType == "MySql")
+                {
+                    options.AddDb<MyDefaultDbContext_MYSQL>();
+                    options.AddDbPool<MultiTenantDbContext_MYSQL, MultiTenantDbContextLocator>();
+                }
+                
+               
             }, "通用订票.Database.Migrations");
             
         }
