@@ -1,7 +1,7 @@
 ﻿using Furion.DatabaseAccessor;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using 通用订票.Stock.Entity;
+using 通用订票.Base.Entity;
 
 namespace 通用订票.Core.BaseEntity
 {

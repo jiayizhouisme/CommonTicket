@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
-using 通用订票.Ticket.Entity;
+using 通用订票.Base.Entity;
 
 namespace 通用订票.Core.Entity
 {

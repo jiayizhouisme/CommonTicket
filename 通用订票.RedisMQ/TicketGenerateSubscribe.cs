@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
+using 通用订票.Base.Entity;
 
 namespace 通用订票.RedisMQ
 {
@@ -51,11 +52,11 @@ namespace 通用订票.RedisMQ
                 {
                     if (order.status == 通用订票Order.Entity.OrderStatus.已付款)
                     {
-                        await t_service.GenarateTickets(data.startTime, data.endTime, data.order, data.uid.ToArray(), Ticket.Entity.TicketStatus.未使用);
+                        await t_service.GenarateTickets(data.startTime, data.endTime, data.order, data.uid.ToArray(), TicketStatus.未使用);
                     }
                     else
                     {
-                        await t_service.GenarateTickets(data.startTime, data.endTime, data.order, data.uid.ToArray(), Ticket.Entity.TicketStatus.未激活);
+                        await t_service.GenarateTickets(data.startTime, data.endTime, data.order, data.uid.ToArray(), TicketStatus.未激活);
                     }
                 }
             }

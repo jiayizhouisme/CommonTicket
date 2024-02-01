@@ -1,6 +1,6 @@
 ﻿using Core.Services;
 using 通用订票.Application.System.ServiceBases.IService;
-using 通用订票.Ticket.Entity;
+using 通用订票.Base.Entity;
 
 namespace 通用订票.Application.System.ServiceBases.Service
 {

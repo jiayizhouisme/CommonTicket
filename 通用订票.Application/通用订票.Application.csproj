@@ -35,7 +35,6 @@
 		<ProjectReference Include="..\Core.SignalR\Core.SignalR.csproj" />
 		<ProjectReference Include="..\通用订票.cache\Core.Cache.csproj" />
 		<ProjectReference Include="..\通用订票.Core\通用订票.Core.csproj" />
-		<ProjectReference Include="..\通用订票.Stock\通用订票.Stock.csproj" />
 		<ProjectReference Include="..\通用订票Auth\Core.Auth.csproj" />
 	</ItemGroup>
 

@@ -50,7 +50,7 @@
             <param name="stock"></param>
             <returns></returns>
         </member>
-        <member name="M:通用订票.Application.System.Services.Service.DefaultTicketService.GenarateTickets(System.DateTime,System.DateTime,通用订票.Core.Entity.Order,System.Int32[],通用订票.Ticket.Entity.TicketStatus)">
+        <member name="M:通用订票.Application.System.Services.Service.DefaultTicketService.GenarateTickets(System.DateTime,System.DateTime,通用订票.Core.Entity.Order,System.Int32[],通用订票.Base.Entity.TicketStatus)">
             <summary>
             根据选择的用户数生成对应数量的门票
             </summary>

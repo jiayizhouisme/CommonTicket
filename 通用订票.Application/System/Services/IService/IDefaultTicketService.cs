@@ -7,7 +7,7 @@ using 通用订票.Application.System.ServiceBases.IService;
 using Core.Auth;
 using 通用订票.Core.Entity;
 using 通用订票.Core.BaseEntity;
-using 通用订票.Ticket.Entity;
+using 通用订票.Base.Entity;
 
 namespace 通用订票.Application.System.Services.IService
 {

@@ -17,7 +17,7 @@ using Core.Cache;
 using 通用订票.Core.Entity;
 using Core.Auth;
 using 通用订票.Application.System.Models;
-using 通用订票.Ticket.Entity;
+using 通用订票.Base.Entity;
 
 namespace 通用订票.Application.System.Services.Service
 {
@@ -161,7 +161,7 @@ namespace 通用订票.Application.System.Services.Service
 
                 var anyret = await this._dal.
                     AnyAsync(a => a.TUserId == uid && startTime == a.startTime && a.endTime == endTime
-                    && a.stauts != Ticket.Entity.TicketStatus.已冻结);
+                    && a.stauts != TicketStatus.已冻结);
                 if (anyret == true)
                 {
                     await _cache.Set(GetKey(appointment.id, uid), "1", 20);
