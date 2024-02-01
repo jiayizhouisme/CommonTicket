@@ -12,7 +12,7 @@ using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 namespace 通用订票.沙沟古镇.Service
 {
     [Injection(Order = 0)]
-    public class ShagouOrderService : DefaultOrderService, ITransient
+    public class ShagouOrderService : MyOrderService, ITransient
     {
         private ILogger _log { get; set; }
 

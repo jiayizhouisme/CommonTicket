@@ -7,11 +7,11 @@ using 通用订票.Core.Entity;
 namespace 通用订票.Application.System.Services.Service
 {
     [Injection(Order = 1)]
-    public class DefaultAppointmentService : StockBaseService<Appointment>, IDefaultAppointmentService, ITransient
+    public class AppointmentService : StockBaseService<Appointment>, IAppointmentService, ITransient
     {
         private Guid userId;
         private ICacheOperation _cache;
-        public DefaultAppointmentService(IRepository<Appointment> _dal, ICacheOperation _cache) : base(_dal, _cache)
+        public AppointmentService(IRepository<Appointment> _dal, ICacheOperation _cache) : base(_dal, _cache)
         {
             this._cache = _cache;
         }

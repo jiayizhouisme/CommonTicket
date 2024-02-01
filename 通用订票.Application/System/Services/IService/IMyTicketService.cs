@@ -11,7 +11,7 @@ using 通用订票.Ticket.Entity;
 
 namespace 通用订票.Application.System.Services.IService
 {
-    public interface IDefaultTicketService : ITicketService<Core.Entity.Ticket>, IUserContext<Guid>
+    public interface IMyTicketService : ITicketService<Core.Entity.Ticket>, IUserContext<Guid>
     {
         public Task<List<Core.Entity.Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, Core.Entity.Order order, int[] uid, TicketStatus status);
         public Task<bool> Vaild(int[] uid, Core.Entity.Appointment stock);

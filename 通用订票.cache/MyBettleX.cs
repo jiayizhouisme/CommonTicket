@@ -3,10 +3,10 @@ using Furion;
 
 namespace Core.Cache
 {
-    public class BettleX_Redis : RedisDB ,ICacheOperation
+    public class MyBeetleX : RedisDB ,ICacheOperation
     {
         private RedisHost redisHost;
-        public BettleX_Redis()
+        public MyBeetleX()
         {
             redisHost = this.Host.AddWriteHost(App.Configuration["BeetleXConnectionString:Host"]);
             redisHost.Password = App.Configuration["BeetleXConnectionString:Password"];

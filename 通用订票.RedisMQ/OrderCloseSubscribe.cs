@@ -44,17 +44,17 @@ namespace 通用订票.RedisMQ
             {
                 DbContext dbContext = Db.GetDbContext(scope.ServiceProvider);
                 #region 获取services
-                var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
-                var _orderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultOrderServices>>();
-                var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultTicketService>>();
+                var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IAppointmentService>>();
+                var _orderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IMyOrderServices>>();
+                var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IMyTicketService>>();
 
                 var s_service = factory.GetStockService(_stockProvider);
                 var o_service = factory.GetOrderService(_orderProvider);
                 var t_service = factory.GetTicketService(_ticketProvider);
 
-                s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, data.tenantId);
-                o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
-                t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Core.Entity.Ticket>(scope.ServiceProvider, t_service, data.tenantId);
+                s_service = ServiceFactory.GetNamedSaasService<IAppointmentService, Appointment>(scope.ServiceProvider, s_service, data.tenantId);
+                o_service = ServiceFactory.GetNamedSaasService<IMyOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
+                t_service = ServiceFactory.GetNamedSaasService<IMyTicketService, Core.Entity.Ticket>(scope.ServiceProvider, t_service, data.tenantId);
                 #endregion
 
                 Core.Entity.Order order = null;

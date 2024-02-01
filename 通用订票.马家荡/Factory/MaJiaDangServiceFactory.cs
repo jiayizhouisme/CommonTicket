@@ -12,17 +12,17 @@ namespace 通用订票.马家荡.Factory
 {
     public class MaJiaDangServiceFactory : IServiceFactory
     {
-        public IDefaultOrderServices GetOrderService(INamedServiceProvider<IDefaultOrderServices> _orderProvider)
+        public IMyOrderServices GetOrderService(INamedServiceProvider<IMyOrderServices> _orderProvider)
         {
             return _orderProvider.GetService<ITransient>(nameof(MaJiaDangOrderService));
         }
 
-        public IDefaultAppointmentService GetStockService(INamedServiceProvider<IDefaultAppointmentService> _stockProvider)
+        public IAppointmentService GetStockService(INamedServiceProvider<IAppointmentService> _stockProvider)
         {
             return _stockProvider.GetService<ITransient>(nameof(MaJiaDangStockService));
         }
 
-        public IDefaultTicketService GetTicketService(INamedServiceProvider<IDefaultTicketService> _ticketProvider)
+        public IMyTicketService GetTicketService(INamedServiceProvider<IMyTicketService> _ticketProvider)
         {
             return _ticketProvider.GetService<ITransient>(nameof(MaJiaDangTicketService));
         }

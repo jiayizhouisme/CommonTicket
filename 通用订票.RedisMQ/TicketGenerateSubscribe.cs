@@ -35,12 +35,12 @@ namespace 通用订票.RedisMQ
             var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
             using (var scope = _serviceProvider.CreateScope())
             {
-                var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultTicketService>>();
-                var _orderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultOrderServices>>();
+                var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IMyTicketService>>();
+                var _orderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IMyOrderServices>>();
                 var t_service = factory.GetTicketService(_ticketProvider);
                 var o_service = factory.GetOrderService(_orderProvider);
-                t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Core.Entity.Ticket>(scope.ServiceProvider, t_service, data.tenantId);
-                o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
+                t_service = ServiceFactory.GetNamedSaasService<IMyTicketService, Core.Entity.Ticket>(scope.ServiceProvider, t_service, data.tenantId);
+                o_service = ServiceFactory.GetNamedSaasService<IMyOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
 
                 t_service.SetUserContext(data.userid);
                 var lo = await _cache.Lock("OrderLocker_" + data.order.trade_no, lockerId);

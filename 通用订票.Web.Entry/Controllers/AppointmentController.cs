@@ -14,11 +14,11 @@ namespace 通用订票.Web.Entry.Controllers
 {
     public class AppointmentController : IDynamicApiController
     {
-        private readonly IDefaultAppointmentService _appointmentService;
+        private readonly IAppointmentService _appointmentService;
         private readonly IExhibitionService _exhibitionService;
 
         public AppointmentController(IExhibitionService _exhibitionService,
-            INamedServiceProvider<IDefaultAppointmentService> _stockProvider,
+            INamedServiceProvider<IAppointmentService> _stockProvider,
             IHttpContextUser httpContextUser)
         {
             this._exhibitionService = _exhibitionService;

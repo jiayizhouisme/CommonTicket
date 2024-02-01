@@ -45,9 +45,9 @@ namespace 通用订票.JobTask
 
             var factory = SaaSServiceFactory.GetServiceFactory(id);
 
-            var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
+            var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IAppointmentService>>();
             var app_service = factory.GetStockService(_stockProvider);
-            app_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, app_service, id);
+            app_service = ServiceFactory.GetNamedSaasService<IAppointmentService, Appointment>(scope.ServiceProvider, app_service, id);
             
             var exhibitions = await e_service.GetQueryableNt(a => a != null).Select(a => a.id).ToArrayAsync();
 
