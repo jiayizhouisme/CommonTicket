@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\通用订票Auth\Core.Auth.csproj" />
+    <ProjectReference Include="..\Core.Auth\Core.Auth.csproj" />
   </ItemGroup>
 
 </Project>

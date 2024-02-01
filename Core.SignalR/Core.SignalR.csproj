@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\通用订票.cache\Core.Cache.csproj" />
-    <ProjectReference Include="..\通用订票Auth\Core.Auth.csproj" />
+    <ProjectReference Include="..\Core.Auth\Core.Auth.csproj" />
+    <ProjectReference Include="..\Core.Cache\Core.Cache.csproj" />
   </ItemGroup>
 
 </Project>

@@ -21,11 +21,10 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Core.Queue\Core.Queue.csproj" />
 		<ProjectReference Include="..\Core.SignalR\Core.SignalR.csproj" />
-		<ProjectReference Include="..\Task\通用订票.Task.csproj" />
 		<ProjectReference Include="..\通用订票.Application\通用订票.Application.csproj" />
-		<ProjectReference Include="..\通用订票.cache\Core.Cache.csproj" />
 		<ProjectReference Include="..\通用订票.Database.Migrations\通用订票.Database.Migrations.csproj" />
 		<ProjectReference Include="..\通用订票.RedisMQ\通用订票.RedisMQ.csproj" />
+		<ProjectReference Include="..\通用订票.Task\通用订票.Task.csproj" />
 	</ItemGroup>
 
 </Project>

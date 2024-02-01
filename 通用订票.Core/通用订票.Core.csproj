@@ -29,8 +29,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Core.User\Core.User.csproj" />
-	  <ProjectReference Include="..\Order\通用订票.Order.csproj" />
-	  <ProjectReference Include="..\通用订票Auth\Core.Auth.csproj" />
+	  <ProjectReference Include="..\通用订票.Base\通用订票.Base.csproj" />
 	</ItemGroup>
 
 </Project>
