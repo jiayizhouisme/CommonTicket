@@ -5,7 +5,7 @@ using Core.Cache;
 
 namespace Core.MiddelWares
 {
-    public class CacheFilter : IResourceFilter
+    public class CacheFilter : IAsyncResourceFilter
     {
         protected readonly ICacheOperation _cache;
         protected string suffixed;
@@ -15,40 +15,34 @@ namespace Core.MiddelWares
         {
             this._cache = _cache;
         }
-        public virtual void OnResourceExecuting(ResourceExecutingContext context)
-        {
 
-            string path = context.HttpContext.Request.Host + context.HttpContext.Request.Path + 
-                context.HttpContext.Request.QueryString.Value + suffixed;
-            SetResult(context, path);
+        protected virtual async Task SetCache(ResourceExecutedContext context, string key)
+        {
+            await this._cache.Set(key, (context.Result as ObjectResult)?.Value, _expireTime);
         }
 
-        public virtual void OnResourceExecuted(ResourceExecutedContext context)
+        protected virtual async Task<object> SetResult(ResourceExecutingContext context, string key)
+        {
+            var result = await this._cache.Get<object>(key);
+            return result;
+        }
+
+        public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
         {
             string path = context.HttpContext.Request.Host + context.HttpContext.Request.Path +
                 context.HttpContext.Request.QueryString.Value + suffixed;
-            this.SetCache(context, path);
-        }
-
-        protected virtual void SetCache(ResourceExecutedContext context, string key)
-        {
-            key = key.ToMD5Encrypt(false, true);
-            if (this._cache.Get<object>(key).Result == null)
-            {
-                var result = this._cache.Set(key, (context.Result as ObjectResult)?.Value, _expireTime).Result;
-            }
-        }
-
-        protected virtual void SetResult(ResourceExecutingContext context, string key)
-        {
-            key = key.ToMD5Encrypt(false, true);
-            var result = this._cache.Get<object>(key).Result;
+            var key = path.ToMD5Encrypt(false, true);
+            var result = await SetResult(context, key);
             if (result != null)
             {
                 object obj = result;
                 context.Result = new ObjectResult(obj);
             }
+            else
+            {
+                ResourceExecutedContext execContext = await next();
+                await SetCache(execContext, key);
+            }
         }
-
     }
 }

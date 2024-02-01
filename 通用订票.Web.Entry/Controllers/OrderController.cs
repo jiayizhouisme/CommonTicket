@@ -55,7 +55,7 @@ namespace 通用订票.Web.Entry.Controllers
         }
 
         [Authorize]
-        //[TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpPost(Name = "CreateOrder")]
         public async Task<dynamic> CreateOrder([FromBody]BaseOrderCreate oc)
         {
@@ -125,7 +125,7 @@ namespace 通用订票.Web.Entry.Controllers
         }
 
         [Authorize]
-        //[TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "PayOrder")]
         public async Task<WechatBill> PayOrder(long trade_no)
         {
@@ -170,7 +170,7 @@ namespace 通用订票.Web.Entry.Controllers
         }
 
         [Authorize]
-        //[TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "PaidOrder")]
         public async Task<dynamic> PaidOrder(long trade_no)
         {
@@ -203,7 +203,7 @@ namespace 通用订票.Web.Entry.Controllers
         }
 
         [Authorize]
-        //[TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "CloseOrder")]
         [UnitOfWork]
         public async Task<dynamic> CloseOrder(long trade_no)

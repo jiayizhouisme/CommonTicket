@@ -4,13 +4,13 @@ using Core.Services.ServiceFactory;
 using Core.SignalR;
 using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
+using Furion.JsonSerialization;
 using InitQ.Abstractions;
 using InitQ.Attributes;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
@@ -27,9 +27,10 @@ namespace 通用订票.RedisMQ
         private readonly IServiceProvider _serviceProvider;
         private readonly ISignalRUserService userapp;
         private readonly IQueuePushInfo _queue;
+        private readonly IJsonSerializerProvider jsonSerializerProvider;
 
         public OrderCreateSubscribe(ILogger<OrderCreateSubscribe> _logger, IServiceProvider _serviceProvider,
-            ICacheOperation _cache, ISignalRUserService userapp, IHubContext<ChatHub> _hubContext,IQueuePushInfo _queue)
+            ICacheOperation _cache, ISignalRUserService userapp, IHubContext<ChatHub> _hubContext,IQueuePushInfo _queue, IJsonSerializerProvider jsonSerializerProvider)
         {
             this._logger = _logger;
             this._cache = _cache;
@@ -37,13 +38,14 @@ namespace 通用订票.RedisMQ
             this.userapp = userapp;
             this._hubContext = _hubContext;
             this._queue = _queue;
+            this.jsonSerializerProvider = jsonSerializerProvider;
         }
 
         [Subscribe("CreateOrder")]
         public async Task CreateOrder(string json)
         {
             _logger.LogInformation("订单创建");
-            var data = JsonConvert.DeserializeObject<OrderCreate>(json);
+            var data = jsonSerializerProvider.Deserialize<OrderCreate>(json);
             if (data == null)
             {
                 await Task.CompletedTask;
@@ -81,7 +83,7 @@ namespace 通用订票.RedisMQ
                         }
                         else
                         {
-                            await sendMessage(client, JsonConvert.SerializeObject(new { code = 0, message = "库存不足" }));
+                            await sendMessage(client, jsonSerializerProvider.Serialize(new { code = 0, message = "库存不足" }));
                             await ValueTask.CompletedTask;
                             throw new Exception("库存不足");
                         }
@@ -113,7 +115,7 @@ namespace 通用订票.RedisMQ
 
                         await _queue.PushMessageDelay(CloseOrder, DateTime.Now.AddSeconds(60));
 
-                        await sendMessage(client, JsonConvert.SerializeObject(new
+                        await sendMessage(client, jsonSerializerProvider.Serialize(new
                         {
                             code = 1,
                             message = "订单创建成功",

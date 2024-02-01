@@ -3,29 +3,31 @@ using Core.Services.ServiceFactory;
 using Essensoft.Paylink.WeChatPay.V2;
 using Essensoft.Paylink.WeChatPay.V2.Notify;
 using Furion.DatabaseAccessor;
+using Furion.JsonSerialization;
 using InitQ.Abstractions;
 using InitQ.Attributes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using 通用订票.Application.System.Services.IService;
 
 namespace 通用订票.RedisMQ
 {
     public class WeChatPayNoticeSubscribe : IRedisSubscribe
     {
+        private readonly IJsonSerializerProvider jsonSerializerProvider;
         private readonly ILogger<WeChatPayNoticeSubscribe> _logger;
         private readonly ICacheOperation _cache;
         private DbContext dbContext;
         private readonly IServiceProvider _serviceProvider;
 
-        public WeChatPayNoticeSubscribe(ILogger<WeChatPayNoticeSubscribe> _logger, IServiceProvider _serviceProvider,
+        public WeChatPayNoticeSubscribe(ILogger<WeChatPayNoticeSubscribe> _logger, IServiceProvider _serviceProvider, IJsonSerializerProvider jsonSerializerProvider,
             ICacheOperation _cache)
         {
             this._logger = _logger;
             this._cache = _cache;
             this._serviceProvider = _serviceProvider;
+            this.jsonSerializerProvider = jsonSerializerProvider;
         }
 
         [Subscribe("WeChatPayNotice")]
@@ -40,7 +42,7 @@ namespace 通用订票.RedisMQ
 
 
                 Core.Entity.Order order = null;
-                var notify = JsonConvert.DeserializeObject<WeChatPayUnifiedOrderNotify>(msg);
+                var notify = jsonSerializerProvider.Deserialize<WeChatPayUnifiedOrderNotify>(msg);
 
                 if (notify is { ReturnCode: WeChatPayCode.Success })
                 {

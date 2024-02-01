@@ -1,27 +1,24 @@
 ﻿using Furion;
-using Microsoft.EntityFrameworkCore.Storage;
+using Furion.JsonSerialization;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using StackExchange.Redis;
-using StackExchange.Redis.KeyspaceIsolation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Core.Cache
 {
     public class RedisOperationRepository : ICacheOperation
     {
+        private readonly IJsonSerializerProvider _serializerProvider;
         private readonly ILogger<RedisOperationRepository> _logger;
         private readonly ConnectionMultiplexer _redis;
         private readonly StackExchange.Redis.IDatabase _database;
         private readonly string keyprefix;
 
-        public RedisOperationRepository(ILogger<RedisOperationRepository> logger, ConnectionMultiplexer redis)
+        public RedisOperationRepository(
+            ILogger<RedisOperationRepository> logger,
+            ConnectionMultiplexer redis,
+            IJsonSerializerProvider _serializerProvider)
         {
+            this._serializerProvider = _serializerProvider;
             _logger = logger;
             _redis = redis;
             _database = redis.GetDatabase();
@@ -89,8 +86,8 @@ namespace Core.Cache
             key = keyprefix + key;
             string ret = null;
             if (value != null)
-            {   ret = JsonConvert.SerializeObject(value);
-                await _database.StringSetAsync(key, JsonConvert.SerializeObject(value));
+            {   ret = _serializerProvider.Serialize(value);
+                await _database.StringSetAsync(key, _serializerProvider.Serialize(value));
             }
             return ret;
         }
@@ -101,7 +98,7 @@ namespace Core.Cache
             string ret = null;
             if (value != null)
             {
-                ret = JsonConvert.SerializeObject(value);
+                ret = _serializerProvider.Serialize(value);
                 await _database.StringSetAsync(key, ret,TimeSpan.FromSeconds(extime.Value));
             }
             return ret;
@@ -128,7 +125,7 @@ namespace Core.Cache
             if (value.HasValue)
             {
                 //需要用的反序列化，将Redis存储的Byte[]，进行反序列化
-                return JsonConvert.DeserializeObject<T>(value);
+                return _serializerProvider.Deserialize<T>(value);
             }
             else
             {
@@ -153,7 +150,7 @@ namespace Core.Cache
         public async ValueTask<long> PushToList<T>(string key, T value)
         {
             key = keyprefix + key;
-            return await _database.ListRightPushAsync(key, JsonConvert.SerializeObject(value));
+            return await _database.ListRightPushAsync(key, _serializerProvider.Serialize(value));
         }
 
         public async ValueTask<ICollection<T>> GetList<T>(string key, int start)
@@ -161,7 +158,7 @@ namespace Core.Cache
             key = keyprefix + key;
             var length = await _database.ListLengthAsync(key);
             var result = await _database.ListRangeAsync(key, start, length);
-            var list = result.Select(o => JsonConvert.DeserializeObject<T>(o)).ToList();
+            var list = result.Select(o => _serializerProvider.Deserialize<T>(o)).ToList();
             return list;
         }
 

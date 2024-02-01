@@ -1,10 +1,10 @@
 ﻿using Core.Cache;
 using Core.Services.ServiceFactory;
 using Furion.DependencyInjection;
+using Furion.JsonSerialization;
 using InitQ.Abstractions;
 using InitQ.Attributes;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
@@ -14,18 +14,20 @@ namespace 通用订票.RedisMQ
 {
     public class TicketGenerateSubscribe : IRedisSubscribe
     {
+        private readonly IJsonSerializerProvider jsonSerializerProvider;
         private readonly IServiceProvider _serviceProvider;
         private readonly ICacheOperation _cache;
-        public TicketGenerateSubscribe(IServiceProvider _serviceProvider, ICacheOperation _cache)
+        public TicketGenerateSubscribe(IServiceProvider _serviceProvider, ICacheOperation _cache, IJsonSerializerProvider jsonSerializerProvider)
         {
             this._serviceProvider = _serviceProvider;
             this._cache = _cache;
+            this.jsonSerializerProvider = jsonSerializerProvider;
         }
 
         [Subscribe("CreateTickets")]
         public async Task CreateTickets(string json)
         {
-            var data = JsonConvert.DeserializeObject<TicketCreate>(json);
+            var data = jsonSerializerProvider.Deserialize<TicketCreate>(json);
             if (data == null)
             {
                 await Task.CompletedTask;

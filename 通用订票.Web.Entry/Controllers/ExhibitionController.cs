@@ -27,7 +27,7 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpGet(Name = "Get")]
         public async Task<PagedList<Exhibition>> GetExhibitions([FromQuery]int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            return await _exhibitionService.GetQueryableNt(a => a != null).ToPagedListAsync(pageIndex,pageSize);
+            return await _exhibitionService.GetQueryableNt(a => a.isDeleted == false).ToPagedListAsync(pageIndex,pageSize);
         }
     }
 }

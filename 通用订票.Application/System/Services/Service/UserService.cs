@@ -1,14 +1,5 @@
-﻿using Furion.DataEncryption.Extensions;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using 通用订票.Application.System.Services.IService;
+﻿using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
-using Core.Services;
 using Core.User.Service;
 using Core.Auth;
 

@@ -2,12 +2,12 @@
 using Core.Services.ServiceFactory;
 using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
+using Furion.JsonSerialization;
 using InitQ.Abstractions;
 using InitQ.Attributes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
@@ -18,22 +18,24 @@ namespace 通用订票.RedisMQ
 {
     public class OrderCloseSubscribe : IRedisSubscribe
     {
+        private readonly IJsonSerializerProvider jsonSerializerProvider;
         private readonly ILogger<OrderCloseSubscribe> _logger;
         private readonly ICacheOperation _cache;
         private readonly IServiceProvider _serviceProvider;
 
-        public OrderCloseSubscribe(ILogger<OrderCloseSubscribe> _logger, IServiceProvider _serviceProvider, ICacheOperation _cache)
+        public OrderCloseSubscribe(ILogger<OrderCloseSubscribe> _logger, IServiceProvider _serviceProvider, ICacheOperation _cache, IJsonSerializerProvider jsonSerializerProvider)
         {
             this._logger = _logger;
             this._cache = _cache;
             this._serviceProvider = _serviceProvider;
+            this.jsonSerializerProvider = jsonSerializerProvider;
         }
 
         [SubscribeDelay("CloseOrder")]
         public async Task CloseOrder(string json)
         {
             _logger.LogInformation("订单关闭");
-            OrderClose data = JsonConvert.DeserializeObject<OrderClose>(json);
+            OrderClose data = jsonSerializerProvider.Deserialize<OrderClose>(json);
             if (data == null)
             {
                 return;
@@ -93,7 +95,6 @@ namespace 通用订票.RedisMQ
                     {
                         await o_service.AfterOrderToke(order.trade_no);
                         await s_service.DelStockFromCache(data.app.id);
-                        //await OrderCancelTask(orderid, appid, tickets, delay);//失败循环关闭
                         try
                         {
                             transaction.Rollback();
