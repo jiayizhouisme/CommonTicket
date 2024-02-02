@@ -1,8 +1,8 @@
 ﻿using 通用订票.Core.Entity;
 
-namespace 通用订票.Application.System.Models
+namespace 通用订票.Procedure.Entity
 {
-    public class OrderClose
+    public class OrderClose : IProcedureEntity
     {
         public long trade_no { get; set; }
         public Appointment app { get; set; }

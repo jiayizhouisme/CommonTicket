@@ -16,7 +16,6 @@ using 通用订票.Application.System.Services.IService;
 using Core.Cache;
 using 通用订票.Core.Entity;
 using Core.Auth;
-using 通用订票.Application.System.Models;
 using 通用订票.Base.Entity;
 
 namespace 通用订票.Application.System.Services.Service

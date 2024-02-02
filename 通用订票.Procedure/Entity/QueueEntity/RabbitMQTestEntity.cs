@@ -8,9 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using 通用订票.Application.System.Models;
 
-namespace 通用订票.RedisMQ.Entity
+namespace 通用订票.Procedure.Entity.QueueEntity
 {
     [QuickRabbitMQPlusReceive("CreateOrder")]
     public class RabbitMQTestEntity1 : IQueueEntity
@@ -20,7 +19,7 @@ namespace 通用订票.RedisMQ.Entity
         public string name => "CreateOrder";
 
         [JsonIgnore]
-        public object body { get { return this.entity; } }
+        public object body { get { return entity; } }
     }
 
     [QuickRabbitMQPlusReceive("CloseOrder")]
@@ -29,7 +28,7 @@ namespace 通用订票.RedisMQ.Entity
         public object entity;
         public string name { get => "CloseOrder"; }
         [JsonIgnore]
-        public object body { get { return this.entity; } }
+        public object body { get { return entity; } }
     }
 
     public class Worker : BackgroundService
@@ -52,7 +51,7 @@ namespace 通用订票.RedisMQ.Entity
                 {
                     _logger.LogInformation("接收到消息1");
                     await Task.Delay(2000);
-                    
+
 
                     //返回true代表业务逻辑处理成功，会告知MQ这条消息已经接收成功，会从MQ队列中删除
                     //返回false代表业务逻辑处理失败，会告知MQ这条消息没有处理成功，则MQ会继续推送这条消息

@@ -1,6 +1,9 @@
-﻿namespace 通用订票.Application.System.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace 通用订票.Procedure.Entity
+
 {
-    public class BaseOrderCreate {
+    public class BaseOrderCreate{
         [Required(ErrorMessage = "请选择预约日期")]
         [Display(Name = "时间段")]
         public Guid appid { get; set; }
@@ -10,7 +13,7 @@
     }
 
 
-    public class OrderCreate : BaseOrderCreate
+    public class OrderCreate : BaseOrderCreate, IProcedureEntity
     {
         public Guid userid { get; set; }
         public string tenantId { get; set; }

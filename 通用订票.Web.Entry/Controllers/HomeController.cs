@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Quick.RabbitMQPlus;
-using 通用订票.Application.System.Models;
-using 通用订票.RedisMQ.Entity;
 
 namespace 通用订票.Web.Entry.Controllers
 {

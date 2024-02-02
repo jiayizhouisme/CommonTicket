@@ -12,6 +12,7 @@ using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
+using 通用订票.Procedure.Entity;
 using 通用订票Order.Entity;
 
 namespace 通用订票.RedisMQ

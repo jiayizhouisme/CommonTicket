@@ -22,7 +22,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using 通用订票.JobTask;
 using 通用订票.RedisMQ;
-using 通用订票.RedisMQ.Entity;
 
 namespace 通用订票.Web.Core
 {

@@ -5,9 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using 通用订票.Application.System.Models;
 
-namespace 通用订票.RedisMQ.Entity
+namespace 通用订票.Procedure.Entity.QueueEntity
 {
     public class WechatPayCallBackQueueEntity : IQueueEntity
     {

@@ -1,6 +1,10 @@
-﻿namespace 通用订票.Application.System.Models
+﻿using Core.Queue;
+using 通用订票.Base.Entity;
+
+namespace 通用订票.Procedure.Entity
+
 {
-    public class TicketCreate
+    public class TicketCreate : IProcedureEntity
     {
         public Guid userid { get; set; }
         public DateTime startTime { get; set; }
@@ -9,5 +13,7 @@
         public ICollection<int> uid { get; set; }
         public string tenantId { get; set; }
         public string realTenantId { get; set; }
+        public TicketStatus status { get; set; }
     }
+
 }

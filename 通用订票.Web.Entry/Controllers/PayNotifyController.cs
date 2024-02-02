@@ -5,7 +5,7 @@ using Essensoft.Paylink.WeChatPay.V2.Notify;
 using Furion.DynamicApiController;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using 通用订票.RedisMQ.Entity;
+using 通用订票.Procedure.Entity.QueueEntity;
 
 namespace 通用订票.Web.Entry.Controllers
 {

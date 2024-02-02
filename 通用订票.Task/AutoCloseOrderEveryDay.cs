@@ -5,10 +5,10 @@ using Furion.Schedule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
-using 通用订票.RedisMQ.Entity;
+using 通用订票.Procedure.Entity;
+using 通用订票.Procedure.Entity.QueueEntity;
 
 namespace 通用订票.JobTask
 {

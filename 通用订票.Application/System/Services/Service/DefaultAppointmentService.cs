@@ -26,7 +26,7 @@ namespace 通用订票.Application.System.Services.Service
                 stock = await base.SaleStock(stockId, count);
                 if (stock.sale > stock.amount || stock.sale < 0)
                 {
-                    return null;
+                    throw new Exception("库存不足");
                 }
                 stock.exhibition = null;
                 await this.UpdateNow(stock);
