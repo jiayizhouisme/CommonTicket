@@ -53,7 +53,6 @@ namespace 通用订票.Web.Core
             services.Add(ServiceDescriptor.Singleton<ISignalRUserService, JwtCacheUserService>());
             services.AddWeChatPay();
             services.Configure<WeChatPayOptions>(App.Configuration.GetSection("WeChatPay"));
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IHttpContextUser, JwtUserContext>();
             services.AddSingleton<ConnectionMultiplexer>(sp =>
             {
