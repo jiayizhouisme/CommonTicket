@@ -80,7 +80,7 @@ namespace 通用订票.Web.Core
                 m.ShowLog = false;
             });
             services.AddSingleton<IQueuePushInfo, InitQRedisPushMessage>();
-
+            services.AddEventBus();
             //services.AddRabbitMQPlus();
             //services.AddHostedService<Worker>();
 
