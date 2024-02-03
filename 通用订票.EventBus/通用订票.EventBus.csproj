@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -8,6 +8,15 @@
 
   <ItemGroup>
     <PackageReference Include="Furion" Version="4.9.1.28" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core.Auth\Core.Auth.csproj" />
+    <ProjectReference Include="..\Core.Service\Core.Services.csproj" />
+    <ProjectReference Include="..\通用订票.Application\通用订票.Application.csproj" />
+    <ProjectReference Include="..\通用订票.Base\通用订票.Base.csproj" />
+    <ProjectReference Include="..\通用订票.Core\通用订票.Core.csproj" />
+    <ProjectReference Include="..\通用订票.Procedure\通用订票.Procedure.csproj" />
   </ItemGroup>
 
 </Project>

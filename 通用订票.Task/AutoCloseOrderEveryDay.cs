@@ -51,7 +51,7 @@ namespace 通用订票.JobTask
             {
                 var app = await s_service.GetAppointmentById(order.objectId);
 
-                var CreateOrder = new OrderCloseQueueEntity(new OrderClose() { trade_no = order.trade_no, app = app,delay = 10, tenantId = id });
+                var CreateOrder = new OrderCloseQueueEntity(new OrderClose() { trade_no = order.trade_no, appid = app.id,delay = 10, tenantId = id });
                 await _queue.PushMessageDelay(CreateOrder, DateTime.Now.AddSeconds(10));
             }
         }

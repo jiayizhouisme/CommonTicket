@@ -83,7 +83,7 @@ namespace 通用订票.RedisMQ
 
                         t_service.DisableTickets(tickets).Wait();
 
-                        var app = s_service.SaleStock(data.app.id, -tickets.Count).Result;
+                        var app = s_service.SaleStock(data.appid, -tickets.Count).Result;
                         if (app == null)
                         {
                             throw new Exception("app不能为空");
@@ -95,7 +95,7 @@ namespace 通用订票.RedisMQ
                     catch (Exception e1)
                     {
                         await o_service.AfterOrderToke(order.trade_no);
-                        await s_service.DelStockFromCache(data.app.id);
+                        await s_service.DelStockFromCache(data.appid);
                         try
                         {
                             transaction.Rollback();
