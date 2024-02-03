@@ -48,6 +48,10 @@ namespace 通用订票.RedisMQ
             }
             try
             {
+                // 2/4更改:消息队列+事件总线*******急急急
+                // 2/4更改:消息队列+事件总线*******急急急
+                // 2/4更改:消息队列+事件总线*******急急急
+                // 2/4更改:消息队列+事件总线*******急急急
                 await _eventPublisher.PublishAsync(new OnOrderCreateEvent(data));
             }
             catch (Exception e)
