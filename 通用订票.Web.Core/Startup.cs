@@ -5,6 +5,7 @@ using Core.Queue.IQueue;
 using Core.SignalR;
 using Essensoft.Paylink.WeChatPay;
 using Furion;
+using Furion.Core;
 using Furion.Schedule;
 using InitQ;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -80,7 +81,20 @@ namespace 通用订票.Web.Core
                 m.ShowLog = false;
             });
             services.AddSingleton<IQueuePushInfo, InitQRedisPushMessage>();
-            services.AddEventBus();
+            services.AddEventBus(options =>
+            {
+                // 创建 Redis 连接对象
+                var connectionMultiplexer = ConnectionMultiplexer.Connect(App.Configuration["RedisConfig:ConnectionString"]);
+
+                // 创建默认内存通道事件源对象，可自定义队列路由key，比如这里是 eventbus
+                var redisEventSourceStorer = new RedisEventSourceStorer(connectionMultiplexer, "eventbus", 1);
+
+                // 替换默认事件总线存储器
+                options.ReplaceStorer(serviceProvider =>
+                {
+                    return redisEventSourceStorer;
+                });
+            });
             //services.AddRabbitMQPlus();
             //services.AddHostedService<Worker>();
 

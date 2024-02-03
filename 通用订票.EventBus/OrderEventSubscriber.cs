@@ -1,4 +1,5 @@
-﻿using Core.Queue.IQueue;
+﻿using Core.Cache;
+using Core.Queue.IQueue;
 using Core.Services.ServiceFactory;
 using Furion;
 using Furion.DependencyInjection;
@@ -29,15 +30,18 @@ namespace 通用订票.EventBus
         private readonly IEventPublisher eventPublisher;
         private readonly ILogger<OrderEventSubscriber> _logger;
         private readonly IQueuePushInfo _queue;
+        private readonly ICacheOperation _cache;
         public OrderEventSubscriber(
             IServiceScopeFactory scopeFactory,
             ILogger<OrderEventSubscriber> logger,
             IQueuePushInfo _queue,
-            IEventPublisher eventPublisher)
+            IEventPublisher eventPublisher,
+            ICacheOperation _cache)
         {
             this.ScopeFactory = scopeFactory;
             this._queue = _queue;
             this.eventPublisher = eventPublisher;
+            this._cache = _cache;
             _logger = logger;
         }
 
@@ -63,6 +67,7 @@ namespace 通用订票.EventBus
 
             try
             {
+                await _cache.Decrby("QueueIn_" + data.app.id, data.ids.Count);
                 order = await o_service.CreateOrder(data.id, data.StockName, data.price);
             }
             catch (Exception e)
@@ -111,5 +116,6 @@ namespace 通用订票.EventBus
         {
 
         }
+
     }
 }

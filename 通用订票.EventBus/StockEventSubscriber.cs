@@ -77,6 +77,7 @@ namespace 通用订票.EventBus
             await Task.CompletedTask;
         }
 
+        [EventSubscribe("OrderClose")]
         [EventSubscribe("OrderCreateFail")]
         public async Task OrderCreateFail(EventHandlerExecutingContext context)
         {

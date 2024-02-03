@@ -46,7 +46,15 @@ namespace 通用订票.RedisMQ
             {
                 return;
             }
-            await _eventPublisher.PublishAsync(new OnOrderCreateEvent(data));
+            try
+            {
+                await _eventPublisher.PublishAsync(new OnOrderCreateEvent(data));
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            
             await Task.CompletedTask;
         }
         private async Task sendMessage(RealOnlineClient client, object message)
