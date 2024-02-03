@@ -84,5 +84,9 @@ namespace 通用订票.JobTask
             _serviceScope?.Dispose();
         }
 
+        public void OnExecutionRecord(TriggerTimeline timeline)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
