@@ -3,7 +3,7 @@
 
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<NoWarn>1701;1702;1591</NoWarn>
 		<DocumentationFile>通用订票.Core.xml</DocumentationFile>
 	</PropertyGroup>

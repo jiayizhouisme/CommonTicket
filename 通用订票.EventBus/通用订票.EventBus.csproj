@@ -7,8 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="InitQ" Version="1.0.0.18" />
-    <PackageReference Include="Quick.RabbitMQPlus.Furion" Version="1.0.10" />
+    <PackageReference Include="Furion" Version="4.9.1.15" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\通用订票.Application\通用订票.Application.csproj" />
   </ItemGroup>
 
 </Project>

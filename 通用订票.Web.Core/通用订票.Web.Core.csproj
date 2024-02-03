@@ -3,7 +3,7 @@
 
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<NoWarn>1701;1702;1591</NoWarn>
 		<DocumentationFile>通用订票.Web.Core.xml</DocumentationFile>
 	</PropertyGroup>
@@ -15,7 +15,7 @@
 
 
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="7.0.15" />
+	  <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="8.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
