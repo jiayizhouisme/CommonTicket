@@ -10,18 +10,10 @@ namespace 通用订票.EventBus.EventEntity
 {
     public class OnOrderClosedEvent : IEventSource
     {
-<<<<<<<< HEAD:通用订票.EventBus/EventEntity/OnOrderClosedEvent.cs
         public OnOrderClosedEvent(OnOrderClosed oc)
         {
             this.Payload = oc;
             EventId = "OnOrderClosed";
-========
-
-        public OrderCreateFailEvent(OnOrderCreateFail oc)
-        {
-            this.Payload = oc;
-            EventId = "OnOrderCreateFail";
->>>>>>>> 483619beeb1568f0e259e1799ee8f47cc5b9e54b:通用订票.EventBus/EventEntity/OrderCreateFailEvent.cs
         }
 
         /// <summary>
