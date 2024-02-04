@@ -209,7 +209,7 @@ namespace 通用订票.Web.Entry.Controllers
         }
 
         [Authorize]
-        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        //[TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "CloseOrder")]
         [UnitOfWork]
         public async Task<dynamic> CloseOrder(long trade_no)

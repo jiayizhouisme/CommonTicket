@@ -8,6 +8,7 @@ using 通用订票.EventBus.Entity;
 
 namespace 通用订票.EventBus.EventEntity
 {
+<<<<<<<< HEAD:通用订票.EventBus/EventEntity/OnTicketCloseFailedEvent.cs
     public class OnTicketCloseFailedEvent : IEventSource
     {
 
@@ -15,6 +16,14 @@ namespace 通用订票.EventBus.EventEntity
         {
             this.Payload = oc;
             EventId = "OnTicketCloseFailed";
+========
+    public class OnOrderClosedEvent : IEventSource
+    {
+        public OnOrderClosedEvent(OnOrderClosed oc)
+        {
+            this.Payload = oc;
+            EventId = "OnOrderClosed";
+>>>>>>>> 483619beeb1568f0e259e1799ee8f47cc5b9e54b:通用订票.EventBus/EventEntity/OnOrderClosedEvent.cs
         }
 
         /// <summary>
@@ -41,5 +50,6 @@ namespace 通用订票.EventBus.EventEntity
         public CancellationToken CancellationToken { get; set; }
 
         public bool IsConsumOnce => false;
+    
     }
 }
