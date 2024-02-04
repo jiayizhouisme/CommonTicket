@@ -1,17 +1,13 @@
 ﻿using Core.Cache;
 using Core.Queue.IQueue;
 using Core.Services.ServiceFactory;
-using Core.SignalR;
 using Furion;
 using Furion.DependencyInjection;
 using Furion.EventBus;
-using Furion.JsonSerialization;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -30,56 +26,95 @@ namespace 通用订票.EventBus
 {
     public class OrderEventSubscriber : IEventSubscriber, ISingleton
     {
-        private readonly ICacheOperation _cache;
-        private readonly IQueuePushInfo _queue;
         private readonly IServiceScopeFactory ScopeFactory;
-
-
+        private readonly IEventPublisher eventPublisher;
+        private readonly ILogger<OrderEventSubscriber> _logger;
+        private readonly IQueuePushInfo _queue;
+        private readonly ICacheOperation _cache;
         public OrderEventSubscriber(
-            ICacheOperation _cache,
+            IServiceScopeFactory scopeFactory,
+            ILogger<OrderEventSubscriber> logger,
             IQueuePushInfo _queue,
-            IServiceScopeFactory ScopeFactory
-            )
+            IEventPublisher eventPublisher,
+            ICacheOperation _cache)
         {
-            this._cache = _cache;
+            this.ScopeFactory = scopeFactory;
             this._queue = _queue;
-            this.ScopeFactory = ScopeFactory;
+            this.eventPublisher = eventPublisher;
+            this._cache = _cache;
+            _logger = logger;
         }
 
-        [EventSubscribe("OnOrderCreated")]
-        public async Task OnOrderCreated(EventHandlerExecutingContext context)
-        {        
-            var todo = context.Source;
-            var data = (Entity.OnOrderCreated)todo.Payload;
-
-            var CloseOrder = new OrderCloseQueueEntity(
-                            new OrderClose()
-                            {
-                                trade_no = data.order.trade_no,
-                                appid = data.app.id,
-                                delay = 10,
-                                tenantId = data.tenantId
-                            }
-            );
-            await _queue.PushMessageDelay(CloseOrder, DateTime.Now.AddSeconds(60));
-        }
-
-        [EventSubscribe("OnTicketCloseFailed")]
-        public async Task OnTicketCloseFailed(EventHandlerExecutingContext context)
+        [EventSubscribe("CreateOrder")]
+        public async Task CreateOrder(EventHandlerExecutingContext context)
         {
+            DateTime now = DateTime.Now;
             var todo = context.Source;
-            var data = (OnTicketCloseFailed)todo.Payload;
+            var data = (Entity.CreateOrder)todo.Payload;
 
             #region 获取services
             var scope = this.ScopeFactory.CreateScope();
             var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
-            var _orderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultOrderServices>>();
+            var _OrderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultOrderServices>>();
 
-            var o_service = factory.GetOrderService(_orderProvider);
+            var o_service = factory.GetOrderService(_OrderProvider);
 
             o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
+            o_service.SetUserContext(data.userId);
             #endregion
-            await o_service.OnCloseException(data.order);
+
+            Core.Entity.Order order = null;
+
+            try
+            {
+                await _cache.Decrby("QueueIn_" + data.app.id, data.ids.Count);
+                order = await o_service.CreateOrder(data.id, data.StockName, data.price);
+            }
+            catch (Exception e)
+            {
+                var fail = new OrderCreateFail()
+                {
+                    order = order,
+                    app = data.app,
+                    count = data.count
+                };
+                await eventPublisher.PublishAsync(new OrderCreateFailEvent(fail));
+                throw e;
+            }
+
+            var startTime = now.AddDays(data.app.day).Date.Add(data.app.startTime.TimeOfDay);
+            var endTime = now.AddDays(data.app.day).Date.Add(data.app.endTime.TimeOfDay);
+
+            var CreateTickets = new TicketCreateQueueEntity(new TicketCreate()
+            {
+                startTime = startTime,
+                endTime = endTime,
+                order = order,
+                tenantId = data.tenantId,
+                uid = data.ids,
+                userid = data.userId
+            });
+
+            await _queue.PushMessage(CreateTickets);
+
+            var CloseOrder = new OrderCloseQueueEntity(
+                            new OrderClose()
+                            {
+                                trade_no = order.trade_no,
+                                appid = data.id,
+                                delay = 10,
+                                tenantId = data.tenantId,
+                                count = data.count
+                            }
+                            );
+            await _queue.PushMessageDelay(CloseOrder, DateTime.Now.AddSeconds(60));
+
+        }
+
+        [EventSubscribe("OrderCreateFail")]
+        public async Task OrderCreateFail(EventHandlerExecutingContext context)
+        {
+
         }
 
     }

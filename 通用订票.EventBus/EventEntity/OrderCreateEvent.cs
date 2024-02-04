@@ -5,15 +5,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using 通用订票.EventBus.Entity;
+using 通用订票.Procedure.Entity;
 
 namespace 通用订票.EventBus.EventEntity
 {
-    public class OnOrderClosedEvent : IEventSource
+    public class OrderCreateEvent : IEventSource
     {
-        public OnOrderClosedEvent(OnOrderClosed oc)
+        public OrderCreateEvent()
+        {
+        }
+
+        public OrderCreateEvent(CreateOrder oc)
         {
             this.Payload = oc;
-            EventId = "OnOrderClosed";
+            EventId = "CreateOrder";
         }
 
         /// <summary>
@@ -40,6 +45,5 @@ namespace 通用订票.EventBus.EventEntity
         public CancellationToken CancellationToken { get; set; }
 
         public bool IsConsumOnce => false;
-    
     }
 }

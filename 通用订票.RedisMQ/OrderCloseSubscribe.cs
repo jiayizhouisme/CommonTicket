@@ -2,20 +2,16 @@
 using Core.Services.ServiceFactory;
 using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
-using Furion.EventBus;
 using Furion.JsonSerialization;
 using InitQ.Abstractions;
 using InitQ.Attributes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using StackExchange.Redis;
 using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
-using 通用订票.EventBus.Entity;
-using 通用订票.EventBus.EventEntity;
 using 通用订票.Procedure.Entity;
 using 通用订票Order.Entity;
 
@@ -27,19 +23,13 @@ namespace 通用订票.RedisMQ
         private readonly ILogger<OrderCloseSubscribe> _logger;
         private readonly ICacheOperation _cache;
         private readonly IServiceProvider _serviceProvider;
-        private readonly IEventPublisher eventPublisher;
 
-        public OrderCloseSubscribe(ILogger<OrderCloseSubscribe> _logger, 
-            IServiceProvider _serviceProvider,
-            ICacheOperation _cache,
-            IJsonSerializerProvider jsonSerializerProvider,
-            IEventPublisher eventPublisher)
+        public OrderCloseSubscribe(ILogger<OrderCloseSubscribe> _logger, IServiceProvider _serviceProvider, ICacheOperation _cache, IJsonSerializerProvider jsonSerializerProvider)
         {
             this._logger = _logger;
             this._cache = _cache;
             this._serviceProvider = _serviceProvider;
             this.jsonSerializerProvider = jsonSerializerProvider;
-            this.eventPublisher = eventPublisher;
         }
 
         [SubscribeDelay("CloseOrder")]
@@ -52,42 +42,72 @@ namespace 通用订票.RedisMQ
                 return;
             }
 
-            Core.Entity.Order order = null;
-            string lockerId = Guid.NewGuid().ToString();
             var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
-            var lo = _cache.Lock("OrderLocker_" + data.trade_no, lockerId).Result;
             using (var scope = _serviceProvider.CreateScope())
             {
+                DbContext dbContext = Db.GetDbContext(scope.ServiceProvider);
                 #region 获取services
+                var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
                 var _orderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultOrderServices>>();
-                var o_service = factory.GetOrderService(_orderProvider);
-                o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
-                #endregion
-                try
-                {
-                    order = o_service.GetOrderById(data.trade_no).Result;
-                    if (order.status != OrderStatus.未付款)
-                    {
-                        throw new Exception("");
-                    }
-                    var o = o_service.CancelOrder(order).Result;
-                    if (o == null)
-                    {
-                        throw new Exception("订单已支付或不存在");
-                    }
-                    var orderClosed = new OnOrderClosed() { order = order,tenantId = data.tenantId };
-                    await eventPublisher.PublishAsync(new OnOrderClosedEvent(orderClosed));
-                }
-                catch (Exception e1)
-                {
- 
-                }
-                finally
-                {
+                var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultTicketService>>();
 
+                var s_service = factory.GetStockService(_stockProvider);
+                var o_service = factory.GetOrderService(_orderProvider);
+                var t_service = factory.GetTicketService(_ticketProvider);
+
+                s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, data.tenantId);
+                o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
+                t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Core.Entity.Ticket>(scope.ServiceProvider, t_service, data.tenantId);
+                #endregion
+
+                Core.Entity.Order order = null;
+                string lockerId = Guid.NewGuid().ToString();
+                var lo = _cache.Lock("OrderLocker_" + data.trade_no, lockerId).Result;
+                order = o_service.GetOrderById(data.trade_no).Result;
+                if (order.status != OrderStatus.未付款)
+                {
                     await _cache.ReleaseLock("OrderLocker_" + data.trade_no, lockerId.ToString());
+                    throw new Exception("");
                 }
-                
+
+                using (var transaction = dbContext.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var o = o_service.CancelOrder(order).Result;
+                        if (o == null)
+                        {
+                            throw new Exception("订单已支付或不存在");
+                        }
+                        var tickets = t_service.GetTickets(o.trade_no).Result;
+
+                        t_service.DisableTickets(tickets).Wait();
+
+                        var app = s_service.SaleStock(data.appid, -tickets.Count).Result;
+                        if (app == null)
+                        {
+                            throw new Exception("app不能为空");
+                        }
+
+                        await transaction.CommitAsync();
+                        await t_service.AfterTicketToke(order.trade_no);
+                    }
+                    catch (Exception e1)
+                    {
+                        await o_service.AfterOrderToke(order.trade_no);
+                        await s_service.DelStockFromCache(data.appid);
+                        try
+                        {
+                            transaction.Rollback();
+                        }
+                        catch (Exception e) { }
+                    }
+                    finally
+                    {
+
+                        await _cache.ReleaseLock("OrderLocker_" + data.trade_no, lockerId.ToString());
+                    }
+                }
             }
             await Task.CompletedTask;
         }

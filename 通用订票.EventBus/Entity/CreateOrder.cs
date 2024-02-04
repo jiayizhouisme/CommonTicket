@@ -8,11 +8,13 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace 通用订票.EventBus.Entity
 {
-    public class OnOrderCreated : BaseEntity
+    public class CreateOrder : BaseEntity
     {
         public Guid id;
+        public string StockName;
+        public decimal price;
+        public int count;
         public Appointment app;
-        public Core.Entity.Order order;
         public ICollection<int> ids;
     }
 }
