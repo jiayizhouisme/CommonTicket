@@ -8,10 +8,10 @@ using 通用订票.EventBus.Entity;
 
 namespace 通用订票.EventBus.EventEntity
 {
-    public class OrderCreateFailedEvent : IEventSource
+    public class OnOrderCreateFailedEvent : IEventSource
     {
 
-        public OrderCreateFailedEvent(OnOrderCreateFailed oc)
+        public OnOrderCreateFailedEvent(OnOrderCreateFailed oc)
         {
             this.Payload = oc;
             EventId = "OnOrderCreateFailed";
