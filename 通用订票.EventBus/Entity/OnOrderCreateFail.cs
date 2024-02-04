@@ -7,7 +7,7 @@ using 通用订票.Core.Entity;
 
 namespace 通用订票.EventBus.Entity
 {
-    public class OrderCreateFail : BaseEntity
+    public class OnOrderCreateFail : BaseEntity
     {
         public Core.Entity.Order order { get; set; }
         public Appointment app { get; set; }

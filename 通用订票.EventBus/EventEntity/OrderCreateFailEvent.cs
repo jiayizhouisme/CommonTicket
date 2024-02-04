@@ -11,10 +11,10 @@ namespace 通用订票.EventBus.EventEntity
     public class OrderCreateFailEvent : IEventSource
     {
 
-        public OrderCreateFailEvent(OrderCreateFail oc)
+        public OrderCreateFailEvent(OnOrderCreateFail oc)
         {
             this.Payload = oc;
-            EventId = "OrderCreateFail";
+            EventId = "OnOrderCreateFail";
         }
 
         /// <summary>

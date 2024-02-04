@@ -9,16 +9,16 @@ using 通用订票.Procedure.Entity;
 
 namespace 通用订票.EventBus.EventEntity
 {
-    public class OrderCreateEvent : IEventSource
+    public class OnOrderCreatedEvent : IEventSource
     {
-        public OrderCreateEvent()
+        public OnOrderCreatedEvent()
         {
         }
 
-        public OrderCreateEvent(CreateOrder oc)
+        public OnOrderCreatedEvent(OnOrderCreated oc)
         {
             this.Payload = oc;
-            EventId = "CreateOrder";
+            EventId = "OnOrderCreated";
         }
 
         /// <summary>

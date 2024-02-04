@@ -21,68 +21,42 @@ namespace 通用订票.EventBus
     {
         private readonly IServiceScopeFactory ScopeFactory;
         private readonly ILogger<StockEventSubscriber> _logger;
-        private readonly IEventPublisher eventPublisher;
         public StockEventSubscriber(
             IServiceScopeFactory scopeFactory,
-            ILogger<StockEventSubscriber> logger,
-            IEventPublisher eventPublisher)
+            ILogger<StockEventSubscriber> logger)
         {
             _logger = logger;
             this.ScopeFactory = scopeFactory;
-            this.eventPublisher = eventPublisher;
 
         }
-
-        /// <summary>
-        /// 下单之前事件，基本就是验证
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        [EventSubscribe("BeforeCreateOrder")]
-        public async Task BeforeCreateOrder(EventHandlerExecutingContext context)
+        [EventSubscribe("OnOrderClosed")]
+        public async Task OnOrderClosed(EventHandlerExecutingContext context)
         {
             var todo = context.Source;
-            var data = (BeforeCreateOrder)todo.Payload;
+            var data = (OnOrderClosed)todo.Payload;
 
             #region 获取services
             var scope = this.ScopeFactory.CreateScope();
             var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
             var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
+            var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultTicketService>>();
 
             var s_service = factory.GetStockService(_stockProvider);
+            var t_service = factory.GetTicketService(_ticketProvider);
 
             s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, data.tenantId);
+            t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, data.tenantId);
             #endregion
 
-            var ret = await s_service.SaleStock(data.appid,data.count); //检查库存
-            if (ret != null)
-            {
-                //成功
-                CreateOrder orderCreate = new CreateOrder() {
-                    id = ret.id,
-                    price = data.price * data.count,
-                    tenantId = data.tenantId,
-                    userId = data.userId,
-                    count = data.count,
-                    app = ret,
-                    ids = data.ids
-                };
-                await eventPublisher.PublishAsync(new OrderCreateEvent(orderCreate)); //给事件总线发消息
-            }
-            else
-            {
-                //失败
-            }
-
-            await Task.CompletedTask;
+            var tickets = await t_service.GetTickets(data.order.trade_no);
+            var ret = await s_service.SaleStock(data.order.objectId, -tickets.Count); //检查库存
         }
 
-        [EventSubscribe("OrderClose")]
-        [EventSubscribe("OrderCreateFail")]
-        public async Task OrderCreateFail(EventHandlerExecutingContext context)
+        [EventSubscribe("OnOrderCreateFail")]
+        public async Task OnOrderCreateFail(EventHandlerExecutingContext context)
         {
             var todo = context.Source;
-            var data = (OrderCreateFail)todo.Payload;
+            var data = (OnOrderCreateFail)todo.Payload;
 
             #region 获取services
             var scope = this.ScopeFactory.CreateScope();
