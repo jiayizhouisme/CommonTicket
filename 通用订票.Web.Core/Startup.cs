@@ -13,15 +13,20 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ProtoBuf.Meta;
 using Quick.RabbitMQPlus;
+using Savorboard.CAP.InMemoryMessageQueue;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using 通用订票.EntityFramework.Core;
+using 通用订票.EventBus.Monitor;
 using 通用订票.JobTask;
 using 通用订票.RedisMQ;
 
@@ -83,7 +88,15 @@ namespace 通用订票.Web.Core
                 m.ShowLog = false;
             });
             services.AddSingleton<IQueuePushInfo, InitQRedisPushMessage>();
-            services.AddEventBus();
+            services.AddEventBus(builder => {
+                builder.AddMonitor<EventHandlerMonitor>();
+            });
+
+            services.AddCap(options =>
+            {
+                options.UseInMemoryMessageQueue();
+                options.UseInMemoryStorage();
+            }).AddSubscriberAssembly(App.Assemblies.ToArray());
 
             //services.AddRabbitMQPlus();
             //services.AddHostedService<Worker>();

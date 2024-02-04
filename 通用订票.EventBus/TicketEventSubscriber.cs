@@ -1,5 +1,6 @@
 ﻿using Core.Cache;
 using Core.Services.ServiceFactory;
+using DotNetCore.CAP;
 using Furion.DependencyInjection;
 using Furion.EventBus;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,7 +37,7 @@ namespace 通用订票.EventBus
         }
 
         [EventSubscribe("OnOrderCreated")]
-        public async Task OnOrderCreated(EventHandlerExecutingContext context)
+        public async Task Ticket_OnOrderCreated(EventHandlerExecutingContext context)
         {
             var todo = context.Source;
             var data = (OnOrderCreated)todo.Payload;
@@ -56,7 +57,7 @@ namespace 通用订票.EventBus
         }
 
         [EventSubscribe("OnOrderClosed")]
-        public async Task OnOrderClosed(EventHandlerExecutingContext context)
+        public async Task Ticket_OnOrderClosed(EventHandlerExecutingContext context)
         {
             var todo = context.Source;
             var data = (OnOrderClosed)todo.Payload;
@@ -76,13 +77,16 @@ namespace 通用订票.EventBus
                 var tickets = await t_service.GetTickets(data.order.trade_no);
                 await t_service.DisableTickets(tickets);
             }
-            catch
+            catch(Exception e)
             {
                 var fail = new OnTicketCloseFailed(){ order = data.order};
                 await eventPublisher.PublishAsync(new OnTicketCloseFailedEvent(fail));
+                throw e;
             }
-            
-            await t_service.AfterTicketToke(data.order.trade_no);
+            finally
+            {
+                await t_service.AfterTicketToke(data.order.trade_no);
+            }
         }
     }
 }
