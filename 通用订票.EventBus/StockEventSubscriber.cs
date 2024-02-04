@@ -31,7 +31,6 @@ namespace 通用订票.EventBus
 
         }
 
-        [CapSubscribe("OnOrderCreated")]
         [EventSubscribe("OnOrderClosed")]
         public async Task Stock_OnOrderClosed(EventHandlerExecutingContext context)
         {

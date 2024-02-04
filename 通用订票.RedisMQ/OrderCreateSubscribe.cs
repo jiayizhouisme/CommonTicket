@@ -74,18 +74,14 @@ namespace 通用订票.RedisMQ
                 o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
                 #endregion
                 o_service.SetUserContext(data.userid);
+                stockret = s_service.SaleStock(data.appid, data.ids.Count).Result;
                 try
                 {
-                    stockret = s_service.SaleStock(data.appid, data.ids.Count).Result;
                     if (stockret != null)
                     {
                         order = o_service.CreateOrder(stockret.id, stockret.stockName, data.price * data.ids.Count).Result;
                         var entity = new OnOrderCreated() { app = stockret,order = order,ids = data.ids,tenantId = data.tenantId,userId = data.userid};
                         await _eventPublisher.PublishAsync(new OnOrderCreatedEvent(entity));
-                    }
-                    else
-                    {
-                        await PublishOrderCreateFail(stockret, order, data.ids.Count, data.tenantId, data.userid);
                     }
                 }
                 catch (Exception e)

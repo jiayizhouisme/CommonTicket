@@ -30,19 +30,15 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace 通用订票.EventBus
 {
     public class OrderEventSubscriber : IEventSubscriber, ISingleton
-    {
-        private readonly ICacheOperation _cache;
-        private readonly IQueuePushInfo _queue;
+    {        private readonly IQueuePushInfo _queue;
         private readonly IServiceScopeFactory ScopeFactory;
 
 
         public OrderEventSubscriber(
-            ICacheOperation _cache,
             IQueuePushInfo _queue,
             IServiceScopeFactory ScopeFactory
             )
         {
-            this._cache = _cache;
             this._queue = _queue;
             this.ScopeFactory = ScopeFactory;
         }
