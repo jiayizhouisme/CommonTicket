@@ -65,7 +65,7 @@
             仅仅判断是否重复
             </summary>
             <param name="uids"></param>
-            <param name="appointmentId"></param>
+            <param name="appointment"></param>
             <returns></returns>
         </member>
     </members>

@@ -2,6 +2,7 @@
 using Core.Queue.IQueue;
 using Core.Services.ServiceFactory;
 using Core.SignalR;
+using DotNetCore.CAP;
 using Furion;
 using Furion.DependencyInjection;
 using Furion.EventBus;
@@ -47,7 +48,7 @@ namespace 通用订票.EventBus
         }
 
         [EventSubscribe("OnOrderCreated")]
-        public async Task OnOrderCreated(EventHandlerExecutingContext context)
+        public async Task Order_OnOrderCreated(EventHandlerExecutingContext context)
         {        
             var todo = context.Source;
             var data = (Entity.OnOrderCreated)todo.Payload;
@@ -65,7 +66,7 @@ namespace 通用订票.EventBus
         }
 
         [EventSubscribe("OnTicketCloseFailed")]
-        public async Task OnTicketCloseFailed(EventHandlerExecutingContext context)
+        public async Task Order_OnTicketCloseFailed(EventHandlerExecutingContext context)
         {
             var todo = context.Source;
             var data = (OnTicketCloseFailed)todo.Payload;

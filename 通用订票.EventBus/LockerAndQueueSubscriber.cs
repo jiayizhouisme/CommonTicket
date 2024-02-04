@@ -1,6 +1,7 @@
 ﻿using Core.Cache;
 using Core.Queue.IQueue;
 using Core.SignalR;
+using DotNetCore.CAP;
 using Furion.DependencyInjection;
 using Furion.EventBus;
 using Furion.JsonSerialization;
@@ -36,7 +37,7 @@ namespace 通用订票.EventBus
 
         [EventSubscribe("OnOrderCreateFailed")]
 
-        public async Task OnOrderCreateFailed(EventHandlerExecutingContext context)
+        public async Task Global_OnOrderCreateFailed(EventHandlerExecutingContext context)
         {
             var todo = context.Source;
             var data = (Entity.OnOrderCreated)todo.Payload;
@@ -58,7 +59,7 @@ namespace 通用订票.EventBus
         }
 
         [EventSubscribe("OnOrderCreated")]
-        public async Task OnOrderCreated(EventHandlerExecutingContext context)
+        public async Task Global_OnOrderCreated(EventHandlerExecutingContext context)
         {
             var todo = context.Source;
             var data = (Entity.OnOrderCreated)todo.Payload;

@@ -1,4 +1,5 @@
 ﻿using Core.Services.ServiceFactory;
+using DotNetCore.CAP;
 using Furion.DependencyInjection;
 using Furion.EventBus;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,8 +31,9 @@ namespace 通用订票.EventBus
 
         }
 
+        [CapSubscribe("OnOrderCreated")]
         [EventSubscribe("OnOrderClosed")]
-        public async Task OnOrderClosed(EventHandlerExecutingContext context)
+        public async Task Stock_OnOrderClosed(EventHandlerExecutingContext context)
         {
             var todo = context.Source;
             var data = (OnOrderClosed)todo.Payload;
@@ -54,7 +56,7 @@ namespace 通用订票.EventBus
         }
 
         [EventSubscribe("OnOrderCreateFailed")]
-        public async Task OnOrderCreateFailed(EventHandlerExecutingContext context)
+        public async Task Stock_OnOrderCreateFailed(EventHandlerExecutingContext context)
         {
             var todo = context.Source;
             var data = (OnOrderCreateFailed)todo.Payload;
@@ -74,7 +76,7 @@ namespace 通用订票.EventBus
         }
 
         [EventSubscribe("OnTicketCloseFailed")]
-        public async Task OnTicketCloseFailed(EventHandlerExecutingContext context)
+        public async Task Stock_OnTicketCloseFailed(EventHandlerExecutingContext context)
         {
             var todo = context.Source;
             var data = (OnTicketCloseFailed)todo.Payload;
