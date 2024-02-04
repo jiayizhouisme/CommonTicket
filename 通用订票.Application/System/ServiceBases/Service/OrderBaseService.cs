@@ -111,5 +111,10 @@ namespace 通用订票.Application.System.ServiceBases.Service
             return long.Parse(yyMMddSecond);
         }
 
+        public virtual async Task<Core.Entity.Order> OnCloseException(Core.Entity.Order order)
+        {
+            order.status = OrderStatus.未付款;
+            return order;
+        }
     }
 }

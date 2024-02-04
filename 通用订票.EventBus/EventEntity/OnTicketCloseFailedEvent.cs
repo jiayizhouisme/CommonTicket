@@ -5,20 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using 通用订票.EventBus.Entity;
-using 通用订票.Procedure.Entity;
 
 namespace 通用订票.EventBus.EventEntity
 {
-    public class OnOrderCreateEvent : IEventSource
+    public class OnTicketCloseFailedEvent : IEventSource
     {
-        public OnOrderCreateEvent()
-        {
-        }
 
-        public OnOrderCreateEvent(BeforeCreateOrder oc)
+        public OnTicketCloseFailedEvent(OnTicketCloseFailed oc)
         {
             this.Payload = oc;
-            EventId = "BeforeCreateOrder";
+            EventId = "OnTicketCloseFailed";
         }
 
         /// <summary>
