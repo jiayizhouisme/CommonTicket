@@ -1,5 +1,8 @@
 ﻿using BeetleX.Redis;
+using BeetleX.Redis.Commands;
 using Furion;
+using System.Composition;
+using static BeetleX.Redis.Commands.HSCAN;
 
 namespace Core.Cache
 {
@@ -55,22 +58,22 @@ namespace Core.Cache
             return await this.Del(key);
         }
 
-        public async ValueTask<string> Set(string key, object value)
+        public new async ValueTask<string> Set(string key, object value)
         {
             return await base.Set(key, value, null, null);
         }
 
-        public async ValueTask<string> Set(string key, object value, int? extime)
+        public new async ValueTask<string> Set(string key, object value, int? extime)
         {
             return await base.Set(key, value, extime, null);
         }
 
-        public async ValueTask<long> Del(params string[] key)
+        public new async ValueTask<long> Del(params string[] key)
         {
             return await base.Del(key);
         }
 
-        public async ValueTask<T> Get<T>(string key)
+        public new async ValueTask<T> Get<T>(string key)
         {
             return await base.Get<T>(key);
         }
@@ -94,14 +97,32 @@ namespace Core.Cache
             return base.Expire(key,extime);
         }
 
-        public async ValueTask<long> Incrby(string key, int num)
+        public async ValueTask<long> Incrby(string key, int num,int expire = 10)
         {
-            return await base.Incrby(key,num);
+            var result = await base.Incrby(key, num);
+            await base.Expire(key,expire);
+            return result;
         }
 
-        public async ValueTask<long> Decrby(string key, int num)
+        public async ValueTask<long> Decrby(string key, int num, int expire = 10)
         {
-            return await base.Decrby(key, num);
+            var result = await base.Decrby(key, num);
+            await base.Expire(key, expire);
+            return result;
+        }
+
+        public async ValueTask<long> Incr(string key, int expire)
+        {
+            var result = await base.Incr(key);
+            await base.Expire(key, expire);
+            return result;
+        }
+
+        public async ValueTask<long> Decr(string key, int expire)
+        {
+            var result = await base.Decr(key);
+            await base.Expire(key, expire);
+            return result;
         }
     }
 }

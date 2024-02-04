@@ -23,9 +23,9 @@ namespace Core.Cache
         ValueTask<long> Expire(string key,int extime);
         ValueTask<long> PushToList<T>(string key,T value);
         ValueTask<ICollection<T>> GetList<T>(string key, int start);
-        ValueTask<long> Incrby(string key, int num);
-        ValueTask<long> Decrby(string key,int num);
-        ValueTask<long> Incr(string key);
-        ValueTask<long> Decr(string key);
+        ValueTask<long> Incrby(string key, int num,int extime = 10);
+        ValueTask<long> Decrby(string key,int num, int extime = 10);
+        ValueTask<long> Incr(string key, int extime = 10);
+        ValueTask<long> Decr(string key, int extime = 10);
     }
 }

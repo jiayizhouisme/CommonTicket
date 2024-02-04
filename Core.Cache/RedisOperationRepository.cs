@@ -162,28 +162,40 @@ namespace Core.Cache
             return list;
         }
 
-        public async ValueTask<long> Incrby(string key, int num)
+        public async ValueTask<long> Incrby(string key, int num, int extime = 10)
         {
             key = keyprefix + key;
-            return await _database.StringIncrementAsync(key,num);
+            var result = await _database.StringIncrementAsync(key, num);
+            await _database.KeyExpireAsync(key,TimeSpan.FromSeconds(extime));
+            
+            return result;
         }
 
-        public async ValueTask<long> Decrby(string key, int num)
+        public async ValueTask<long> Decrby(string key, int num, int extime = 10)
         {
             key = keyprefix + key;
-            return await _database.StringDecrementAsync(key,num);
+            var result = await _database.StringDecrementAsync(key, num);
+            await _database.KeyExpireAsync(key, TimeSpan.FromSeconds(extime));
+            
+            return result;
         }
 
-        public async ValueTask<long> Incr(string key)
+        public async ValueTask<long> Incr(string key, int extime = 10)
         {
             key = keyprefix + key;
-            return await _database.StringIncrementAsync(key);
+            var result = await _database.StringIncrementAsync(key);
+            await _database.KeyExpireAsync(key, TimeSpan.FromSeconds(extime));
+            
+            return result;
         }
 
-        public async ValueTask<long> Decr(string key)
+        public async ValueTask<long> Decr(string key, int extime = 10)
         {
             key = keyprefix + key;
-            return await _database.StringDecrementAsync(key);
+            var result = await _database.StringDecrementAsync(key);
+            await _database.KeyExpireAsync(key, TimeSpan.FromSeconds(extime));
+            
+            return result;
         }
     }
 }

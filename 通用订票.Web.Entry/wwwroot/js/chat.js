@@ -1,7 +1,7 @@
 ﻿"use strict";
 
 var connection = new signalR.HubConnectionBuilder().withUrl("/hubs/chathub", {
-    accessTokenFactory: () => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4MGZiM2E3MC1hMjE0LTZmZGQtZjFmMy0xYTM2MDk4NGRhNjgiLCJuYW1lIjoiYWRtaW4iLCJ0ZW5hbnQtaWQiOiIiLCJwZXJtaXNzaW9ucyI6MSwiaWF0IjoxNzA2ODA3NzY4LCJuYmYiOjE3MDY4MDc3NjgsImV4cCI6MTcwNzIzOTc2OCwiaXNzIjoiemhvdWppYXlpIiwiYXVkIjoic3Vubnlza3kifQ.xO3JHJP1Sg-fuIVvXIAasKgXucnYG6Z1ANfEv-qDj0M",
+    accessTokenFactory: () => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0Mzc1MWQxNy1lMjZiLTRlMWUtYWIyNS0yNjczYjM5ZGYzZmMiLCJuYW1lIjoiYWRtaW4iLCJ0ZW5hbnQtaWQiOiJzaGFnb3UxIiwicGVybWlzc2lvbnMiOjEsImlhdCI6MTcwNzAyMDQ2NiwibmJmIjoxNzA3MDIwNDY2LCJleHAiOjE3MDc0NTI0NjYsImlzcyI6Inpob3VqaWF5aSIsImF1ZCI6InN1bm55c2t5In0.K0g5lwOF-cwFwhkHx6trnGAlhVsVcqaufGtNmiYWZx8",
 }
     ).build();
 

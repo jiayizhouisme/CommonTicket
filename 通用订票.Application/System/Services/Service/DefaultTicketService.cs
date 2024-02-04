@@ -141,7 +141,7 @@ namespace 通用订票.Application.System.Services.Service
         /// 仅仅判断是否重复
         /// </summary>
         /// <param name="uids"></param>
-        /// <param name="appointmentId"></param>
+        /// <param name="appointment"></param>
         /// <returns></returns>
         public virtual async Task<bool> Vaild(int[] uids, Appointment appointment)
         {
