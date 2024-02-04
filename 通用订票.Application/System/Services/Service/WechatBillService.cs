@@ -64,7 +64,7 @@ namespace 通用订票.Application.System.Services.Service
                 NotifyUrl = weChatPayUrl,
                 TradeType = tradeType,
                 OpenId = openId,
-                Attach = entity.orderId.ToString()
+                Attach = entity.tradeNo.ToString()
             };
 
             var response = await _client.ExecuteAsync(request, _wechatpay);

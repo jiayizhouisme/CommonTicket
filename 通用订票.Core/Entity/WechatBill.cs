@@ -106,12 +106,11 @@ namespace 通用订票.Core.Entity
         [Display(Name = "更新时间")]
 
         public System.DateTime? updateTime { get; set; }
-        public int orderId { get; set; }
         public Order order { get; set; }
 
         public void Configure(EntityTypeBuilder<WechatBill> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
-            entityBuilder.HasOne(a => a.order).WithMany().HasForeignKey(a => a.orderId) ;
+            entityBuilder.HasOne(a => a.order).WithMany().HasForeignKey(a => a.tradeNo) ;
         }
     }
 }

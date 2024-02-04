@@ -155,7 +155,7 @@ namespace 通用订票.Web.Entry.Controllers
                 if (order.status == OrderStatus.未付款)
                 {
                     var bill = new WechatBill() { payTitle = "通用订票", tradeNo = order.trade_no,money = order.amount,
-                        ip = "127.0.0.1",orderId = order._id};
+                        ip = "127.0.0.1"};
                     var result = await billService.GenWechatBill(bill);
                     return result;
                 }

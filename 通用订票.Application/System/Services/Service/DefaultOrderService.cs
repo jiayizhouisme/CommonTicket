@@ -91,7 +91,6 @@ namespace 通用订票.Application.System.Services.Service
             var result = this.GetQueryableNt(a => a.trade_no == trade_no).Select(a => new Core.Entity.Order
             {
                 amount = a.amount,
-                _id = a._id,
                 createTime = a.createTime,
                 name = a.name,
                 trade_no = a.trade_no,
