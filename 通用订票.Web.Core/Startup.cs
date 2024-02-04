@@ -95,11 +95,11 @@ namespace 通用订票.Web.Core
 
             services.AddCap(options =>
             {
+                options.UseMySql(App.Configuration["ConnectionStrings:SqlConnection"]);
                 options.UseEntityFramework<MyDefaultDbContext>();
                 options.UseDashboard();
 
                 options.UseInMemoryMessageQueue();
-                options.UseInMemoryStorage();
             }).AddSubscriberAssembly(App.Assemblies.ToArray());
 
             //services.AddRabbitMQPlus();
