@@ -96,7 +96,7 @@ namespace 通用订票.Web.Core
             services.AddCap(options =>
             {
                 options.UseMySql(App.Configuration["ConnectionStrings:SqlConnection"]);
-                options.UseEntityFramework<MyDefaultDbContext>();
+                options.UseEntityFramework<MyDefaultDbContext_MYSQL>();
                 options.UseDashboard();
 
                 options.UseInMemoryMessageQueue();

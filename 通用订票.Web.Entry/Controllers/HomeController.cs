@@ -33,8 +33,6 @@ namespace 通用订票.Web.Entry.Controllers
         {
             using (var transaction = orderServices.GetRepository().Database.BeginTransaction(capBus, autoCommit: false))
             {
-                var id = Guid.Parse("3DC16154-C4F5-42D6-BEEC-CC3B09D2D2D6");
-                await orderServices.CreateOrder(id,"1231231231",1);
                 await capBus.PublishAsync("testCap", "123");
                 await transaction.CommitAsync();
             }
