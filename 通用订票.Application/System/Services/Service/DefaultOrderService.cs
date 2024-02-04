@@ -1,6 +1,7 @@
 ﻿using Core.Cache;
 using 通用订票.Application.System.ServiceBases.Service;
 using 通用订票.Application.System.Services.IService;
+using 通用订票Order.Entity;
 
 namespace 通用订票.Application.System.Services.Service
 {
@@ -111,6 +112,13 @@ namespace 通用订票.Application.System.Services.Service
         public override async Task AfterOrderToke(long trande_no)
         {
             await this.DelOrderFromCache(trande_no);
+        }
+
+        public override async Task<Core.Entity.Order> OnCloseException(Core.Entity.Order order)
+        {
+            order = await base.OnCloseException(order);
+            await this.UpdateNow(order);
+            return order;
         }
 
         protected async Task<long> GetTradeNoAsync(long before)

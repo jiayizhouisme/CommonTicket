@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ProtoBuf.Meta;
 using Quick.RabbitMQPlus;
 using StackExchange.Redis;
 using System;
@@ -48,11 +49,12 @@ namespace 通用订票.Web.Core
                     }
                 };
             });
-            //services.Add(ServiceDescriptor.Singleton<ICacheOperation, BettleX_Redis>());
-            services.Add(ServiceDescriptor.Singleton<ICacheOperation, RedisOperationRepository>());
-            services.Add(ServiceDescriptor.Singleton<ISignalRUserService, JwtCacheUserService>());
+            
             services.AddWeChatPay();
             services.Configure<WeChatPayOptions>(App.Configuration.GetSection("WeChatPay"));
+            //ervices.AddSingleton<ICacheOperation, BettleX_Redis>();
+            services.AddSingleton<ICacheOperation, RedisOperationRepository>();
+            services.AddSingleton<ISignalRUserService, JwtCacheUserService>();
             services.AddScoped<IHttpContextUser, JwtUserContext>();
             services.AddSingleton<ConnectionMultiplexer>(sp =>
             {
@@ -81,20 +83,8 @@ namespace 通用订票.Web.Core
                 m.ShowLog = false;
             });
             services.AddSingleton<IQueuePushInfo, InitQRedisPushMessage>();
-            services.AddEventBus(options =>
-            {
-                // 创建 Redis 连接对象
-                var connectionMultiplexer = ConnectionMultiplexer.Connect(App.Configuration["RedisConfig:ConnectionString"]);
+            services.AddEventBus();
 
-                // 创建默认内存通道事件源对象，可自定义队列路由key，比如这里是 eventbus
-                var redisEventSourceStorer = new RedisEventSourceStorer(connectionMultiplexer, "eventbus", 1);
-
-                // 替换默认事件总线存储器
-                options.ReplaceStorer(serviceProvider =>
-                {
-                    return redisEventSourceStorer;
-                });
-            });
             //services.AddRabbitMQPlus();
             //services.AddHostedService<Worker>();
 

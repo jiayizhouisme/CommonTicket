@@ -5,11 +5,14 @@ using Core.Queue.IQueue;
 using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Furion.DynamicApiController;
+using Furion.EventBus;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
+using 通用订票.EventBus.Entity;
+using 通用订票.EventBus.EventEntity;
 using 通用订票.Procedure.Entity;
 using 通用订票.Procedure.Entity.QueueEntity;
 using 通用订票Order.Entity;
@@ -28,6 +31,7 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IExhibitionService exhibitionService;
         private readonly ICacheOperation _cache;
         private readonly IQueuePushInfo _queue;
+        private readonly IEventPublisher eventPublisher;
 
         public OrderController(IUserInfoService userinfoService,
             ICacheOperation _cache, 
@@ -38,7 +42,8 @@ namespace 通用订票.Web.Entry.Controllers
             INamedServiceProvider<IDefaultAppointmentService> _stockProvider,
             INamedServiceProvider<IDefaultOrderServices> _orderProvider,
             INamedServiceProvider<IDefaultTicketService> _ticketProvider,
-            IQueuePushInfo _queue)
+            IQueuePushInfo _queue,
+             IEventPublisher eventPublisher)
         {
             this._cache = _cache;
             this.httpContextUser = httpContextUser;
@@ -47,6 +52,7 @@ namespace 通用订票.Web.Entry.Controllers
             this.userService = userService;
             this.exhibitionService = exhibitionService;
             this._queue = _queue;
+            this.eventPublisher = eventPublisher;
 
             var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
             this.stockService = factory.GetStockService(_stockProvider);
@@ -55,7 +61,7 @@ namespace 通用订票.Web.Entry.Controllers
         }
 
         [Authorize]
-        //[TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpPost(Name = "CreateOrder")]
         public async Task<dynamic> CreateOrder([FromBody]BaseOrderCreate oc)
         {
@@ -224,34 +230,12 @@ namespace 通用订票.Web.Entry.Controllers
 
             try
             {
-                var tickets = await ticketService.GetTickets(order.trade_no);
                 var o = await myOrderService.CancelOrder(order);
-                Appointment app = null;
-                if (tickets != null)
-                {
-                    app = await stockService.SaleStock(order.objectId, -tickets.Count);
-                }
-                
-                if (o == null)
-                {
-                    throw new Exception("订单已支付或不存在");
-                }
-                await ticketService.DisableTickets(tickets);
-
-                if (app == null)
-                {
-                    throw new Exception("app不能为空");
-                }
-
-                await ticketService.AfterTicketToke(order.trade_no);
+                var onOrderClosed = new OnOrderClosed() {order = order,tenantId = httpContextUser.TenantId,userId = Guid.Parse(httpContextUser.ID) };
+                await eventPublisher.PublishAsync(new OnOrderClosedEvent(onOrderClosed));            
             }
             catch(Exception e)
             {
-                if (order != null)
-                {
-                    await myOrderService.AfterOrderToke(order.trade_no);
-                }
-                await stockService.DelStockFromCache(order.objectId);
                 throw e;
             }
             finally
@@ -260,11 +244,11 @@ namespace 通用订票.Web.Entry.Controllers
                 await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId);
             }
 
-            return null;
+            return "关闭成功";
         }
 
         [Authorize]
-        //[TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "Test")]
         public async Task Test()
         {
@@ -313,7 +297,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("70FB3A70-A214-6FDD-F1F3-1A360984DA68");
+                            Guid stockid = Guid.Parse("8A181236-9ACF-4442-B8DF-46649D7C5953");
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
@@ -325,7 +309,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("94D175BB-4F46-4E9D-B593-32782DE5D33C");
+                            Guid stockid = Guid.Parse("B53BBFAD-A7A5-49C4-A0DD-BB0849501A45");
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });

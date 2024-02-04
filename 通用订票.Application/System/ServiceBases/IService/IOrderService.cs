@@ -8,5 +8,6 @@ namespace 通用订票.Application.System.ServiceBases.IService
         public Task<T> CreateOrder(Guid objectId,string name,decimal amount);
         public Task<T> PayFinished(T order);
         public Task AfterOrderToke(long orderId);
+        public Task<Core.Entity.Order> OnCloseException(Core.Entity.Order order);
     }
 }
