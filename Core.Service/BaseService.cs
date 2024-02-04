@@ -13,7 +13,10 @@ namespace Core.Services
     {
         protected IRepository<T> _dal;
         private string _connStr;
-
+        public IRepository<T> GetRepository()
+        {
+            return this._dal;
+        }
         public async Task<T> Add(T entity)
         {
             

@@ -22,6 +22,7 @@ namespace 通用订票.EventBus
         {
             //1. 正常接收
             _log.LogInformation($"我是订阅者,收到的内容为：{time}");
+            throw new Exception("1312312");
         }
     }
 }

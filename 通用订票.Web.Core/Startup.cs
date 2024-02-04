@@ -6,6 +6,7 @@ using Core.SignalR;
 using Essensoft.Paylink.WeChatPay;
 using Furion;
 using Furion.Core;
+using Furion.DatabaseAccessor;
 using Furion.Schedule;
 using InitQ;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -94,6 +95,9 @@ namespace 通用订票.Web.Core
 
             services.AddCap(options =>
             {
+                options.UseEntityFramework<MyDefaultDbContext>();
+                options.UseDashboard();
+
                 options.UseInMemoryMessageQueue();
                 options.UseInMemoryStorage();
             }).AddSubscriberAssembly(App.Assemblies.ToArray());
