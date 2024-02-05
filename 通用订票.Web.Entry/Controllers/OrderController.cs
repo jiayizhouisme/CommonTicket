@@ -87,12 +87,24 @@ namespace 通用订票.Web.Entry.Controllers
 
             foreach (var item in oc.ids)
             {
-                var query = await userinfoService.Exist(a => a.id == item && a.userID == userid);
-                if (query == false)
+                string key = "UserInfo:" + item + "_User:" + userid.ToString();
+                var cacheRet = await _cache.Get<string>(key);
+                if (cacheRet != null && cacheRet == "0")
                 {
                     await _cache.ReleaseLock("UserLock_" + userid, lockierid);
                     return new { code = 0, message = "所选择的用户不存在" };
                 }
+                else
+                {
+                    var query = await userinfoService.Exist(a => a.id == item && a.userID == userid);
+                    if (query == false)
+                    {
+                        await _cache.Set(key, "0", 30);
+                        await _cache.ReleaseLock("UserLock_" + userid, lockierid);
+                        return new { code = 0, message = "所选择的用户不存在" };
+                    }
+                }
+                
             }
 
             var left = stock.amount - stock.sale; //获取剩余票数

@@ -61,23 +61,6 @@ namespace 通用订票.EventBus
             await _queue.PushMessageDelay(CloseOrder, DateTime.Now.AddSeconds(60));
         }
 
-        [EventSubscribe("OnTicketCloseFailed")]
-        public async Task Order_OnTicketCloseFailed(EventHandlerExecutingContext context)
-        {
-            var todo = context.Source;
-            var data = (OnTicketCloseFailed)todo.Payload;
-
-            #region 获取services
-            var scope = this.ScopeFactory.CreateScope();
-            var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
-            var _orderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultOrderServices>>();
-
-            var o_service = factory.GetOrderService(_orderProvider);
-
-            o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
-            #endregion
-            await o_service.OnCloseException(data.order);
-        }
 
     }
 }

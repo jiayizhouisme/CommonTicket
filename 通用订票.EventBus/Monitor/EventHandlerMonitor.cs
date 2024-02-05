@@ -19,7 +19,6 @@ namespace 通用订票.EventBus.Monitor
         public Task OnExecutingAsync(EventHandlerExecutingContext context)
         {
             _logger.LogInformation("执行之前：{EventId},来源:{Source}", context.Source.EventId, context.HandlerMethod);
-            
             return Task.CompletedTask;
         }
 

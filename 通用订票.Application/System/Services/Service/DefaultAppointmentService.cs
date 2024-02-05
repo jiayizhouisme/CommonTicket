@@ -24,11 +24,10 @@ namespace 通用订票.Application.System.Services.Service
             try
             {
                 stock = await base.SaleStock(stockId, count);
-                if (stock.sale > stock.amount || stock.sale < 0)
+                if (stock == null || stock.sale > stock.amount || stock.sale < 0)
                 {
                     return null;
                 }
-                stock.exhibition = null;
                 await this.UpdateNow(stock);
                 await SetStockToCache(stock);
             }
