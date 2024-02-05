@@ -61,8 +61,8 @@ namespace 通用订票.Application.System.ServiceBases.Service
             {
                 stock = await GetStockFromDb(stockId);
             }
-            
-            stock.sale = stock.sale + count;
+            if (stock != null)
+                stock.sale = stock.sale + count;
 
             return stock;
         }

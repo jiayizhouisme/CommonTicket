@@ -79,8 +79,8 @@ namespace 通用订票.EventBus
             }
             catch(Exception e)
             {
-                var fail = new OnTicketCloseFailed(){ order = data.order};
-                await eventPublisher.PublishAsync(new OnTicketCloseFailedEvent(fail));
+                //var fail = new OnTicketCloseFailed(){ order = data.order};
+                //await eventPublisher.PublishAsync(new OnTicketCloseFailedEvent(fail));
                 throw e;
             }
             finally

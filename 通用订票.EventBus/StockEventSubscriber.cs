@@ -51,50 +51,11 @@ namespace 通用订票.EventBus
             #endregion
 
             var tickets = await t_service.GetTickets(data.order.trade_no);
-            var ret = await s_service.SaleStock(data.order.objectId, -tickets.Count); //检查库存
+            if (tickets != null)
+            {
+                var ret = await s_service.SaleStock(data.order.objectId, -tickets.Count); //检查库存
+            }
         }
 
-        [EventSubscribe("OnOrderCreateFailed")]
-        public async Task Stock_OnOrderCreateFailed(EventHandlerExecutingContext context)
-        {
-            var todo = context.Source;
-            var data = (OnOrderCreateFailed)todo.Payload;
-
-            #region 获取services
-            var scope = this.ScopeFactory.CreateScope();
-            var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
-            var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
-
-            var s_service = factory.GetStockService(_stockProvider);
-
-            s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, data.tenantId);
-            #endregion
-
-            var ret = await s_service.SaleStock(data.app.id, -data.count); //检查库存
-            await s_service.DelStockFromCache(data.app.id);
-        }
-
-        [EventSubscribe("OnTicketCloseFailed")]
-        public async Task Stock_OnTicketCloseFailed(EventHandlerExecutingContext context)
-        {
-            var todo = context.Source;
-            var data = (OnTicketCloseFailed)todo.Payload;
-
-            #region 获取services
-            var scope = this.ScopeFactory.CreateScope();
-            var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
-            var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
-            var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultTicketService>>();
-
-            var s_service = factory.GetStockService(_stockProvider);
-            var t_service = factory.GetTicketService(_ticketProvider);
-
-            s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, data.tenantId);
-            t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, data.tenantId);
-            #endregion
-
-            var tickets = await t_service.GetTickets(data.order.trade_no);
-            var ret = await s_service.SaleStock(data.order.objectId, -tickets.Count); //检查库存
-        }
     }
 }
