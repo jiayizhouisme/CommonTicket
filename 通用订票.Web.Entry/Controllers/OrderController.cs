@@ -9,7 +9,6 @@ using Furion.EventBus;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using 通用订票.Application.System.Factory.Service;
-using 通用订票.Application.System.ServiceBases.IService;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
 using 通用订票.EventBus.Entity;
@@ -25,7 +24,6 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IUserInfoService userinfoService;
         private readonly IUserService userService;
         private readonly IDefaultAppointmentService stockService;
-        private readonly IDefaultTicketService ticketService;
         private readonly IDefaultOrderServices myOrderService;
         private readonly IHttpContextUser httpContextUser;
         private readonly IWechatBillService billService;
@@ -42,7 +40,6 @@ namespace 通用订票.Web.Entry.Controllers
             IUserService userService,
             INamedServiceProvider<IDefaultAppointmentService> _stockProvider,
             INamedServiceProvider<IDefaultOrderServices> _orderProvider,
-            INamedServiceProvider<IDefaultTicketService> _ticketProvider,
             IQueuePushInfo _queue,
              IEventPublisher eventPublisher)
         {
@@ -57,7 +54,6 @@ namespace 通用订票.Web.Entry.Controllers
 
             var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
             this.stockService = factory.GetStockService(_stockProvider);
-            this.ticketService = factory.GetTicketService(_ticketProvider);
             this.myOrderService = factory.GetOrderService(_orderProvider);
         }
 
