@@ -61,7 +61,7 @@ namespace 通用订票.Application.System.Services.Service
             }
 
             await SetTicketToCache(order.trade_no, result);
-            await SetTicketUserToCache(order.objectId, uids);
+            //await SetTicketUserToCache(order.objectId, uids);
             return result;
         }
         public virtual async Task<int> EnableTickets(ICollection<Core.Entity.Ticket> ticket)

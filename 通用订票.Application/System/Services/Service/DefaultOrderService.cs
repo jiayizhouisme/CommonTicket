@@ -128,7 +128,6 @@ namespace 通用订票.Application.System.Services.Service
             var _lock = await _cache.LockNoWait("PreOrder:" + objectId.ToString() + "User:" + userId, userId.ToString(), 60);
             if (_lock == 0)
             {
-                await this.OrderFail(objectId);
                 return false;
             }
 
