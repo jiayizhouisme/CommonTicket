@@ -38,7 +38,7 @@ namespace 通用订票.Application.System.Services.Service
             if (order != null)
             {
                 await this.UpdateNow(order);
-                await SetOrderToCache(Order);
+                await DelOrderFromCache(Order.trade_no);
                 await DelRecord(order.objectId);
             }
             return order;
