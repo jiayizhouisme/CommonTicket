@@ -55,7 +55,8 @@ namespace 通用订票.EventBus
                                 trade_no = data.order.trade_no,
                                 appid = data.app.id,
                                 delay = 10,
-                                tenantId = data.tenantId
+                                tenantId = data.tenantId,
+                                userId = data.userId
                             }
             );
             await _queue.PushMessageDelay(CloseOrder, DateTime.Now.AddSeconds(60));

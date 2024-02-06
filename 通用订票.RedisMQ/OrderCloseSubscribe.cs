@@ -9,6 +9,7 @@ using InitQ.Attributes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using ProtoBuf.Meta;
 using StackExchange.Redis;
 using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Models;
@@ -55,6 +56,7 @@ namespace 通用订票.RedisMQ
             Core.Entity.Order order = null;
             string lockerId = Guid.NewGuid().ToString();
             var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
+            
             var lo = _cache.Lock("OrderLocker_" + data.trade_no, lockerId).Result;
             using (var scope = _serviceProvider.CreateScope())
             {
@@ -62,7 +64,9 @@ namespace 通用订票.RedisMQ
                 var _orderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultOrderServices>>();
                 var o_service = factory.GetOrderService(_orderProvider);
                 o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
+                o_service.SetUserContext(data.userId);
                 #endregion
+
                 try
                 {
                     order = o_service.GetOrderById(data.trade_no).Result;
