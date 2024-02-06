@@ -43,8 +43,6 @@ namespace 通用订票.EventBus
             var data = (Entity.OnOrderCreated)todo.Payload;
 
             await _cache.Decrby("QueueIn_" + data.app.id, data.ids.Count);
-            await _cache.ReleaseLock("UserLock_" + data.userId, data.userId.ToString());
-
             var client = userapp.isOnline(data.userId.ToString());
             if (client != null)
             {
@@ -65,7 +63,6 @@ namespace 通用订票.EventBus
             var data = (Entity.OnOrderCreated)todo.Payload;
 
             await _cache.Decrby("QueueIn_" + data.app.id, data.ids.Count);
-            await _cache.ReleaseLock("UserLock_" + data.userId, data.userId.ToString());
 
             var client = userapp.isOnline(data.userId.ToString());
             if (client != null)

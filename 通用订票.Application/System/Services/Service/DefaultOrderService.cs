@@ -28,6 +28,7 @@ namespace 通用订票.Application.System.Services.Service
             result.trade_no = await GetTradeNoAsync(result.trade_no);
             var r = await this._dal.InsertNowAsync(result);
             await SetOrderToCache(r.Entity);
+            await AfterOrdered(objectId);
             return r.Entity;
         }
 
@@ -120,6 +121,19 @@ namespace 通用订票.Application.System.Services.Service
             return order;
         }
 
+        public async Task<bool> PreOrder(Guid objectId)
+        {
+            var _lock = await _cache.LockNoWait("PreOrder:" + objectId.ToString() + "User:" + userId, userId.ToString(), 60);
+            if (_lock == 0)
+            {
+                return false;
+            }
+            return true;
+        }
+        public async Task OrderFail(Guid objectId)
+        {
+            await _cache.ReleaseLock("PreOrder:" + objectId.ToString() + "User:" + userId, userId.ToString());
+        }
         protected async Task<long> GetTradeNoAsync(long before)
         {
             long prefixOrder = before;
@@ -136,10 +150,17 @@ namespace 通用订票.Application.System.Services.Service
             return long.Parse(orderNo);
         }
 
+        protected virtual async Task AfterOrdered(Guid objectId)
+        {
+            await _cache.ReleaseLock("PreOrder:" + objectId.ToString() + "User:" + userId, userId.ToString());
+        }
+
         private async Task DelOrderFromCache(long trande_no)
         {
             var key = "Order_" + trande_no;
             await _cache.Del(key);
         }
+
+
     }
 }

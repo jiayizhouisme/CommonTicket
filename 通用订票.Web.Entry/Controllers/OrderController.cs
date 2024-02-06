@@ -9,6 +9,7 @@ using Furion.EventBus;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using 通用订票.Application.System.Factory.Service;
+using 通用订票.Application.System.ServiceBases.IService;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
 using 通用订票.EventBus.Entity;
@@ -68,20 +69,20 @@ namespace 通用订票.Web.Entry.Controllers
             var userid = Guid.Parse(httpContextUser.ID);
             string lockierid = userid.ToString();
 
-            //var _lock = await _cache.LockNoWait("UserLock_" + userid, lockierid, 60);
-            //if (_lock == 0)
-            //{
-            //    return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
-            //}
+            myOrderService.SetUserContext(userid);
+            var _lock = await myOrderService.PreOrder(oc.appid);
+            if (_lock == false)
+            {
+                return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
+            }
 
             //去重
             oc.ids = oc.ids.Distinct().ToArray();
-           
 
             var stock = await stockService.checkStock(oc.appid);
             if (stock == null)
             {
-                await _cache.ReleaseLock("UserLock_" + userid, lockierid);
+                await myOrderService.OrderFail(oc.appid);
                 return new { code = 0, message = "库存不足" };
             }
 
@@ -91,7 +92,7 @@ namespace 通用订票.Web.Entry.Controllers
                 var cacheRet = await _cache.Get<string>(key);
                 if (cacheRet != null && cacheRet == "0")
                 {
-                    await _cache.ReleaseLock("UserLock_" + userid, lockierid);
+                    await myOrderService.OrderFail(oc.appid);
                     return new { code = 0, message = "所选择的用户不存在" };
                 }
                 else
@@ -100,7 +101,7 @@ namespace 通用订票.Web.Entry.Controllers
                     if (query == false)
                     {
                         await _cache.Set(key, "0", 30);
-                        await _cache.ReleaseLock("UserLock_" + userid, lockierid);
+                        await myOrderService.OrderFail(oc.appid);
                         return new { code = 0, message = "所选择的用户不存在" };
                     }
                 }
@@ -113,7 +114,7 @@ namespace 通用订票.Web.Entry.Controllers
             if (myid > left)
             {
                 await _cache.Decrby("QueueIn_" + oc.appid, oc.ids.Count);
-                await _cache.ReleaseLock("UserLock_" + userid, lockierid);
+                await myOrderService.OrderFail(oc.appid);
                 return new { code = 0, message = "库存不足" };
             }
 
@@ -122,7 +123,7 @@ namespace 通用订票.Web.Entry.Controllers
             if (vaild == false)
             {
                 await _cache.Decrby("QueueIn_" + oc.appid, oc.ids.Count);
-                await _cache.ReleaseLock("UserLock_" + userid, lockierid);
+                await myOrderService.OrderFail(oc.appid);
                 return new { status = 1,message = "用户重复" };
             }
 
