@@ -24,6 +24,7 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IUserInfoService userinfoService;
         private readonly IUserService userService;
         private readonly IDefaultAppointmentService stockService;
+        private readonly IDefaultTicketService ticketService;
         private readonly IDefaultOrderServices myOrderService;
         private readonly IHttpContextUser httpContextUser;
         private readonly IWechatBillService billService;
@@ -33,13 +34,14 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IEventPublisher eventPublisher;
 
         public OrderController(IUserInfoService userinfoService,
-            ICacheOperation _cache, 
-            IHttpContextUser httpContextUser, 
-            IWechatBillService billService, 
+            ICacheOperation _cache,
+            IHttpContextUser httpContextUser,
+            IWechatBillService billService,
             IExhibitionService exhibitionService,
             IUserService userService,
             INamedServiceProvider<IDefaultAppointmentService> _stockProvider,
             INamedServiceProvider<IDefaultOrderServices> _orderProvider,
+            INamedServiceProvider<IDefaultTicketService> _ticketProvider,
             IQueuePushInfo _queue,
              IEventPublisher eventPublisher)
         {
@@ -54,8 +56,10 @@ namespace 通用订票.Web.Entry.Controllers
 
             var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
             this.stockService = factory.GetStockService(_stockProvider);
+            this.ticketService = factory.GetTicketService(_ticketProvider);
             this.myOrderService = factory.GetOrderService(_orderProvider);
         }
+
 
         [Authorize]
         //[TypeFilter(typeof(SaaSAuthorizationFilter))]
@@ -114,14 +118,14 @@ namespace 通用订票.Web.Entry.Controllers
                 return new { code = 0, message = "库存不足" };
             }
 
-            //ticketService.SetUserContext(userid);
-            //var vaild = await ticketService.Vaild(oc.ids.ToArray(), stock);
-            //if (vaild == false)
-            //{
-            //    await _cache.Decrby("QueueIn_" + oc.appid, oc.ids.Count);
-            //    await myOrderService.OrderFail(oc.appid);
-            //    return new { status = 1,message = "用户重复" };
-            //}
+            ticketService.SetUserContext(userid);
+            var vaild = await ticketService.Vaild(oc.ids.ToArray(), stock);
+            if (vaild == false)
+            {
+                await _cache.Decrby("QueueIn_" + oc.appid, oc.ids.Count);
+                await myOrderService.OrderFail(oc.appid);
+                return new { status = 1,message = "用户重复" };
+            }
 
             var exhibition = await exhibitionService.GetExhibitionByID(stock.objectId);
 
