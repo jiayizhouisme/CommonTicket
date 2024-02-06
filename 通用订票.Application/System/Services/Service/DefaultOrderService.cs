@@ -28,6 +28,7 @@ namespace 通用订票.Application.System.Services.Service
             result.trade_no = await GetTradeNoAsync(result.trade_no);
             var r = await this._dal.InsertNowAsync(result);
             await SetOrderToCache(r.Entity);
+            await AfterOrdered(objectId);
             return r.Entity;
         }
 
@@ -38,6 +39,7 @@ namespace 通用订票.Application.System.Services.Service
             {
                 await this.UpdateNow(order);
                 await SetOrderToCache(Order);
+                await DelRecord(order.objectId);
             }
             return order;
         }
@@ -60,6 +62,7 @@ namespace 通用订票.Application.System.Services.Service
             {
                 await this.UpdateNow(Order);
                 await SetOrderToCache(Order);
+                await DelRecord(Order.objectId);
             }
             return result;
         }
@@ -120,6 +123,29 @@ namespace 通用订票.Application.System.Services.Service
             return order;
         }
 
+        public async Task<bool> PreOrder(Guid objectId)
+        {
+            var _lock = await _cache.LockNoWait("PreOrder:" + objectId.ToString() + "User:" + userId, userId.ToString(), 60);
+            if (_lock == 0)
+            {
+                await this.OrderFail(objectId);
+                return false;
+            }
+
+            var ret = await _cache.Get<int>("Orderd:" + objectId.ToString() + "User:" + userId);
+            if (ret == 1)
+            {                
+                await this.OrderFail(objectId);
+                return false;
+            }
+            return true;
+        }
+
+        public async Task OrderFail(Guid objectId)
+        {
+            await ReleaseLock(objectId);
+        }
+
         protected async Task<long> GetTradeNoAsync(long before)
         {
             long prefixOrder = before;
@@ -136,10 +162,31 @@ namespace 通用订票.Application.System.Services.Service
             return long.Parse(orderNo);
         }
 
+        public virtual async Task AfterOrdered(Guid objectId)
+        {
+            await RecordOrder(objectId);
+            await ReleaseLock(objectId);
+        }
+
         private async Task DelOrderFromCache(long trande_no)
         {
             var key = "Order_" + trande_no;
             await _cache.Del(key);
+        }
+
+        private async Task ReleaseLock(Guid objectId)
+        {
+            await _cache.ReleaseLock("PreOrder:" + objectId.ToString() + "User:" + userId, userId.ToString());//解锁 
+        }
+
+        private async Task RecordOrder(Guid objectId)
+        {
+            await _cache.Set("Orderd:" + objectId.ToString() + "User:" + userId, 1, 650);//记录用户购买的订单 防止重复下单
+        }
+
+        private async Task DelRecord(Guid objectId)
+        {
+            await _cache.Del("Orderd:" + objectId.ToString() + "User:" + userId);//记录用户购买的订单 防止重复下单
         }
     }
 }
