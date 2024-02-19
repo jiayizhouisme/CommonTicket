@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using 通用订票.Application.System.ServiceBases.IService;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Application.System.Services.Service;
+using 通用订票Order.Entity;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
@@ -20,10 +21,10 @@ namespace 通用订票.马家荡.Service
             _log = logger.CreateLogger("MaJiaDangOrder");
         }
 
-        public override Task<Core.Entity.Order> CreateOrder(Guid objectId, string name, decimal amount)
+        public override Task<Core.Entity.Order> CreateOrder(Guid objectId, string name, decimal amount, OrderStatus status = OrderStatus.未付款)
         {
             _log.Log(LogLevel.Information,"马家荡订单开始下单");
-            return base.CreateOrder(objectId, name + "马家荡", amount);
+            return base.CreateOrder(objectId, name + "马家荡", amount,status);
         }
 
     }

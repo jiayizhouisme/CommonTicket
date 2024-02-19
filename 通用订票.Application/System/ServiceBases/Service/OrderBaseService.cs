@@ -1,5 +1,6 @@
 ﻿using Core.Services;
 using 通用订票.Application.System.ServiceBases.IService;
+using 通用订票.Base.Entity;
 using 通用订票Order.Entity;
 
 namespace 通用订票.Application.System.ServiceBases.Service
@@ -10,7 +11,7 @@ namespace 通用订票.Application.System.ServiceBases.Service
         {
             base._dal = _dal;
         }
-        public virtual async Task<T> TakeOrder(decimal amount)
+        public virtual async Task<T> TakeOrder(decimal amount,OrderStatus status)
         {
             if (amount < 0)
             {
@@ -19,7 +20,7 @@ namespace 通用订票.Application.System.ServiceBases.Service
             Random rand = new Random();
             T order = new T();
 
-            order.status = OrderStatus.未付款;
+            order.status = status;
             order.trade_no = GetTradeNo();
             order.payedAmount = 0;
             order.amount = amount;
@@ -67,11 +68,11 @@ namespace 通用订票.Application.System.ServiceBases.Service
             return order;
         }
 
-        public virtual async Task<T> CreateOrder(Guid objectId, string name,decimal amount)
+        public virtual async Task<T> CreateOrder(Guid objectId, string name,decimal amount,OrderStatus status)
         {
             try
             {
-                var order = await TakeOrder(amount);
+                var order = await TakeOrder(amount, status);
                 order.objectId = objectId;
                 order.createTime = DateTime.Now;
                 order.name = "普通订单:" + name;

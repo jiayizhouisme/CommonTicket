@@ -15,16 +15,16 @@ namespace 通用订票.Application.System.Services.Service
             _cache = cache;
         }
 
-        public override async Task<Core.Entity.Order> TakeOrder(decimal amount)
+        public override async Task<Core.Entity.Order> TakeOrder(decimal amount,OrderStatus status)
         {
-            var order = await base.TakeOrder(amount);
+            var order = await base.TakeOrder(amount, status);
             order.userId = userId;
             return order;
         }
 
-        public override async Task<Core.Entity.Order> CreateOrder(Guid objectId, string name, decimal amount)
+        public override async Task<Core.Entity.Order> CreateOrder(Guid objectId, string name, decimal amount, OrderStatus status = OrderStatus.未付款)
         {
-            var result = await base.CreateOrder(objectId, name, amount);
+            var result = await base.CreateOrder(objectId, name, amount, status);
             result.trade_no = await GetTradeNoAsync(result.trade_no);
             var r = await this._dal.InsertNowAsync(result);
             await SetOrderToCache(r.Entity);
@@ -38,7 +38,7 @@ namespace 通用订票.Application.System.Services.Service
             if (order != null)
             {
                 await this.UpdateNow(order);
-                await SetOrderToCache(Order);
+                await DelOrderFromCache(Order.trade_no);
                 await DelRecord(order.objectId);
             }
             return order;
@@ -128,7 +128,6 @@ namespace 通用订票.Application.System.Services.Service
             var _lock = await _cache.LockNoWait("PreOrder:" + objectId.ToString() + "User:" + userId, userId.ToString(), 60);
             if (_lock == 0)
             {
-                await this.OrderFail(objectId);
                 return false;
             }
 

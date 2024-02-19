@@ -79,7 +79,15 @@ namespace 通用订票.RedisMQ
                         stockret = s_service.SaleStock(data.appid, data.ids.Count).Result;
                         if (stockret != null)
                         {
-                            order = o_service.CreateOrder(stockret.id, stockret.stockName, data.price * data.ids.Count).Result;
+                            if (data.price > 0)
+                            {
+                                order = o_service.CreateOrder(stockret.id, stockret.stockName, data.price * data.ids.Count,通用订票Order.Entity.OrderStatus.未付款).Result;
+                            }
+                            else
+                            {
+                                order = o_service.CreateOrder(stockret.id, stockret.stockName, data.price * data.ids.Count, 通用订票Order.Entity.OrderStatus.已付款).Result;
+                            }
+                            
                             var entity = new OnOrderCreated() { app = stockret, order = order, ids = data.ids, tenantId = data.tenantId, userId = data.userid };
                             await _eventPublisher.PublishAsync(new OnOrderCreatedEvent(entity));
                             await trans.CommitAsync();
