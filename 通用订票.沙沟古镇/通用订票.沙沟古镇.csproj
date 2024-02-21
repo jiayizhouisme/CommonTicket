@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Cores\Core.Service\Core.Services.csproj" />
     <ProjectReference Include="..\通用订票.Application\通用订票.Application.csproj" />
   </ItemGroup>
 

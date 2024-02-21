@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core.Queue\Core.Queue.csproj" />
+    <ProjectReference Include="..\..\Cores\Core.Cache\Core.Cache.csproj" />
+    <ProjectReference Include="..\..\Cores\Core.Queue\Core.Queue.csproj" />
     <ProjectReference Include="..\通用订票.Application\通用订票.Application.csproj" />
     <ProjectReference Include="..\通用订票.EventBus\通用订票.EventBus.csproj" />
     <ProjectReference Include="..\通用订票.Procedure\通用订票.Procedure.csproj" />

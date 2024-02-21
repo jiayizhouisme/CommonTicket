@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core.Queue\Core.Queue.csproj" />
     <ProjectReference Include="..\通用订票.Application\通用订票.Application.csproj" />
     <ProjectReference Include="..\通用订票.RedisMQ\通用订票.RedisMQ.csproj" />
   </ItemGroup>

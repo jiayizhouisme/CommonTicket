@@ -15,8 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core.Auth\Core.Auth.csproj" />
-    <ProjectReference Include="..\Core.Service\Core.Services.csproj" />
+    <ProjectReference Include="..\..\Cores\Core.Cache\Core.Cache.csproj" />
+    <ProjectReference Include="..\..\Cores\Core.Queue\Core.Queue.csproj" />
+    <ProjectReference Include="..\..\Cores\Core.SignalR\Core.SignalR.csproj" />
     <ProjectReference Include="..\通用订票.Application\通用订票.Application.csproj" />
     <ProjectReference Include="..\通用订票.Base\通用订票.Base.csproj" />
     <ProjectReference Include="..\通用订票.Core\通用订票.Core.csproj" />

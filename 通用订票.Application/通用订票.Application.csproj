@@ -26,15 +26,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="BeetleX.Redis" Version="1.4.9.1803" />
 	  <PackageReference Include="Essensoft.Paylink.WeChatPay" Version="4.1.3" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Core.Auth\Core.Auth.csproj" />
-		<ProjectReference Include="..\Core.Cache\Core.Cache.csproj" />
-		<ProjectReference Include="..\Core.Service\Core.Services.csproj" />
-		<ProjectReference Include="..\Core.SignalR\Core.SignalR.csproj" />
+		<ProjectReference Include="..\..\Cores\Core.Auth\Core.Auth.csproj" />
+		<ProjectReference Include="..\..\Cores\Core.Cache\Core.Cache.csproj" />
+		<ProjectReference Include="..\..\Cores\Core.Queue\Core.Queue.csproj" />
+		<ProjectReference Include="..\..\Cores\Core.Service\Core.Services.csproj" />
+		<ProjectReference Include="..\..\Cores\Core.User\Core.User.csproj" />
 		<ProjectReference Include="..\通用订票.Core\通用订票.Core.csproj" />
 	</ItemGroup>
 

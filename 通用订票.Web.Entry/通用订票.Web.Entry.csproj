@@ -34,8 +34,13 @@
 
 
 	<ItemGroup>
-		<ProjectReference Include="..\Core.MiddelWares\Core.MiddelWares.csproj" />
-		<ProjectReference Include="..\Core.Queue\Core.Queue.csproj" />
+		<ProjectReference Include="..\..\Cores\Core.Auth\Core.Auth.csproj" />
+		<ProjectReference Include="..\..\Cores\Core.Cache\Core.Cache.csproj" />
+		<ProjectReference Include="..\..\Cores\Core.EntityFrameWork\Core.EntityFrameWork.csproj" />
+		<ProjectReference Include="..\..\Cores\Core.Entity\Core.Entity.csproj" />
+		<ProjectReference Include="..\..\Cores\Core.MiddelWares\Core.MiddelWares.csproj" />
+		<ProjectReference Include="..\..\Cores\Core.Service\Core.Services.csproj" />
+		<ProjectReference Include="..\..\Cores\Core.User\Core.User.csproj" />
 		<ProjectReference Include="..\通用订票.EventBus\通用订票.EventBus.csproj" />
 		<ProjectReference Include="..\通用订票.RedisMQ\通用订票.RedisMQ.csproj" />
 		<ProjectReference Include="..\通用订票.Web.Core\通用订票.Web.Core.csproj" />

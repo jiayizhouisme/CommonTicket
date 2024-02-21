@@ -7,14 +7,9 @@
 	</PropertyGroup>
 
 
-
 	<ItemGroup>
-	  <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.0-beta.2" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-		<ProjectReference Include="..\Core.EntityFrameWork\Core.EntityFrameWork.csproj" />
+		<ProjectReference Include="..\..\Cores\Core.Auth\Core.Auth.csproj" />
+		<ProjectReference Include="..\..\Cores\Core.EntityFrameWork\Core.EntityFrameWork.csproj" />
 		<ProjectReference Include="..\通用订票.Core\通用订票.Core.csproj" />
 	</ItemGroup>
 
