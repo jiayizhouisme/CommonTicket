@@ -44,8 +44,6 @@
 		<ProjectReference Include="..\通用订票.EventBus\通用订票.EventBus.csproj" />
 		<ProjectReference Include="..\通用订票.RedisMQ\通用订票.RedisMQ.csproj" />
 		<ProjectReference Include="..\通用订票.Web.Core\通用订票.Web.Core.csproj" />
-		<ProjectReference Include="..\通用订票.沙沟古镇\通用订票.测试项目2.csproj" />
-		<ProjectReference Include="..\通用订票.马家荡\通用订票.测试项目1.csproj" />
 	</ItemGroup>
 
 
