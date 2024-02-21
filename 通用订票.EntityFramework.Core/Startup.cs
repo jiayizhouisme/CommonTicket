@@ -14,12 +14,12 @@ namespace 通用订票.EntityFramework.Core
                 var dbType = App.Configuration["ConnectionStrings:DbType"];
                 if (dbType == "SqlServer")
                 {
-                    options.AddDb<MyDefaultDbContext>();
-                    options.AddDbPool<MultiTenantDbContext, MultiTenantDbContextLocator>();
+                    options.AddDb<MasterDbContext_SQL>();
+                    options.AddDbPool<MultiTenantDbContext_SQL, MultiTenantDbContextLocator>();
                 }
                 else if(dbType == "MySql")
                 {
-                    options.AddDb<MyDefaultDbContext_MYSQL>();
+                    options.AddDb<MasterDbContext_MYSQL>();
                     options.AddDbPool<MultiTenantDbContext_MYSQL, MultiTenantDbContextLocator>();
                 }
                 
