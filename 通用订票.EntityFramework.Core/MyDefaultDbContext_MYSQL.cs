@@ -18,7 +18,7 @@ namespace 通用订票.EntityFramework.Core
             ServerVersion sv = ServerVersion.AutoDetect(connStr);
             optionsBuilder.UseMySql(connStr, sv, options =>
             {
-                options.MigrationsAssembly("通用订票.Database.Migrations");
+                options.MigrationsAssembly(App.Configuration["ConnectionStrings:Migrations"]);
             });
             base.OnConfiguring(optionsBuilder);
         }
