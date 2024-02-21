@@ -76,9 +76,6 @@ namespace 通用订票.Web.Entry.Controllers
                 return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
             }
 
-            //去重
-            oc.ids = oc.ids.Distinct().ToArray();
-
             var stock = await stockService.checkStock(oc.appid);
             if (stock == null)
             {
@@ -86,6 +83,7 @@ namespace 通用订票.Web.Entry.Controllers
                 return new { code = 0, message = "库存不足" };
             }
 
+            oc.ids = oc.ids.Distinct().ToArray();
             foreach (var item in oc.ids)
             {
                 string key = "UserInfo:" + item + "_User:" + userid.ToString();

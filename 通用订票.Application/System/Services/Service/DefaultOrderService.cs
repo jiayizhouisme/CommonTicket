@@ -50,7 +50,7 @@ namespace 通用订票.Application.System.Services.Service
             if (result != null)
             {
                 await this.UpdateNow(Order);
-                await SetOrderToCache(Order);
+                await DelOrderFromCache(Order.trade_no);
             }
             return result;
         }
@@ -61,7 +61,7 @@ namespace 通用订票.Application.System.Services.Service
             if (result != null)
             {
                 await this.UpdateNow(Order);
-                await SetOrderToCache(Order);
+                await DelOrderFromCache(Order.trade_no);
                 await DelRecord(Order.objectId);
             }
             return result;
