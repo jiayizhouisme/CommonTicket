@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using 通用订票.Application.System.IService.Factory;
 using 通用订票.Application.System.Services.IService;
-using 通用订票.沙沟古镇.Service;
+using 通用订票.测试项目2.Service;
 
-namespace 通用订票.沙沟古镇.Factory
+namespace 通用订票.测试项目2.Factory
 {
     public class ShagouServiceFactory : IServiceFactory
     {

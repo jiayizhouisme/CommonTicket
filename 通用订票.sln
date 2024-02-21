@@ -26,11 +26,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "通用订票.RedisMQ", "通
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "通用订票", "通用订票", "{21196BB4-F473-4CBB-9356-BF2CC0375636}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "通用订票.沙沟古镇", "通用订票.沙沟古镇\通用订票.沙沟古镇.csproj", "{78077499-EBCE-4BB0-99DD-7166C845788E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "通用订票.测试项目2", "通用订票.沙沟古镇\通用订票.测试项目2.csproj", "{78077499-EBCE-4BB0-99DD-7166C845788E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "项目", "项目", "{653C05C6-0507-4235-B0BA-CCB164A21F0E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "通用订票.马家荡", "通用订票.马家荡\通用订票.马家荡.csproj", "{534B164B-5646-48A3-B378-41FC1FF20EE3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "通用订票.测试项目1", "通用订票.马家荡\通用订票.测试项目1.csproj", "{534B164B-5646-48A3-B378-41FC1FF20EE3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "通用订票.Task", "通用订票.Task\通用订票.Task.csproj", "{0B7F1ABF-7752-4087-A411-A3AA8BA0887A}"
 EndProject
