@@ -6,12 +6,12 @@ using 通用订票.Application.System.Services.IService;
 using 通用订票.Application.System.Services.Service;
 using 通用订票.Core.Entity;
 
-namespace 通用订票.沙沟古镇.Service
+namespace 通用订票.测试项目1.Service
 {
     [Injection(Order = 0)]
-    public class ShagouStockService : DefaultAppointmentService, ITransient
+    public class MaJiaDangStockService : DefaultAppointmentService, ITransient
     {
-        public ShagouStockService(IRepository<Appointment> _dal, ICacheOperation _cache) : base(_dal, _cache)
+        public MaJiaDangStockService(IRepository<Appointment> _dal, ICacheOperation _cache) : base(_dal, _cache)
         {
         }
     }

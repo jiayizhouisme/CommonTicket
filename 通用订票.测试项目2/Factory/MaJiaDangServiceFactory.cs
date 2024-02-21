@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using 通用订票.Application.System.IService.Factory;
 using 通用订票.Application.System.Services.IService;
-using 通用订票.马家荡.Service;
+using 通用订票.测试项目1.Service;
 
-namespace 通用订票.马家荡.Factory
+namespace 通用订票.测试项目1.Factory
 {
     public class MaJiaDangServiceFactory : IServiceFactory
     {
