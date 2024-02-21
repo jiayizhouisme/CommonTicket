@@ -56,7 +56,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Queue", "..\Cores\Core
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "通用订票.测试项目1", "通用订票.测试项目2\通用订票.测试项目1.csproj", "{5601885B-D9B8-4081-BC39-4CA2EBF43145}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "通用订票.小景区", "小景区\通用订票.小景区.csproj", "{7BC843EC-AA32-47A3-A4ED-D891431EF0BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "通用订票.小景区", "小景区\通用订票.小景区.csproj", "{7BC843EC-AA32-47A3-A4ED-D891431EF0BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "通用订票.大景区", "大景区\通用订票.大景区.csproj", "{1DF6126F-E455-4991-B31F-109EB287099C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -152,6 +154,10 @@ Global
 		{7BC843EC-AA32-47A3-A4ED-D891431EF0BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BC843EC-AA32-47A3-A4ED-D891431EF0BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BC843EC-AA32-47A3-A4ED-D891431EF0BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DF6126F-E455-4991-B31F-109EB287099C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DF6126F-E455-4991-B31F-109EB287099C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DF6126F-E455-4991-B31F-109EB287099C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DF6126F-E455-4991-B31F-109EB287099C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -180,6 +186,7 @@ Global
 		{742CAC03-BF0B-4DA3-83DA-DCEBF75B20F8} = {C11C3504-64B5-46FE-8AC4-8204FAFB094C}
 		{5601885B-D9B8-4081-BC39-4CA2EBF43145} = {653C05C6-0507-4235-B0BA-CCB164A21F0E}
 		{7BC843EC-AA32-47A3-A4ED-D891431EF0BE} = {653C05C6-0507-4235-B0BA-CCB164A21F0E}
+		{1DF6126F-E455-4991-B31F-109EB287099C} = {653C05C6-0507-4235-B0BA-CCB164A21F0E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C53A7C6F-76AF-4F0F-95B5-BE403989F34F}

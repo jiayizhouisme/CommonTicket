@@ -41,6 +41,7 @@
 		<ProjectReference Include="..\..\Cores\Core.MiddelWares\Core.MiddelWares.csproj" />
 		<ProjectReference Include="..\..\Cores\Core.Service\Core.Services.csproj" />
 		<ProjectReference Include="..\..\Cores\Core.User\Core.User.csproj" />
+		<ProjectReference Include="..\大景区\通用订票.大景区.csproj" />
 		<ProjectReference Include="..\小景区\通用订票.小景区.csproj" />
 		<ProjectReference Include="..\通用订票.EventBus\通用订票.EventBus.csproj" />
 		<ProjectReference Include="..\通用订票.RedisMQ\通用订票.RedisMQ.csproj" />
