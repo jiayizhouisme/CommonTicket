@@ -6,11 +6,11 @@ using 通用订票Order.Entity;
 namespace 通用订票.Application.System.Services.Service
 {
     [Injection(Order = 1)]
-    public class DefaultOrderService : OrderBaseService<Core.Entity.Order>, IDefaultOrderServices, ITransient
+    public class DefaultOrderService : OrderBaseService<Core.Entity.Order, MasterDbContextLocator>, IDefaultOrderServices, ITransient
     {
         private Guid userId { get; set; }
         private readonly ICacheOperation _cache;
-        public DefaultOrderService(IRepository<Core.Entity.Order> _dal, ICacheOperation cache) : base(_dal)
+        public DefaultOrderService(IRepository<Core.Entity.Order, MasterDbContextLocator> _dal, ICacheOperation cache) : base(_dal)
         {
             _cache = cache;
         }

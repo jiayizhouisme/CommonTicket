@@ -5,9 +5,9 @@ using Core.Auth;
 
 namespace 通用订票.Application.System.Services.Service
 {
-    public class UserService : UserLoginService<User>, IUserService, ITransient
+    public class UserService : UserLoginService<User, MasterDbContextLocator>, IUserService, ITransient
     {
-        public UserService(IRepository<User> repository) : base(repository)
+        public UserService(IRepository<User, MasterDbContextLocator> repository) : base(repository)
         {
         }
 

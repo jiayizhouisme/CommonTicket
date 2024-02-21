@@ -19,14 +19,14 @@ using Core.Services;
 
 namespace 通用订票.Application.System.Services.Service
 {
-    public class WechatBillService : BaseService<WechatBill>, IWechatBillService,ITransient
+    public class WechatBillService : BaseService<WechatBill, MasterDbContextLocator>, IWechatBillService,ITransient
     {
         private readonly WeChatPayOptions _wechatpay;
         private readonly IWeChatPayClient _client;
         private readonly IHttpContextUser _user;
         private readonly IUserService _userServices;
         private readonly ICacheOperation _cache;
-        public WechatBillService(IOptions<WeChatPayOptions> _wechatpay, IRepository<WechatBill> _dal, IUserService _userServices,
+        public WechatBillService(IOptions<WeChatPayOptions> _wechatpay, IRepository<WechatBill, MasterDbContextLocator> _dal, IUserService _userServices,
             IWeChatPayClient _client, IHttpContextUser _user, ICacheOperation _cache)
         {
             this._dal = _dal;

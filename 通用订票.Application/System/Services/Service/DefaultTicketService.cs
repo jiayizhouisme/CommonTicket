@@ -21,11 +21,11 @@ using 通用订票.Base.Entity;
 namespace 通用订票.Application.System.Services.Service
 {
     [Injection(Order = 1)]
-    public class DefaultTicketService : TicketBaseService<Core.Entity.Ticket>,IDefaultTicketService, ITransient
+    public class DefaultTicketService : TicketBaseService<Ticket, MasterDbContextLocator>,IDefaultTicketService, ITransient
     {
         private Guid userId;
         private readonly ICacheOperation _cache;
-        public DefaultTicketService(IRepository<Core.Entity.Ticket> _dal, ICacheOperation _cache) : base(_dal)
+        public DefaultTicketService(IRepository<Ticket, MasterDbContextLocator> _dal, ICacheOperation _cache) : base(_dal)
         {
             this._cache = _cache;
         }

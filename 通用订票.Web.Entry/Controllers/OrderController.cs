@@ -70,11 +70,11 @@ namespace 通用订票.Web.Entry.Controllers
             string lockierid = userid.ToString();
 
             myOrderService.SetUserContext(userid);
-            var _lock = await myOrderService.PreOrder(oc.appid);
-            if (_lock == false)
-            {
-                return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
-            }
+            //var _lock = await myOrderService.PreOrder(oc.appid);
+            //if (_lock == false)
+            //{
+            //    return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
+            //}
 
             var stock = await stockService.checkStock(oc.appid);
             if (stock == null)

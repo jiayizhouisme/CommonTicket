@@ -11,25 +11,25 @@
             <param name="ticket"></param>
             <returns></returns>
         </member>
-        <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`1.DisableTicket(`0)">
+        <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`2.DisableTicket(`0)">
             <summary>
             订单冻结
             </summary>
             <param name="ticket"></param>
         </member>
-        <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`1.EnableTicket(`0)">
+        <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`2.EnableTicket(`0)">
             <summary>
             激活订单
             </summary>
             <param name="ticket"></param>
         </member>
-        <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`1.GenerateTicket(System.DateTime,System.DateTime)">
+        <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`2.GenerateTicket(System.DateTime,System.DateTime)">
             <summary>
             生成一张空票
             </summary>
             <returns></returns>
         </member>
-        <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`1.TicketCheck(`0)">
+        <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`2.TicketCheck(`0)">
             <summary>
             验票
             </summary>

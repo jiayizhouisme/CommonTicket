@@ -5,9 +5,9 @@ using 通用订票Order.Entity;
 
 namespace 通用订票.Application.System.ServiceBases.Service
 {
-    public abstract class OrderBaseService<T> : BaseService<T>, IOrderService<T> where T : Core.Entity.Order, new() 
+    public abstract class OrderBaseService<T, DbLocator> : BaseService<T, DbLocator>, IOrderService<T> where T : Core.Entity.Order, new() where DbLocator : class, IDbContextLocator
     {
-        public OrderBaseService(IRepository<T> _dal)
+        public OrderBaseService(IRepository<T, DbLocator> _dal)
         {
             base._dal = _dal;
         }

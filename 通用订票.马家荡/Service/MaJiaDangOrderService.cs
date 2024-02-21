@@ -16,7 +16,7 @@ namespace 通用订票.马家荡.Service
     {
         private ILogger _log { get; set; }
 
-        public MaJiaDangOrderService(IRepository<Core.Entity.Order> _dal, ICacheOperation cache, ILoggerFactory logger) : base(_dal, cache)
+        public MaJiaDangOrderService(IRepository<Core.Entity.Order, MasterDbContextLocator> _dal, ICacheOperation cache, ILoggerFactory logger) : base(_dal, cache)
         {
             _log = logger.CreateLogger("MaJiaDangOrder");
         }

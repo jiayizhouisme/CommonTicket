@@ -11,10 +11,10 @@ using Core.Services;
 
 namespace 通用订票.Application.System.Services.Service
 {
-    public class ExhibitionService : BaseService<Exhibition>,IExhibitionService, ITransient
+    public class ExhibitionService : BaseService<Exhibition, MasterDbContextLocator>,IExhibitionService, ITransient
     {
         private readonly ICacheOperation _cache;
-        public ExhibitionService(IRepository<Exhibition> _dal, ICacheOperation _cache)
+        public ExhibitionService(IRepository<Exhibition, MasterDbContextLocator> _dal, ICacheOperation _cache)
         {
             this._dal = _dal;
             this._cache = _cache;

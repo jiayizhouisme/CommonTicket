@@ -9,11 +9,11 @@ using Core.Services;
 
 namespace 通用订票.Application.System.Services.Service
 {
-    public class UserInfoService : BaseService<UserInfo>, IUserInfoService, ITransient
+    public class UserInfoService : BaseService<UserInfo,MasterDbContextLocator>, IUserInfoService, ITransient
     {
         private Guid userid { get; set; }
 
-        public UserInfoService(IRepository<UserInfo> dal)
+        public UserInfoService(IRepository<UserInfo, MasterDbContextLocator> dal)
         {
             this._dal = dal;
         }

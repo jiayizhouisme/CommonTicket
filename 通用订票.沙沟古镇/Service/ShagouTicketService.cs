@@ -10,7 +10,7 @@ namespace 通用订票.沙沟古镇.Service
     [Injection(Order = 0)]
     public class ShagouTicketService : DefaultTicketService, ITransient
     {
-        public ShagouTicketService(IRepository<Core.Entity.Ticket> _dal, ICacheOperation _cache) : base(_dal, _cache)
+        public ShagouTicketService(IRepository<Core.Entity.Ticket, MasterDbContextLocator> _dal, ICacheOperation _cache) : base(_dal, _cache)
         {
         }
     }

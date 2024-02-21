@@ -4,12 +4,12 @@ using 通用订票.Application.System.ServiceBases.IService;
 
 namespace 通用订票.Application.System.ServiceBases.Service
 {
-    public abstract class StockBaseService<T> : BaseService<T>, IStockService<T> where T : Core.BaseEntity.Stock, new()
+    public abstract class StockBaseService<T,DbLocator> : BaseService<T,DbLocator>, IStockService<T> where T : Core.BaseEntity.Stock, new() where DbLocator : class, IDbContextLocator
     {
         private readonly ICacheOperation _cache;
         private long lo = 0;
 
-        public StockBaseService(IRepository<T> _dal, ICacheOperation _cache)
+        public StockBaseService(IRepository<T, DbLocator> _dal, ICacheOperation _cache)
         {
             this._dal = _dal;
             this._cache = _cache;

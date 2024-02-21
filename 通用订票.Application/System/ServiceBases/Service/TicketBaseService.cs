@@ -4,9 +4,9 @@ using 通用订票.Base.Entity;
 
 namespace 通用订票.Application.System.ServiceBases.Service
 {
-    public class TicketBaseService<T> : BaseService<T>, ITicketService<T> where T : Core.Entity.Ticket,new()
+    public class TicketBaseService<T,DbLocator> : BaseService<T, DbLocator>, ITicketService<T> where T : Core.Entity.Ticket,new() where DbLocator : class, IDbContextLocator
     {
-        public TicketBaseService(IRepository<T> _dal)
+        public TicketBaseService(IRepository<T, DbLocator> _dal)
         {
             base._dal = _dal;
         }
