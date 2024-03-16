@@ -78,13 +78,13 @@ namespace 通用订票.Application.System.Services.Service
             {
                 return;
             }
-            var key = "Order_" + order.trade_no;
+            var key = "Order:" + order.trade_no;
             await _cache.Set(key,order,650);
         }
 
         public virtual async Task<Core.Entity.Order> GetOrderById(long trade_no)
         {
-            var key = "Order_" + trade_no;
+            var key = "Order:" + trade_no;
             var orderCache = await _cache.Get<Core.Entity.Order>(key);
             if (orderCache != null)
             {
@@ -169,7 +169,7 @@ namespace 通用订票.Application.System.Services.Service
 
         private async Task DelOrderFromCache(long trande_no)
         {
-            var key = "Order_" + trande_no;
+            var key = "Order:" + trande_no;
             await _cache.Del(key);
         }
 
