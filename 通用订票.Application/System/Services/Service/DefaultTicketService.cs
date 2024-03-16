@@ -60,23 +60,26 @@ namespace 通用订票.Application.System.Services.Service
                 throw new ArgumentException("用户不存在");
             }
 
-            //await SetTicketToCache(order.trade_no, result);
+            await SetTicketToCache(order.trade_no, result);
             //await SetTicketUserToCache(order.objectId, uids);
             return result;
         }
-
         public virtual async Task<int> EnableTickets(ICollection<Core.Entity.Ticket> ticket)
         {
-            long orderId = 0;
             foreach (var item in ticket)
             {
                 var temp = await base.EnableTicket(item);
-                orderId = temp.objectId;
-                //await _cache.Del(GetKey(item.AppointmentId, item.TUserId));
+                await _cache.Del(GetKey(item.AppointmentId, item.TUserId));
             }
             await this.UpdateNow(ticket);
-            await _cache.Del("Tickets:" + orderId);
             return 1;
+        }
+        public async override Task<Core.Entity.Ticket> EnableTicket(Core.Entity.Ticket ticket)
+        {
+            var temp = await base.EnableTicket(ticket);
+            await this.UpdateNow(ticket);
+
+            return temp;
         }
 
         public virtual async Task<int> DisableTickets(ICollection<Core.Entity.Ticket> ticket)
@@ -88,11 +91,19 @@ namespace 通用订票.Application.System.Services.Service
             foreach (var item in ticket)
             {
                 var temp = await base.DisableTicket(item);
-                //await _cache.Del(GetKey(item.AppointmentId, item.TUserId));
+                await _cache.Del(GetKey(item.AppointmentId, item.TUserId));
             }
             await this.UpdateNow(ticket);
-            //await this.DeleteNow(ticket);
             return 1;
+        }
+        public async override Task<Core.Entity.Ticket> DisableTicket(Core.Entity.Ticket ticket)
+        {
+            var temp = await base.DisableTicket(ticket);
+            await this.UpdateNow(ticket);
+            await _cache.Del(GetKey(ticket.AppointmentId, ticket.TUserId));
+            //await this.DeleteNow(temp);
+
+            return temp;
         }
 
         public virtual void SetUserContext(Guid user)
