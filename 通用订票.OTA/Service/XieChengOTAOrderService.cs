@@ -1,4 +1,6 @@
 ﻿using Core.Services;
+using Furion.DatabaseAccessor;
+using Furion.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,32 +9,39 @@ using System.Threading.Tasks;
 using 通用订票.Application.System.OTAService.IService;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
+using 通用订票.OTA.Entity;
 using 通用订票Order.Entity;
 
 namespace 通用订票.Application.System.OTAService
 {
-    public class XieChenOTAOrderService : 
-        BaseService<XieChenOrder,MasterDbContextLocator>,
-        IXieChenOTAOrderService
+    public class XieChengOTAOrderService : 
+        BaseService<XieChengOrder, MasterDbContextLocator>,
+        IXieChengOTAOrderService
         ,ITransient
     {
         private IDefaultOrderServices _orderServices { get; set; }
-        public Task<XieChenOrder> CancelOrder(XieChenOrder order)
+
+        public XieChengOTAOrderService(IRepository<XieChengOrder, MasterDbContextLocator> _dal)
+        {
+            base._dal = _dal;
+        }
+
+        public Task<XieChengOrder> CancelOrder(XieChengOrder order)
         {
             throw new NotImplementedException();
         }
 
-        public Task<XieChenOrder> PayOrder(XieChenOrder order)
+        public Task<XieChengOrder> PayOrder(XieChengOrder order)
         {
             throw new NotImplementedException();
         }
 
-        public Task<XieChenOrder> RefundOrder(XieChenOrder order)
+        public Task<XieChengOrder> RefundOrder(XieChengOrder order)
         {
             throw new NotImplementedException();
         }
 
-        public Task<XieChenOrder> TakeOrder(decimal amount, OrderStatus status)
+        public Task<XieChengOrder> TakeOrder(decimal amount, OrderStatus status)
         {
             throw new NotImplementedException();
         }

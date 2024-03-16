@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
 using 通用订票.Order.IService;
+using 通用订票.OTA.Entity;
 
 namespace 通用订票.Application.System.OTAService.IService
 {
-    public interface IXieChenOTAOrderService : IBaseOrderService<XieChenOrder>,IBaseService<XieChenOrder>
+    public interface IXieChengOTAOrderService : IBaseOrderService<XieChengOrder>,IBaseService<XieChengOrder>
     {
         void SetService(IDefaultOrderServices service);
     }
