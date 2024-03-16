@@ -116,14 +116,14 @@ namespace 通用订票.Web.Entry.Controllers
                 return new { code = 0, message = "库存不足" };
             }
 
-            ticketService.SetUserContext(userid);
-            var vaild = await ticketService.Vaild(oc.ids.ToArray(), stock);
-            if (vaild == false)
-            {
-                await _cache.Decrby("QueueIn_" + oc.appid, oc.ids.Count);
-                await myOrderService.OrderFail(oc.appid);
-                return new { status = 1,message = "用户重复" };
-            }
+            //ticketService.SetUserContext(userid);
+            //var vaild = await ticketService.Vaild(oc.ids.ToArray(), stock);
+            //if (vaild == false)
+            //{
+            //    await _cache.Decrby("QueueIn_" + oc.appid, oc.ids.Count);
+            //    await myOrderService.OrderFail(oc.appid);
+            //    return new { status = 1,message = "用户重复" };
+            //}
 
             var exhibition = await exhibitionService.GetExhibitionByID(stock.objectId);
 

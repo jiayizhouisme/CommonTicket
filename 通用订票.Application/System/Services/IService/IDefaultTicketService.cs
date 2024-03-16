@@ -8,10 +8,11 @@ using Core.Auth;
 using 通用订票.Core.Entity;
 using 通用订票.Core.BaseEntity;
 using 通用订票.Base.Entity;
+using Core.Services;
 
 namespace 通用订票.Application.System.Services.IService
 {
-    public interface IDefaultTicketService : ITicketService<Core.Entity.Ticket>, IUserContext<Guid>
+    public interface IDefaultTicketService : IBaseService<Core.Entity.Ticket>,ITicketService<Core.Entity.Ticket>, IUserContext<Guid>
     {
         public Task<List<Core.Entity.Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, Core.Entity.Order order, int[] uid, TicketStatus status);
         public Task<bool> Vaild(int[] uid, Core.Entity.Appointment stock);
