@@ -4,6 +4,7 @@ using Core.EntityFrameWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace 通用订票.Database.Migrations.Migrations
 {
     [DbContext(typeof(MasterDbContext_SQL))]
-    partial class MasterDbContext_SQLModelSnapshot : ModelSnapshot
+    [Migration("20240318042011_v9.0")]
+    partial class v90
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

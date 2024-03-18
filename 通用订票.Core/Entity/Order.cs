@@ -9,6 +9,7 @@ namespace 通用订票.Core.Entity
     public class Order : OrderBase<Guid>,IEntity, IEntityTypeBuilder<Order>
     {
         public DateTime? createTime { get; set; }
+        public string extraInfo { get; set; }
 
         public void Configure(EntityTypeBuilder<Order> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {

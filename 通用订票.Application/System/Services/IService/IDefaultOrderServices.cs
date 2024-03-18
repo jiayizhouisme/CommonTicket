@@ -15,5 +15,6 @@ namespace 通用订票.Application.System.Services.IService
         Task<bool> PreOrder(Guid objectId);
         Task OrderFail(Guid objectId);
         Task AfterOrdered(Guid objectId);
+        Task DelOrderFromCache(long trande_no);
     }
 }

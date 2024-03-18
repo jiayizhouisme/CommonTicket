@@ -60,7 +60,7 @@ namespace 通用订票.Application.System.Services.Service
                 throw new ArgumentException("用户不存在");
             }
 
-            //await SetTicketToCache(order.trade_no, result);
+            await SetTicketToCache(order.trade_no, result);
             //await SetTicketUserToCache(order.objectId, uids);
             return result;
         }
@@ -113,7 +113,10 @@ namespace 通用订票.Application.System.Services.Service
             string cacheKey = "Tickets:" + orderId;
             foreach (var item in tickets)
             {
-                await _cache.PushToList<Core.Entity.Ticket>("Tickets:" + orderId, item);
+                if (item.userID != Guid.Empty)
+                {
+                    await _cache.PushToList<Core.Entity.Ticket>("Tickets:" + orderId, item);
+                }
             }
 
             //string cacheKey = "Tickets:" + orderId;

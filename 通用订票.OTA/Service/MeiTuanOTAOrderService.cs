@@ -33,7 +33,7 @@ namespace 通用订票.Application.System.OTAService
             throw new NotImplementedException();
         }
 
-        public Task<Core.Entity.Order> TakeOrder(decimal amount, OrderStatus status)
+        public Task<Core.Entity.Order> TakeOrder(decimal amount, OrderStatus status, string extraInfo = null)
         {
             throw new NotImplementedException();
         }

@@ -33,6 +33,7 @@ namespace 通用订票.Application.System.Services.Service
             }
             catch (Exception e)
             {
+                await this.DelStockFromCache(stockId);
                 throw e;
             }
             finally

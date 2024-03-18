@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using 通用订票.Application.System.OTAService.IService;
+using 通用订票.Application.System.ServiceBases.Service;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
 using 通用订票.OTA.Entity;
@@ -14,7 +15,7 @@ using 通用订票Order.Entity;
 
 namespace 通用订票.Application.System.OTAService
 {
-    public class XieChengOTAOrderService : 
+    public class XieChengOTAOrderService :
         BaseService<XieChengOrder, MasterDbContextLocator>,
         IXieChengOTAOrderService
         ,ITransient
@@ -41,7 +42,7 @@ namespace 通用订票.Application.System.OTAService
             throw new NotImplementedException();
         }
 
-        public Task<XieChengOrder> TakeOrder(decimal amount, OrderStatus status)
+        public Task<XieChengOrder> TakeOrder(decimal amount, OrderStatus status, string extraInfo = null)
         {
             throw new NotImplementedException();
         }

@@ -8,7 +8,7 @@ namespace 通用订票.Order.IService
         /// 下单
         /// </summary>
         /// <returns></returns>
-        public Task<T> TakeOrder(decimal amount,OrderStatus status);
+        public Task<T> TakeOrder(decimal amount,OrderStatus status, string extraInfo = null);
 
         /// <summary>
         /// 关闭订单

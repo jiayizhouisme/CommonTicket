@@ -1,6 +1,7 @@
 ﻿using Core.Auth;
 using Core.Auth.Handler;
 using Core.Cache;
+using Core.MiddelWares;
 using Core.Queue.IQueue;
 using Core.SignalR;
 using Essensoft.Paylink.WeChatPay;
@@ -17,6 +18,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using ProtoBuf.Meta;
 using Quick.RabbitMQPlus;
 using Savorboard.CAP.InMemoryMessageQueue;
@@ -26,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using 通用订票.Base.TradeNo;
 using 通用订票.EntityFramework.Core;
 using 通用订票.EventBus.Monitor;
 using 通用订票.JobTask;
@@ -38,6 +41,15 @@ namespace 通用订票.Web.Core
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddConsoleFormatter();
+            Array.ForEach(new[] { LogLevel.Information, LogLevel.Warning, LogLevel.Error }, logLevel =>
+            {
+                services.AddFileLogging("log/application-{1}-{0:yyyy}-{0:MM}-{0:dd}.log", options =>
+                {
+                    options.FileNameRule = fileName => string.Format(fileName, DateTime.UtcNow, logLevel.ToString());
+                    options.WriteFilter = logMsg => logMsg.LogLevel == logLevel;
+                });
+            });
+
             services.AddJwt<JwtHandler>(jwtBearerConfigure : options => {
                 options.Events = new JwtBearerEvents
                 {
@@ -62,6 +74,7 @@ namespace 通用订票.Web.Core
             services.AddSingleton<ICacheOperation, RedisOperationRepository>();
             services.AddSingleton<ISignalRUserService, JwtCacheUserService>();
             services.AddScoped<IHttpContextUser, JwtUserContext>();
+            services.AddSingleton<ITradeNoGenerate<long>,RedisTradeNoGenerate>();
             services.AddSingleton<ConnectionMultiplexer>(sp =>
             {
                 //获取连接字符串
@@ -142,7 +155,7 @@ namespace 通用订票.Web.Core
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
-
+            app.UseMiddleware<HttpContextMiddleware>();
             app.UseDefaultFiles();
             StaticFileOptions options = new StaticFileOptions { 
                 ContentTypeProvider = new FileExtensionContentTypeProvider()

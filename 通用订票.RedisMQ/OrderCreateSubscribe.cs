@@ -25,6 +25,7 @@ using 通用订票.EventBus.Entity;
 using 通用订票.EventBus.EventEntity;
 using 通用订票.Procedure.Entity;
 using 通用订票.Procedure.Entity.QueueEntity;
+using 通用订票Order.Entity;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace 通用订票.RedisMQ
@@ -72,30 +73,39 @@ namespace 通用订票.RedisMQ
                 o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
                 #endregion
                 o_service.SetUserContext(data.userid);
-                using (var trans = dbcontext.Database.BeginTransaction())
+                stockret = s_service.checkStock(data.appid).Result;
+                if (stockret != null && ((stockret.sale + data.ids.Count) <= stockret.amount))
                 {
-                    try
+                    using (var trans = dbcontext.Database.BeginTransaction())
                     {
-                        stockret = s_service.SaleStock(data.appid, data.ids.Count).Result;
-                        if (stockret != null)
+                        try
                         {
+                            string extraInfo = jsonSerializerProvider.Serialize(new { a = data.appid,i = data.ids});
                             if (data.price > 0)
                             {
-                                order = o_service.CreateOrder(stockret.id, stockret.stockName, data.price * data.ids.Count,通用订票Order.Entity.OrderStatus.未付款).Result;
+                                order = o_service.CreateOrder(stockret.id, stockret.stockName, data.price * data.ids.Count,OrderStatus.未付款, extraInfo).Result;
                             }
                             else
                             {
-                                order = o_service.CreateOrder(stockret.id, stockret.stockName, data.price * data.ids.Count, 通用订票Order.Entity.OrderStatus.已付款).Result;
+                                order = o_service.CreateOrder(stockret.id, stockret.stockName, data.price * data.ids.Count, OrderStatus.已付款, extraInfo).Result;
                             }
-                            
+                            var _stockret = s_service.SaleStock(data.appid, data.ids.Count).Result;
+
+                            if (_stockret == null)
+                            {
+                                await o_service.DelOrderFromCache(order.trade_no);
+                                throw new Exception("错误");
+                            }
+
                             var entity = new OnOrderCreated() { app = stockret, order = order, ids = data.ids, tenantId = data.tenantId, userId = data.userid };
-                            await _eventPublisher.PublishAsync(new OnOrderCreatedEvent(entity));
                             await trans.CommitAsync();
+                            await _eventPublisher.PublishAsync(new OnOrderCreatedEvent(entity));
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        await PublishOrderCreateFail(stockret, order, data.ids.Count, data.tenantId, data.userid);
+                        catch (Exception e)
+                        {
+                            await PublishOrderCreateFail(stockret, order, data.ids.Count, data.tenantId, data.userid);
+                            throw e;
+                        }
                     }
                 }
                 

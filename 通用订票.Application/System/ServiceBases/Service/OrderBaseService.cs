@@ -1,17 +1,20 @@
 ﻿using Core.Services;
 using 通用订票.Application.System.ServiceBases.IService;
 using 通用订票.Base.Entity;
+using 通用订票.Base.TradeNo;
 using 通用订票Order.Entity;
 
 namespace 通用订票.Application.System.ServiceBases.Service
 {
     public abstract class OrderBaseService<T, DbLocator> : BaseService<T, DbLocator>, IOrderService<T> where T : Core.Entity.Order, new() where DbLocator : class, IDbContextLocator
     {
-        public OrderBaseService(IRepository<T, DbLocator> _dal)
+        private readonly ITradeNoGenerate<long> tradeNoGenerate;
+        public OrderBaseService(ITradeNoGenerate<long> tradeNoGenerate,IRepository<T, DbLocator> _dal)
         {
             base._dal = _dal;
+            this.tradeNoGenerate = tradeNoGenerate;
         }
-        public virtual async Task<T> TakeOrder(decimal amount,OrderStatus status)
+        public virtual async Task<T> TakeOrder(decimal amount,OrderStatus status, string extraInfo = null)
         {
             if (amount < 0)
             {
@@ -21,12 +24,10 @@ namespace 通用订票.Application.System.ServiceBases.Service
             T order = new T();
 
             order.status = status;
-            order.trade_no = GetTradeNo();
+            order.trade_no = await GenerateTradeNo();
             order.payedAmount = 0;
             order.amount = amount;
-            /*
-             * 微信下单,支付宝下单...
-             */
+            order.extraInfo = extraInfo;
             return order;
         }
 
@@ -68,11 +69,11 @@ namespace 通用订票.Application.System.ServiceBases.Service
             return order;
         }
 
-        public virtual async Task<T> CreateOrder(Guid objectId, string name,decimal amount,OrderStatus status)
+        public virtual async Task<T> CreateOrder(Guid objectId, string name,decimal amount,OrderStatus status, string extraInfo = null)
         {
             try
             {
-                var order = await TakeOrder(amount, status);
+                var order = await TakeOrder(amount, status,extraInfo);
                 order.objectId = objectId;
                 order.createTime = DateTime.Now;
                 order.name = "普通订单:" + name;
@@ -102,20 +103,15 @@ namespace 通用订票.Application.System.ServiceBases.Service
 
         }
 
-        protected virtual long GetTradeNo()
-        {
-            DateTime currentTime = DateTime.Now;
-            string originDateStr = currentTime.ToString("yyMMdd");
-            long differSecond = currentTime.Minute * 60 + currentTime.Second;
-
-            string yyMMddSecond = originDateStr + differSecond.ToString().PadLeft(5,'0');
-            return long.Parse(yyMMddSecond);
-        }
-
         public virtual async Task<Core.Entity.Order> OnCloseException(Core.Entity.Order order)
         {
             order.status = OrderStatus.未付款;
             return order;
+        }
+
+        public async Task<long> GenerateTradeNo()
+        {
+            return await tradeNoGenerate.Generate();
         }
     }
 }

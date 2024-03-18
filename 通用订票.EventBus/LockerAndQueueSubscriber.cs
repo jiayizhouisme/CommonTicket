@@ -40,9 +40,9 @@ namespace 通用订票.EventBus
         public async Task Global_OnOrderCreateFailed(EventHandlerExecutingContext context)
         {
             var todo = context.Source;
-            var data = (Entity.OnOrderCreated)todo.Payload;
+            var data = (Entity.OnOrderCreateFailed)todo.Payload;
 
-            await _cache.Decrby("QueueIn_" + data.app.id, data.ids.Count);
+            await _cache.Decrby("QueueIn_" + data.app.id, data.count);
             var client = userapp.isOnline(data.userId.ToString());
             if (client != null)
             {
