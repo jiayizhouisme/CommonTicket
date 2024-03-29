@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace 通用订票.Database.Migrations.Migrations
 {
     /// <inheritdoc />
-    public partial class v10 : Migration
+    public partial class v140 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,6 +36,7 @@ namespace 通用订票.Database.Migrations.Migrations
                     trade_no = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     createTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    extraInfo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     payedAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     status = table.Column<int>(type: "int", nullable: false),
@@ -62,6 +63,62 @@ namespace 通用订票.Database.Migrations.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_User", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "XieChengConfig",
+                columns: table => new
+                {
+                    Account = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ApiKey = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AESKey = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AESVector = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_XieChengConfig", x => x.Account);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "XieChengOrder",
+                columns: table => new
+                {
+                    otaOrderId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PLU = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    locale = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    createTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    useStartDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    useEndDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    quantity = table.Column<int>(type: "int", nullable: false),
+                    trade_no = table.Column<long>(type: "bigint", nullable: false),
+                    amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    payedAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    status = table.Column<int>(type: "int", nullable: false),
+                    objectId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    userId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_XieChengOrder", x => x.otaOrderId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "XieChengPassenger",
+                columns: table => new
+                {
+                    passengerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    mobile = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    cardType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    cardNo = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    nationalityName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_XieChengPassenger", x => x.passengerId);
                 });
 
             migrationBuilder.CreateTable(
@@ -208,6 +265,15 @@ namespace 通用订票.Database.Migrations.Migrations
 
             migrationBuilder.DropTable(
                 name: "WechatBill");
+
+            migrationBuilder.DropTable(
+                name: "XieChengConfig");
+
+            migrationBuilder.DropTable(
+                name: "XieChengOrder");
+
+            migrationBuilder.DropTable(
+                name: "XieChengPassenger");
 
             migrationBuilder.DropTable(
                 name: "Exhibition");

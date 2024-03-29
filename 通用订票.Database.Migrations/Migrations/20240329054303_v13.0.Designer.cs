@@ -4,6 +4,7 @@ using Core.EntityFrameWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace 通用订票.Database.Migrations.Migrations
 {
     [DbContext(typeof(MasterDbContext_SQL))]
-    partial class MasterDbContext_SQLModelSnapshot : ModelSnapshot
+    [Migration("20240329054303_v13.0")]
+    partial class v130
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -327,8 +330,11 @@ namespace 通用订票.Database.Migrations.Migrations
 
             modelBuilder.Entity("通用订票.OTA.携程.Entity.XieChengOrder", b =>
                 {
-                    b.Property<string>("otaOrderId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("trade_no")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("trade_no"));
 
                     b.Property<string>("PLU")
                         .IsRequired()
@@ -337,15 +343,8 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<decimal>("amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("cancelQuantity")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("createTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("itemId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("locale")
                         .IsRequired()
@@ -359,8 +358,9 @@ namespace 通用订票.Database.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("orderStatus")
-                        .HasColumnType("int");
+                    b.Property<string>("otaOrderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("payedAmount")
                         .HasColumnType("decimal(18,2)");
@@ -374,15 +374,9 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<int>("status")
                         .HasColumnType("int");
 
-                    b.Property<long>("trade_no")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("useEndDate")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("useQuantity")
-                        .HasColumnType("int");
 
                     b.Property<string>("useStartDate")
                         .IsRequired()
@@ -392,7 +386,7 @@ namespace 通用订票.Database.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("otaOrderId");
+                    b.HasKey("trade_no");
 
                     b.ToTable("XieChengOrder");
                 });

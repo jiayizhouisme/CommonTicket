@@ -25,6 +25,7 @@
 		<ProjectReference Include="..\..\Cores\Core.SignalR\Core.SignalR.csproj" />
 		<ProjectReference Include="..\通用订票.Application\通用订票.Application.csproj" />
 		<ProjectReference Include="..\通用订票.Database.Migrations\通用订票.Database.Migrations.csproj" />
+		<ProjectReference Include="..\通用订票.OTA\通用订票.OTA.csproj" />
 		<ProjectReference Include="..\通用订票.RedisMQ\通用订票.RedisMQ.csproj" />
 		<ProjectReference Include="..\通用订票.Task\通用订票.Task.csproj" />
 	</ItemGroup>

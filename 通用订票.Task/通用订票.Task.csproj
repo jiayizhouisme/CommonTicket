@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\通用订票.Application\通用订票.Application.csproj" />
+    <ProjectReference Include="..\通用订票.OTA\通用订票.OTA.csproj" />
     <ProjectReference Include="..\通用订票.RedisMQ\通用订票.RedisMQ.csproj" />
   </ItemGroup>
 

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace 通用订票.Database.Migrations.Migrations
 {
     [DbContext(typeof(MasterDbContext_SQL))]
-    [Migration("20240318042013_v9.0")]
-    partial class v90
+    [Migration("20240329062227_v14.0")]
+    partial class v140
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -304,6 +304,122 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.HasIndex("tradeNo");
 
                     b.ToTable("WechatBill");
+                });
+
+            modelBuilder.Entity("通用订票.OTA.携程.Entity.XieChengConfig", b =>
+                {
+                    b.Property<string>("Account")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AESKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AESVector")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ApiKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Account");
+
+                    b.ToTable("XieChengConfig");
+                });
+
+            modelBuilder.Entity("通用订票.OTA.携程.Entity.XieChengOrder", b =>
+                {
+                    b.Property<string>("otaOrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PLU")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("createTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("locale")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("objectId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("payedAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<long>("trade_no")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("useEndDate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("useStartDate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("userId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("otaOrderId");
+
+                    b.ToTable("XieChengOrder");
+                });
+
+            modelBuilder.Entity("通用订票.OTA.携程.Entity.XieChengPassenger", b =>
+                {
+                    b.Property<string>("passengerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("cardNo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("cardType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("gender")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("mobile")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("nationalityName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("passengerId");
+
+                    b.ToTable("XieChengPassenger");
                 });
 
             modelBuilder.Entity("通用订票.Core.Entity.Appointment", b =>
