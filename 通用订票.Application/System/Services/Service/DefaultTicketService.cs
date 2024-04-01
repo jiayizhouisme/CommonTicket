@@ -17,11 +17,12 @@ using Core.Cache;
 using 通用订票.Core.Entity;
 using Core.Auth;
 using 通用订票.Base.Entity;
+using 通用订票.Order.Entity;
 
 namespace 通用订票.Application.System.Services.Service
 {
     [Injection(Order = 1)]
-    public class DefaultTicketService : TicketBaseService<Ticket, MasterDbContextLocator>,IDefaultTicketService, ITransient
+    public class DefaultTicketService : TicketBaseService<Ticket, MasterDbContextLocator>, IDefaultTicketService, ITransient
     {
         private Guid userId;
         private readonly ICacheOperation _cache;
@@ -38,7 +39,8 @@ namespace 通用订票.Application.System.Services.Service
         /// <param name="order"></param>
         /// <param name="uids"></param>
         /// <returns></returns>
-        public virtual async Task<List<Core.Entity.Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, Core.Entity.Order order, int[] uids, TicketStatus status = TicketStatus.未激活)
+        public virtual async Task<List<Core.Entity.Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<Guid> order,
+            int[] uids, TicketStatus status = TicketStatus.未激活,OTAType otaType = OTAType.Normal)
         {
             List<Core.Entity.Ticket> result = new List<Core.Entity.Ticket>();
             foreach (var id in uids)
@@ -49,6 +51,9 @@ namespace 通用订票.Application.System.Services.Service
                 ticket.objectId = order.trade_no;//应该替换成tradeNo
                 ticket.AppointmentId = order.objectId;
                 ticket.stauts = status;
+                ticket.ota = otaType;
+                ticket.usedCount = 0;
+                ticket.totalCount = 1;
                 result.Add(ticket);
             }
             try
@@ -62,6 +67,41 @@ namespace 通用订票.Application.System.Services.Service
 
             await SetTicketToCache(order.trade_no, result);
             //await SetTicketUserToCache(order.objectId, uids);
+            return result;
+        }
+
+        public virtual async Task<Ticket> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<Guid> order, int number, TicketStatus status, OTAType otaType = OTAType.Normal)
+        {
+            var ticket = base.GenerateTicket(startTime, endTime);
+            ticket.TUserId = -1;
+            ticket.userID = userId;
+            ticket.objectId = order.trade_no;//应该替换成tradeNo
+            ticket.AppointmentId = order.objectId;
+            ticket.stauts = status;
+            ticket.ota = otaType;
+            ticket.usedCount = 0;
+            ticket.totalCount = number;
+            return await this.AddNow(ticket);
+        }
+
+        public async Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<Guid> order, int number, string[] OTAPassengerId, TicketStatus status, OTAType otaType)
+        {
+            List<Core.Entity.Ticket> result = new List<Core.Entity.Ticket>();
+            foreach (var id in OTAPassengerId)
+            {
+                var ticket = base.GenerateTicket(startTime, endTime);
+                ticket.OTAPassengerId = id;
+                ticket.userID = userId;
+                ticket.objectId = order.trade_no;//应该替换成tradeNo
+                ticket.AppointmentId = order.objectId;
+                ticket.stauts = status;
+                ticket.ota = otaType;
+                ticket.usedCount = 0;
+                ticket.totalCount = number;
+                result.Add(ticket);
+            }
+            await this.AddNow(result);
+
             return result;
         }
 
@@ -210,5 +250,7 @@ namespace 通用订票.Application.System.Services.Service
             var key = "Tickets:" + trade_no;
             await _cache.Del(key);
         }
+
+
     }
 }

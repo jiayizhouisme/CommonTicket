@@ -1,4 +1,5 @@
-﻿using Core.Services;
+﻿using Core.Cache;
+using Core.Services;
 using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -26,10 +27,20 @@ namespace 通用订票.OTA.携程.Service
         , ITransient
     {
         private IDefaultOrderServices _orderServices { get; set; }
-
-        public XieChengOTAOrderService(IRepository<XieChengOrder, MasterDbContextLocator> _dal)
+        private readonly IRepository<XieChengPassenger, MasterDbContextLocator> passengerRep;
+        private readonly IRepository<XieChengConfig> configRep;
+        private readonly ICacheOperation _cache;
+        public XieChengOTAOrderService(
+            IRepository<XieChengOrder, MasterDbContextLocator> _dal,
+            IRepository<XieChengPassenger, MasterDbContextLocator> passengerRep,
+            IRepository<XieChengConfig> configRep,
+            ICacheOperation _cache
+            )
         {
             base._dal = _dal;
+            this.passengerRep = passengerRep;
+            this.configRep = configRep;
+            this._cache = _cache;
         }
 
         public void SetService(IDefaultOrderServices service)
@@ -65,6 +76,15 @@ namespace 通用订票.OTA.携程.Service
                 order.objectId = first.PLU;
                 order.userId = "";
                 order.locale = "zh-CN";
+                
+                foreach (var pss in order.passengers)
+                {
+                    if (!await passengerRep.AnyAsync(a => a.passengerId == pss.passengerId))
+                    {
+                        await passengerRep.InsertNowAsync(pss);
+                    }
+                    order.passengerIds += pss.passengerId + " ";
+                }
                 await this.AddNow(order);
             }
             return orders;
@@ -74,6 +94,24 @@ namespace 通用订票.OTA.携程.Service
         {
             var order = await this.GetQueryableNt(a => a.otaOrderId == otaOrderId).ToArrayAsync();
             return order;
+        }
+
+        public async Task<XieChengConfig> GetConfig(string tenant_id)
+        {
+            var key = "XieChengConfig:" + tenant_id;
+            var config = await _cache.Get<XieChengConfig>(key);
+            if (config == null) {
+                config = await configRep.FirstOrDefaultAsync();
+                await _cache.Set(key,config);
+            }
+            return config;
+        }
+
+        public async Task<string[]> GetPassengersIds(string otaOrderId, string itemId)
+        {
+            var order = this.GetQueryableNt(a => a.otaOrderId == otaOrderId && itemId == itemId).Select(a => a.passengerIds);
+            return order.ToArray() ;
+
         }
     }
 }

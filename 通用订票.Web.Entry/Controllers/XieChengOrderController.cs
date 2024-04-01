@@ -29,29 +29,29 @@ namespace 通用订票.Web.Entry.Controllers
     [Route("api")]
     public class XieChengOrderController : IDynamicApiController
     {
-        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IHttpContextUser httpContextUser;
         private readonly IXieChengOTAOrderService xieChengOTAOrderService;
         private readonly IDefaultOrderServices defaultOrderServices;
         private readonly ILogger<XieChengOrder> logger;
         private readonly IJsonSerializerProvider _serializerProvider;
-        private readonly IRepository<XieChengConfig> configRep;
-        private readonly IRepository<XieChengPassenger> passengerRep;
+        private readonly IEventPublisher _eventPublisher;
+        public const string CreatePreOrder = "CreatePreOrder";
+        public const string QueryOrder = "QueryOrder";
+        public const string PayPreOrder = "PayPreOrder";
         public XieChengOrderController(
-            IXieChengOTAOrderService xieChengOTAOrderService, 
-            IHttpContextAccessor _contextAccessor,
+            IXieChengOTAOrderService xieChengOTAOrderService,
+            IHttpContextUser httpContextUser,
             INamedServiceProvider<IDefaultOrderServices> _orderProvider,
             ILogger<XieChengOrder> logger, 
             IJsonSerializerProvider _serializerProvider,
-            IRepository<XieChengConfig> configRep,
-            IRepository<XieChengPassenger> passengerRep)
+            IEventPublisher _eventPublisher)
         {
             this.xieChengOTAOrderService = xieChengOTAOrderService;
-            this._contextAccessor = _contextAccessor;
+            this.httpContextUser = httpContextUser;
             this.logger = logger;
             this._serializerProvider = _serializerProvider;
-            this.configRep = configRep;
-            this.passengerRep = passengerRep;
-            var factory = SaaSServiceFactory.GetServiceFactory(_contextAccessor.HttpContext.Request.Host.ToString());
+            this._eventPublisher = _eventPublisher;
+            var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
             this.defaultOrderServices = factory.GetOrderService(_orderProvider);
         }
 
@@ -60,7 +60,7 @@ namespace 通用订票.Web.Entry.Controllers
         [UnitOfWork]
         public async Task<dynamic> xiecheng([FromBody] XieChengRequest request)
         {
-            var config = await configRep.FirstOrDefaultAsync();
+            var config = await xieChengOTAOrderService.GetConfig(httpContextUser.TenantId);
             bool signVerify = XieChengTool.SignVerify(request.header.accountId, request.header.serviceName,
                 request.header.requestTime, request.body, request.header.version,config.ApiKey,request.header.sign);
 
@@ -73,7 +73,7 @@ namespace 通用订票.Web.Entry.Controllers
             var body = XieChengTool.AESDecrypt(request.body, config.AESKey, config.AESVector);
             logger.LogInformation(body);
             xieChengOTAOrderService.SetService(defaultOrderServices);
-            if (request.header.serviceName == XieChengHeader.CreatePreOrder)
+            if (request.header.serviceName == CreatePreOrder)
             {
                 var createOrder = JsonConvert.DeserializeObject<XiechengCreateOrder>(body);
                 if (await xieChengOTAOrderService.Exist(a => a.otaOrderId == createOrder.otaOrderId))
@@ -95,7 +95,7 @@ namespace 通用订票.Web.Entry.Controllers
                 body = XieChengTool.EncodeBytes(XieChengTool.AESEncrypt(_body,config.AESKey,config.AESVector));
 
                 return new { header = new { resultCode = "0000", resultMessage  = "success" }, body };
-            }else if (request.header.serviceName == XieChengHeader.QueryOrder)
+            }else if (request.header.serviceName == QueryOrder)
             {
                 var queryOrder = JsonConvert.DeserializeObject<XieChengOrderQuery>(body);
                 var items = await this.xieChengOTAOrderService.QueryXieChengOrder(queryOrder.otaOrderId);
@@ -108,7 +108,7 @@ namespace 通用订票.Web.Entry.Controllers
                 body = XieChengTool.EncodeBytes(XieChengTool.AESEncrypt(_body, config.AESKey, config.AESVector));
                 return new { header = new { resultCode = "0000", resultMessage = "success" }, body };
             }
-            else if (request.header.serviceName == XieChengHeader.PayPreOrder)
+            else if (request.header.serviceName == PayPreOrder)
             {
                 var paypreOrder = JsonConvert.DeserializeObject<XiechengPayPreOrder>(body);
 
@@ -119,7 +119,8 @@ namespace 通用订票.Web.Entry.Controllers
                     voucherSender = 1
                 });
                 body = XieChengTool.EncodeBytes(XieChengTool.AESEncrypt(_body, config.AESKey, config.AESVector));
-
+                paypreOrder.tenant_id = httpContextUser.TenantId;
+                await _eventPublisher.PublishAsync("XieChengPayConfirm", paypreOrder);
                 return new { header = new { resultCode = "0000", resultMessage = "success" }, body };
 
             }

@@ -16,10 +16,12 @@ namespace 通用订票.OTA.携程.Entity
         public string ApiKey { get; set; }
         public string AESKey { get; set; }
         public string AESVector { get; set; }
+        public const string CallUrl = "https://ttdopen.ctrip.com/api/order/notice.do";
 
         public void Configure(EntityTypeBuilder<XieChengConfig> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
             entityBuilder.HasKey(a => a.Account);
         }
+
     }
 }

@@ -35,6 +35,7 @@ namespace 通用订票.OTA.携程.Entity
         public string itemId { get; set; }
         public int cancelQuantity { get; set; }
         public int useQuantity { get; set; }
+        public string passengerIds { get; set; }
         public XieChengOrderStatus orderStatus { get; set; }
         [NotMapped]
         public XieChengPassenger[] passengers { get; set; }

@@ -11,11 +11,14 @@ namespace 通用订票.Core.Entity
         public int _id { get; set; }
         public DateTime? createTime { get; set; }
         public Guid AppointmentId { get; set; }
+        public OTAType ota { get; set; }
+        public int totalCount { get; set; }
+        public int usedCount { get; set; }
         /// <summary>
         /// 购票人选择的用户
         /// </summary>
         public int TUserId { get; set; }
-        public UserInfo userInfo { get; set; }
+        public string OTAPassengerId { get; set; }
 
         public void Configure(EntityTypeBuilder<Ticket> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
@@ -25,7 +28,14 @@ namespace 通用订票.Core.Entity
             entityBuilder.HasIndex(a => a.objectId);
 
             entityBuilder.Property(x => x._id).ValueGeneratedOnAdd();
-            entityBuilder.HasOne(a => a.userInfo).WithMany().HasForeignKey(a => a.TUserId).OnDelete(DeleteBehavior.ClientSetNull);
         }
+    }
+
+    public enum OTAType
+    {
+        Normal,
+        XieCheng,
+        TongCheng,
+        MeiTuan
     }
 }

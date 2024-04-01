@@ -43,6 +43,30 @@
             <param name="exhibitionID"></param>
             <returns></returns>
         </member>
+        <member name="M:通用订票.Application.System.Services.IService.IDefaultTicketService.GenarateTickets(System.DateTime,System.DateTime,通用订票.Order.Entity.OrderBase{System.Guid},System.Int32[],通用订票.Base.Entity.TicketStatus,通用订票.Core.Entity.OTAType)">
+            <summary>
+            记名购买
+            </summary>
+            <param name="startTime"></param>
+            <param name="endTime"></param>
+            <param name="order"></param>
+            <param name="uid"></param>
+            <param name="status"></param>
+            <param name="otaType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:通用订票.Application.System.Services.IService.IDefaultTicketService.GenarateTickets(System.DateTime,System.DateTime,通用订票.Order.Entity.OrderBase{System.Guid},System.Int32,通用订票.Base.Entity.TicketStatus,通用订票.Core.Entity.OTAType)">
+            <summary>
+            匿名购买
+            </summary>
+            <param name="startTime"></param>
+            <param name="endTime"></param>
+            <param name="order"></param>
+            <param name="number"></param>
+            <param name="status"></param>
+            <param name="otaType"></param>
+            <returns></returns>
+        </member>
         <member name="M:通用订票.Application.System.Services.Service.DefaultAppointmentService.vaildStock(通用订票.Core.Entity.Appointment)">
             <summary>
             队列之前进行基本判断
@@ -50,7 +74,7 @@
             <param name="stock"></param>
             <returns></returns>
         </member>
-        <member name="M:通用订票.Application.System.Services.Service.DefaultTicketService.GenarateTickets(System.DateTime,System.DateTime,通用订票.Core.Entity.Order,System.Int32[],通用订票.Base.Entity.TicketStatus)">
+        <member name="M:通用订票.Application.System.Services.Service.DefaultTicketService.GenarateTickets(System.DateTime,System.DateTime,通用订票.Order.Entity.OrderBase{System.Guid},System.Int32[],通用订票.Base.Entity.TicketStatus,通用订票.Core.Entity.OTAType)">
             <summary>
             根据选择的用户数生成对应数量的门票
             </summary>
