@@ -83,6 +83,7 @@ namespace 通用订票.EventBus
                             OTAType.XieCheng);
                         await xiechengService.UpdateNow(_pluorder);
                     }
+                    await trans.CommitAsync();
                 }
                 var config = await xiechengService.GetConfig(data.tenant_id);
                 XieChengRequest xr = new XieChengRequest();
