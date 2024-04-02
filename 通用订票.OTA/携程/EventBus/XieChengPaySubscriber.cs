@@ -8,6 +8,7 @@ using Furion.RemoteRequest.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,7 @@ using 通用订票.Core.Entity;
 using 通用订票.OTA.携程.Entity;
 using 通用订票.OTA.携程.IService;
 using 通用订票.OTA.携程.Model;
+using 通用订票.OTA.携程.Tool;
 
 namespace 通用订票.EventBus
 {
@@ -63,15 +65,26 @@ namespace 通用订票.EventBus
                 var order = await o_service.GetOrderById(long.Parse(data.supplierOrderId));
                 t_service.SetUserContext(Guid.Empty);
 
+                XieChengPayPreConfirm confirm = new XieChengPayPreConfirm();
+                confirm.otaOrderId = data.otaOrderId;
+                confirm.supplierOrderId = data.supplierOrderId;
+                confirm.confirmResultCode = "0";
+                confirm.confirmResultMessage = "success";
+                confirm.voucherSender = 1;
+
+                List<XieChengVouchers> ticketList = new List<XieChengVouchers>();
+                List<XieChengPayPreConfirmItems> itemList = new List<XieChengPayPreConfirmItems>();
                 using (var trans = dbcontext.Database.BeginTransaction())
                 {
                     foreach (var item in data.items)
                     {
                         var _pluorder = xiechengOrders.Where(a => a.PLU == item.PLU).FirstOrDefault();
-                        _pluorder.itemId = item.itemId;
-
+                        if (_pluorder.orderStatus != XieChengOrderStatus.支付待确认)
+                        {
+                            continue;
+                        }
                         var passids = _pluorder.passengerIds.Split(" ");
-
+                        
                         var startTime = DateTime.Parse(_pluorder.useStartDate);
                         var endTime = DateTime.Parse(_pluorder.useEndDate);
                         var tickets = await t_service.GenarateTickets(startTime,
@@ -81,13 +94,33 @@ namespace 通用订票.EventBus
                             passids,
                             TicketStatus.未使用,
                             OTAType.XieCheng);
-                        await xiechengService.UpdateNow(_pluorder);
+
+                        foreach (var ticket in tickets)
+                        {
+                            ticketList.Add(new XieChengVouchers
+                            {
+                                itemId = item.itemId,
+                                voucherCode = ticket.ticketNumber,
+                                voucherType = 2,
+                            });
+                        }
+                        
+                        itemList.Add(new XieChengPayPreConfirmItems() { 
+                            itemId = item.itemId,
+                            isCredentialVouchers = 0
+                        });
                     }
                     await trans.CommitAsync();
                 }
                 var config = await xiechengService.GetConfig(data.tenant_id);
-                XieChengRequest xr = new XieChengRequest();
 
+                confirm.vouchers = ticketList.ToArray();
+                confirm.sequenceId = data.sequenceId;
+                confirm.items = itemList.ToArray();
+                var rawstr = XieChengTool.AESEncrypt(JsonConvert.SerializeObject(confirm), config.AESKey, config.AESVector);
+                var body = XieChengTool.EncodeBytes(rawstr);
+
+                XieChengRequest xr = new XieChengRequest();
                 xr.header = new XieChengHeader();
                 xr.header.requestTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 xr.header.serviceName = "PayPreOrderConfirm";
@@ -96,9 +129,26 @@ namespace 通用订票.EventBus
                 xr.header.sign = MD5Encryption.Encrypt(
                     xr.header.accountId +
                     xr.header.serviceName +
-                    xr.header.requestTime);
-            }
-            
+                    xr.header.requestTime +
+                    body + 
+                    xr.header.version +
+                    config.ApiKey);
+                xr.body = body;
+                _logger.LogInformation(JsonConvert.SerializeObject(xr));
+                var response = await xr.Request();
+                _logger.LogInformation(JsonConvert.SerializeObject(response));
+                if (response.header.resultCode == "0000")
+                {   
+                    foreach (var _order in xiechengOrders)
+                    {
+                        if (_order.orderStatus == XieChengOrderStatus.支付待确认)
+                        {
+                            _order.orderStatus = XieChengOrderStatus.支付已确认;
+                            await xiechengService.UpdateNow(_order);
+                        }
+                    }
+                }
+            }       
         }
     }
 }

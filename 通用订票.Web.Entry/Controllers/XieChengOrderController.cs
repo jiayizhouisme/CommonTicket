@@ -54,10 +54,16 @@ namespace 通用订票.Web.Entry.Controllers
             var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
             this.defaultOrderServices = factory.GetOrderService(_orderProvider);
         }
+        [HttpPost(Name = "test")]
+        public async Task<object> test(XieChengPayPreConfirm json)
+        {
+            var config = await xieChengOTAOrderService.GetConfig(httpContextUser.TenantId);
+            var body = XieChengTool.EncodeBytes(XieChengTool.AESEncrypt(JsonConvert.SerializeObject(json), config.AESKey, config.AESVector));
+            return body;
+        }
 
         [HttpPost(Name = "xiecheng")]
         [NonUnify]
-        [UnitOfWork]
         public async Task<dynamic> xiecheng([FromBody] XieChengRequest request)
         {
             var config = await xieChengOTAOrderService.GetConfig(httpContextUser.TenantId);
@@ -115,9 +121,22 @@ namespace 通用订票.Web.Entry.Controllers
                 var _body = JsonConvert.SerializeObject(new { 
                     paypreOrder.otaOrderId, 
                     supplierOrderId = paypreOrder.ToString(),
-                    supplierConfirmType = 2,
-                    voucherSender = 1
+                    supplierConfirmType = 2
                 });
+
+                var orders = await xieChengOTAOrderService.GetWithCondition(a => a.otaOrderId == paypreOrder.otaOrderId);
+                foreach (var item in paypreOrder.items)
+                {
+                    var first = orders.Where(a => a.PLU == item.PLU).FirstOrDefault();
+                    if (first != null && first.orderStatus == XieChengOrderStatus.待支付)
+                    {
+                        first.orderStatus = XieChengOrderStatus.支付待确认;
+                        first.PLU = item.PLU;
+                        first.itemId = item.itemId;
+                        await xieChengOTAOrderService.Update(first);
+                    }
+                }
+
                 body = XieChengTool.EncodeBytes(XieChengTool.AESEncrypt(_body, config.AESKey, config.AESVector));
                 paypreOrder.tenant_id = httpContextUser.TenantId;
                 await _eventPublisher.PublishAsync("XieChengPayConfirm", paypreOrder);

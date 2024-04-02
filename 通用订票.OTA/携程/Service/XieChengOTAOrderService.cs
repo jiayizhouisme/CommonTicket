@@ -27,18 +27,15 @@ namespace 通用订票.OTA.携程.Service
         , ITransient
     {
         private IDefaultOrderServices _orderServices { get; set; }
-        private readonly IRepository<XieChengPassenger, MasterDbContextLocator> passengerRep;
-        private readonly IRepository<XieChengConfig> configRep;
+        private readonly IRepository<XieChengConfig,MasterDbContextLocator> configRep;
         private readonly ICacheOperation _cache;
         public XieChengOTAOrderService(
             IRepository<XieChengOrder, MasterDbContextLocator> _dal,
-            IRepository<XieChengPassenger, MasterDbContextLocator> passengerRep,
-            IRepository<XieChengConfig> configRep,
+            IRepository<XieChengConfig, MasterDbContextLocator> configRep,
             ICacheOperation _cache
             )
         {
             base._dal = _dal;
-            this.passengerRep = passengerRep;
             this.configRep = configRep;
             this._cache = _cache;
         }
@@ -76,15 +73,7 @@ namespace 通用订票.OTA.携程.Service
                 order.objectId = first.PLU;
                 order.userId = "";
                 order.locale = "zh-CN";
-                
-                foreach (var pss in order.passengers)
-                {
-                    if (!await passengerRep.AnyAsync(a => a.passengerId == pss.passengerId))
-                    {
-                        await passengerRep.InsertNowAsync(pss);
-                    }
-                    order.passengerIds += pss.passengerId + " ";
-                }
+                order.passengerIds = string.Join(" ",order.passengers.Select(a => a.passengerId).ToArray());
                 await this.AddNow(order);
             }
             return orders;
