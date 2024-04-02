@@ -118,12 +118,6 @@ namespace 通用订票.Web.Entry.Controllers
             {
                 var paypreOrder = JsonConvert.DeserializeObject<XiechengPayPreOrder>(body);
 
-                var _body = JsonConvert.SerializeObject(new { 
-                    paypreOrder.otaOrderId, 
-                    supplierOrderId = paypreOrder.ToString(),
-                    supplierConfirmType = 2
-                });
-
                 var orders = await xieChengOTAOrderService.GetWithCondition(a => a.otaOrderId == paypreOrder.otaOrderId);
                 foreach (var item in paypreOrder.items)
                 {
@@ -133,13 +127,19 @@ namespace 通用订票.Web.Entry.Controllers
                         first.orderStatus = XieChengOrderStatus.支付待确认;
                         first.PLU = item.PLU;
                         first.itemId = item.itemId;
-                        await xieChengOTAOrderService.Update(first);
+                        await xieChengOTAOrderService.UpdateNow(first);
                     }
                 }
-
-                body = XieChengTool.EncodeBytes(XieChengTool.AESEncrypt(_body, config.AESKey, config.AESVector));
                 paypreOrder.tenant_id = httpContextUser.TenantId;
-                await _eventPublisher.PublishAsync("XieChengPayConfirm", paypreOrder);
+                await _eventPublisher.PublishDelayAsync("XieChengPayConfirm", 200,paypreOrder);
+
+                var _body = JsonConvert.SerializeObject(new
+                {
+                    paypreOrder.otaOrderId,
+                    supplierOrderId = paypreOrder.ToString(),
+                    supplierConfirmType = 2
+                });
+                body = XieChengTool.EncodeBytes(XieChengTool.AESEncrypt(_body, config.AESKey, config.AESVector));
                 return new { header = new { resultCode = "0000", resultMessage = "success" }, body };
 
             }
