@@ -16,6 +16,7 @@ namespace 通用订票.OTA.携程.IService
     {
         Task<XieChengOrder[]> QueryXieChengOrder(string otaOrderId);
         Task<XieChengOrder[]> CreateXieChengOrder(XiechengCreateOrder order);
+        Task<bool> CanclePreOrder(string otaOrderId);
         Task<string[]> GetPassengersIds(string otaOrderId, string itemId);
         Task<XieChengConfig> GetConfig(string tenant_id);
         void SetService(IDefaultOrderServices service);

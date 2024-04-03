@@ -101,7 +101,7 @@ namespace 通用订票.Application.System.Services.Service
                 result.Add(ticket);
             }
             await this.AddNow(result);
-
+            await SetTicketToCache(order.trade_no, result);
             return result;
         }
 

@@ -38,6 +38,7 @@ namespace 通用订票.Web.Entry.Controllers
         public const string CreatePreOrder = "CreatePreOrder";
         public const string QueryOrder = "QueryOrder";
         public const string PayPreOrder = "PayPreOrder";
+        public const string CancelPreOrder = "CancelPreOrder";
         public XieChengOrderController(
             IXieChengOTAOrderService xieChengOTAOrderService,
             IHttpContextUser httpContextUser,
@@ -119,9 +120,11 @@ namespace 通用订票.Web.Entry.Controllers
                 var paypreOrder = JsonConvert.DeserializeObject<XiechengPayPreOrder>(body);
 
                 var orders = await xieChengOTAOrderService.GetWithCondition(a => a.otaOrderId == paypreOrder.otaOrderId);
+                string supplierOrderId = null;
                 foreach (var item in paypreOrder.items)
                 {
                     var first = orders.Where(a => a.PLU == item.PLU).FirstOrDefault();
+                    supplierOrderId = first.trade_no.ToString();
                     if (first != null && first.orderStatus == XieChengOrderStatus.待支付)
                     {
                         first.orderStatus = XieChengOrderStatus.支付待确认;
@@ -136,12 +139,17 @@ namespace 通用订票.Web.Entry.Controllers
                 var _body = JsonConvert.SerializeObject(new
                 {
                     paypreOrder.otaOrderId,
-                    supplierOrderId = paypreOrder.ToString(),
+                    supplierOrderId = supplierOrderId,
                     supplierConfirmType = 2
                 });
                 body = XieChengTool.EncodeBytes(XieChengTool.AESEncrypt(_body, config.AESKey, config.AESVector));
                 return new { header = new { resultCode = "0000", resultMessage = "success" }, body };
 
+            }else if (request.header.serviceName == CancelPreOrder)
+            {
+                var canclePreOrder = JsonConvert.DeserializeObject<XieChengBodyBase>(body);
+                await xieChengOTAOrderService.CanclePreOrder(canclePreOrder.otaOrderId);
+                return new { header = new { resultCode = "0000", resultMessage = "success" } };
             }
             return new { status = 1,message = "下单请求成功，请等待下单结果", body };
         }

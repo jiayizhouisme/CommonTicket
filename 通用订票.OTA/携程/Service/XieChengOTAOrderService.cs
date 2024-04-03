@@ -49,13 +49,8 @@ namespace 通用订票.OTA.携程.Service
         {
             var orders = _orders.items;
             var first = orders.First();
-            Guid plu = Guid.Empty;
-            if (!string.IsNullOrEmpty(first.PLU))
-            {
-                plu = Guid.Parse(first.PLU);
-            }
             var entity = await this._orderServices.CreateOrder(
-                    plu,
+                    Guid.Empty,
                     first.PLU,
                     first.quantity,
                     OrderStatus.未付款
@@ -98,9 +93,23 @@ namespace 通用订票.OTA.携程.Service
 
         public async Task<string[]> GetPassengersIds(string otaOrderId, string itemId)
         {
-            var order = this.GetQueryableNt(a => a.otaOrderId == otaOrderId && itemId == itemId).Select(a => a.passengerIds);
+            var order = this.GetQueryableNt(a => a.otaOrderId == otaOrderId && a.itemId == itemId).Select(a => a.passengerIds);
             return order.ToArray() ;
 
+        }
+
+        public async Task<bool> CanclePreOrder(string otaOrderId)
+        {
+            var orders = await this.GetWithCondition(a => a.otaOrderId == otaOrderId);
+            foreach (var order in orders)
+            {
+                if (order.orderStatus == XieChengOrderStatus.待支付)
+                {
+                    order.orderStatus = XieChengOrderStatus.预下单取消成功;
+                    await this.UpdateNow(order);
+                }
+            }
+            return true;
         }
     }
 }

@@ -29,14 +29,17 @@ namespace 通用订票.EventBus
     public class XieChengPaySubscriber : IEventSubscriber, ISingleton
     {
         private readonly IServiceScopeFactory ScopeFactory;
+        private readonly ICacheOperation _cache;
         private readonly ILogger<XieChengPaySubscriber> _logger;
         
         public XieChengPaySubscriber(
             IServiceScopeFactory scopeFactory,
-            ILogger<XieChengPaySubscriber> logger)
+            ILogger<XieChengPaySubscriber> logger,
+            ICacheOperation _cache)
         {
             _logger = logger;
             this.ScopeFactory = scopeFactory;
+            this._cache = _cache;
         }
 
         [EventSubscribe("XieChengPayConfirm")]
@@ -61,7 +64,7 @@ namespace 通用订票.EventBus
                 var xiechengService = scope.ServiceProvider.GetService<IXieChengOTAOrderService>();
 
                 #endregion
-                var xiechengOrders = await xiechengService.GetWithCondition(a => a.otaOrderId == data.otaOrderId);
+
                 var order = await o_service.GetOrderById(long.Parse(data.supplierOrderId));
                 t_service.SetUserContext(Guid.Empty);
 
@@ -74,43 +77,45 @@ namespace 通用订票.EventBus
 
                 List<XieChengVouchers> ticketList = new List<XieChengVouchers>();
                 List<XieChengPayPreConfirmItems> itemList = new List<XieChengPayPreConfirmItems>();
-                using (var trans = dbcontext.Database.BeginTransaction())
+
+                await _cache.Lock("XieChengPayConfirm_Lock:" + data.otaOrderId, data.otaOrderId);
+                var xiechengOrders = await xiechengService.GetWithCondition(a => a.otaOrderId == data.otaOrderId);
+                foreach (var item in data.items)
                 {
-                    foreach (var item in data.items)
+                    ICollection<Ticket> tickets;
+                    var _pluorder = xiechengOrders.Where(a => a.itemId == item.itemId).FirstOrDefault();
+                    if (_pluorder.orderStatus != XieChengOrderStatus.支付待确认)
                     {
-                        var _pluorder = xiechengOrders.Where(a => a.PLU == item.PLU).FirstOrDefault();
-                        if (_pluorder.orderStatus != XieChengOrderStatus.支付待确认)
-                        {
-                            continue;
-                        }
+                        tickets = await t_service.GetTickets(order.trade_no);
+                    }
+                    else
+                    {
                         var passids = _pluorder.passengerIds.Split(" ");
-                        
                         var startTime = DateTime.Parse(_pluorder.useStartDate);
                         var endTime = DateTime.Parse(_pluorder.useEndDate);
-                        var tickets = await t_service.GenarateTickets(startTime,
+                        tickets = await t_service.GenarateTickets(startTime,
                             endTime,
                             order,
                             _pluorder.quantity,
                             passids,
                             TicketStatus.未使用,
                             OTAType.XieCheng);
-
-                        foreach (var ticket in tickets)
-                        {
-                            ticketList.Add(new XieChengVouchers
-                            {
-                                itemId = item.itemId,
-                                voucherCode = ticket.ticketNumber,
-                                voucherType = 2,
-                            });
-                        }
+                    }
                         
-                        itemList.Add(new XieChengPayPreConfirmItems() { 
+                    foreach (var ticket in tickets)
+                    {
+                        ticketList.Add(new XieChengVouchers
+                        {
                             itemId = item.itemId,
-                            isCredentialVouchers = 0
+                            voucherCode = ticket.ticketNumber,
+                            voucherType = 2,
                         });
                     }
-                    await trans.CommitAsync();
+                        
+                    itemList.Add(new XieChengPayPreConfirmItems() { 
+                        itemId = item.itemId,
+                        isCredentialVouchers = 0
+                    });
                 }
                 var config = await xiechengService.GetConfig(data.tenant_id);
 
@@ -134,9 +139,7 @@ namespace 通用订票.EventBus
                     xr.header.version +
                     config.ApiKey);
                 xr.body = body;
-                _logger.LogInformation(JsonConvert.SerializeObject(xr));
                 var response = await xr.Request();
-                _logger.LogInformation(JsonConvert.SerializeObject(response));
                 if (response.header.resultCode == "0000")
                 {   
                     foreach (var _order in xiechengOrders)
@@ -145,9 +148,11 @@ namespace 通用订票.EventBus
                         {
                             _order.orderStatus = XieChengOrderStatus.支付已确认;
                             await xiechengService.UpdateNow(_order);
+                            await o_service.PayFinished(order);
                         }
                     }
                 }
+                await _cache.ReleaseLock("XieChengPayConfirm_Lock:" + data.otaOrderId,data.otaOrderId);
             }       
         }
     }
