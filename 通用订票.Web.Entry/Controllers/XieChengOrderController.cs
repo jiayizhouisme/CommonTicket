@@ -163,7 +163,7 @@ namespace 通用订票.Web.Entry.Controllers
 
                 return new XieChengResponse
                 {
-                    header = new XieChengResponseHeader { resultCode = "0000", resultMessage = "succes" },
+                    header = new XieChengResponseHeader { resultCode = confirmResult.confirmResultCode, resultMessage = confirmResult.confirmResultMessage },
                     body = body
                 };
             }

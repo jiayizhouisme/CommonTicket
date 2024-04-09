@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using 通用订票.Application.System.Factory.Service;
@@ -337,27 +338,20 @@ namespace 通用订票.OTA.携程.Service
                     var data = order.items.Where(a => a.itemId == xiechengOrder.itemId).FirstOrDefault();
                     if (data.cancelType == 1 || data.cancelType == 0)
                     {
+                        var ticket = await t_service.GetQueryable(a => a.itemId == data.itemId).FirstOrDefaultAsync();
                         left = left - data.quantity;
                         if (left >= 0)//剩余票大于等于要取消的票
                         {
-                            var ticket = await t_service.GetQueryable(a => a.itemId == data.itemId).FirstOrDefaultAsync();
                             xiechengOrder.cancelQuantity += data.quantity;
                             ticket.usedCount += xiechengOrder.cancelQuantity;
                             if (left == 0)
                             {
-                                itemList.Add(new XieChengCancelOrderReponseItems { 
-                                    itemId = data.itemId,
-                                    vouchers = new XieChengVouchers[1] {
-                                        new XieChengVouchers{ voucherId = ticket.ticketNumber}
-                                    } });
+                                
                                 xiechengOrder.orderStatus = XieChengOrderStatus.全部取消;
                             }
                             else
                             {
-                                itemList.Add(new XieChengCancelOrderReponseItems
-                                {
-                                    itemId = data.itemId
-                                });
+                                
                                 xiechengOrder.orderStatus = XieChengOrderStatus.部分取消;
                             }
                             
@@ -371,6 +365,13 @@ namespace 通用订票.OTA.携程.Service
                             confirm.confirmResultMessage = "取消数量不正确";
                             confirm.confirmResultCode = "2004";
                         }
+                        itemList.Add(new XieChengCancelOrderReponseItems
+                        {
+                            itemId = data.itemId,
+                            vouchers = new XieChengVouchers[1] {
+                                        new XieChengVouchers{ voucherId = ticket.ticketNumber}
+                                    }
+                        });
                     }
                 }
 
