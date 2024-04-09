@@ -19,6 +19,7 @@ namespace 通用订票.Core.Entity
         /// </summary>
         public int TUserId { get; set; }
         public string OTAPassengerId { get; set; }
+        public string itemId { get; set; }
 
         public void Configure(EntityTypeBuilder<Ticket> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {

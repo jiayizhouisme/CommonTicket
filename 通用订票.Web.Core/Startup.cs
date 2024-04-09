@@ -4,6 +4,7 @@ using Core.Cache;
 using Core.MiddelWares;
 using Core.Queue.IQueue;
 using Core.SignalR;
+using Core.User.Service;
 using Essensoft.Paylink.WeChatPay;
 using Furion;
 using Furion.Core;
@@ -73,6 +74,7 @@ namespace 通用订票.Web.Core
             //ervices.AddSingleton<ICacheOperation, BettleX_Redis>();
             services.AddSingleton<ICacheOperation, RedisOperationRepository>();
             services.AddSingleton<ISignalRUserService, JwtCacheUserService>();
+            services.AddSingleton<TenantService>();
             services.AddScoped<IHttpContextUser, JwtUserContext>();
             services.AddSingleton<ITradeNoGenerate<long>,RedisTradeNoGenerate>();
             services.AddSingleton<ConnectionMultiplexer>(sp =>

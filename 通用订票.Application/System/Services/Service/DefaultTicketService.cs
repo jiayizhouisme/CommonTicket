@@ -84,7 +84,7 @@ namespace 通用订票.Application.System.Services.Service
             return await this.AddNow(ticket);
         }
 
-        public async Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<Guid> order, int number, string[] OTAPassengerId, TicketStatus status, OTAType otaType)
+        public async Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<Guid> order, int number, string[] OTAPassengerId,string itemId, TicketStatus status, OTAType otaType)
         {
             List<Core.Entity.Ticket> result = new List<Core.Entity.Ticket>();
             foreach (var id in OTAPassengerId)
@@ -98,6 +98,7 @@ namespace 通用订票.Application.System.Services.Service
                 ticket.ota = otaType;
                 ticket.usedCount = 0;
                 ticket.totalCount = number;
+                ticket.itemId = itemId;
                 result.Add(ticket);
             }
             await this.AddNow(result);

@@ -69,6 +69,7 @@ namespace 通用订票.JobTask
         {
             var newBuilder = SchedulerBuilder.Create<AutoRefreshStockEveryDay>(Triggers.Daily()); // 表示每秒执行
             newBuilder = SchedulerBuilder.Create<AutoCloseOrderEveryDay>(Triggers.DailyAt(23).SetRunOnStart(true));
+            newBuilder = SchedulerBuilder.Create<TenantToCacheJob>(Triggers.Daily().SetRunOnStart(true));
 
             // 返回新的作业计划构建器并标记为新增
             return newBuilder.Appended();

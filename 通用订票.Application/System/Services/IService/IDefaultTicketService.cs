@@ -37,7 +37,7 @@ namespace 通用订票.Application.System.Services.IService
         /// <param name="otaType"></param>
         /// <returns></returns>
         public Task<Ticket> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<Guid> order, int number,TicketStatus status, OTAType otaType = OTAType.Normal);
-        public Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<Guid> order, int number, string[] OTAPassengerId, TicketStatus status, OTAType otaType);
+        public Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<Guid> order, int number, string[] OTAPassengerIds,string itemId, TicketStatus status, OTAType otaType);
         public Task<bool> Vaild(int[] uid, Core.Entity.Appointment stock);
         public Task<ICollection<Core.Entity.Ticket>> GetTickets(long orderId);
         public Task<int> DisableTickets(ICollection<Core.Entity.Ticket> ticket);

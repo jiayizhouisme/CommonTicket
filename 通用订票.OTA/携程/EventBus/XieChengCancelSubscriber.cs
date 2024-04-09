@@ -28,21 +28,21 @@ using 通用订票.OTA.携程.Tool;
 
 namespace 通用订票.EventBus
 {
-    public class XieChengPaySubscriber : IEventSubscriber, ISingleton
+    public class XieChengCancelSubscriber : IEventSubscriber, ISingleton
     {
         private readonly IServiceScopeFactory ScopeFactory;
         
-        public XieChengPaySubscriber(
+        public XieChengCancelSubscriber(
             IServiceScopeFactory scopeFactory)
         {
             this.ScopeFactory = scopeFactory;
         }
 
-        [EventSubscribe("XieChengPayConfirm")]
-        public async Task XieChengPayConfirm(EventHandlerExecutingContext context)
+        [EventSubscribe("XieChengCancelConfirm")]
+        public async Task XieChengCancelConfirm(EventHandlerExecutingContext context)
         {
             var todo = context.Source;
-            var data = (XiechengPayPreOrder)todo.Payload;
+            var data = (XieChengCancelOrder)todo.Payload;
             
             using (var scope = this.ScopeFactory.CreateScope())
             {
@@ -52,7 +52,7 @@ namespace 通用订票.EventBus
                 var tenant = await tenantService.GetTenantByHost(data.tenant_id);
                 xiechengService.SetDbConnectString(tenant.ConnectionString);
                 #endregion
-                await xiechengService.PayPreConfirm(data);
+                await xiechengService.CancleOrderConfirm(data);
             }
         }
     }

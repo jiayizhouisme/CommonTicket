@@ -10,6 +10,7 @@ namespace 通用订票.OTA.携程.Model
     public class XieChengResponse
     {
         public XieChengResponseHeader header { get; set; }
+        public string body { get; set; }
     }
     public class XieChengResponseHeader
     {
