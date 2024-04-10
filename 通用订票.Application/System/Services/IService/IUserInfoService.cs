@@ -9,7 +9,7 @@ using Core.Services;
 
 namespace 通用订票.Application.System.Services.IService
 {
-    public interface IUserInfoService : IBaseService<UserInfo>,IUserContext<Guid>
+    public interface IUserInfoService : IBaseService<UserInfo>,IUserContext<string>
     {
         public Task<UserInfo> GetUserInfoByID(int id);
 

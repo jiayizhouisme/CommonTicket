@@ -16,7 +16,7 @@ namespace 通用订票.Application.System.Services.Service
             this._cache = _cache;
         }
 
-        public override async Task<Appointment> SaleStock(Guid stockId, int count = 1)
+        public override async Task<Appointment> SaleStock(string stockId, int count = 1)
         {
             string lockerId = Guid.NewGuid().ToString();
             Appointment stock = null;
@@ -43,7 +43,7 @@ namespace 通用订票.Application.System.Services.Service
             return stock;
         }
 
-        public override async Task<Appointment> checkStock(Guid stockId)
+        public override async Task<Appointment> checkStock(string stockId)
         {
             var result = await base.checkStock(stockId);
             var vaild = this.vaildStock(result);
@@ -85,7 +85,7 @@ namespace 通用订票.Application.System.Services.Service
             return true;
         }
 
-        public virtual async Task<Appointment> GetAppointmentById(Guid appid)
+        public virtual async Task<Appointment> GetAppointmentById(string appid)
         {
             var appCache = await base.GetStockFromCache(appid.ToString());
             if (appCache != null)
@@ -132,7 +132,7 @@ namespace 通用订票.Application.System.Services.Service
         }
 
         [UnitOfWork]
-        private async Task RefreshAppoint(Guid id, int day, int sale, bool newone)
+        private async Task RefreshAppoint(string id, int day, int sale, bool newone)
         {
             string lockerId = Guid.NewGuid().ToString();
             try

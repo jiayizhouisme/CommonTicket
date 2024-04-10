@@ -15,7 +15,7 @@ namespace 通用订票.Application.System.ServiceBases.Service
             this._cache = _cache;
         }
 
-        public virtual async Task<T> checkStock(Guid stockId)
+        public virtual async Task<T> checkStock(string stockId)
         {
             T stock = null;
 
@@ -53,7 +53,7 @@ namespace 通用订票.Application.System.ServiceBases.Service
             return stock;//再判断一次
         }
 
-        public virtual async Task<T> SaleStock(Guid stockId, int count = 1)
+        public virtual async Task<T> SaleStock(string stockId, int count = 1)
         {
             T stock = null;
             stock = await GetStockFromCache(stockId.ToString());
@@ -67,7 +67,7 @@ namespace 通用订票.Application.System.ServiceBases.Service
             return stock;
         }
 
-        protected async Task<T> GetStockFromDb(Guid stockId)
+        protected async Task<T> GetStockFromDb(string stockId)
         {
             T stock = null;
             stock = await _dal.Where(a => a.id == stockId).AsNoTracking().FirstOrDefaultAsync();
@@ -97,9 +97,9 @@ namespace 通用订票.Application.System.ServiceBases.Service
             
         }
 
-        public async Task DelStockFromCache(Guid stockId)
+        public async Task DelStockFromCache(string stockId)
         {
-            await _cache.Del("stock:" + stockId.ToString());
+            await _cache.Del("stock:" + stockId);
         }
     }
 }

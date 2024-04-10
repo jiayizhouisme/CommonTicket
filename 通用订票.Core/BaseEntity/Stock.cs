@@ -8,7 +8,7 @@ namespace 通用订票.Core.BaseEntity
     [NotMapped]
     public class Stock : StockAbstract,IEntity
     {
-        public Guid id { get; set; }
+        public string id { get; set; }
         public DateTime? createTime { get; set; }
         public bool isDeleted { get; set; }
     }

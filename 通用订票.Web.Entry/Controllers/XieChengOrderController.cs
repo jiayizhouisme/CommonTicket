@@ -17,6 +17,7 @@ using System.DirectoryServices.Protocols;
 using System.Text;
 using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Services.IService;
+using 通用订票.Application.System.Services.Service;
 using 通用订票.Core.Entity;
 using 通用订票.OTA.携程.Entity;
 using 通用订票.OTA.携程.IService;
@@ -99,6 +100,7 @@ namespace 通用订票.Web.Entry.Controllers
             }
 
             var body = XieChengTool.AESDecrypt(request.body, config.AESKey, config.AESVector);
+            defaultOrderServices.SetUserContext("xiecheng");
             xieChengOTAOrderService.SetService(defaultOrderServices);
 
             if (request.header.serviceName == CreatePreOrder)

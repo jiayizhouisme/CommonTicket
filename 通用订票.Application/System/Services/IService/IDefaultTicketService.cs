@@ -13,7 +13,7 @@ using 通用订票.Order.Entity;
 
 namespace 通用订票.Application.System.Services.IService
 {
-    public interface IDefaultTicketService : IBaseService<Core.Entity.Ticket>,ITicketService<Core.Entity.Ticket>, IUserContext<Guid>
+    public interface IDefaultTicketService : IBaseService<Core.Entity.Ticket>,ITicketService<Core.Entity.Ticket>, IUserContext<string>
     {
         /// <summary>
         /// 记名购买
@@ -25,7 +25,7 @@ namespace 通用订票.Application.System.Services.IService
         /// <param name="status"></param>
         /// <param name="otaType"></param>
         /// <returns></returns>
-        public Task<List<Core.Entity.Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<Guid> order, int[] uid, TicketStatus status,OTAType otaType = OTAType.Normal);
+        public Task<List<Core.Entity.Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<string> order, int[] uid, TicketStatus status,OTAType otaType = OTAType.Normal);
         /// <summary>
         /// 匿名购买
         /// </summary>
@@ -36,8 +36,8 @@ namespace 通用订票.Application.System.Services.IService
         /// <param name="status"></param>
         /// <param name="otaType"></param>
         /// <returns></returns>
-        public Task<Ticket> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<Guid> order, int number,TicketStatus status, OTAType otaType = OTAType.Normal);
-        public Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<Guid> order, int number, string[] OTAPassengerIds,string itemId, TicketStatus status, OTAType otaType);
+        public Task<Ticket> GenarateTicket(DateTime startTime, DateTime endTime, OrderBase<string> order, int number,TicketStatus status,OTAType otaType = OTAType.Normal);
+        public Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<string> order, int number,TicketStatus status, OTAType otaType);
         public Task<bool> Vaild(int[] uid, Core.Entity.Appointment stock);
         public Task<ICollection<Core.Entity.Ticket>> GetTickets(long orderId);
         public Task<int> DisableTickets(ICollection<Core.Entity.Ticket> ticket);

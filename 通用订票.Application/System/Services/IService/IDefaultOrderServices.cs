@@ -9,12 +9,12 @@ using Core.Auth;
 
 namespace 通用订票.Application.System.Services.IService
 {
-    public interface IDefaultOrderServices : IOrderService<Core.Entity.Order>,IUserContext<Guid>
+    public interface IDefaultOrderServices : IOrderService<Core.Entity.Order>,IUserContext<string>
     {
         Task<Core.Entity.Order> GetOrderById(long orderId);
-        Task<bool> PreOrder(Guid objectId);
-        Task OrderFail(Guid objectId);
-        Task AfterOrdered(Guid objectId);
+        Task<bool> PreOrder(string objectId);
+        Task OrderFail(string objectId);
+        Task AfterOrdered(string objectId);
         Task DelOrderFromCache(long trande_no);
     }
 }

@@ -11,7 +11,7 @@ namespace 通用订票.Application.System.Services.IService
 {
     public interface IDefaultAppointmentService : IStockService<Appointment>,IUserContext<Guid>
     {
-        Task<Appointment> GetAppointmentById(Guid appid);
+        Task<Appointment> GetAppointmentById(string appid);
         Task<IQueryable<Appointment>> GetAppointmentsByDay(Guid exhibtionID,int day);
         Task<IQueryable<Appointment>> GetAppointmentsByDate(Guid exhibitionID, DateTime date);
         /// <summary>

@@ -24,7 +24,7 @@ namespace 通用订票.Application.System.Services.Service
     [Injection(Order = 1)]
     public class DefaultTicketService : TicketBaseService<Ticket, MasterDbContextLocator>, IDefaultTicketService, ITransient
     {
-        private Guid userId;
+        private string userId;
         private readonly ICacheOperation _cache;
         public DefaultTicketService(IRepository<Ticket, MasterDbContextLocator> _dal, ICacheOperation _cache) : base(_dal)
         {
@@ -39,8 +39,12 @@ namespace 通用订票.Application.System.Services.Service
         /// <param name="order"></param>
         /// <param name="uids"></param>
         /// <returns></returns>
-        public virtual async Task<List<Core.Entity.Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<Guid> order,
-            int[] uids, TicketStatus status = TicketStatus.未激活,OTAType otaType = OTAType.Normal)
+        public virtual async Task<List<Core.Entity.Ticket>> GenarateTickets(
+            DateTime startTime,
+            DateTime endTime, OrderBase<string> order,
+            int[] uids,
+            TicketStatus status = TicketStatus.未激活,
+            OTAType otaType = OTAType.Normal)
         {
             List<Core.Entity.Ticket> result = new List<Core.Entity.Ticket>();
             foreach (var id in uids)
@@ -70,7 +74,7 @@ namespace 通用订票.Application.System.Services.Service
             return result;
         }
 
-        public virtual async Task<Ticket> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<Guid> order, int number, TicketStatus status, OTAType otaType = OTAType.Normal)
+        public virtual async Task<Ticket> GenarateTicket(DateTime startTime, DateTime endTime, OrderBase<string> order, int number, TicketStatus status, OTAType otaType = OTAType.Normal)
         {
             var ticket = base.GenerateTicket(startTime, endTime);
             ticket.TUserId = -1;
@@ -81,24 +85,24 @@ namespace 通用订票.Application.System.Services.Service
             ticket.ota = otaType;
             ticket.usedCount = 0;
             ticket.totalCount = number;
-            return await this.AddNow(ticket);
+            await this.AddNow(ticket);
+            return ticket;
         }
 
-        public async Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<Guid> order, int number, string[] OTAPassengerId,string itemId, TicketStatus status, OTAType otaType)
+        public async Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<string> order, int number, TicketStatus status, OTAType otaType)
         {
             List<Core.Entity.Ticket> result = new List<Core.Entity.Ticket>();
-            foreach (var id in OTAPassengerId)
+            for (int i = 0;i < number;i++)
             {
                 var ticket = base.GenerateTicket(startTime, endTime);
-                ticket.OTAPassengerId = id;
                 ticket.userID = userId;
                 ticket.objectId = order.trade_no;//应该替换成tradeNo
                 ticket.AppointmentId = order.objectId;
                 ticket.stauts = status;
                 ticket.ota = otaType;
                 ticket.usedCount = 0;
-                ticket.totalCount = number;
-                ticket.itemId = itemId;
+                ticket.totalCount = 1;
+
                 result.Add(ticket);
             }
             await this.AddNow(result);
@@ -136,12 +140,12 @@ namespace 通用订票.Application.System.Services.Service
             return 1;
         }
 
-        public virtual void SetUserContext(Guid user)
+        public virtual void SetUserContext(string user)
         {
             this.userId = user;
         }
 
-        private async Task SetTicketUserToCache(Guid appointmentId, int[] uids)
+        private async Task SetTicketUserToCache(string appointmentId, int[] uids)
         {
             foreach (var uid in uids)
             {
@@ -154,7 +158,7 @@ namespace 通用订票.Application.System.Services.Service
             string cacheKey = "Tickets:" + orderId;
             foreach (var item in tickets)
             {
-                if (item.userID != Guid.Empty)
+                if (item.userID != Guid.Empty.ToString() && item.userID != null)
                 {
                     await _cache.PushToList<Core.Entity.Ticket>("Tickets:" + orderId, item);
                 }
@@ -203,7 +207,7 @@ namespace 通用订票.Application.System.Services.Service
             return true;
         }
 
-        private string GetKey(Guid appointmentId, int Tuid)
+        private string GetKey(string appointmentId, int Tuid)
         {
             return "UserId_" + userId + "Appointment_" + appointmentId + "TUserId_" + Tuid;
         }

@@ -9,7 +9,7 @@ namespace 通用订票.Application.System.Services.Service
     [Injection(Order = 1)]
     public class DefaultOrderService : OrderBaseService<Core.Entity.Order, MasterDbContextLocator>, IDefaultOrderServices, ITransient
     {
-        private Guid userId { get; set; }
+        private string userId { get; set; }
         private readonly ICacheOperation _cache;
         public DefaultOrderService(ITradeNoGenerate<long> tradeNoGenerate,IRepository<Core.Entity.Order, MasterDbContextLocator> _dal, ICacheOperation cache) : base(tradeNoGenerate,_dal)
         {
@@ -23,7 +23,7 @@ namespace 通用订票.Application.System.Services.Service
             return order;
         }
 
-        public override async Task<Core.Entity.Order> CreateOrder(Guid objectId, string name, decimal amount, OrderStatus status = OrderStatus.未付款, string extraInfo = null)
+        public override async Task<Core.Entity.Order> CreateOrder(string objectId, string name, decimal amount, OrderStatus status = OrderStatus.未付款, string extraInfo = null)
         {
             var result = await base.CreateOrder(objectId, name, amount, status,extraInfo);
             var r = await this._dal.InsertNowAsync(result);
@@ -67,7 +67,7 @@ namespace 通用订票.Application.System.Services.Service
             return result;
         }
 
-        public virtual void SetUserContext(Guid userId)
+        public virtual void SetUserContext(string userId)
         {
             this.userId = userId;
         }
@@ -123,7 +123,7 @@ namespace 通用订票.Application.System.Services.Service
             return order;
         }
 
-        public async Task<bool> PreOrder(Guid objectId)
+        public async Task<bool> PreOrder(string objectId)
         {
             var _lock = await _cache.LockNoWait("PreOrder:" + objectId.ToString() + "User:" + userId, userId.ToString(), 60);
             if (_lock == 0)
@@ -140,12 +140,12 @@ namespace 通用订票.Application.System.Services.Service
             return true;
         }
 
-        public async Task OrderFail(Guid objectId)
+        public async Task OrderFail(string objectId)
         {
             await ReleaseLock(objectId);
         }
 
-        public virtual async Task AfterOrdered(Guid objectId)
+        public virtual async Task AfterOrdered(string objectId)
         {
             await RecordOrder(objectId);
             await ReleaseLock(objectId);
@@ -157,17 +157,17 @@ namespace 通用订票.Application.System.Services.Service
             await _cache.Del(key);
         }
 
-        private async Task ReleaseLock(Guid objectId)
+        private async Task ReleaseLock(string objectId)
         {
-            await _cache.ReleaseLock("PreOrder:" + objectId.ToString() + "User:" + userId, userId.ToString());//解锁 
+            await _cache.ReleaseLock("PreOrder:" + objectId.ToString() + "User:" + userId, userId);//解锁 
         }
 
-        private async Task RecordOrder(Guid objectId)
+        private async Task RecordOrder(string objectId)
         {
             await _cache.Set("Orderd:" + objectId.ToString() + "User:" + userId, 1, 650);//记录用户购买的订单 防止重复下单
         }
 
-        private async Task DelRecord(Guid objectId)
+        private async Task DelRecord(string objectId)
         {
             await _cache.Del("Orderd:" + objectId.ToString() + "User:" + userId);//记录用户购买的订单 防止重复下单
         }

@@ -69,7 +69,7 @@ namespace 通用订票.Application.System.ServiceBases.Service
             return order;
         }
 
-        public virtual async Task<T> CreateOrder(Guid objectId, string name,decimal amount,OrderStatus status, string extraInfo = null)
+        public virtual async Task<T> CreateOrder(string objectId, string name,decimal amount,OrderStatus status, string extraInfo = null)
         {
             try
             {

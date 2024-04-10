@@ -2,6 +2,7 @@
 using Core.Cache;
 using Core.Services;
 using Core.Services.ServiceFactory;
+using Core.User.Service;
 using Furion.DatabaseAccessor;
 using Furion.DataEncryption;
 using Furion.DependencyInjection;
@@ -42,18 +43,21 @@ namespace 通用订票.OTA.携程.Service
         private readonly IRepository<XieChengConfig,MasterDbContextLocator> configRep;
         private readonly ICacheOperation _cache;
         private readonly IServiceScopeFactory ScopeFactory;
+        private readonly IXieChengOTATicketService xiechengTicketService;
 
         public XieChengOTAOrderService(
             IRepository<XieChengOrder, MasterDbContextLocator> _dal,
             IRepository<XieChengConfig, MasterDbContextLocator> configRep,
             ICacheOperation _cache,
-            IServiceScopeFactory ScopeFactory
+            IServiceScopeFactory ScopeFactory,
+            IXieChengOTATicketService xiechengTicketService
             )
         {
             base._dal = _dal;
             this.configRep = configRep;
             this._cache = _cache;
             this.ScopeFactory = ScopeFactory;
+            this.xiechengTicketService = xiechengTicketService;
         }
 
         public void SetService(IDefaultOrderServices service)
@@ -76,7 +80,7 @@ namespace 通用订票.OTA.携程.Service
                 var orders = _orders.items;
                 var first = orders.First();
                 var entity = await this._orderServices.CreateOrder(
-                        Guid.Empty,
+                        first.PLU,
                         first.PLU,
                         first.quantity,
                         OrderStatus.未付款
@@ -186,7 +190,6 @@ namespace 通用订票.OTA.携程.Service
 
         public async Task<XieChengPayPreConfirm> PayPreConfirm(XiechengPayPreOrder data)
         {
-
             using (var scope = this.ScopeFactory.CreateScope())
             {
                 #region 获取services
@@ -196,18 +199,16 @@ namespace 通用订票.OTA.携程.Service
                 var t_service = factory.GetTicketService(_ticketProvider);
                 t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, data.tenant_id);
 
-                var _orderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultOrderServices>>();
-                var o_service = factory.GetOrderService(_orderProvider);
-                o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenant_id);
-
-                var order = await o_service.GetOrderById(long.Parse(data.supplierOrderId));
-                t_service.SetUserContext(Guid.Empty);
+                var order = await _orderServices.GetOrderById(long.Parse(data.supplierOrderId));
+                t_service.SetUserContext("xiecheng");
+                xiechengTicketService.SetService(t_service);
                 #endregion
+
                 XieChengPayPreConfirm confirm = new XieChengPayPreConfirm();
                 confirm.otaOrderId = data.otaOrderId;
                 confirm.supplierOrderId = data.supplierOrderId;
                 confirm.confirmResultCode = 0;
-                confirm.confirmResultMessage = "succes";
+                confirm.confirmResultMessage = "success";
                 confirm.voucherSender = 1;
                 confirm.supplierConfirmType = data.supplierConfirmType;
                 List<XieChengVouchers> ticketList = new List<XieChengVouchers>();
@@ -218,90 +219,78 @@ namespace 通用订票.OTA.携程.Service
                 await _cache.Lock(key, locker);
 
                 var xiechengOrders = await this.GetWithCondition(a => a.otaOrderId == data.otaOrderId);
-                using (var trans = dbcontext.Database.BeginTransaction())
+                foreach (var item in data.items)
                 {
-                    foreach (var item in data.items)
+                    List<Ticket> tickets = new List<Ticket>();
+                    var _pluorder = xiechengOrders.Where(a => a.PLU == item.PLU).FirstOrDefault();
+                    if (_pluorder.orderStatus == XieChengOrderStatus.支付已确认)
                     {
-                        ICollection<Ticket> tickets = null;
-                        var _pluorder = xiechengOrders.Where(a => a.PLU == item.PLU).FirstOrDefault();
-                        if (_pluorder.orderStatus == XieChengOrderStatus.支付已确认)
-                        {
-                            tickets = await t_service.GetTickets(order.trade_no);
-                        }
-                        else if(_pluorder.orderStatus == XieChengOrderStatus.待支付)
-                        {
-                            _pluorder.orderStatus = XieChengOrderStatus.支付已确认;
-                            _pluorder.itemId = item.itemId;
-                            await this.UpdateNow(_pluorder);
-                            await o_service.PayFinished(order);
-                            var passids = _pluorder.passengerIds.Split(" ");
-                            var startTime = DateTime.Parse(_pluorder.useStartDate);
-                            var endTime = DateTime.Parse(_pluorder.useEndDate);
+                        tickets.AddRange(await t_service.GetTickets(order.trade_no));
+                    }
+                    else if(_pluorder.orderStatus == XieChengOrderStatus.待支付)
+                    {
+                        _pluorder.orderStatus = XieChengOrderStatus.支付已确认;
+                        _pluorder.itemId = item.itemId;
                             
-                            tickets = await t_service.GenarateTickets(startTime,
-                                endTime,
-                                order,
-                                _pluorder.quantity,
-                                passids,
-                                item.itemId,
-                                TicketStatus.未使用,
-                                OTAType.XieCheng);
+                        var passids = _pluorder.passengerIds.Split(" ");
 
-                        }
-                        if (tickets != null)
-                        {
-                            foreach (var ticket in tickets)
-                            {
-                                ticketList.Add(new XieChengVouchers
-                                {
-                                    itemId = item.itemId,
-                                    voucherId = ticket.ticketNumber,
-                                    voucherCode = ticket.ticketNumber,
-                                    voucherType = 3,
-                                    voucherData = data.http_path + "/verify?id=" + ticket.ticketNumber
-                                });
-                            }
-                        }
-                        
-
-                        itemList.Add(new XieChengPayPreConfirmItems()
-                        {
-                            itemId = item.itemId,
-                            isCredentialVouchers = 0
-                        });
+                        var _ = await xiechengTicketService.CreateTicket(_pluorder, order);
+                        tickets.Add(_);
+                        await this.UpdateNow(_pluorder);
+                        await _orderServices.PayFinished(order);
                     }
-
-                    await _cache.ReleaseLock(key, locker);
-
-                    var config = await this.GetConfig(data.tenant_id);
-
-                    confirm.vouchers = ticketList.ToArray();
-                    confirm.sequenceId = data.sequenceId;
-                    confirm.items = itemList.ToArray();
-                    if (data.supplierConfirmType == 2)
+                    if (tickets != null)
                     {
-                        var rawstr = XieChengTool.AESEncrypt(JsonConvert.SerializeObject(confirm), config.AESKey, config.AESVector);
-                        var body = XieChengTool.EncodeBytes(rawstr);
-
-                        XieChengRequest xr = new XieChengRequest();
-                        xr.header = new XieChengHeader();
-                        xr.header.requestTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                        xr.header.serviceName = "PayPreOrderConfirm";
-                        xr.header.version = "1.0";
-                        xr.header.accountId = config.Account;
-                        xr.header.sign = MD5Encryption.Encrypt(
-                            xr.header.accountId +
-                            xr.header.serviceName +
-                            xr.header.requestTime +
-                            body +
-                            xr.header.version +
-                            config.ApiKey);
-                        xr.body = body;
-                        var response = await xr.Request();
+                        foreach (var ticket in tickets)
+                        {
+                            ticketList.Add(new XieChengVouchers
+                            {
+                                itemId = item.itemId,
+                                voucherId = ticket.ticketNumber,
+                                voucherCode = ticket.ticketNumber,
+                                voucherType = 3,
+                                voucherData = data.http_path + "/verify?id=" + ticket.ticketNumber
+                            });
+                        }
                     }
-                    await trans.CommitAsync();
-                    return confirm;
+
+                    itemList.Add(new XieChengPayPreConfirmItems()
+                    {
+                        itemId = item.itemId,
+                        isCredentialVouchers = 0
+                    });
                 }
+
+                await _cache.ReleaseLock(key, locker);
+
+                var config = await this.GetConfig(data.tenant_id);
+
+                confirm.vouchers = ticketList.ToArray();
+                confirm.sequenceId = data.sequenceId;
+                confirm.items = itemList.ToArray();
+                if (data.supplierConfirmType == 2)
+                {
+                    var rawstr = XieChengTool.AESEncrypt(JsonConvert.SerializeObject(confirm), config.AESKey, config.AESVector);
+                    var body = XieChengTool.EncodeBytes(rawstr);
+
+                    XieChengRequest xr = new XieChengRequest();
+                    xr.header = new XieChengHeader();
+                    xr.header.requestTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    xr.header.serviceName = "PayPreOrderConfirm";
+                    xr.header.version = "1.0";
+                    xr.header.accountId = config.Account;
+                    xr.header.sign = MD5Encryption.Encrypt(
+                        xr.header.accountId +
+                        xr.header.serviceName +
+                        xr.header.requestTime +
+                        body +
+                        xr.header.version +
+                        config.ApiKey);
+                    xr.body = body;
+                    var response = await xr.Request();
+                }
+                return confirm;
+                
             }
         }
 
@@ -346,11 +335,12 @@ namespace 通用订票.OTA.携程.Service
                     var data = order.items.Where(a => a.itemId == xiechengOrder.itemId).FirstOrDefault();
                     if (data.cancelType == 1 || data.cancelType == 0)
                     {
-                        var ticket = await t_service.GetQueryable(a => a.itemId == data.itemId).FirstOrDefaultAsync();
+                        var ticket = await xiechengTicketService.GetQueryable(a => a.itemId == data.itemId).Include(a => a.ticket).FirstOrDefaultAsync();
+
                         if (data.quantity <= xiechengOrder.quantity)
                         {
                             xiechengOrder.cancelQuantity = data.quantity;
-                            ticket.usedCount = xiechengOrder.cancelQuantity;
+                            ticket.ticket.usedCount = xiechengOrder.cancelQuantity;
                             if (data.cancelType == 0)
                             {
                                 
@@ -361,7 +351,7 @@ namespace 通用订票.OTA.携程.Service
                                 xiechengOrder.orderStatus = XieChengOrderStatus.部分取消;
                             }
                             
-                            await t_service.UpdateNow(ticket);
+                            await t_service.UpdateNow(ticket.ticket);
                             await this.UpdateNow(xiechengOrder);
                             confirm.confirmResultMessage = "确认成功";
                             confirm.confirmResultCode = "0000";
@@ -375,7 +365,7 @@ namespace 通用订票.OTA.携程.Service
                         {
                             itemId = data.itemId,
                             vouchers = new XieChengVouchers[1] {
-                                        new XieChengVouchers{ voucherId = ticket.ticketNumber}
+                                        new XieChengVouchers{ voucherId = ticket.ticket.ticketNumber}
                                     }
                         });
                     }

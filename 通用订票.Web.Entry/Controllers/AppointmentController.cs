@@ -39,7 +39,7 @@ namespace 通用订票.Web.Entry.Controllers
             for (int i = 0;i < appointment.totalDay;i++)
             {
                 Appointment ap = new Appointment();
-                ap.id = Guid.NewGuid();
+                ap.id = Guid.NewGuid().ToString();
                 ap.day = appointment.dayStart + i;
                 ap.createTime = DateTime.Now;
                 ap.startTime = DateTime.Parse(appointment.timeStart.ToString());

@@ -5,11 +5,11 @@ namespace 通用订票.Procedure.Entity
     public class OrderClose : IProcedureEntity
     {
         public long trade_no { get; set; }
-        public Guid appid { get; set; }
+        public string appid { get; set; }
         public int delay{ get; set; }
         public string tenantId { get; set; }
         public string realTenantId { get; set; }
         public int count { get; set; }
-        public Guid userId { get; set; }
+        public string userId { get; set; }
     }
 }

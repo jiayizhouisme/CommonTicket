@@ -113,7 +113,7 @@ namespace 通用订票.RedisMQ
             await Task.CompletedTask;
         }
 
-        private async Task PublishOrderCreateFail(Appointment stockret,Core.Entity.Order order,int count,string tenantId,Guid userId)
+        private async Task PublishOrderCreateFail(Appointment stockret,Core.Entity.Order order,int count,string tenantId, string userId)
         {
             var entity = new OnOrderCreateFailed() { app = stockret, order = order, count = count, tenantId = tenantId, userId = userId };
             await _eventPublisher.PublishAsync(new OnOrderCreateFailedEvent(entity));

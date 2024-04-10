@@ -66,8 +66,8 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpPost(Name = "CreateOrder")]
         public async Task<dynamic> CreateOrder([FromBody]BaseOrderCreate oc)
         {
-            var userid = Guid.Parse(httpContextUser.ID);
-            string lockierid = userid.ToString();
+            var userid = httpContextUser.ID;
+            string lockierid = userid;
 
             myOrderService.SetUserContext(userid);
             //var _lock = await myOrderService.PreOrder(oc.appid);
@@ -242,7 +242,7 @@ namespace 通用订票.Web.Entry.Controllers
             try
             {
                 var o = await myOrderService.CancelOrder(order);
-                var onOrderClosed = new OnOrderClosed() {order = order,tenantId = httpContextUser.TenantId,userId = Guid.Parse(httpContextUser.ID) };
+                var onOrderClosed = new OnOrderClosed() {order = order,tenantId = httpContextUser.TenantId,userId = httpContextUser.ID };
                 await eventPublisher.PublishAsync(new OnOrderClosedEvent(onOrderClosed));            
             }
             catch(Exception e)
@@ -275,7 +275,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("3DC16154-C4F5-42D6-BEEC-CC3B09D2D2D6");
+                            string stockid = "3DC16154-C4F5-42D6-BEEC-CC3B09D2D2D6";
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
@@ -287,7 +287,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("BA050247-0548-4A05-9C60-1D8D6672A05B");
+                            string stockid = "BA050247-0548-4A05-9C60-1D8D6672A05B";
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
@@ -308,7 +308,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("70FB3A70-A214-6FDD-F1F3-1A360984DA68");
+                            string stockid = "70FB3A70-A214-6FDD-F1F3-1A360984DA68";
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
@@ -320,7 +320,7 @@ namespace 通用订票.Web.Entry.Controllers
                         int offset = new Random().Next(1, 5);
                         for (int i = k * num; i < k * num + num; i += offset)
                         {
-                            Guid stockid = Guid.Parse("94D175BB-4F46-4E9D-B593-32782DE5D33C");
+                            string stockid = "94D175BB-4F46-4E9D-B593-32782DE5D33C";
                             if ((i + offset) < (k * num + num))
                             {
                                 await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });

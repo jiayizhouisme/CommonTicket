@@ -12,7 +12,7 @@ namespace 通用订票.Core.Entity
         public string phoneNumber { get; set; }
         public string idCard { get; set; }
         public DateTime createTime { get; set; }
-        public Guid userID { get; set; }
+        public string userID { get; set; }
         public User user { get; set; }
 
         public void Configure(EntityTypeBuilder<UserInfo> entityBuilder, DbContext dbContext, Type dbContextLocator)

@@ -5,7 +5,7 @@ namespace 通用订票.Application.System.ServiceBases.IService
 {
     public interface IStockService<T> : IBaseStockService<T>,IBaseService<T>  where T : Core.BaseEntity.Stock, new()
     {
-        public Task<T> checkStock(Guid stockId);
-        public Task DelStockFromCache(Guid stockId);
+        public Task<T> checkStock(string stockId);
+        public Task DelStockFromCache(string stockId);
     }
 }
