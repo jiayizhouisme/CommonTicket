@@ -222,21 +222,22 @@ namespace 通用订票.OTA.携程.Service
                 {
                     foreach (var item in data.items)
                     {
-                        ICollection<Ticket> tickets;
-                        var _pluorder = xiechengOrders.Where(a => a.itemId == item.itemId).FirstOrDefault();
-                        if (_pluorder.orderStatus != XieChengOrderStatus.支付待确认)
+                        ICollection<Ticket> tickets = null;
+                        var _pluorder = xiechengOrders.Where(a => a.PLU == item.PLU).FirstOrDefault();
+                        if (_pluorder.orderStatus == XieChengOrderStatus.支付已确认)
                         {
                             tickets = await t_service.GetTickets(order.trade_no);
                         }
-                        else
+                        else if(_pluorder.orderStatus == XieChengOrderStatus.待支付)
                         {
                             _pluorder.orderStatus = XieChengOrderStatus.支付已确认;
+                            _pluorder.itemId = item.itemId;
                             await this.UpdateNow(_pluorder);
                             await o_service.PayFinished(order);
-
                             var passids = _pluorder.passengerIds.Split(" ");
                             var startTime = DateTime.Parse(_pluorder.useStartDate);
                             var endTime = DateTime.Parse(_pluorder.useEndDate);
+                            
                             tickets = await t_service.GenarateTickets(startTime,
                                 endTime,
                                 order,
@@ -247,18 +248,21 @@ namespace 通用订票.OTA.携程.Service
                                 OTAType.XieCheng);
 
                         }
-
-                        foreach (var ticket in tickets)
+                        if (tickets != null)
                         {
-                            ticketList.Add(new XieChengVouchers
+                            foreach (var ticket in tickets)
                             {
-                                itemId = item.itemId,
-                                voucherId = ticket.ticketNumber,
-                                voucherCode = ticket.ticketNumber,
-                                voucherType = 3,
-                                voucherData = data.http_path + "/verify?id=" + ticket.ticketNumber
-                            });
+                                ticketList.Add(new XieChengVouchers
+                                {
+                                    itemId = item.itemId,
+                                    voucherId = ticket.ticketNumber,
+                                    voucherCode = ticket.ticketNumber,
+                                    voucherType = 3,
+                                    voucherData = data.http_path + "/verify?id=" + ticket.ticketNumber
+                                });
+                            }
                         }
+                        
 
                         itemList.Add(new XieChengPayPreConfirmItems()
                         {
@@ -332,26 +336,28 @@ namespace 通用订票.OTA.携程.Service
                 t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, order.tenant_id);
 
                 var xiechengOrders = await this.GetWithCondition(a => a.otaOrderId == order.otaOrderId);
+                if (xiechengOrders.Count == 0)
+                {
+                    confirm.confirmResultCode = "2001";
+                    confirm.confirmResultMessage = "该订单号不存在";
+                }
                 foreach (var xiechengOrder in xiechengOrders)
                 {
-                    int left = xiechengOrder.quantity - xiechengOrder.useQuantity - xiechengOrder.cancelQuantity;
                     var data = order.items.Where(a => a.itemId == xiechengOrder.itemId).FirstOrDefault();
                     if (data.cancelType == 1 || data.cancelType == 0)
                     {
                         var ticket = await t_service.GetQueryable(a => a.itemId == data.itemId).FirstOrDefaultAsync();
-                        left = left - data.quantity;
-                        if (left >= 0)//剩余票大于等于要取消的票
+                        if (data.quantity <= xiechengOrder.quantity)
                         {
-                            xiechengOrder.cancelQuantity += data.quantity;
-                            ticket.usedCount += xiechengOrder.cancelQuantity;
-                            if (left == 0)
+                            xiechengOrder.cancelQuantity = data.quantity;
+                            ticket.usedCount = xiechengOrder.cancelQuantity;
+                            if (data.cancelType == 0)
                             {
                                 
                                 xiechengOrder.orderStatus = XieChengOrderStatus.全部取消;
                             }
-                            else
+                            else if(data.cancelType == 1)
                             {
-                                
                                 xiechengOrder.orderStatus = XieChengOrderStatus.部分取消;
                             }
                             
