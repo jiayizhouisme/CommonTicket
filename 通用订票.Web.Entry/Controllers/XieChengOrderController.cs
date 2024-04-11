@@ -70,6 +70,7 @@ namespace 通用订票.Web.Entry.Controllers
         }
 
         [HttpPost(Name = "xiecheng")]
+        [UnitOfWork]
         [NonUnify]
         public async Task<XieChengResponse> xiecheng([FromBody] XieChengRequest request)
         {
@@ -106,7 +107,7 @@ namespace 通用订票.Web.Entry.Controllers
             if (request.header.serviceName == CreatePreOrder)
             {
                 var createOrder = JsonConvert.DeserializeObject<XiechengCreateOrder>(body);
-
+                createOrder.tenant_id = httpContextUser.TenantId;
                 var preresponse = await xieChengOTAOrderService.CreateXieChengOrder(createOrder);
 
                 var _body = JsonConvert.SerializeObject(preresponse);
@@ -122,28 +123,13 @@ namespace 通用订票.Web.Entry.Controllers
                 var queryOrder = JsonConvert.DeserializeObject<XieChengOrderQuery>(body);
                 var items = await this.xieChengOTAOrderService.QueryXieChengOrder(queryOrder.otaOrderId);
 
-                if (items == null || items.Length == 0)
-                {
-                    return new XieChengResponse
-                    {
-                        header = new XieChengResponseHeader { resultCode = "4001", resultMessage = "该订单号不存在" }
-                    };
-
-                }
-
-                var _body = JsonConvert.SerializeObject(new
-                {
-                    queryOrder.otaOrderId,
-                    supplierOrderId = queryOrder.supplierOrderId.ToString(),
-                    items = items
-                }) ;
+                var _body = JsonConvert.SerializeObject(items.body) ;
                 body = XieChengTool.EncodeBytes(XieChengTool.AESEncrypt(_body, config.AESKey, config.AESVector));
                 return new XieChengResponse
                 {
-                    header = new XieChengResponseHeader { resultCode = "0000", resultMessage = "success" },
+                    header = items.header,
                     body = body
                 };
-
             }
             else if (request.header.serviceName == PayPreOrder)
             {
@@ -159,12 +145,12 @@ namespace 通用订票.Web.Entry.Controllers
 
                 paypreOrder.supplierConfirmType = 1;
                 var confirmResult = await this.xieChengOTAOrderService.PayPreConfirm(paypreOrder);
-                _body = JsonConvert.SerializeObject(confirmResult);
+                _body = JsonConvert.SerializeObject(confirmResult.body);
 
                 body = XieChengTool.EncodeBytes(XieChengTool.AESEncrypt(_body, config.AESKey, config.AESVector));
                 return new XieChengResponse
                 {
-                    header = new XieChengResponseHeader { resultCode = "0000", resultMessage = "success" },
+                    header = confirmResult.header,
                     body = body
                 };
             }

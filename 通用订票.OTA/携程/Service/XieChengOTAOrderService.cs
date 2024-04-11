@@ -10,8 +10,10 @@ using Furion.EventBus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using ProtoBuf.Meta;
 using StackExchange.Redis;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,6 +25,7 @@ using 通用订票.Application.System.ServiceBases.IService;
 using 通用订票.Application.System.ServiceBases.Service;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Base.Entity;
+using 通用订票.Core.BaseEntity;
 using 通用订票.Core.Entity;
 using 通用订票.OTA.携程.Entity;
 using 通用订票.OTA.携程.IService;
@@ -44,13 +47,15 @@ namespace 通用订票.OTA.携程.Service
         private readonly ICacheOperation _cache;
         private readonly IServiceScopeFactory ScopeFactory;
         private readonly IXieChengOTATicketService xiechengTicketService;
+        private readonly IExhibitionService exhibitionService;
 
         public XieChengOTAOrderService(
             IRepository<XieChengOrder, MasterDbContextLocator> _dal,
             IRepository<XieChengConfig, MasterDbContextLocator> configRep,
             ICacheOperation _cache,
             IServiceScopeFactory ScopeFactory,
-            IXieChengOTATicketService xiechengTicketService
+            IXieChengOTATicketService xiechengTicketService,
+            IExhibitionService exhibitionService
             )
         {
             base._dal = _dal;
@@ -58,6 +63,7 @@ namespace 通用订票.OTA.携程.Service
             this._cache = _cache;
             this.ScopeFactory = ScopeFactory;
             this.xiechengTicketService = xiechengTicketService;
+            this.exhibitionService = exhibitionService;
         }
 
         public void SetService(IDefaultOrderServices service)
@@ -67,54 +73,109 @@ namespace 通用订票.OTA.携程.Service
 
         public async Task<XieChengPreOrderResponse> CreateXieChengOrder(XiechengCreateOrder _orders)
         {
-            long supplierOrderId = 0;
-            string locker = Guid.NewGuid().ToString();
-            string key = "XieChengOrderLock:" + _orders.otaOrderId;
-            await _cache.Lock(key, locker);
-            if (await this.Exist(a => a.otaOrderId == _orders.otaOrderId))
+            using (var scope = this.ScopeFactory.CreateScope())
             {
-                supplierOrderId = await this.GetQueryableNt(a => a.otaOrderId == _orders.otaOrderId).Select(a => a.trade_no).FirstOrDefaultAsync();
-            }
-            else
-            {
-                var orders = _orders.items;
-                var first = orders.First();
-                var entity = await this._orderServices.CreateOrder(
-                        first.PLU,
-                        first.PLU,
-                        first.quantity,
-                        OrderStatus.未付款
-                    );
-                supplierOrderId = entity.trade_no;
-                foreach (var order in orders)
+                var factory = SaaSServiceFactory.GetServiceFactory(_orders.tenant_id);
+
+                var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
+                var s_service = factory.GetStockService(_stockProvider);
+                s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, _orders.tenant_id);
+
+                long supplierOrderId = 0;
+                string locker = Guid.NewGuid().ToString();
+                string key = "XieChengOrderLock:" + _orders.otaOrderId;
+                await _cache.Lock(key, locker);
+
+                if (await this.Exist(a => a.otaOrderId == _orders.otaOrderId))
                 {
-                    order.trade_no = entity.trade_no;
-                    order.otaOrderId = _orders.otaOrderId;
-                    order.orderStatus = XieChengOrderStatus.待支付;
-                    order.cancelQuantity = 0;
-                    order.useQuantity = 0;
-                    order.itemId = "0";
-                    order.createTime = DateTime.Now;
-                    order.name = first.PLU;
-                    order.objectId = first.PLU;
-                    order.userId = "";
-                    order.locale = "zh-CN";
-                    order.passengerIds = string.Join(" ", order.passengers.Select(a => a.passengerId).ToArray());
-                    await this.AddNow(order);
+                    supplierOrderId = await this.GetQueryableNt(a => a.otaOrderId == _orders.otaOrderId).Select(a => a.trade_no).FirstOrDefaultAsync();
                 }
+                else
+                {
+                    var orders = _orders.items;
+                    var first = orders.First();
+                    var entity = await this._orderServices.CreateOrder(
+                            first.PLU,
+                            first.PLU,
+                            first.quantity,
+                            OrderStatus.未付款
+                        );
+                    supplierOrderId = entity.trade_no;
+                    foreach (var order in orders)
+                    {
+                        order.trade_no = entity.trade_no;
+                        order.otaOrderId = _orders.otaOrderId;
+                        order.orderStatus = XieChengOrderStatus.待支付;
+                        order.cancelQuantity = 0;
+                        order.useQuantity = 0;
+                        order.itemId = "0";
+                        order.createTime = DateTime.Now;
+                        order.name = first.PLU;
+                        order.objectId = first.PLU;
+                        order.userId = "";
+                        order.locale = "zh-CN";
+                        order.passengerIds = string.Join(" ", order.passengers.Select(a => a.passengerId).ToArray());
+                        await s_service.SaleStock(order.PLU, order.quantity);
+                        await this.AddNow(order);
+                    }
+                }
+                await _cache.ReleaseLock(key, locker);
+                return new XieChengPreOrderResponse
+                {
+                    otaOrderId = _orders.otaOrderId,
+                    supplierOrderId = supplierOrderId.ToString()
+                };
             }
-            await _cache.ReleaseLock(key, locker);
-            return new XieChengPreOrderResponse
-            {
-                otaOrderId = _orders.otaOrderId,
-                supplierOrderId = supplierOrderId.ToString()
-            };
         }
 
-        public async Task<XieChengOrder[]> QueryXieChengOrder(string otaOrderId)
+        public async Task<XieChengOrderQueryResponseWithHeader> QueryXieChengOrder(string otaOrderId)
         {
-            var order = await this.GetQueryableNt(a => a.otaOrderId == otaOrderId).ToArrayAsync();
-            return order;
+            XieChengOrderQueryResponseWithHeader xwh = new XieChengOrderQueryResponseWithHeader();
+
+            XieChengOrderQueryResponse xr = new XieChengOrderQueryResponse();
+            var orders = await this.GetQueryableNt(a => a.otaOrderId == otaOrderId).ToArrayAsync();
+            if (orders == null || orders.Length == 0)
+            {
+                xwh.header = new XieChengResponseHeader { resultCode = "4001", resultMessage = "该订单号不存在" };
+                return xwh;
+            }
+            xr.otaOrderId = otaOrderId;
+            foreach (var order in orders)
+            {
+                xr.supplierOrderId = order.trade_no.ToString();
+                var tickets = await xiechengTicketService.GetQueryableNt(a => a.itemId == order.itemId).Include(a => a.ticket).ToArrayAsync();
+                var items = new XieChengOrderQueryResponseItems
+                {
+                    itemId = order.itemId,
+                    useStartDate = order.useStartDate,
+                    useEndDate = order.useEndDate,
+                    cancelQuantity = order.cancelQuantity,
+                    orderStatus = order.orderStatus,
+                    quantity = order.quantity,
+                    useQuantity = order.useQuantity,
+                };
+                foreach (var ticket in tickets)
+                {
+                    XieChengOrderQueryPassengers pass = new XieChengOrderQueryPassengers
+                    {
+                        passengerId = ticket.OTAPassengerId,
+                        passengerStatus = ticket.voucherStatus
+                    };
+
+                    XieChengOrderQueryVouchers vouchers = new XieChengOrderQueryVouchers
+                    {
+                        voucherId = ticket.ticket.ticketNumber,
+                        voucherStatus = ticket.voucherStatus
+                    };
+                    items.passengers.Add(pass);
+                    items.vouchers.Add(vouchers);
+                }
+                
+                xr.items.Add(items);
+            }
+            xwh.body = xr;
+            xwh.header = new XieChengResponseHeader { resultCode = "0000", resultMessage = "操作成功" };
+            return xwh;
         }
 
         public async Task<XieChengConfig> GetConfig(string tenant_id)
@@ -188,29 +249,31 @@ namespace 通用订票.OTA.携程.Service
             return _body;
         }
 
-        public async Task<XieChengPayPreConfirm> PayPreConfirm(XiechengPayPreOrder data)
+        public async Task<XieChengPayPreConfirmResponseWithHeader> PayPreConfirm(XiechengPayPreOrder data)
         {
             using (var scope = this.ScopeFactory.CreateScope())
             {
                 #region 获取services
                 var factory = SaaSServiceFactory.GetServiceFactory(data.tenant_id);
-                var dbcontext = Db.GetDbContext(scope.ServiceProvider);
                 var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultTicketService>>();
                 var t_service = factory.GetTicketService(_ticketProvider);
                 t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, data.tenant_id);
 
+                var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
+                var s_service = factory.GetStockService(_stockProvider);
+                s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, data.tenant_id);
+               
                 var order = await _orderServices.GetOrderById(long.Parse(data.supplierOrderId));
                 t_service.SetUserContext("xiecheng");
                 xiechengTicketService.SetService(t_service);
                 #endregion
-
+                XieChengPayPreConfirmResponseWithHeader wh = new XieChengPayPreConfirmResponseWithHeader();
+                XieChengResponseHeader xh = new XieChengResponseHeader();
+                xh.resultCode = "0000";
+                xh.resultMessage = "succeed";
                 XieChengPayPreConfirm confirm = new XieChengPayPreConfirm();
-                confirm.otaOrderId = data.otaOrderId;
-                confirm.supplierOrderId = data.supplierOrderId;
-                confirm.confirmResultCode = 0;
-                confirm.confirmResultMessage = "success";
-                confirm.voucherSender = 1;
-                confirm.supplierConfirmType = data.supplierConfirmType;
+                
+
                 List<XieChengVouchers> ticketList = new List<XieChengVouchers>();
                 List<XieChengPayPreConfirmItems> itemList = new List<XieChengPayPreConfirmItems>();
 
@@ -221,8 +284,19 @@ namespace 通用订票.OTA.携程.Service
                 var xiechengOrders = await this.GetWithCondition(a => a.otaOrderId == data.otaOrderId);
                 foreach (var item in data.items)
                 {
+                    var stock = await s_service.GetAppointmentById(item.PLU);
+                    var exhibition = await exhibitionService.GetExhibitionByID(stock.objectId);
+                    
+                    if (stock == null || exhibition == null)
+                    {
+                        xh.resultCode = "1001";
+                        xh.resultMessage = "产品PLU不存在/错误";
+                        return wh;
+                    }
+
                     List<Ticket> tickets = new List<Ticket>();
                     var _pluorder = xiechengOrders.Where(a => a.PLU == item.PLU).FirstOrDefault();
+
                     if (_pluorder.orderStatus == XieChengOrderStatus.支付已确认)
                     {
                         tickets.AddRange(await t_service.GetTickets(order.trade_no));
@@ -231,28 +305,35 @@ namespace 通用订票.OTA.携程.Service
                     {
                         _pluorder.orderStatus = XieChengOrderStatus.支付已确认;
                         _pluorder.itemId = item.itemId;
-                            
+
                         var passids = _pluorder.passengerIds.Split(" ");
 
-                        var _ = await xiechengTicketService.CreateTicket(_pluorder, order);
-                        tickets.Add(_);
+                        if (exhibition.passType == PassTemplate.一单一人)
+                        {
+                            var _ = await xiechengTicketService.CreateTicket(_pluorder, order);
+                            tickets.Add(_);
+                        }
+                        else if(exhibition.passType == PassTemplate.一张一人)
+                        {
+                            var _ = await xiechengTicketService.CreateTicket(_pluorder, order, passids);
+                            tickets.AddRange(_);
+                        }
+
                         await this.UpdateNow(_pluorder);
                         await _orderServices.PayFinished(order);
                     }
-                    if (tickets != null)
+                    foreach (var ticket in tickets)
                     {
-                        foreach (var ticket in tickets)
+                        ticketList.Add(new XieChengVouchers
                         {
-                            ticketList.Add(new XieChengVouchers
-                            {
-                                itemId = item.itemId,
-                                voucherId = ticket.ticketNumber,
-                                voucherCode = ticket.ticketNumber,
-                                voucherType = 3,
-                                voucherData = data.http_path + "/verify?id=" + ticket.ticketNumber
-                            });
-                        }
+                            itemId = item.itemId,
+                            voucherId = ticket.ticketNumber,
+                            voucherCode = ticket.ticketNumber,
+                            voucherType = 3,
+                            voucherData = data.http_path + "/verify?id=" + ticket.ticketNumber
+                        });
                     }
+                    
 
                     itemList.Add(new XieChengPayPreConfirmItems()
                     {
@@ -289,7 +370,16 @@ namespace 通用订票.OTA.携程.Service
                     xr.body = body;
                     var response = await xr.Request();
                 }
-                return confirm;
+
+                confirm.otaOrderId = data.otaOrderId;
+                confirm.supplierOrderId = data.supplierOrderId;
+                confirm.confirmResultCode = 0;
+                confirm.confirmResultMessage = "success";
+                confirm.voucherSender = 1;
+                confirm.supplierConfirmType = data.supplierConfirmType;
+                wh.body = confirm;
+                wh.header = xh;
+                return wh;
                 
             }
         }
@@ -320,57 +410,100 @@ namespace 通用订票.OTA.携程.Service
             {
                 var factory = SaaSServiceFactory.GetServiceFactory(order.tenant_id);
                 var dbcontext = Db.GetDbContext(scope.ServiceProvider);
+                
                 var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultTicketService>>();
                 var t_service = factory.GetTicketService(_ticketProvider);
                 t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, order.tenant_id);
-
+                
+                var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
+                var s_service = factory.GetStockService(_stockProvider);
+                s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, order.tenant_id);
+                
                 var xiechengOrders = await this.GetWithCondition(a => a.otaOrderId == order.otaOrderId);
                 if (xiechengOrders.Count == 0)
                 {
                     confirm.confirmResultCode = "2001";
                     confirm.confirmResultMessage = "该订单号不存在";
                 }
+
+                string key = "XieChengOrderLock:" + order.otaOrderId;
+                string locker = Guid.NewGuid().ToString();
+                await _cache.Lock(key, locker);
+
                 foreach (var xiechengOrder in xiechengOrders)
                 {
+                    var stock = await s_service.GetAppointmentById(xiechengOrder.PLU);
+                    var exhibition = await exhibitionService.GetExhibitionByID(stock.objectId);
+
                     var data = order.items.Where(a => a.itemId == xiechengOrder.itemId).FirstOrDefault();
-                    if (data.cancelType == 1 || data.cancelType == 0)
+                    var tickets = await xiechengTicketService.GetQueryable(a => a.itemId == data.itemId).Include(a => a.ticket).ToListAsync();
+                    List<XieChengVouchers> vouchers = new List<XieChengVouchers>();
+
+                    if (xiechengOrder.orderStatus == XieChengOrderStatus.部分使用 ||
+                            xiechengOrder.orderStatus == XieChengOrderStatus.全部使用)
                     {
-                        var ticket = await xiechengTicketService.GetQueryable(a => a.itemId == data.itemId).Include(a => a.ticket).FirstOrDefaultAsync();
-
-                        if (data.quantity <= xiechengOrder.quantity)
-                        {
-                            xiechengOrder.cancelQuantity = data.quantity;
-                            ticket.ticket.usedCount = xiechengOrder.cancelQuantity;
-                            if (data.cancelType == 0)
-                            {
-                                
-                                xiechengOrder.orderStatus = XieChengOrderStatus.全部取消;
-                            }
-                            else if(data.cancelType == 1)
-                            {
-                                xiechengOrder.orderStatus = XieChengOrderStatus.部分取消;
-                            }
-                            
-                            await t_service.UpdateNow(ticket.ticket);
-                            await this.UpdateNow(xiechengOrder);
-                            confirm.confirmResultMessage = "确认成功";
-                            confirm.confirmResultCode = "0000";
-                        }
-                        else
-                        {
-                            confirm.confirmResultMessage = "取消数量不正确";
-                            confirm.confirmResultCode = "2004";
-                        }
-                        itemList.Add(new XieChengCancelOrderReponseItems
-                        {
-                            itemId = data.itemId,
-                            vouchers = new XieChengVouchers[1] {
-                                        new XieChengVouchers{ voucherId = ticket.ticket.ticketNumber}
-                                    }
-                        });
+                        confirm.confirmResultCode = "2002";
+                        confirm.confirmResultMessage = "该订单已经使用";
+                        return confirm;
                     }
-                }
 
+                    if (data.quantity > xiechengOrder.quantity)
+                    {
+                        confirm.confirmResultMessage = "取消数量不正确";
+                        confirm.confirmResultCode = "2004";
+                        return confirm;
+                    }
+
+                    if (data.cancelType == 0)
+                    {
+                        xiechengOrder.orderStatus = XieChengOrderStatus.全部取消;
+                    }
+                    else if (data.cancelType == 1 || data.cancelType == 2)
+                    {
+                        xiechengOrder.orderStatus = XieChengOrderStatus.部分取消;
+                    }
+                    xiechengOrder.cancelQuantity = data.quantity;
+
+                    if (exhibition.passType == PassTemplate.一单一人)
+                    {
+                        foreach (var ticket in tickets)
+                        {
+                            ticket.ticket.usedCount = data.quantity;
+                            if (ticket.ticket.usedCount == ticket.ticket.totalCount)
+                            {
+                                ticket.ticket.stauts = TicketStatus.已冻结;
+                                vouchers.Add(new XieChengVouchers { voucherId = ticket.ticket.ticketNumber });
+                            }
+                        }
+                        await xiechengTicketService.UpdateNow(tickets);
+                    }
+                    else if (exhibition.passType == PassTemplate.一张一人)
+                    {
+                        foreach (var pass in data.passengers)
+                        {
+                            var ticket = tickets.Where(a => a.OTAPassengerId == pass.passengerId).FirstOrDefault();
+                            if (ticket.ticket.stauts != TicketStatus.已冻结)
+                            {
+                                ticket.ticket.stauts = TicketStatus.已冻结;
+                                ticket.ticket.usedCount = ticket.ticket.totalCount;
+                                ticket.voucherStatus = 2;
+                                await xiechengTicketService.UpdateNow(ticket);
+                                await s_service.SaleStock(xiechengOrder.PLU, -1);
+                            }
+                            vouchers.Add(new XieChengVouchers { voucherId = ticket.ticket.ticketNumber });
+                        }
+                    }
+                    itemList.Add(new XieChengCancelOrderReponseItems
+                    {
+                        itemId = data.itemId,
+                        vouchers = vouchers.ToArray()
+                    });
+                    confirm.confirmResultMessage = "确认成功";
+                    confirm.confirmResultCode = "0000";
+                    
+                    await this.UpdateNow(xiechengOrder);
+                }
+                await _cache.ReleaseLock(key, locker);
                 var config = await this.GetConfig(order.tenant_id);
 
                 confirm.otaOrderId = order.otaOrderId;

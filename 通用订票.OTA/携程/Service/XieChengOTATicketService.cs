@@ -46,6 +46,7 @@ namespace 通用订票.OTA.携程.Service
             xieChengTicket.ticketId = ticket._id;
             xieChengTicket.OTAPassengerId = xiechengOrder.passengerIds.Trim();
             xieChengTicket.itemId = xiechengOrder.itemId;
+            xieChengTicket.voucherStatus = 0;
             await this.AddNow(xieChengTicket);
             return ticket;
         }
@@ -67,6 +68,7 @@ namespace 通用订票.OTA.携程.Service
                 xieChengTicket.ticketId = ticket._id;
                 xieChengTicket.OTAPassengerId = passids[i];
                 xieChengTicket.itemId = xiechengOrder.itemId;
+                xieChengTicket.voucherStatus = 0;
                 await this.AddNow(xieChengTicket);
                 i++;
             }

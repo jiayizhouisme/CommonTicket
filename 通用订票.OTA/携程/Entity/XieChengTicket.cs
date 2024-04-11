@@ -16,6 +16,7 @@ namespace 通用订票.OTA.携程.Entity
         public int ticketId { get; set; }
         public string OTAPassengerId { get; set; }
         public string itemId { get; set; }
+        public int voucherStatus { get; set; }
 
         public Ticket? ticket { get; set; }
 

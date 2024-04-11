@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace 通用订票.OTA.携程.Model
 {
-    public class XieChengPayPreConfirm
+    public struct XieChengPayPreConfirmResponseWithHeader
+    {
+        public XieChengResponseHeader header { get; set; }
+        public XieChengPayPreConfirm body { get; set; }
+    }
+    public struct XieChengPayPreConfirm
     {
         public string sequenceId { get; set; }
         public string otaOrderId { get; set; }

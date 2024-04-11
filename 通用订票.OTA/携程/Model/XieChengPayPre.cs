@@ -2,7 +2,7 @@
 
 namespace 通用订票.Web.Entry.Controllers
 {
-    public class XieChengPayPre
+    public struct XieChengPayPre
     {
         public int voucherSender { get; set; }
         public string otaOrderId { get; set; }

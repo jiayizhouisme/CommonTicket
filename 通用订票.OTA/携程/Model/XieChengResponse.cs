@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace 通用订票.OTA.携程.Model
 {
-    public class XieChengResponse
+    public struct XieChengResponse
     {
         public XieChengResponseHeader header { get; set; }
         public string body { get; set; }
     }
-    public class XieChengResponseHeader
+    public struct XieChengResponseHeader
     {
         public string resultCode { get; set; }
         public string resultMessage { get; set; }

@@ -15,10 +15,10 @@ namespace 通用订票.OTA.携程.IService
 {
     public interface IXieChengOTAOrderService : IBaseService<XieChengOrder>
     {
-        Task<XieChengOrder[]> QueryXieChengOrder(string otaOrderId);
+        Task<XieChengOrderQueryResponseWithHeader> QueryXieChengOrder(string otaOrderId);
         Task<XieChengPreOrderResponse> CreateXieChengOrder(XiechengCreateOrder order);
         Task<XieChengPayPre> PayPreOrder(XiechengPayPreOrder order);
-        Task<XieChengPayPreConfirm> PayPreConfirm(XiechengPayPreOrder data);
+        Task<XieChengPayPreConfirmResponseWithHeader> PayPreConfirm(XiechengPayPreOrder data);
         Task<bool> CanclePreOrder(string otaOrderId);
         Task<XieChengCancelOrderResponse> CancelOrder(XieChengCancelOrder order);
         Task<XieChengCancelOrderConfirm> CancleOrderConfirm(XieChengCancelOrder order);

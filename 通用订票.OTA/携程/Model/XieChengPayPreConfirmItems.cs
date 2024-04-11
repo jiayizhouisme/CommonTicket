@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace 通用订票.OTA.携程.Model
 {
-    public class XieChengPayPreConfirmItems
+    public struct XieChengPayPreConfirmItems
     {
         public string itemId { get; set; }
         public int isCredentialVouchers { get; set; }
@@ -19,13 +19,13 @@ namespace 通用订票.OTA.携程.Model
         }
 
     }
-    public class PassengerVouchers
+    public struct PassengerVouchers
     {
         public string passengerId { get; set; }
         public string voucherId { get; set; }
     }
 
-    public class Inventorys
+    public struct Inventorys
     {
         public string useDate { get; set; }
         public int quantity { get; set; }
