@@ -19,11 +19,13 @@ namespace 通用订票.OTA.携程.IService
         Task<XieChengPreOrderResponse> CreateXieChengOrder(XiechengCreateOrder order);
         Task<XieChengPayPre> PayPreOrder(XiechengPayPreOrder order);
         Task<XieChengPayPreConfirmResponseWithHeader> PayPreConfirm(XiechengPayPreOrder data);
-        Task<bool> CanclePreOrder(string otaOrderId);
+        Task<bool> CanclePreOrder(XieChengOrderQuery query);
         Task<XieChengCancelOrderResponse> CancelOrder(XieChengCancelOrder order);
         Task<XieChengCancelOrderConfirm> CancleOrderConfirm(XieChengCancelOrder order);
+        Task Verify(string ticket_number,int useCount);
         Task<string[]> GetPassengersIds(string otaOrderId, string itemId);
         Task<XieChengConfig> GetConfig(string tenant_id);
         void SetService(IDefaultOrderServices service);
+        void SetTenant(string tenant_id);
     }
 }

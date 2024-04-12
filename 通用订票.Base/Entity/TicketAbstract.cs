@@ -30,7 +30,8 @@ public abstract class TicketAbstract
 public enum TicketStatus
 {
     未使用 = 0,
-    已使用 = 1,
-    未激活 = 2,
-    已冻结 = 3
+    部分使用,
+    已使用,
+    未激活,
+    已冻结
 }

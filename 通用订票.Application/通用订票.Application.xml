@@ -4,7 +4,7 @@
         <name>通用订票.Application</name>
     </assembly>
     <members>
-        <member name="M:通用订票.Application.System.ServiceBases.IService.ITicketService`1.TicketCheck(`0)">
+        <member name="M:通用订票.Application.System.ServiceBases.IService.ITicketService`1.TicketCheck(`0,System.Int32)">
             <summary>
             验票
             </summary>
@@ -29,7 +29,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`2.TicketCheck(`0)">
+        <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`2.TicketCheck(`0,System.Int32)">
             <summary>
             验票
             </summary>

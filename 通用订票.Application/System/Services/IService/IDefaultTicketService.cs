@@ -40,6 +40,7 @@ namespace 通用订票.Application.System.Services.IService
         public Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<string> order, int number,TicketStatus status, OTAType otaType);
         public Task<bool> Vaild(int[] uid, Core.Entity.Appointment stock);
         public Task<ICollection<Core.Entity.Ticket>> GetTickets(long orderId);
+        Task<Ticket> GetTicket(string ticket_number);
         public Task<int> DisableTickets(ICollection<Core.Entity.Ticket> ticket);
         public Task<int> EnableTickets(ICollection<Core.Entity.Ticket> ticket);
     }

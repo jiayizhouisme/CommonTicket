@@ -15,7 +15,6 @@
             public string supplierOrderId { get; set; } 
             public string http_path { get; set; }
             public int supplierConfirmType { get; set; }
-            public string tenant_id { get; set; }
             public XieChengItem[] items { get; set; }
         }
     }

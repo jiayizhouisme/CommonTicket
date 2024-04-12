@@ -5,11 +5,13 @@ using Core.Services.ServiceFactory;
 using Furion.DatabaseAccessor;
 using Furion.DataEncryption;
 using Furion.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Base.Entity;
 using 通用订票.Core.Entity;
 using 通用订票.OTA.携程.Entity;
 using 通用订票.OTA.携程.IService;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace 通用订票.OTA.携程.Service
 {
@@ -18,13 +20,16 @@ namespace 通用订票.OTA.携程.Service
         IXieChengOTATicketService
         , ITransient
     {
-        private IDefaultTicketService _ticketServices { get; set; }
+        private IDefaultTicketService _ticketServices;
+        private readonly ICacheOperation _cache;
 
         public XieChengOTATicketService(
-            IRepository<XieChengTicket, MasterDbContextLocator> _dal
+            IRepository<XieChengTicket, MasterDbContextLocator> _dal,
+            ICacheOperation _cache
             )
         {
             base._dal = _dal;
+            this._cache = _cache;
         }
 
         public void SetService(IDefaultTicketService service)
@@ -32,10 +37,11 @@ namespace 通用订票.OTA.携程.Service
             _ticketServices = service;
         }
 
-        public async Task<Ticket> CreateTicket(XieChengOrder xiechengOrder, Core.Entity.Order order)
+        public async Task<Ticket> CreateTicket(Appointment stock, XieChengOrder xiechengOrder, Core.Entity.Order order)
         {
-            var startTime = DateTime.Parse(xiechengOrder.useStartDate);
-            var endTime = DateTime.Parse(xiechengOrder.useEndDate);
+            var startTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.startTime.TimeOfDay);
+            var endTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.endTime.TimeOfDay);
+
             var ticket = await _ticketServices.GenarateTicket(startTime,
                 endTime,
                 order,
@@ -48,13 +54,15 @@ namespace 通用订票.OTA.携程.Service
             xieChengTicket.itemId = xiechengOrder.itemId;
             xieChengTicket.voucherStatus = 0;
             await this.AddNow(xieChengTicket);
+            
             return ticket;
         }
 
-        public async Task<List<Ticket>> CreateTicket(XieChengOrder xiechengOrder, Core.Entity.Order order, string[] passids)
+        public async Task<List<Ticket>> CreateTicket(Appointment stock, XieChengOrder xiechengOrder, Core.Entity.Order order, string[] passids)
         {
-            var startTime = DateTime.Parse(xiechengOrder.useStartDate);
-            var endTime = DateTime.Parse(xiechengOrder.useEndDate);
+            var startTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.startTime.TimeOfDay);
+            var endTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.endTime.TimeOfDay);
+
             var tickets = await _ticketServices.GenarateTickets(startTime,
                     endTime,
                     order,
@@ -73,6 +81,46 @@ namespace 通用订票.OTA.携程.Service
                 i++;
             }
             return tickets;
+        }
+
+        public async Task<XieChengTicket> TicketVerify(string ticket_number, int useCount = 1)
+        {
+            var xiechengTicket = await this.GetTicket(ticket_number);
+            if (xiechengTicket != null)
+            {
+                var ticket = xiechengTicket.ticket;
+                ticket = await this._ticketServices.TicketCheck(ticket);
+                await _cache.Del("XieChengTicket:" + ticket_number);
+                if (ticket != null)
+                {
+                    if (ticket.usedCount == ticket.totalCount)
+                    {
+                        xiechengTicket.voucherStatus = 1;
+                    }
+                    else if (ticket.usedCount < ticket.totalCount)
+                    {
+                        xiechengTicket.voucherStatus = 0;
+                    }
+                    xiechengTicket.ticket = null;
+                    await this.UpdateNow(xiechengTicket);
+                    xiechengTicket.ticket = ticket;
+                    return xiechengTicket;
+                }
+            }
+            return null;   
+        }
+
+        public async Task<XieChengTicket> GetTicket(string ticket_number)
+        {
+            var xiechengTicket = await _cache.Get<XieChengTicket>("XieChengTicket:" + ticket_number);
+            if (xiechengTicket == null)
+            {
+                var ticket = await this._ticketServices.GetTicket(ticket_number);
+                xiechengTicket = await this.GetQueryableNt(a => a.ticketId == ticket._id).FirstOrDefaultAsync();
+                xiechengTicket.ticket = ticket;
+                await _cache.Set("XieChengTicket:" + ticket_number, xiechengTicket);
+            }
+            return xiechengTicket;
         }
     }
 }

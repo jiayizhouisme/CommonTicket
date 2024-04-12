@@ -15,8 +15,10 @@ namespace 通用订票.OTA.携程.IService
 {
     public interface IXieChengOTATicketService : IBaseService<XieChengTicket>
     {
-        Task<Ticket> CreateTicket(XieChengOrder xiechengOrder,Core.Entity.Order order);
-        Task<List<Ticket>> CreateTicket(XieChengOrder xiechengOrder, Core.Entity.Order order, string[] passids);
+        Task<Ticket> CreateTicket(Appointment stock, XieChengOrder xiechengOrder,Core.Entity.Order order);
+        Task<List<Ticket>> CreateTicket(Appointment stock, XieChengOrder xiechengOrder, Core.Entity.Order order, string[] passids);
+        Task<XieChengTicket> TicketVerify(string ticket_number,int useCount);
+        Task<XieChengTicket> GetTicket(string ticket_number);
         void SetService(IDefaultTicketService service);
     }
 }

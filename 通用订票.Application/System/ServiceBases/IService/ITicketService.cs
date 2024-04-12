@@ -1,5 +1,6 @@
 ﻿using Core.Services;
 using 通用订票.Base.IService;
+using 通用订票.Core.Entity;
 
 namespace 通用订票.Application.System.ServiceBases.IService
 {
@@ -10,7 +11,7 @@ namespace 通用订票.Application.System.ServiceBases.IService
         /// </summary>
         /// <param name="ticket"></param>
         /// <returns></returns>
-        bool TicketCheck(T ticket);
+        Task<T> TicketCheck(T ticket, int useCount = 1);
         Task AfterTicketToke(long objectId);
     }
 }

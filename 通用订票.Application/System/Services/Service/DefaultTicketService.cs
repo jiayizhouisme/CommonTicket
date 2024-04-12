@@ -139,6 +139,20 @@ namespace 通用订票.Application.System.Services.Service
             //await this.DeleteNow(ticket);
             return 1;
         }
+        public async Task<Ticket> GetTicket(string ticket_number)
+        {
+            return await this.GetQueryableNt(a => a.ticketNumber == ticket_number)
+                .OrderByDescending(a => a.createTime).FirstOrDefaultAsync();
+        }
+        public override async Task<Ticket> TicketCheck(Ticket ticket,int useCount = 1)
+        {
+            var result =  await base.TicketCheck(ticket, useCount);
+            if (result != null)
+            {
+                await this.UpdateNow(ticket);
+            }
+            return result;
+        }
 
         public virtual void SetUserContext(string user)
         {
@@ -255,7 +269,6 @@ namespace 通用订票.Application.System.Services.Service
             var key = "Tickets:" + trade_no;
             await _cache.Del(key);
         }
-
 
     }
 }

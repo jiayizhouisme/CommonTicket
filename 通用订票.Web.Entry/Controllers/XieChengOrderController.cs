@@ -35,9 +35,6 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IXieChengOTAOrderService xieChengOTAOrderService;
         private readonly IDefaultOrderServices defaultOrderServices;
-        private readonly ILogger<XieChengOrder> logger;
-        private readonly IJsonSerializerProvider _serializerProvider;
-        private readonly IEventPublisher _eventPublisher;
         public const string CreatePreOrder = "CreatePreOrder";
         public const string QueryOrder = "QueryOrder";
         public const string PayPreOrder = "PayPreOrder";
@@ -47,17 +44,11 @@ namespace 通用订票.Web.Entry.Controllers
             IXieChengOTAOrderService xieChengOTAOrderService,
             IHttpContextUser httpContextUser,
             IHttpContextAccessor httpContextAccessor,
-            INamedServiceProvider<IDefaultOrderServices> _orderProvider,
-            ILogger<XieChengOrder> logger, 
-            IJsonSerializerProvider _serializerProvider,
-            IEventPublisher _eventPublisher)
+            INamedServiceProvider<IDefaultOrderServices> _orderProvider)
         {
             this.xieChengOTAOrderService = xieChengOTAOrderService;
             this.httpContextUser = httpContextUser;
             this.httpContextAccessor = httpContextAccessor;
-            this.logger = logger;
-            this._serializerProvider = _serializerProvider;
-            this._eventPublisher = _eventPublisher;
             var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
             this.defaultOrderServices = factory.GetOrderService(_orderProvider);
         }
@@ -70,7 +61,6 @@ namespace 通用订票.Web.Entry.Controllers
         }
 
         [HttpPost(Name = "xiecheng")]
-        [UnitOfWork]
         [NonUnify]
         public async Task<XieChengResponse> xiecheng([FromBody] XieChengRequest request)
         {
@@ -103,11 +93,10 @@ namespace 通用订票.Web.Entry.Controllers
             var body = XieChengTool.AESDecrypt(request.body, config.AESKey, config.AESVector);
             defaultOrderServices.SetUserContext("xiecheng");
             xieChengOTAOrderService.SetService(defaultOrderServices);
-
+            xieChengOTAOrderService.SetTenant(httpContextUser.TenantId);
             if (request.header.serviceName == CreatePreOrder)
             {
                 var createOrder = JsonConvert.DeserializeObject<XiechengCreateOrder>(body);
-                createOrder.tenant_id = httpContextUser.TenantId;
                 var preresponse = await xieChengOTAOrderService.CreateXieChengOrder(createOrder);
 
                 var _body = JsonConvert.SerializeObject(preresponse);
@@ -135,7 +124,6 @@ namespace 通用订票.Web.Entry.Controllers
             {
                 var paypreOrder = JsonConvert.DeserializeObject<XiechengPayPreOrder>(body);
                 paypreOrder.http_path = path;
-                paypreOrder.tenant_id = httpContextUser.TenantId;
                 string _body = null;
 
                 //var response = await xieChengOTAOrderService.PayPreOrder(paypreOrder);
@@ -156,8 +144,8 @@ namespace 通用订票.Web.Entry.Controllers
             }
             else if (request.header.serviceName == CancelPreOrder)
             {
-                var canclePreOrder = JsonConvert.DeserializeObject<XieChengBodyBase>(body);
-                await xieChengOTAOrderService.CanclePreOrder(canclePreOrder.otaOrderId);
+                var cancelPreOrder = JsonConvert.DeserializeObject<XieChengOrderQuery>(body);
+                await xieChengOTAOrderService.CanclePreOrder(cancelPreOrder);
                 return new XieChengResponse{ header = new XieChengResponseHeader { resultCode = "0000", resultMessage = "success" } };
             }else if (request.header.serviceName == CancelOrder)
             {
@@ -183,5 +171,13 @@ namespace 通用订票.Web.Entry.Controllers
                 };
             }
         }
+
+        [HttpGet(Name = "xiecheng/verify")]
+        public async Task<string> verify([FromQuery]string ticket_number, [FromQuery] int count = 1)
+        {
+            await xieChengOTAOrderService.Verify(ticket_number, count);
+            return "验证成功";
+        }
+
     }
 }

@@ -17,7 +17,7 @@ namespace 通用订票.Application.System.ServiceBases.Service
         /// <param name="ticket"></param>
         public async virtual Task<T> DisableTicket(T ticket)
         {
-            if (ticket.stauts != TicketStatus.已使用)
+            if (ticket.stauts != TicketStatus.已使用 && ticket.stauts != TicketStatus.部分使用)
             {
                 ticket.stauts = TicketStatus.已冻结;
             }
@@ -30,7 +30,7 @@ namespace 通用订票.Application.System.ServiceBases.Service
         /// <param name="ticket"></param>
         public async virtual Task<T> EnableTicket(T ticket)
         {
-            if (ticket.stauts != TicketStatus.已使用)
+            if (ticket.stauts != TicketStatus.已使用 && ticket.stauts != TicketStatus.部分使用)
             {
                 ticket.stauts = TicketStatus.未使用;
             }
@@ -59,16 +59,27 @@ namespace 通用订票.Application.System.ServiceBases.Service
         /// </summary>
         /// <param name="ticket"></param>
         /// <returns></returns>
-        public virtual bool TicketCheck(T ticket)
+        public virtual async Task<T> TicketCheck(T ticket,int useCount = 1)
         {
-            if (DateTime.Now.CompareTo(ticket.startTime) >= 0 || DateTime.Now.CompareTo(ticket.startTime) < 0)
+            var now = DateTime.Now;
+            var couldUse = ticket.totalCount - ticket.usedCount - ticket.cancelCount - useCount;
+            if ((ticket.stauts == TicketStatus.未使用 || ticket.stauts == TicketStatus.部分使用) &&
+                now.CompareTo(ticket.startTime) >= 0 && now.CompareTo(ticket.endTime) < 0 && couldUse >= 0)
             {
-                if (ticket.stauts == TicketStatus.未使用)
+                ticket.usedCount += useCount;
+                if (ticket.usedCount == ticket.totalCount)
                 {
-                    return true;
+                    ticket.stauts = TicketStatus.已使用;
                 }
+                else
+                {
+                    ticket.stauts = TicketStatus.部分使用;
+                }
+                
+                return ticket;
+                
             }
-            return false;
+            return null;
         }
 
         private string Msectime()
