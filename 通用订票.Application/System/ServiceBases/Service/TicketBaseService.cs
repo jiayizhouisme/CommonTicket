@@ -59,7 +59,7 @@ namespace 通用订票.Application.System.ServiceBases.Service
         /// </summary>
         /// <param name="ticket"></param>
         /// <returns></returns>
-        public virtual async Task<T> TicketCheck(T ticket,int useCount = 1)
+        public virtual async Task<T> TicketCheck(T ticket,int useCount)
         {
             var now = DateTime.Now;
             var couldUse = ticket.totalCount - ticket.usedCount - ticket.cancelCount - useCount;

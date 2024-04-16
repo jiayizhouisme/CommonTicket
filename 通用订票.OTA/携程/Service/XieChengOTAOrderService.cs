@@ -548,8 +548,6 @@ namespace 通用订票.OTA.携程.Service
                                 await s_service.SaleStock(xiechengOrder.PLU, -usedCount);
 
                             }
-
-
                         }
                         itemList.Add(new XieChengCancelOrderReponseItems
                         {
@@ -698,9 +696,7 @@ namespace 通用订票.OTA.携程.Service
 
                 await _cache.PushToList("TicketConsumed", new XieChengTicketConsumeRequest { raw = xn, request = xr });
             }
- 
             //var response = await xr.Request();
-            
         }
 
         public void SetTenant(string tenant_id)

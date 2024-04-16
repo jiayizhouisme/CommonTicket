@@ -41,6 +41,7 @@ namespace 通用订票.Application.System.Services.IService
         public Task<bool> Vaild(int[] uid, Core.Entity.Appointment stock);
         public Task<ICollection<Core.Entity.Ticket>> GetTickets(long orderId);
         Task<Ticket> GetTicket(string ticket_number);
+        Task<Ticket> TicketCheck(string ticket_number,int useCount);
         public Task<int> DisableTickets(ICollection<Core.Entity.Ticket> ticket);
         public Task<int> EnableTickets(ICollection<Core.Entity.Ticket> ticket);
     }

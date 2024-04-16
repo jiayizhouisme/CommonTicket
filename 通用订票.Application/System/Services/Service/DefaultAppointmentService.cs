@@ -113,19 +113,24 @@ namespace 通用订票.Application.System.Services.Service
         public virtual async Task RefreshAppoints(Guid exhibitionID)
         {
             var query = this.GetQueryableNt(a => a.objectId == exhibitionID).OrderBy(a => a.day);
-            if (await query.CountAsync() == 0)
-            {
-                return;
-            }
 
-            var zero = await query.Where(a => a.day == 0).Select(a => new { a.id, a.day, a.sale }).ToArrayAsync();
-            var notZero = await query.Where(a => a.day != 0).Select(a => new { a.id, a.day, a.sale }).ToArrayAsync();
-            for (int i = 0; i < zero.Length; i++)
-            {
-                await RefreshAppoint(zero[i].id, notZero[notZero.Length - 1].day, 0, true);
-            }
+            var zero = await query.Where(a => a.day == 0).ToListAsync();
+            var notZero = await query.Where(a => a.day != 0).ToListAsync();
 
-            for (int i = 0; i < notZero.Length; i++)
+            for (int i = 0; i < zero.Count; i++)
+            {
+                if (notZero.Count != 0)
+                {
+                    await RefreshAppoint(zero[i].id, notZero[notZero.Count - 1].day, 0, true);
+                }
+                else
+                {
+                    await RefreshAppoint(zero[i].id, 0, 0, true);
+                }
+                
+            }
+            
+            for (int i = 0; i < notZero.Count; i++)
             {
                 await RefreshAppoint(notZero[i].id, notZero[i].day - 1, notZero[i].sale, false);
             }

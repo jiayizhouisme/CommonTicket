@@ -18,6 +18,7 @@ using 通用订票.Core.Entity;
 using Core.Auth;
 using 通用订票.Base.Entity;
 using 通用订票.Order.Entity;
+using SqlSugar;
 
 namespace 通用订票.Application.System.Services.Service
 {
@@ -69,7 +70,7 @@ namespace 通用订票.Application.System.Services.Service
                 throw new ArgumentException("用户不存在");
             }
 
-            await SetTicketToCache(order.trade_no, result);
+            //await SetTicketToCache(order.trade_no, result);
             //await SetTicketUserToCache(order.objectId, uids);
             return result;
         }
@@ -106,7 +107,7 @@ namespace 通用订票.Application.System.Services.Service
                 result.Add(ticket);
             }
             await this.AddNow(result);
-            await SetTicketToCache(order.trade_no, result);
+            //await SetTicketToCache(order.trade_no, result);
             return result;
         }
 
@@ -141,14 +142,22 @@ namespace 通用订票.Application.System.Services.Service
         }
         public async Task<Ticket> GetTicket(string ticket_number)
         {
-            return await this.GetQueryableNt(a => a.ticketNumber == ticket_number)
+            var ticket = await _cache.Get<Ticket>("Ticket:" + ticket_number);
+            if (ticket == null)
+            {
+                ticket = await this.GetQueryableNt(a => a.ticketNumber == ticket_number)
                 .OrderByDescending(a => a.createTime).FirstOrDefaultAsync();
+                await _cache.Set("Ticket:" + ticket_number,ticket,600);
+            }
+            return ticket;
         }
+
         public override async Task<Ticket> TicketCheck(Ticket ticket,int useCount = 1)
         {
             var result =  await base.TicketCheck(ticket, useCount);
             if (result != null)
             {
+                await _cache.Del("Ticket:" + ticket.ticketNumber);
                 await this.UpdateNow(ticket);
             }
             return result;
@@ -270,5 +279,10 @@ namespace 通用订票.Application.System.Services.Service
             await _cache.Del(key);
         }
 
+        public async Task<Ticket> TicketCheck(string ticket_number, int useCount)
+        {
+            var ticket = await this.GetTicket(ticket_number);
+            return await base.TicketCheck(ticket, useCount);
+        }
     }
 }

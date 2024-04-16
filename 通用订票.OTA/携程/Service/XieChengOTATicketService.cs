@@ -89,8 +89,8 @@ namespace 通用订票.OTA.携程.Service
             if (xiechengTicket != null)
             {
                 var ticket = xiechengTicket.ticket;
-                ticket = await this._ticketServices.TicketCheck(ticket);
-                await _cache.Del("XieChengTicket:" + ticket_number);
+                ticket = await this._ticketServices.TicketCheck(ticket,useCount);
+                
                 if (ticket != null)
                 {
                     if (ticket.usedCount == ticket.totalCount)
@@ -102,6 +102,7 @@ namespace 通用订票.OTA.携程.Service
                         xiechengTicket.voucherStatus = 0;
                     }
                     xiechengTicket.ticket = null;
+                    await _cache.Del("XieChengTicket:" + ticket_number);
                     await this.UpdateNow(xiechengTicket);
                     xiechengTicket.ticket = ticket;
                     return xiechengTicket;
@@ -118,7 +119,7 @@ namespace 通用订票.OTA.携程.Service
                 var ticket = await this._ticketServices.GetTicket(ticket_number);
                 xiechengTicket = await this.GetQueryableNt(a => a.ticketId == ticket._id).FirstOrDefaultAsync();
                 xiechengTicket.ticket = ticket;
-                await _cache.Set("XieChengTicket:" + ticket_number, xiechengTicket);
+                await _cache.Set("XieChengTicket:" + ticket_number, xiechengTicket,600);
             }
             return xiechengTicket;
         }

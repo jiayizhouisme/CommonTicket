@@ -11,7 +11,7 @@ namespace 通用订票.Application.System.ServiceBases.IService
         /// </summary>
         /// <param name="ticket"></param>
         /// <returns></returns>
-        Task<T> TicketCheck(T ticket, int useCount = 1);
+        Task<T> TicketCheck(T ticket, int useCount);
         Task AfterTicketToke(long objectId);
     }
 }

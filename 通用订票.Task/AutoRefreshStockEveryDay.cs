@@ -49,27 +49,27 @@ namespace 通用订票.JobTask
             var app_service = factory.GetStockService(_stockProvider);
             app_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, app_service, id);
             
-            var exhibitions = await e_service.GetQueryableNt(a => a != null).Select(a => a.id).ToArrayAsync();
+            var exhibitions = await e_service.GetQueryableNt(a => a != null).Select(a => a.id).ToListAsync();
 
-            using (var transaction = dbContext.Database.BeginTransaction())
+            
+            foreach (var item in exhibitions)
             {
-                try
-                {
-                    foreach (var item in exhibitions)
-                    {
-                        await app_service.RefreshAppoints(item);
-                    }
-                    transaction.Commit();
-                }
-                catch (Exception e)
+                using (var transaction = dbContext.Database.BeginTransaction())
                 {
                     try
                     {
-                        transaction.Rollback();
+                        await app_service.RefreshAppoints(item);
                     }
-                    catch { }
+                    catch (Exception e)
+                    {
+                        throw e;
+                    }
+                    
+                    await transaction.CommitAsync();
                 }
             }
+                
+            
         }
     }
 }

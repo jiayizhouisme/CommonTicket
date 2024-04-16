@@ -35,6 +35,7 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IXieChengOTAOrderService xieChengOTAOrderService;
         private readonly IDefaultOrderServices defaultOrderServices;
+        private readonly IDefaultTicketService ticketService;
         public const string CreatePreOrder = "CreatePreOrder";
         public const string QueryOrder = "QueryOrder";
         public const string PayPreOrder = "PayPreOrder";
@@ -44,20 +45,15 @@ namespace 通用订票.Web.Entry.Controllers
             IXieChengOTAOrderService xieChengOTAOrderService,
             IHttpContextUser httpContextUser,
             IHttpContextAccessor httpContextAccessor,
-            INamedServiceProvider<IDefaultOrderServices> _orderProvider)
+            INamedServiceProvider<IDefaultOrderServices> _orderProvider,
+            IDefaultTicketService ticketService)
         {
             this.xieChengOTAOrderService = xieChengOTAOrderService;
             this.httpContextUser = httpContextUser;
             this.httpContextAccessor = httpContextAccessor;
             var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
             this.defaultOrderServices = factory.GetOrderService(_orderProvider);
-        }
-        [HttpPost(Name = "test")]
-        public async Task<object> test(XieChengPayPreConfirm json)
-        {
-            var config = await xieChengOTAOrderService.GetConfig(httpContextUser.TenantId);
-            var body = XieChengTool.EncodeBytes(XieChengTool.AESEncrypt(JsonConvert.SerializeObject(json), config.AESKey, config.AESVector));
-            return body;
+            this.ticketService = ticketService;
         }
 
         [HttpPost(Name = "xiecheng")]
@@ -70,6 +66,13 @@ namespace 通用订票.Web.Entry.Controllers
                     "/" + 
                     httpContextAccessor.HttpContext.Request.Headers["Tenant_Name"] +
                     httpContextAccessor.HttpContext.Request.Path.ToString();
+            if (httpContextUser.TenantId == null)
+            {
+                return new XieChengResponse
+                {
+                    header = new XieChengResponseHeader { resultCode = "9999", resultMessage = "租户异常" }
+                };
+            }
             var config = await xieChengOTAOrderService.GetConfig(httpContextUser.TenantId);
             bool signVerify = XieChengTool.SignVerify(request.header.accountId, request.header.serviceName,
                 request.header.requestTime, request.body, request.header.version,config.ApiKey,request.header.sign);
@@ -177,6 +180,17 @@ namespace 通用订票.Web.Entry.Controllers
         {
             await xieChengOTAOrderService.Verify(ticket_number, count);
             return "验证成功";
+        }
+
+        [HttpGet(Name = "xiecheng/check")]
+        public async Task<string> check([FromQuery] string ticket_number, [FromQuery] int count = 1)
+        {
+            var ticket = await this.ticketService.TicketCheck(ticket_number, count);
+            if (ticket != null)
+            {
+                return "验证成功";
+            }
+            return "验证失败";
         }
 
     }
