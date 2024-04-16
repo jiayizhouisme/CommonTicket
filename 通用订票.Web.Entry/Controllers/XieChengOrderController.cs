@@ -178,6 +178,7 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpGet(Name = "xiecheng/verify")]
         public async Task<string> verify([FromQuery]string ticket_number, [FromQuery] int count = 1)
         {
+            xieChengOTAOrderService.SetTenant(httpContextUser.TenantId);
             await xieChengOTAOrderService.Verify(ticket_number, count);
             return "验证成功";
         }
@@ -185,6 +186,7 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpGet(Name = "xiecheng/check")]
         public async Task<string> check([FromQuery] string ticket_number, [FromQuery] int count = 1)
         {
+            xieChengOTAOrderService.SetTenant(httpContextUser.TenantId);
             var ticket = await this.ticketService.TicketCheck(ticket_number, count);
             if (ticket != null)
             {

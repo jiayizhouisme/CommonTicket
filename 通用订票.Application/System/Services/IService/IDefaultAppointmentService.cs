@@ -14,6 +14,7 @@ namespace 通用订票.Application.System.Services.IService
         Task<Appointment> GetAppointmentById(string appid);
         Task<IQueryable<Appointment>> GetAppointmentsByDay(Guid exhibtionID,int day);
         Task<IQueryable<Appointment>> GetAppointmentsByDate(Guid exhibitionID, DateTime date);
+        Task<Appointment> GetAppointmentsByDateAllDay(Guid exhibitionID, DateTime date);
         /// <summary>
         /// 循环刷新每天的库存
         /// </summary>

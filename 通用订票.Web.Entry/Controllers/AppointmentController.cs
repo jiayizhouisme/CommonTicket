@@ -27,6 +27,13 @@ namespace 通用订票.Web.Entry.Controllers
             this._appointmentService = factory.GetStockService(_stockProvider);
         }
 
+        [HttpGet]
+        [HttpGet(Name = "Test1111")]
+        public async Task<Appointment> Test(string objectId,DateTime date)
+        {
+            return await this._appointmentService.GetAppointmentsByDateAllDay(Guid.Parse(objectId),date);
+        }
+
         [HttpPost]
         [HttpPost(Name = "AddAppointments")]
         public async Task AddAppointments(AppointmentAdd appointment)

@@ -87,7 +87,8 @@ namespace 通用订票.Application.System.Services.Service
 
         public virtual async Task<Appointment> GetAppointmentById(string appid)
         {
-            var appCache = await base.GetStockFromCache(appid.ToString());
+            appid = appid.ToLower();
+            var appCache = await base.GetStockFromCache(appid);
             if (appCache != null)
             {
                 return appCache;
@@ -100,13 +101,13 @@ namespace 通用订票.Application.System.Services.Service
 
         public virtual async Task<IQueryable<Appointment>> GetAppointmentsByDay(Guid exhibitionID, int day)
         {
-            return this._dal.Where(a => a.objectId == exhibitionID && a.day < day).AsNoTracking();
+            return this._dal.Where(a => a.objectId == exhibitionID && a.day < day && a.allday == false).AsNoTracking();
         }
 
         public virtual async Task<IQueryable<Appointment>> GetAppointmentsByDate(Guid exhibitionID, DateTime date)
         {
             var day = date.Date.Subtract(DateTime.Now.Date).TotalDays;
-            var entity = this._dal.Where(a => a.objectId == exhibitionID && a.day == day).AsNoTracking();
+            var entity = this._dal.Where(a => a.objectId == exhibitionID && a.day == day && a.allday == false).AsNoTracking();
             return entity;
         }
 
@@ -166,6 +167,24 @@ namespace 通用订票.Application.System.Services.Service
             {
                 await _cache.ReleaseLock("StockUpdateLocker" + id, lockerId);
             }
+        }
+
+        public async Task<Appointment> GetAppointmentsByDateAllDay(Guid exhibitionID, DateTime date)
+        {
+            var day = date.Date.Subtract(DateTime.Now.Date).TotalDays;
+            var key = "stock:exhibition:" + exhibitionID.ToString().ToLower() + ":day:" + day;
+
+            string appid = await _cache.Get<string>(key);
+            if (string.IsNullOrEmpty(appid))
+            {
+                appid = await this._dal.Where(a => a.objectId == exhibitionID && a.day == day && a.allday == true).Select(a => a.id).AsNoTracking().FirstOrDefaultAsync();
+                await _cache.Set(key, appid);
+            }
+            if (appid != null)
+            {
+                return await GetAppointmentById(appid);
+            }
+            return null;
         }
     }
 }

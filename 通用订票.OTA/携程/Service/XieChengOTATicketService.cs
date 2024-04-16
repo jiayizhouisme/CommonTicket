@@ -41,7 +41,7 @@ namespace 通用订票.OTA.携程.Service
         {
             var startTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.startTime.TimeOfDay);
             var endTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.endTime.TimeOfDay);
-
+            order.objectId = stock.id;
             var ticket = await _ticketServices.GenarateTicket(startTime,
                 endTime,
                 order,

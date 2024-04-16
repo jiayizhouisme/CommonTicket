@@ -14,6 +14,7 @@ namespace 通用订票.Core.Entity
         public string brief { get; set; }
         public Guid objectId { get; set; }
         public Exhibition exhibition {get;set;}
+        public bool allday { get; set; }
 
         public void Configure(EntityTypeBuilder<Appointment> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
