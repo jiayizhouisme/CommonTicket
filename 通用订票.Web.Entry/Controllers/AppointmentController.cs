@@ -3,6 +3,7 @@ using Core.MiddelWares;
 using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Furion.DynamicApiController;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using 通用订票.Application.System.Factory.Service;
@@ -25,13 +26,6 @@ namespace 通用订票.Web.Entry.Controllers
 
             var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
             this._appointmentService = factory.GetStockService(_stockProvider);
-        }
-
-        [HttpGet]
-        [HttpGet(Name = "Test1111")]
-        public async Task<Appointment> Test(string objectId,DateTime date)
-        {
-            return await this._appointmentService.GetAppointmentsByDateAllDay(Guid.Parse(objectId),date);
         }
 
         [HttpPost]

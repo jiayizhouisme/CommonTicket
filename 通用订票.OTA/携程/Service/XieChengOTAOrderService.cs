@@ -7,8 +7,10 @@ using Furion.DatabaseAccessor;
 using Furion.DataEncryption;
 using Furion.DependencyInjection;
 using Furion.EventBus;
+using Microsoft.AspNetCore.JsonPatch.Internal;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using ProtoBuf.Meta;
@@ -35,6 +37,7 @@ using 通用订票.OTA.携程.Model;
 using 通用订票.OTA.携程.Tool;
 using 通用订票.Web.Entry.Controllers;
 using 通用订票Order.Entity;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace 通用订票.OTA.携程.Service
@@ -93,9 +96,10 @@ namespace 通用订票.OTA.携程.Service
                 string key = "XieChengOrderLock:" + _orders.otaOrderId;
                 await _cache.Lock(key, locker);
 
-                if (await this.Exist(a => a.otaOrderId == _orders.otaOrderId))
+                var __orders = await GetOrder(_orders.otaOrderId);
+                if (__orders != null && __orders.Count > 0)
                 {
-                    supplierOrderId = await this.GetQueryableNt(a => a.otaOrderId == _orders.otaOrderId).Select(a => a.trade_no).FirstOrDefaultAsync();
+                    supplierOrderId = __orders.Select(a => a.trade_no).FirstOrDefault();
                 }
                 else
                 {
@@ -128,8 +132,11 @@ namespace 通用订票.OTA.携程.Service
                             order.passengerIds = string.Join(" ", order.passengers.Select(a => a.passengerId).ToArray());
                             await s_service.SaleStock(app.id, order.quantity);
                             await this.AddNow(order);
+                            await _cache.PushToList("XieChengOrders:" + order.otaOrderId, order);
+                            await trans.CommitAsync();
                         }
-                        await trans.CommitAsync();
+
+                        
                     }
                 }
                 await _cache.ReleaseLock(key, locker);
@@ -146,8 +153,8 @@ namespace 通用订票.OTA.携程.Service
             XieChengOrderQueryResponseWithHeader xwh = new XieChengOrderQueryResponseWithHeader();
 
             XieChengOrderQueryResponse xr = new XieChengOrderQueryResponse();
-            var orders = await this.GetQueryableNt(a => a.otaOrderId == otaOrderId).ToArrayAsync();
-            if (orders == null || orders.Length == 0)
+            var orders = await GetOrder(otaOrderId);
+            if (orders == null || orders.Count == 0)
             {
                 xwh.header = new XieChengResponseHeader { resultCode = "4001", resultMessage = "该订单号不存在" };
                 return xwh;
@@ -226,9 +233,9 @@ namespace 通用订票.OTA.携程.Service
                 string key = "XieChengOrderLock:" + query.otaOrderId;
                 string locker = Guid.NewGuid().ToString();
                 await _cache.Lock(key, locker);
+                var orders = await GetOrder(query.otaOrderId);
                 using (var trans = dbcontext.Database.BeginTransaction())
                 {
-                    var orders = await this.GetWithCondition(a => a.otaOrderId == query.otaOrderId);
                     foreach (var order in orders)
                     {
                         if (order.orderStatus == XieChengOrderStatus.待支付)
@@ -240,7 +247,7 @@ namespace 通用订票.OTA.携程.Service
                     }
                     await trans.CommitAsync();
                 }
-                
+                await _cache.Del("XieChengOrders:" + query.otaOrderId);
                 await _cache.ReleaseLock(key, locker);
             }
             return true;
@@ -312,7 +319,7 @@ namespace 通用订票.OTA.携程.Service
                 string locker = Guid.NewGuid().ToString();
                 await _cache.Lock(key, locker);
                 
-                var xiechengOrders = await this.GetWithCondition(a => a.otaOrderId == data.otaOrderId);
+                var xiechengOrders = await GetOrder(data.otaOrderId);
                 using (var trans = dbcontext.Database.BeginTransaction())
                 {
                     foreach (var item in data.items)
@@ -374,7 +381,7 @@ namespace 通用订票.OTA.携程.Service
                     }
                     await trans.CommitAsync();
                 }
-
+                await _cache.Del("XieChengOrders:" + data.otaOrderId);
                 await _cache.ReleaseLock(key, locker);
 
                 var config = await this.GetConfig(tenant_id);
@@ -390,27 +397,6 @@ namespace 通用订票.OTA.携程.Service
                 confirm.supplierConfirmType = data.supplierConfirmType;
                 wh.body = confirm;
                 wh.header = xh;
-                if (data.supplierConfirmType == 2)
-                {
-                    var rawstr = XieChengTool.AESEncrypt(JsonConvert.SerializeObject(confirm), config.AESKey, config.AESVector);
-                    var body = XieChengTool.EncodeBytes(rawstr);
-
-                    XieChengRequest xr = new XieChengRequest();
-                    xr.header = new XieChengHeader();
-                    xr.header.requestTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                    xr.header.serviceName = "PayPreOrderConfirm";
-                    xr.header.version = "1.0";
-                    xr.header.accountId = config.Account;
-                    xr.header.sign = MD5Encryption.Encrypt(
-                        xr.header.accountId +
-                        xr.header.serviceName +
-                        xr.header.requestTime +
-                        body +
-                        xr.header.version +
-                        config.ApiKey);
-                    xr.body = body;
-                    var response = await xr.Request();
-                }
 
                 return wh;
                 
@@ -439,6 +425,8 @@ namespace 通用订票.OTA.携程.Service
         {
             XieChengCancelOrderConfirm confirm = new XieChengCancelOrderConfirm();
             List<XieChengCancelOrderReponseItems> itemList = new List<XieChengCancelOrderReponseItems>();
+            string key = "XieChengOrderLock:" + order.otaOrderId;
+            string locker = Guid.NewGuid().ToString();
             using (var scope = this.ScopeFactory.CreateScope())
             {
                 var factory = SaaSServiceFactory.GetServiceFactory(order.tenant_id);
@@ -451,18 +439,14 @@ namespace 通用订票.OTA.携程.Service
                 var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
                 var s_service = factory.GetStockService(_stockProvider);
                 s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, order.tenant_id);
-                
-                var xiechengOrders = await this.GetWithCondition(a => a.otaOrderId == order.otaOrderId);
+
+                var xiechengOrders = await GetOrder(order.otaOrderId);
                 if (xiechengOrders.Count == 0)
                 {
                     confirm.confirmResultCode = "2001";
                     confirm.confirmResultMessage = "该订单号不存在";
                 }
-
-                string key = "XieChengOrderLock:" + order.otaOrderId;
-                string locker = Guid.NewGuid().ToString();
                 await _cache.Lock(key, locker);
-
                 using (var trans = dbcontext.Database.BeginTransaction())
                 {
                     foreach (var xiechengOrder in xiechengOrders)
@@ -570,36 +554,16 @@ namespace 通用订票.OTA.携程.Service
                     }
                     await trans.CommitAsync();
                 }
-                    
-                await _cache.ReleaseLock(key, locker);
-                var config = await this.GetConfig(order.tenant_id);
-
-                confirm.otaOrderId = order.otaOrderId;
-                confirm.sequenceId = order.sequenceId;
-                confirm.supplierOrderId = order.supplierOrderId.ToString();
-                confirm.supplierConfirmType = order.supplierConfirmType;
-                confirm.items = itemList;
-                if (order.supplierConfirmType == 2)
-                {
-                    var rawstr = XieChengTool.AESEncrypt(JsonConvert.SerializeObject(confirm), config.AESKey, config.AESVector);
-                    var body = XieChengTool.EncodeBytes(rawstr);
-                    XieChengRequest xr = new XieChengRequest();
-                    xr.header = new XieChengHeader();
-                    xr.header.requestTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                    xr.header.serviceName = "CancelOrderConfirm";
-                    xr.header.version = "1.0";
-                    xr.header.accountId = config.Account;
-                    xr.header.sign = MD5Encryption.Encrypt(
-                        xr.header.accountId +
-                        xr.header.serviceName +
-                        xr.header.requestTime +
-                        body +
-                        xr.header.version +
-                        config.ApiKey);
-                    xr.body = body;
-                    var response = await xr.Request();
-                }
             }
+            await _cache.ReleaseLock(key, locker);
+            await _cache.Del("XieChengOrders:" + order.otaOrderId);
+            var config = await this.GetConfig(order.tenant_id);
+
+            confirm.otaOrderId = order.otaOrderId;
+            confirm.sequenceId = order.sequenceId;
+            confirm.supplierOrderId = order.supplierOrderId.ToString();
+            confirm.supplierConfirmType = order.supplierConfirmType;
+            confirm.items = itemList;
             return confirm;
         }
 
@@ -624,8 +588,9 @@ namespace 通用订票.OTA.携程.Service
                 #endregion
 
                 var xiechengTicket = await xiechengTicketService.GetTicket(ticket_number);
-                xiechengOrder = await this.GetQueryableNt(a => a.itemId == xiechengTicket.itemId).FirstOrDefaultAsync();
-                
+                xiechengOrder = await this.GetQueryable(a => a.itemId == xiechengTicket.itemId).FirstOrDefaultAsync();
+                var exhibition = await exhibitionService.GetExhibitionByID(Guid.Parse(xiechengOrder.PLU));
+
                 string key = "XieChengOrderLock:" + xiechengOrder.otaOrderId;
                 string locker = Guid.NewGuid().ToString();
                 await _cache.Lock(key, locker);
@@ -633,7 +598,7 @@ namespace 通用订票.OTA.携程.Service
                 ticket = await xiechengTicketService.TicketVerify(ticket_number, useCount);
                 if (ticket != null)
                 {
-                    var exhibition = await exhibitionService.GetExhibitionByID(Guid.Parse(xiechengOrder.PLU));
+                    
                     if (exhibition.passType == PassTemplate.一张一人)
                     {
                         xiechengOrder.useQuantity += ticket.ticket.usedCount;
@@ -657,51 +622,6 @@ namespace 通用订票.OTA.携程.Service
             }
             if (ticket != null)
             {
-                //#region 1
-                //var noticeItem = new XieChengOrderConsumedNoticeItem
-                //{
-                //    itemId = xiechengOrder.itemId,
-                //    quantity = xiechengOrder.quantity,
-                //    useQuantity = xiechengOrder.useQuantity
-                //};
-
-                //XieChengPassenger pass = new XieChengPassenger();
-                //pass.passengerId = ticket.OTAPassengerId;
-                //XieChengVouchers voucher = new XieChengVouchers();
-                //voucher.voucherId = ticket.ticket.ticketNumber;
-
-                //noticeItem.passengers = [pass];
-                //noticeItem.vouchers = [voucher];
-
-                //XieChengOrderConsumedNotice xn = new XieChengOrderConsumedNotice();
-                //xn.sequenceId = DateTime.Now.ToString("yyyyMMdd")
-                //    + Guid.NewGuid().ToString().ToLower().Replace("-", "");
-                //xn.otaOrderId = xiechengOrder.otaOrderId;
-                //xn.supplierOrderId = xiechengOrder.trade_no.ToString();
-                //xn.items = [noticeItem];
-
-                //#endregion
-
-
-                //var config = await GetConfig(tenant_id);
-                //var rawstr = XieChengTool.AESEncrypt(JsonConvert.SerializeObject(xn), config.AESKey, config.AESVector);
-                //var body = XieChengTool.EncodeBytes(rawstr);
-
-                //XieChengRequest xr = new XieChengRequest();
-                //xr.header = new XieChengHeader();
-                //xr.header.requestTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                //xr.header.serviceName = "OrderConsumedNotice";
-                //xr.header.version = "1.0";
-                //xr.header.accountId = config.Account;
-                //xr.header.sign = MD5Encryption.Encrypt(
-                //    xr.header.accountId +
-                //    xr.header.serviceName +
-                //    xr.header.requestTime +
-                //    body +
-                //    xr.header.version +
-                //    config.ApiKey);
-                //xr.body = body;
-
                 await eventPublisher.PublishDelayAsync("UploadConsumeEvent", 30000, 
                     new XieChengTicketVerifyEvent
                 {
@@ -709,13 +629,29 @@ namespace 通用订票.OTA.携程.Service
                     xiechengOrder = xiechengOrder,
                     xiechengTicket = ticket
                 });
-                //await _cache.PushToList("TicketConsumed", new XieChengTicketConsumeRequest { raw = xn, request = xr });
             }
         }
 
         public void SetTenant(string tenant_id)
         {
             this.tenant_id = tenant_id;
+        }
+
+
+        public async Task<ICollection<XieChengOrder>> GetOrder(string otaOrderId)
+        {
+            string key = "XieChengOrders:" + otaOrderId;
+            var orders = await _cache.GetList<XieChengOrder>("XieChengOrders:" + otaOrderId,0);
+            if (orders == null || orders.Count == 0)
+            {
+                orders = await this.GetWithConditionNt(a => a.otaOrderId == otaOrderId);
+                foreach (var order in orders)
+                {
+                    await _cache.PushToList(key,order);
+                }
+                await _cache.Expire(key,6000);
+            }
+            return orders;
         }
     }
 }

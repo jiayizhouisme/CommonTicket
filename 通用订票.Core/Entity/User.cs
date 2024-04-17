@@ -8,7 +8,7 @@ namespace 通用订票.Core.Entity
 {
     public class User : UserBase,IEntity, IEntitySeedData<User>
     {
-        public Guid id { get; set; }
+        public string id { get; set; }
 
         public int authLevel { get; set; }
         public bool isDeleted { get; set; }

@@ -178,7 +178,7 @@ namespace 通用订票.Application.System.Services.Service
             if (string.IsNullOrEmpty(appid))
             {
                 appid = await this._dal.Where(a => a.objectId == exhibitionID && a.day == day && a.allday == true).Select(a => a.id).AsNoTracking().FirstOrDefaultAsync();
-                await _cache.Set(key, appid);
+                await _cache.Set(key, appid,3600);
             }
             if (appid != null)
             {

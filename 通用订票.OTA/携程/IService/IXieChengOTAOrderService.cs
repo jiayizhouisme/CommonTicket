@@ -25,6 +25,7 @@ namespace 通用订票.OTA.携程.IService
         Task Verify(string ticket_number,int useCount);
         Task<string[]> GetPassengersIds(string otaOrderId, string itemId);
         Task<XieChengConfig> GetConfig(string tenant_id);
+        Task<ICollection<XieChengOrder>> GetOrder(string otaOrderId);
         void SetService(IDefaultOrderServices service);
         void SetTenant(string tenant_id);
     }
