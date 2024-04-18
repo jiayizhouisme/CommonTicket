@@ -16,9 +16,11 @@ using Newtonsoft.Json;
 using System.DirectoryServices.Protocols;
 using System.Text;
 using 通用订票.Application.System.Factory.Service;
+using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Application.System.Services.Service;
 using 通用订票.Core.Entity;
+using 通用订票.JobTask;
 using 通用订票.OTA.携程.Entity;
 using 通用订票.OTA.携程.IService;
 using 通用订票.OTA.携程.Model;
@@ -36,6 +38,7 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IXieChengOTAOrderService xieChengOTAOrderService;
         private readonly IDefaultOrderServices defaultOrderServices;
         private readonly IDefaultTicketService ticketService;
+        private readonly IEventPublisher eventPublisher;
         public const string CreatePreOrder = "CreatePreOrder";
         public const string QueryOrder = "QueryOrder";
         public const string PayPreOrder = "PayPreOrder";
@@ -46,7 +49,8 @@ namespace 通用订票.Web.Entry.Controllers
             IHttpContextUser httpContextUser,
             IHttpContextAccessor httpContextAccessor,
             INamedServiceProvider<IDefaultOrderServices> _orderProvider,
-            IDefaultTicketService ticketService)
+            IDefaultTicketService ticketService,
+            IEventPublisher eventPublisher)
         {
             this.xieChengOTAOrderService = xieChengOTAOrderService;
             this.httpContextUser = httpContextUser;
@@ -54,6 +58,7 @@ namespace 通用订票.Web.Entry.Controllers
             var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
             this.defaultOrderServices = factory.GetOrderService(_orderProvider);
             this.ticketService = ticketService;
+            this.eventPublisher = eventPublisher;
         }
 
         [HttpPost(Name = "xiecheng")]
@@ -176,23 +181,32 @@ namespace 通用订票.Web.Entry.Controllers
         }
 
         [HttpGet(Name = "xiecheng/verify")]
-        public async Task<string> verify([FromQuery]string ticket_number, [FromQuery] int count = 1)
+        [NonUnify]
+        public async Task<XieChengTIcketVerifyResult> verify([FromQuery]string ticket_number, [FromQuery] int count = 1)
         {
             xieChengOTAOrderService.SetTenant(httpContextUser.TenantId);
-            await xieChengOTAOrderService.Verify(ticket_number, count);
-            return "验证成功";
+            return await xieChengOTAOrderService.Verify(ticket_number, count);
         }
 
         [HttpGet(Name = "xiecheng/check")]
-        public async Task<string> check([FromQuery] string ticket_number, [FromQuery] int count = 1)
+        [NonUnify]
+        public async Task<TicketVerifyResult> check([FromQuery] string ticket_number, [FromQuery] int count = 1)
         {
-            xieChengOTAOrderService.SetTenant(httpContextUser.TenantId);
-            var ticket = await this.ticketService.TicketCheck(ticket_number, count);
-            if (ticket != null)
+            var ticket = await ticketService.TicketBeginCheck(ticket_number,count);
+            if (ticket.code == 1)
             {
-                return "验证成功";
+                await eventPublisher.PublishAsync("TicketVerifyEvent", new TicketVerifyEventModel
+                {
+                    ticketNumber = ticket_number,
+                    count = count,
+                    tenant_id = httpContextUser.TenantId
+                });
             }
-            return "验证失败";
+            else
+            {
+                await ticketService.TicketEndCheck(ticket_number);
+            }
+            return ticket;
         }
 
     }

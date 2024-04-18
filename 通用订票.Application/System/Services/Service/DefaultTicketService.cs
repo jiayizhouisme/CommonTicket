@@ -19,6 +19,7 @@ using Core.Auth;
 using 通用订票.Base.Entity;
 using 通用订票.Order.Entity;
 using SqlSugar;
+using 通用订票.Application.System.Models;
 
 namespace 通用订票.Application.System.Services.Service
 {
@@ -152,13 +153,13 @@ namespace 通用订票.Application.System.Services.Service
             return ticket;
         }
 
-        public override async Task<Ticket> TicketCheck(Ticket ticket,int useCount = 1)
+        public override async Task<TicketVerifyResult> TicketCheck(Ticket ticket,int useCount = 1)
         {
-            var result =  await base.TicketCheck(ticket, useCount);
-            if (result != null)
+            var result = await base.TicketCheck(ticket, useCount);
+            if (result.code == 1)
             {
-                await _cache.Del("Ticket:" + ticket.ticketNumber);
-                await this.UpdateNow(ticket);
+                await _cache.Del("Ticket:" + result.ticket.ticketNumber);
+                await this.UpdateNow(result.ticket);
             }
             return result;
         }
@@ -279,10 +280,16 @@ namespace 通用订票.Application.System.Services.Service
             await _cache.Del(key);
         }
 
-        public async Task<Ticket> TicketCheck(string ticket_number, int useCount)
+        public async Task<TicketVerifyResult> TicketBeginCheck(string ticket_number, int useCount)
         {
+            await _cache.Lock("TicketChecking:" + ticket_number, ticket_number,30);
             var ticket = await this.GetTicket(ticket_number);
             return await base.TicketCheck(ticket, useCount);
+        }
+
+        public async Task TicketEndCheck(string ticket_number)
+        {
+            await _cache.ReleaseLock("TicketChecking:" + ticket_number, ticket_number);
         }
     }
 }

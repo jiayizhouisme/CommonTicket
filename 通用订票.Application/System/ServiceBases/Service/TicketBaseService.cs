@@ -1,4 +1,5 @@
 ﻿using Core.Services;
+using 通用订票.Application.System.Models;
 using 通用订票.Application.System.ServiceBases.IService;
 using 通用订票.Base.Entity;
 
@@ -59,27 +60,53 @@ namespace 通用订票.Application.System.ServiceBases.Service
         /// </summary>
         /// <param name="ticket"></param>
         /// <returns></returns>
-        public virtual async Task<T> TicketCheck(T ticket,int useCount)
+        public virtual async Task<TicketVerifyResult> TicketCheck(T ticket,int useCount)
         {
+            TicketVerifyResult tv = new TicketVerifyResult();
             var now = DateTime.Now;
             var couldUse = ticket.totalCount - ticket.usedCount - ticket.cancelCount - useCount;
-            if ((ticket.stauts == TicketStatus.未使用 || ticket.stauts == TicketStatus.部分使用) &&
-                now.CompareTo(ticket.startTime) >= 0 && now.CompareTo(ticket.endTime) < 0 && couldUse >= 0)
+            if (couldUse < 0)
             {
-                ticket.usedCount += useCount;
-                if (ticket.usedCount == ticket.totalCount)
-                {
-                    ticket.stauts = TicketStatus.已使用;
-                }
-                else
-                {
-                    ticket.stauts = TicketStatus.部分使用;
-                }
-                
-                return ticket;
-                
+                tv.code = 0;
+                tv.message = "门票已被使用";
+                return tv;
             }
-            return null;
+
+            if (ticket.stauts != TicketStatus.未使用 && ticket.stauts != TicketStatus.部分使用)
+            {
+                tv.code = 0;
+                tv.message = "门票未激活";
+                return tv;
+            }
+
+            if (now.CompareTo(ticket.startTime) < 0)
+            {
+                tv.code = 0;
+                tv.message = "门票未到使用时间";
+                return tv;
+            }
+
+            if (now.CompareTo(ticket.endTime) >= 0)
+            {
+                tv.code = 0;
+                tv.message = "门票已过期";
+                return tv;
+            }
+
+            ticket.usedCount += useCount;
+            if (ticket.usedCount == ticket.totalCount)
+            {
+                ticket.stauts = TicketStatus.已使用;
+            }
+            else
+            {
+                ticket.stauts = TicketStatus.部分使用;
+            }
+
+            tv.code = 1;
+            tv.message = "门票校验成功";
+            tv.ticket = ticket;
+            return tv;
         }
 
         private string Msectime()

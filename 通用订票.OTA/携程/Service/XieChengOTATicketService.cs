@@ -1,4 +1,5 @@
-﻿using Core.Auth;
+﻿using BeetleX.Packets;
+using Core.Auth;
 using Core.Cache;
 using Core.Services;
 using Core.Services.ServiceFactory;
@@ -6,11 +7,14 @@ using Furion.DatabaseAccessor;
 using Furion.DataEncryption;
 using Furion.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Sockets;
+using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Base.Entity;
 using 通用订票.Core.Entity;
 using 通用订票.OTA.携程.Entity;
 using 通用订票.OTA.携程.IService;
+using 通用订票.OTA.携程.Model;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace 通用订票.OTA.携程.Service
@@ -83,16 +87,18 @@ namespace 通用订票.OTA.携程.Service
             return tickets;
         }
 
-        public async Task<XieChengTicket> TicketVerify(string ticket_number, int useCount = 1)
+        public async Task<XieChengTIcketVerifyResult> TicketVerify(XieChengTicket xiechengTicket, int useCount = 1)
         {
-            var xiechengTicket = await this.GetTicket(ticket_number);
+            XieChengTIcketVerifyResult xr = new XieChengTIcketVerifyResult();
             if (xiechengTicket != null)
             {
                 var ticket = xiechengTicket.ticket;
-                ticket = await this._ticketServices.TicketCheck(ticket,useCount);
-                
-                if (ticket != null)
+                var result = await this._ticketServices.TicketCheck(ticket,useCount);
+                xr.code = result.code;
+                xr.message = result.message;
+                if (result.code == 1)
                 {
+                    
                     if (ticket.usedCount == ticket.totalCount)
                     {
                         xiechengTicket.voucherStatus = 1;
@@ -101,14 +107,22 @@ namespace 通用订票.OTA.携程.Service
                     {
                         xiechengTicket.voucherStatus = 0;
                     }
+                    
+                    await _cache.Del("XieChengTicket:" + xiechengTicket.ticket.ticketNumber);
                     xiechengTicket.ticket = null;
-                    await _cache.Del("XieChengTicket:" + ticket_number);
                     await this.UpdateNow(xiechengTicket);
                     xiechengTicket.ticket = ticket;
-                    return xiechengTicket;
+                    xr.ticket = xiechengTicket;
                 }
             }
-            return null;   
+            else
+            {
+                xr.code = 0;
+                xr.message = "未找到门票";
+                xr.ticket = null;
+            }
+            await _ticketServices.TicketEndCheck(xiechengTicket.ticket.ticketNumber);
+            return xr;
         }
 
         public async Task<XieChengTicket> GetTicket(string ticket_number)

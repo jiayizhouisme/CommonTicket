@@ -10,6 +10,7 @@ using 通用订票.Core.BaseEntity;
 using 通用订票.Base.Entity;
 using Core.Services;
 using 通用订票.Order.Entity;
+using 通用订票.Application.System.Models;
 
 namespace 通用订票.Application.System.Services.IService
 {
@@ -41,7 +42,8 @@ namespace 通用订票.Application.System.Services.IService
         public Task<bool> Vaild(int[] uid, Core.Entity.Appointment stock);
         public Task<ICollection<Core.Entity.Ticket>> GetTickets(long orderId);
         Task<Ticket> GetTicket(string ticket_number);
-        Task<Ticket> TicketCheck(string ticket_number,int useCount);
+        Task<TicketVerifyResult> TicketBeginCheck(string ticket_number,int useCount);
+        Task TicketEndCheck(string ticket_number);
         public Task<int> DisableTickets(ICollection<Core.Entity.Ticket> ticket);
         public Task<int> EnableTickets(ICollection<Core.Entity.Ticket> ticket);
     }

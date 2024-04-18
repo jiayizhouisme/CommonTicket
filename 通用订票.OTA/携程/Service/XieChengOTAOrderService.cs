@@ -567,7 +567,7 @@ namespace 通用订票.OTA.携程.Service
             return confirm;
         }
 
-        public async Task Verify(string ticket_number, int useCount)
+        public async Task<XieChengTIcketVerifyResult> Verify(string ticket_number, int useCount)
         {
             XieChengTicket ticket = null;
             XieChengOrder xiechengOrder = null;
@@ -586,19 +586,18 @@ namespace 通用订票.OTA.携程.Service
                 t_service.SetUserContext("xiecheng");
                 xiechengTicketService.SetService(t_service);
                 #endregion
-
-                var xiechengTicket = await xiechengTicketService.GetTicket(ticket_number);
-                xiechengOrder = await this.GetQueryable(a => a.itemId == xiechengTicket.itemId).FirstOrDefaultAsync();
+                ticket = await xiechengTicketService.GetTicket(ticket_number);
+                xiechengOrder = await this.GetQueryable(a => a.itemId == ticket.itemId).FirstOrDefaultAsync();
                 var exhibition = await exhibitionService.GetExhibitionByID(Guid.Parse(xiechengOrder.PLU));
 
                 string key = "XieChengOrderLock:" + xiechengOrder.otaOrderId;
                 string locker = Guid.NewGuid().ToString();
                 await _cache.Lock(key, locker);
 
-                ticket = await xiechengTicketService.TicketVerify(ticket_number, useCount);
-                if (ticket != null)
+                var result = await xiechengTicketService.TicketVerify(ticket, useCount);
+                if (result.code == 1)
                 {
-                    
+                    ticket = result.ticket;
                     if (exhibition.passType == PassTemplate.一张一人)
                     {
                         xiechengOrder.useQuantity += ticket.ticket.usedCount;
@@ -617,19 +616,19 @@ namespace 通用订票.OTA.携程.Service
                         xiechengOrder.orderStatus = XieChengOrderStatus.部分使用;
                     }
                     await this.UpdateNow(xiechengOrder);
+
+                    await eventPublisher.PublishDelayAsync("UploadConsumeEvent", 30000,
+                       new XieChengTicketVerifyEvent
+                       {
+                           tenant_id = this.tenant_id,
+                           xiechengOrder = xiechengOrder,
+                           xiechengTicket = ticket
+                       });
                 }
                 await _cache.ReleaseLock(key,locker);
+                return result;
             }
-            if (ticket != null)
-            {
-                await eventPublisher.PublishDelayAsync("UploadConsumeEvent", 30000, 
-                    new XieChengTicketVerifyEvent
-                {
-                    tenant_id = this.tenant_id,
-                    xiechengOrder = xiechengOrder,
-                    xiechengTicket = ticket
-                });
-            }
+            
         }
 
         public void SetTenant(string tenant_id)
