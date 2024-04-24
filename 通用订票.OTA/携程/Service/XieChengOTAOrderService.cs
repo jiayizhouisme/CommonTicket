@@ -93,13 +93,14 @@ namespace 通用订票.OTA.携程.Service
 
                 long supplierOrderId = 0;
                 string locker = Guid.NewGuid().ToString();
-                string key = "XieChengOrderLock:" + _orders.otaOrderId;
+                string key = "OrderLocker_" + _orders.otaOrderId;
                 await _cache.Lock(key, locker);
 
                 var __orders = await GetOrder(_orders.otaOrderId);
                 if (__orders != null && __orders.Count > 0)
                 {
                     supplierOrderId = __orders.Select(a => a.trade_no).FirstOrDefault();
+                    var orders = await _cache.Del("XieChengOrders:" + _orders.otaOrderId);
                 }
                 else
                 {
@@ -230,25 +231,27 @@ namespace 通用订票.OTA.携程.Service
                 var s_service = factory.GetStockService(_stockProvider);
                 s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, tenant_id);
 
-                string key = "XieChengOrderLock:" + query.otaOrderId;
-                string locker = Guid.NewGuid().ToString();
-                await _cache.Lock(key, locker);
                 var orders = await GetOrder(query.otaOrderId);
                 using (var trans = dbcontext.Database.BeginTransaction())
                 {
+                    string locker = Guid.NewGuid().ToString();
                     foreach (var order in orders)
                     {
+                        string key = "OrderLocker_" + order.trade_no;
+                        await _cache.Lock(key, locker);
+
                         if (order.orderStatus == XieChengOrderStatus.待支付)
                         {
                             order.orderStatus = XieChengOrderStatus.预下单取消成功;
                             await this.UpdateNow(order);
                             await s_service.SaleStock(order.objectId, -order.quantity);
                         }
+                        await _cache.ReleaseLock(key, locker);
                     }
                     await trans.CommitAsync();
                 }
                 await _cache.Del("XieChengOrders:" + query.otaOrderId);
-                await _cache.ReleaseLock(key, locker);
+                
             }
             return true;
         }
@@ -315,7 +318,7 @@ namespace 通用订票.OTA.携程.Service
                 List<XieChengVouchers> ticketList = new List<XieChengVouchers>();
                 List<XieChengPayPreConfirmItems> itemList = new List<XieChengPayPreConfirmItems>();
 
-                string key = "XieChengOrderLock:" + data.otaOrderId;
+                string key = "OrderLocker_" + data.supplierOrderId;
                 string locker = Guid.NewGuid().ToString();
                 await _cache.Lock(key, locker);
                 
@@ -425,8 +428,7 @@ namespace 通用订票.OTA.携程.Service
         {
             XieChengCancelOrderConfirm confirm = new XieChengCancelOrderConfirm();
             List<XieChengCancelOrderReponseItems> itemList = new List<XieChengCancelOrderReponseItems>();
-            string key = "XieChengOrderLock:" + order.otaOrderId;
-            string locker = Guid.NewGuid().ToString();
+
             using (var scope = this.ScopeFactory.CreateScope())
             {
                 var factory = SaaSServiceFactory.GetServiceFactory(order.tenant_id);
@@ -446,6 +448,8 @@ namespace 通用订票.OTA.携程.Service
                     confirm.confirmResultCode = "2001";
                     confirm.confirmResultMessage = "该订单号不存在";
                 }
+                string key = "OrderLocker_" + order.supplierOrderId;
+                string locker = Guid.NewGuid().ToString();
                 await _cache.Lock(key, locker);
                 using (var trans = dbcontext.Database.BeginTransaction())
                 {
@@ -493,6 +497,7 @@ namespace 通用订票.OTA.携程.Service
                                 {
                                     ticket.ticket.stauts = TicketStatus.已冻结;
                                     ticket.voucherStatus = 2;
+                                    await _cache.Del("Ticket:" + ticket.ticket.ticketNumber);
                                     vouchers.Add(new XieChengVouchers { voucherId = ticket.ticket.ticketNumber });
                                 }
                             }
@@ -515,6 +520,7 @@ namespace 通用订票.OTA.携程.Service
                                         ticket.ticket.cancelCount = 1;
                                         ticket.voucherStatus = 2;
                                         usedCount++;
+                                        await _cache.Del("Ticket:" + ticket.ticket.ticketNumber);
                                         await xiechengTicketService.UpdateNow(ticket);
                                     }
                                     vouchers.Add(new XieChengVouchers { voucherId = ticket.ticket.ticketNumber });
@@ -533,6 +539,7 @@ namespace 通用订票.OTA.携程.Service
                                         ticket.ticket.cancelCount = ticket.ticket.totalCount;
                                         ticket.voucherStatus = 2;
                                         usedCount++;
+                                        await _cache.Del("Ticket:" + ticket.ticket.ticketNumber);
                                         await xiechengTicketService.UpdateNow(ticket);
                                         
                                     }
@@ -542,6 +549,7 @@ namespace 通用订票.OTA.携程.Service
 
                             }
                         }
+
                         itemList.Add(new XieChengCancelOrderReponseItems
                         {
                             itemId = data.itemId,
@@ -554,8 +562,8 @@ namespace 通用订票.OTA.携程.Service
                     }
                     await trans.CommitAsync();
                 }
+                await _cache.ReleaseLock(key, locker);
             }
-            await _cache.ReleaseLock(key, locker);
             await _cache.Del("XieChengOrders:" + order.otaOrderId);
             var config = await this.GetConfig(order.tenant_id);
 
@@ -588,10 +596,6 @@ namespace 通用订票.OTA.携程.Service
                 #endregion
                 ticket = await xiechengTicketService.GetTicket(ticket_number);
                 xiechengOrder = await this.GetQueryable(a => a.trade_no == ticket.ticket.objectId).FirstOrDefaultAsync();
-                
-                string key = "XieChengOrderLock:" + xiechengOrder.otaOrderId;
-                string locker = Guid.NewGuid().ToString();
-                await _cache.Lock(key, locker);
 
                 var result = await xiechengTicketService.TicketVerify(ticket, useCount);
                 var app = await s_service.GetAppointmentById(ticket.ticket.AppointmentId);
@@ -627,7 +631,6 @@ namespace 通用订票.OTA.携程.Service
                            xiechengTicket = ticket
                        });
                 }
-                await _cache.ReleaseLock(key,locker);
                 return result;
             }
             
@@ -638,11 +641,10 @@ namespace 通用订票.OTA.携程.Service
             this.tenant_id = tenant_id;
         }
 
-
         public async Task<ICollection<XieChengOrder>> GetOrder(string otaOrderId)
         {
             string key = "XieChengOrders:" + otaOrderId;
-            var orders = await _cache.GetList<XieChengOrder>("XieChengOrders:" + otaOrderId,0);
+            var orders = await _cache.GetList<XieChengOrder>(key, 0);
             if (orders == null || orders.Count == 0)
             {
                 orders = await this.GetWithConditionNt(a => a.otaOrderId == otaOrderId);

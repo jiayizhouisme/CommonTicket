@@ -98,7 +98,6 @@ namespace 通用订票.OTA.携程.Service
                 xr.message = result.message;
                 if (result.code == 1)
                 {
-                    
                     if (ticket.usedCount == ticket.totalCount)
                     {
                         xiechengTicket.voucherStatus = 1;

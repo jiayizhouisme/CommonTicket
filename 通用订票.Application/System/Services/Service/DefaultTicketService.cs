@@ -282,14 +282,18 @@ namespace 通用订票.Application.System.Services.Service
 
         public async Task<TicketVerifyResult> TicketBeginCheck(string ticket_number, int useCount)
         {
-            await _cache.Lock("TicketChecking:" + ticket_number, ticket_number,30);
             var ticket = await this.GetTicket(ticket_number);
+            string key = "OrderLocker_" + ticket.objectId;
+            await _cache.Lock(key, ticket_number, 30);
+            ticket = await this.GetTicket(ticket_number);
+
             return await base.TicketCheck(ticket, useCount);
         }
 
         public async Task TicketEndCheck(string ticket_number)
         {
-            await _cache.ReleaseLock("TicketChecking:" + ticket_number, ticket_number);
+            var ticket = await this.GetTicket(ticket_number);
+            await _cache.ReleaseLock("OrderLocker_" + ticket.objectId, ticket_number);
         }
     }
 }
