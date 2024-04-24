@@ -63,8 +63,23 @@ namespace 通用订票.Application.System.ServiceBases.Service
         public virtual async Task<TicketVerifyResult> TicketCheck(T ticket,int useCount)
         {
             TicketVerifyResult tv = new TicketVerifyResult();
+            if (ticket == null)
+            {
+                tv.code = 0;
+                tv.message = "未找到门票";
+                return tv;
+            }
             var now = DateTime.Now;
-            var couldUse = ticket.totalCount - ticket.usedCount - ticket.cancelCount - useCount;
+            int couldUse = 0;
+            if (useCount <= 0)
+            {
+                useCount = couldUse = ticket.totalCount - ticket.usedCount - ticket.cancelCount;
+            }
+            else
+            {
+                couldUse = ticket.totalCount - ticket.usedCount - ticket.cancelCount - useCount;
+            }
+            tv.ticket = ticket;
             if (couldUse < 0)
             {
                 tv.code = 0;
@@ -102,10 +117,9 @@ namespace 通用订票.Application.System.ServiceBases.Service
             {
                 ticket.stauts = TicketStatus.部分使用;
             }
-
+            ticket.verifyTime = now;
             tv.code = 1;
             tv.message = "门票校验成功";
-            tv.ticket = ticket;
             return tv;
         }
 

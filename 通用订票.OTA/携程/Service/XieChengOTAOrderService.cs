@@ -454,7 +454,6 @@ namespace 通用订票.OTA.携程.Service
                         var exhibition = await exhibitionService.GetExhibitionByID(Guid.Parse(xiechengOrder.PLU));
 
                         var data = order.items.Where(a => a.itemId == xiechengOrder.itemId).FirstOrDefault();
-                        var tickets = await xiechengTicketService.GetQueryable(a => a.itemId == data.itemId).Include(a => a.ticket).ToListAsync();
                         List<XieChengVouchers> vouchers = new List<XieChengVouchers>();
 
                         if (xiechengOrder.orderStatus == XieChengOrderStatus.全部使用 ||
@@ -481,10 +480,11 @@ namespace 通用订票.OTA.携程.Service
                             xiechengOrder.orderStatus = XieChengOrderStatus.部分取消;
                         }
                         xiechengOrder.cancelQuantity = data.quantity;
-
+                        var tickets = await xiechengTicketService.GetQueryable(a => a.itemId == data.itemId).Include(a => a.ticket).ToListAsync();
                         if (exhibition.passType == PassTemplate.一单一人)
                         {
                             int cancelCount = 0;
+                            
                             foreach (var ticket in tickets)
                             {
                                 cancelCount += data.quantity - ticket.ticket.cancelCount;
@@ -587,14 +587,16 @@ namespace 通用订票.OTA.携程.Service
                 xiechengTicketService.SetService(t_service);
                 #endregion
                 ticket = await xiechengTicketService.GetTicket(ticket_number);
-                xiechengOrder = await this.GetQueryable(a => a.itemId == ticket.itemId).FirstOrDefaultAsync();
-                var exhibition = await exhibitionService.GetExhibitionByID(Guid.Parse(xiechengOrder.PLU));
-
+                xiechengOrder = await this.GetQueryable(a => a.trade_no == ticket.ticket.objectId).FirstOrDefaultAsync();
+                
                 string key = "XieChengOrderLock:" + xiechengOrder.otaOrderId;
                 string locker = Guid.NewGuid().ToString();
                 await _cache.Lock(key, locker);
 
                 var result = await xiechengTicketService.TicketVerify(ticket, useCount);
+                var app = await s_service.GetAppointmentById(ticket.ticket.AppointmentId);
+                var exhibition = await exhibitionService.GetExhibitionByID(app.objectId);
+                
                 if (result.code == 1)
                 {
                     ticket = result.ticket;

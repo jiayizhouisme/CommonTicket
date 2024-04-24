@@ -7,6 +7,7 @@ using Furion.DependencyInjection;
 using Furion.DynamicApiController;
 using Furion.EventBus;
 using Furion.JsonSerialization;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -37,8 +38,6 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IXieChengOTAOrderService xieChengOTAOrderService;
         private readonly IDefaultOrderServices defaultOrderServices;
-        private readonly IDefaultTicketService ticketService;
-        private readonly IEventPublisher eventPublisher;
         public const string CreatePreOrder = "CreatePreOrder";
         public const string QueryOrder = "QueryOrder";
         public const string PayPreOrder = "PayPreOrder";
@@ -48,17 +47,13 @@ namespace 通用订票.Web.Entry.Controllers
             IXieChengOTAOrderService xieChengOTAOrderService,
             IHttpContextUser httpContextUser,
             IHttpContextAccessor httpContextAccessor,
-            INamedServiceProvider<IDefaultOrderServices> _orderProvider,
-            IDefaultTicketService ticketService,
-            IEventPublisher eventPublisher)
+            INamedServiceProvider<IDefaultOrderServices> _orderProvider)
         {
             this.xieChengOTAOrderService = xieChengOTAOrderService;
             this.httpContextUser = httpContextUser;
             this.httpContextAccessor = httpContextAccessor;
             var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
             this.defaultOrderServices = factory.GetOrderService(_orderProvider);
-            this.ticketService = ticketService;
-            this.eventPublisher = eventPublisher;
         }
 
         [HttpPost(Name = "xiecheng")]
@@ -178,35 +173,6 @@ namespace 通用订票.Web.Entry.Controllers
                     header = new XieChengResponseHeader { resultCode = "9999", resultMessage = "ServiceName Not Found" }
                 };
             }
-        }
-
-        [HttpGet(Name = "xiecheng/verify")]
-        [NonUnify]
-        public async Task<XieChengTIcketVerifyResult> verify([FromQuery]string ticket_number, [FromQuery] int count = 1)
-        {
-            xieChengOTAOrderService.SetTenant(httpContextUser.TenantId);
-            return await xieChengOTAOrderService.Verify(ticket_number, count);
-        }
-
-        [HttpGet(Name = "xiecheng/check")]
-        [NonUnify]
-        public async Task<TicketVerifyResult> check([FromQuery] string ticket_number, [FromQuery] int count = 1)
-        {
-            var ticket = await ticketService.TicketBeginCheck(ticket_number,count);
-            if (ticket.code == 1)
-            {
-                await eventPublisher.PublishAsync("TicketVerifyEvent", new TicketVerifyEventModel
-                {
-                    ticketNumber = ticket_number,
-                    count = count,
-                    tenant_id = httpContextUser.TenantId
-                });
-            }
-            else
-            {
-                await ticketService.TicketEndCheck(ticket_number);
-            }
-            return ticket;
         }
 
     }

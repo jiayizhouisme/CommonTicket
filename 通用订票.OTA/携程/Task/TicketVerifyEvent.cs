@@ -36,20 +36,16 @@ namespace 通用订票.JobTask
         public async Task verify(EventHandlerExecutingContext context)
         {
             var ticket = (TicketVerifyEventModel)context.Source.Payload;
-            using (var scope = ScopeFactory.CreateScope())
+            if (ticket.type == OTAType.XieCheng)
             {
-                var service = ServiceFactory.GetSaasService<IXieChengOTAOrderService,XieChengOrder>(scope.ServiceProvider,ticket.tenant_id);
-                service.SetTenant(ticket.tenant_id);
+                using (var scope = ScopeFactory.CreateScope())
+                {
+                    var service = ServiceFactory.GetSaasService<IXieChengOTAOrderService, XieChengOrder>(scope.ServiceProvider, ticket.tenant_id);
+                    service.SetTenant(ticket.tenant_id);
 
-                await service.Verify(ticket.ticketNumber,ticket.count);
+                    await service.Verify(ticket.ticketNumber, ticket.count);
+                }
             }
         }
-    }
-
-    public struct TicketVerifyEventModel
-    {
-        public string ticketNumber;
-        public int count;
-        public string tenant_id;
     }
 }

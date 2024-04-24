@@ -110,5 +110,27 @@ namespace 通用订票.Web.Entry.Controllers
                     a.id})
                 .ToPagedListAsync(pageIndex,pageSize);
         }
+
+        [HttpGet(Name = "Test")]
+        public async Task Test()
+        {
+            for (int i = 0; i < 90; i++)
+            {
+                Appointment app = new Appointment();
+                app.id = Guid.NewGuid().ToString();
+                app.stockName = "成人票";
+                app.amount = 10000;
+                app.sale = 0;
+                app.startTime = DateTime.Parse("1999-01-01 00:00:00.0000000");
+                app.endTime = DateTime.Parse("1999-01-01 23:59:59.0000000");
+                app.createTime = DateTime.Now;
+                app.isDeleted = false;
+                app.allday = true;
+                app.objectId = Guid.Parse("eafb3cdf-bf8a-4963-bffe-fb2300e929fa");
+                app.day = i;
+                await this._appointmentService.Add(app);
+            }
+            await this._appointmentService.SaveChangeNow();
+        }
     }
 }

@@ -119,7 +119,7 @@ namespace 通用订票.OTA.携程.Service
             {
                 xr.code = 0;
                 xr.message = "未找到门票";
-                xr.ticket = null;
+                xr.ticket = xiechengTicket;
             }
             await _ticketServices.TicketEndCheck(xiechengTicket.ticket.ticketNumber);
             return xr;

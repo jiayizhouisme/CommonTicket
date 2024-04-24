@@ -9,10 +9,13 @@ using Furion.EventBus;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using 通用订票.Application.System.Factory.Service;
+using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
+using 通用订票.Application.System.Services.Service;
 using 通用订票.Core.Entity;
 using 通用订票.EventBus.Entity;
 using 通用订票.EventBus.EventEntity;
+using 通用订票.JobTask;
 using 通用订票.Procedure.Entity;
 using 通用订票.Procedure.Entity.QueueEntity;
 using 通用订票Order.Entity;
@@ -256,6 +259,35 @@ namespace 通用订票.Web.Entry.Controllers
             }
 
             return "关闭成功";
+        }
+
+        [HttpGet(Name = "CheckTicket")]
+        [NonUnify]
+        public async Task<TicketVerifyResult> CheckTicket([FromQuery] string ticket_number, [FromQuery] int count = 1)
+        {
+            var ticket = await ticketService.TicketBeginCheck(ticket_number, count);
+            if (ticket.ticket != null)
+            {
+                ticket.order = await myOrderService.GetOrderById(ticket.ticket.objectId);
+                ticket.app = await stockService.GetAppointmentById(ticket.ticket.AppointmentId);
+                ticket.exhibition = await exhibitionService.GetExhibitionByID(ticket.app.objectId);
+            }
+            
+            if (ticket.code == 1)
+            {
+                await eventPublisher.PublishAsync("TicketVerifyEvent", new TicketVerifyEventModel
+                {
+                    type = ticket.ticket.ota,
+                    ticketNumber = ticket_number,
+                    count = count,
+                    tenant_id = httpContextUser.TenantId
+                });
+            }
+            else
+            {
+                await ticketService.TicketEndCheck(ticket_number);
+            }
+            return ticket;
         }
 
         [Authorize]

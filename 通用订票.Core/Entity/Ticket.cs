@@ -15,6 +15,7 @@ namespace 通用订票.Core.Entity
         public int totalCount { get; set; }
         public int usedCount { get; set; }
         public int cancelCount { get; set; }
+        public DateTime verifyTime { get; set; }
         /// <summary>
         /// 购票人选择的用户
         /// </summary>
