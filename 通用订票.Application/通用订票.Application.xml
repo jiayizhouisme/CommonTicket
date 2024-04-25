@@ -4,13 +4,6 @@
         <name>通用订票.Application</name>
     </assembly>
     <members>
-        <member name="M:通用订票.Application.System.ServiceBases.IService.ITicketService`1.TicketCheck(`0,System.Int32)">
-            <summary>
-            验票
-            </summary>
-            <param name="ticket"></param>
-            <returns></returns>
-        </member>
         <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`2.DisableTicket(`0)">
             <summary>
             订单冻结
@@ -27,13 +20,6 @@
             <summary>
             生成一张空票
             </summary>
-            <returns></returns>
-        </member>
-        <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`2.TicketCheck(`0,System.Int32)">
-            <summary>
-            验票
-            </summary>
-            <param name="ticket"></param>
             <returns></returns>
         </member>
         <member name="M:通用订票.Application.System.Services.IService.IDefaultAppointmentService.RefreshAppoints(System.Guid)">
@@ -55,7 +41,7 @@
             <param name="otaType"></param>
             <returns></returns>
         </member>
-        <member name="M:通用订票.Application.System.Services.IService.IDefaultTicketService.GenarateTicket(System.DateTime,System.DateTime,通用订票.Order.Entity.OrderBase{System.String},System.Int32,通用订票.Base.Entity.TicketStatus,通用订票.Core.Entity.OTAType)">
+        <member name="M:通用订票.Application.System.Services.IService.IDefaultTicketService.GenarateTicket(System.DateTime,System.DateTime,通用订票.Order.Entity.OrderBase{System.String},System.Int32,通用订票.Base.Entity.TicketStatus,System.String[],通用订票.Core.Entity.OTAType)">
             <summary>
             匿名购买
             </summary>
@@ -90,6 +76,13 @@
             </summary>
             <param name="uids"></param>
             <param name="appointment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:通用订票.Application.System.Services.Service.DefaultTicketService._TicketCheck(通用订票.Core.Entity.Ticket,System.Int32)">
+            <summary>
+            验票
+            </summary>
+            <param name="ticket"></param>
             <returns></returns>
         </member>
     </members>

@@ -6,6 +6,7 @@ using Core.Services.ServiceFactory;
 using Furion.DatabaseAccessor;
 using Furion.DataEncryption;
 using Furion.DependencyInjection;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Sockets;
 using 通用订票.Application.System.Models;
@@ -41,17 +42,34 @@ namespace 通用订票.OTA.携程.Service
             _ticketServices = service;
         }
 
-        public async Task<Ticket> CreateTicket(Appointment stock, XieChengOrder xiechengOrder, Core.Entity.Order order)
+        public async Task<Ticket> CreateTicket(Exhibition exhibition, Appointment stock, XieChengOrder xiechengOrder, Core.Entity.Order order)
         {
             var startTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.startTime.TimeOfDay);
             var endTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.endTime.TimeOfDay);
             order.objectId = stock.id;
-            var ticket = await _ticketServices.GenarateTicket(startTime,
+            Ticket ticket = null;
+            if (exhibition.isMultiPart == false)
+            {
+                ticket = await _ticketServices.GenarateTicket(startTime,
                 endTime,
                 order,
                 xiechengOrder.quantity,
                 TicketStatus.未使用,
+                null,
                 OTAType.XieCheng);//一张票多次
+
+            }
+            else
+            {
+                ticket = await _ticketServices.GenarateTicket(startTime,
+                endTime,
+                order,
+                xiechengOrder.quantity,
+                TicketStatus.未使用,
+                exhibition.exhibitions.Split(' '),
+                OTAType.XieCheng);//一张票多次
+            }
+            
             XieChengTicket xieChengTicket = new XieChengTicket();
             xieChengTicket.ticketId = ticket._id;
             xieChengTicket.OTAPassengerId = xiechengOrder.passengerIds.Trim();
@@ -62,17 +80,33 @@ namespace 通用订票.OTA.携程.Service
             return ticket;
         }
 
-        public async Task<List<Ticket>> CreateTicket(Appointment stock, XieChengOrder xiechengOrder, Core.Entity.Order order, string[] passids)
+        public async Task<List<Ticket>> CreateTicket(Exhibition exhibition,Appointment stock, XieChengOrder xiechengOrder, Core.Entity.Order order, string[] passids)
         {
             var startTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.startTime.TimeOfDay);
             var endTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.endTime.TimeOfDay);
-
-            var tickets = await _ticketServices.GenarateTickets(startTime,
+            order.objectId = stock.id;
+            List<Ticket>? tickets = null;
+            if (exhibition.isMultiPart == false)
+            {
+                tickets = await _ticketServices.GenarateTickets(startTime,
                     endTime,
                     order,
                     xiechengOrder.quantity,
                     TicketStatus.未使用,
+                    null,
                     OTAType.XieCheng);//多张票每张一次
+            }
+            else
+            {
+                tickets = await _ticketServices.GenarateTickets(startTime,
+                    endTime,
+                    order,
+                    xiechengOrder.quantity,
+                    TicketStatus.未使用,
+                    exhibition.exhibitions.Split(' '),
+                    OTAType.XieCheng);//多张票每张一次
+            }
+                
             int i = 0;
             foreach (var ticket in tickets)
             {
@@ -87,15 +121,21 @@ namespace 通用订票.OTA.携程.Service
             return tickets;
         }
 
-        public async Task<XieChengTIcketVerifyResult> TicketVerify(XieChengTicket xiechengTicket, int useCount = 1)
+        public async Task<XieChengTIcketVerifyResult> TicketVerify(XieChengTicket xiechengTicket, int useCount = 1,string exhibitionId = null)
         {
             XieChengTIcketVerifyResult xr = new XieChengTIcketVerifyResult();
             if (xiechengTicket != null)
             {
                 var ticket = xiechengTicket.ticket;
-                var result = await this._ticketServices.TicketCheck(ticket,useCount);
+                var result = await this._ticketServices.TicketCheck(ticket,useCount,exhibitionId);
                 xr.code = result.code;
                 xr.message = result.message;
+                xr.shouldUpdate = result.shouldUpdate;
+                if (result.shouldUpdate == false)
+                {
+                    await _ticketServices.TicketEndCheck(xiechengTicket.ticket.ticketNumber);
+                    return xr;
+                }
                 if (result.code == 1)
                 {
                     if (ticket.usedCount == ticket.totalCount)
@@ -135,6 +175,11 @@ namespace 通用订票.OTA.携程.Service
                 await _cache.Set("XieChengTicket:" + ticket_number, xiechengTicket,600);
             }
             return xiechengTicket;
+        }
+
+        public async Task<MultiTicketCancelResult> CancelTicket(string ticket_number, int cancelCount)
+        {
+            return await this._ticketServices.CancelMultiTicket(ticket_number, cancelCount);
         }
     }
 }

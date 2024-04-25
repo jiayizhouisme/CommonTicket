@@ -14,6 +14,8 @@ namespace 通用订票.Core.Entity
         public DateTime createTime { get; set; }
         public decimal basicPrice { get; set; }
         public PassTemplate passType { get; set; }
+        public string exhibitions { get; set; }
+        public bool isMultiPart { get; set; }
         
     }
     public enum PassTemplate

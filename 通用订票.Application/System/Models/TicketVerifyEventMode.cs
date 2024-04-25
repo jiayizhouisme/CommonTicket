@@ -13,5 +13,6 @@ namespace 通用订票.Application.System.Models
         public string ticketNumber;
         public int count;
         public string tenant_id;
+        public string exhibitionId;
     }
 }

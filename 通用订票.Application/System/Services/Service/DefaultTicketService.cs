@@ -28,9 +28,11 @@ namespace 通用订票.Application.System.Services.Service
     {
         private string userId;
         private readonly ICacheOperation _cache;
-        public DefaultTicketService(IRepository<Ticket, MasterDbContextLocator> _dal, ICacheOperation _cache) : base(_dal)
+        private readonly IMultiTicketService multiTicketService;
+        public DefaultTicketService(IRepository<Ticket, MasterDbContextLocator> _dal, ICacheOperation _cache, IMultiTicketService multiTicketService) : base(_dal)
         {
             this._cache = _cache;
+            this.multiTicketService = multiTicketService;
         }
 
         /// <summary>
@@ -76,7 +78,7 @@ namespace 通用订票.Application.System.Services.Service
             return result;
         }
 
-        public virtual async Task<Ticket> GenarateTicket(DateTime startTime, DateTime endTime, OrderBase<string> order, int number, TicketStatus status, OTAType otaType = OTAType.Normal)
+        public virtual async Task<Ticket> GenarateTicket(DateTime startTime, DateTime endTime, OrderBase<string> order, int number, TicketStatus status, string[] exhibitions, OTAType otaType = OTAType.Normal)
         {
             var ticket = base.GenerateTicket(startTime, endTime);
             ticket.TUserId = -1;
@@ -87,11 +89,20 @@ namespace 通用订票.Application.System.Services.Service
             ticket.ota = otaType;
             ticket.usedCount = 0;
             ticket.totalCount = number;
+            if (exhibitions != null)
+            {
+                ticket.isMultiPart = true;
+                await multiTicketService.GenerateTicket(ticket.ticketNumber, exhibitions, number);
+            }
+            else
+            {
+                ticket.isMultiPart = false;
+            }
             await this.AddNow(ticket);
             return ticket;
         }
 
-        public async Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<string> order, int number, TicketStatus status, OTAType otaType)
+        public async Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<string> order, int number, TicketStatus status,string[] exhibitions, OTAType otaType = OTAType.Normal)
         {
             List<Core.Entity.Ticket> result = new List<Core.Entity.Ticket>();
             for (int i = 0;i < number;i++)
@@ -104,7 +115,15 @@ namespace 通用订票.Application.System.Services.Service
                 ticket.ota = otaType;
                 ticket.usedCount = 0;
                 ticket.totalCount = 1;
-
+                if (exhibitions != null)
+                {
+                    ticket.isMultiPart = true;
+                    await multiTicketService.GenerateTicket(ticket.ticketNumber, exhibitions, 1);
+                }
+                else
+                {
+                    ticket.isMultiPart = false;
+                }
                 result.Add(ticket);
             }
             await this.AddNow(result);
@@ -153,13 +172,24 @@ namespace 通用订票.Application.System.Services.Service
             return ticket;
         }
 
-        public override async Task<TicketVerifyResult> TicketCheck(Ticket ticket,int useCount = 1)
+        public virtual async Task<TicketVerifyResult> TicketCheck(Ticket ticket,int useCount = 1,string exhibitionId = null)
         {
-            var result = await base.TicketCheck(ticket, useCount);
-            if (result.code == 1)
+            TicketVerifyResult result = new TicketVerifyResult();
+            result.code = 1;
+            result.shouldUpdate = false;
+            if (ticket.isMultiPart == true)
             {
-                await _cache.Del("Ticket:" + result.ticket.ticketNumber);
-                await this.UpdateNow(result.ticket);
+                var r = await multiTicketService.ConfirmCheckMultiTicket(ticket.ticketNumber, exhibitionId);
+                if (r.code == 1 && r.usedCount > ticket.usedCount)
+                {
+                    result = await UpdateTicket(ticket, useCount);
+                    result.shouldUpdate = true;
+                }
+            }
+            else
+            {
+                result = await UpdateTicket(ticket, useCount);
+                result.shouldUpdate = true;
             }
             return result;
         }
@@ -280,20 +310,122 @@ namespace 通用订票.Application.System.Services.Service
             await _cache.Del(key);
         }
 
-        public async Task<TicketVerifyResult> TicketBeginCheck(string ticket_number, int useCount)
+        public async Task<TicketVerifyResult> TicketBeginCheck(string ticket_number, int useCount,string exhibition = null)
         {
             var ticket = await this.GetTicket(ticket_number);
             string key = "OrderLocker_" + ticket.objectId;
             await _cache.Lock(key, ticket_number, 30);
             ticket = await this.GetTicket(ticket_number);
-
-            return await base.TicketCheck(ticket, useCount);
+            if (ticket.isMultiPart == true)
+            {
+                var result =  _TicketCheck(ticket, useCount);
+                if (result.code == 1)
+                {
+                    result = await multiTicketService.CheckMultiTicket(ticket.ticketNumber, exhibition);
+                }
+                result.ticket = ticket;
+                return result;
+            }
+            else
+            {
+                return _TicketCheck(ticket, useCount);
+            }
         }
 
         public async Task TicketEndCheck(string ticket_number)
         {
             var ticket = await this.GetTicket(ticket_number);
             await _cache.ReleaseLock("OrderLocker_" + ticket.objectId, ticket_number);
+        }
+
+        /// <summary>
+        /// 验票
+        /// </summary>
+        /// <param name="ticket"></param>
+        /// <returns></returns>
+        private TicketVerifyResult _TicketCheck(Ticket ticket, int useCount)
+        {
+            TicketVerifyResult tv = new TicketVerifyResult();
+            if (ticket == null)
+            {
+                tv.code = 0;
+                tv.message = "未找到门票";
+                return tv;
+            }
+            tv.ticket = ticket;
+            var now = DateTime.Now;
+            int couldUse = 0;
+            if (useCount <= 0)
+            {
+                useCount = couldUse = ticket.totalCount - ticket.usedCount - ticket.cancelCount;
+                if (couldUse <= 0)
+                {
+                    tv.code = 0;
+                    tv.message = "门票已用完";
+                    return tv;
+                }
+            }
+            else
+            {
+                couldUse = ticket.totalCount - ticket.usedCount - ticket.cancelCount - useCount;
+                if (couldUse < 0)
+                {
+                    tv.code = 0;
+                    tv.message = "门票已用完";
+                    return tv;
+                }
+            }
+
+            if (ticket.stauts != TicketStatus.未使用 && ticket.stauts != TicketStatus.部分使用)
+            {
+                tv.code = 0;
+                tv.message = "门票未激活";
+                return tv;
+            }
+
+            if (now.CompareTo(ticket.startTime) < 0)
+            {
+                tv.code = 0;
+                tv.message = "门票未到使用时间";
+                return tv;
+            }
+
+            if (now.CompareTo(ticket.endTime) >= 0)
+            {
+                tv.code = 0;
+                tv.message = "门票已过期";
+                return tv;
+            }
+
+            ticket.usedCount += useCount;
+            if (ticket.usedCount == ticket.totalCount)
+            {
+                ticket.stauts = TicketStatus.已使用;
+            }
+            else
+            {
+                ticket.stauts = TicketStatus.部分使用;
+            }
+            ticket.verifyTime = now;
+            tv.code = 1;
+            tv.message = "门票校验成功";
+            return tv;
+        }
+
+        private async Task<TicketVerifyResult> UpdateTicket(Ticket ticket,int useCount)
+        {
+            TicketVerifyResult result = _TicketCheck(ticket, useCount);
+            if (result.code == 1)
+            {
+                await _cache.Del("Ticket:" + result.ticket.ticketNumber);
+                await this.UpdateNow(ticket);
+            }
+            return result;
+        }
+
+        public async Task<MultiTicketCancelResult> CancelMultiTicket(string ticket_number, int cancelCount)
+        {
+            return await this.multiTicketService.CancelTicket(ticket_number,cancelCount);
         }
     }
 }

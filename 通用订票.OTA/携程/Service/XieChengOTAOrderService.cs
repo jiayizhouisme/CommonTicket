@@ -352,12 +352,12 @@ namespace 通用订票.OTA.携程.Service
 
                             if (exhibition.passType == PassTemplate.一单一人)
                             {
-                                var _ = await xiechengTicketService.CreateTicket(stock, _pluorder, order);
+                                var _ = await xiechengTicketService.CreateTicket(exhibition,stock, _pluorder, order);
                                 tickets.Add(_);
                             }
                             else if (exhibition.passType == PassTemplate.一张一人)
                             {
-                                var _ = await xiechengTicketService.CreateTicket(stock, _pluorder, order, passids);
+                                var _ = await xiechengTicketService.CreateTicket(exhibition,stock, _pluorder, order, passids);
                                 tickets.AddRange(_);
                             }
 
@@ -441,7 +441,7 @@ namespace 通用订票.OTA.携程.Service
                 var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
                 var s_service = factory.GetStockService(_stockProvider);
                 s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, order.tenant_id);
-
+                this.xiechengTicketService.SetService(t_service);
                 var xiechengOrders = await GetOrder(order.otaOrderId);
                 if (xiechengOrders.Count == 0)
                 {
@@ -491,6 +491,18 @@ namespace 通用订票.OTA.携程.Service
                             
                             foreach (var ticket in tickets)
                             {
+                                if (ticket.ticket.isMultiPart == true)
+                                {
+                                    var result = await this.xiechengTicketService.CancelTicket
+                                                  (ticket.ticket.ticketNumber, data.quantity);
+                                    if (result.code == 0)
+                                    {
+                                        confirm.confirmResultCode = "2002";
+                                        confirm.confirmResultMessage = result.message;
+                                        await _cache.ReleaseLock(key, locker);
+                                        return confirm;
+                                    }
+                                }
                                 cancelCount += data.quantity - ticket.ticket.cancelCount;
                                 ticket.ticket.cancelCount = data.quantity;
                                 if (ticket.ticket.cancelCount == ticket.ticket.totalCount)
@@ -501,11 +513,11 @@ namespace 通用订票.OTA.携程.Service
                                     vouchers.Add(new XieChengVouchers { voucherId = ticket.ticket.ticketNumber });
                                 }
                             }
+                            await xiechengTicketService.UpdateNow(tickets);
                             if (cancelCount > 0)
                             {
                                 await s_service.SaleStock(xiechengOrder.objectId, -cancelCount);
                             }
-                            await xiechengTicketService.UpdateNow(tickets);
                         }
                         else if (exhibition.passType == PassTemplate.一张一人)
                         {
@@ -516,15 +528,27 @@ namespace 通用订票.OTA.携程.Service
                                 {
                                     if (ticket.ticket.stauts != TicketStatus.已冻结)
                                     {
+                                        if (ticket.ticket.isMultiPart == true)
+                                        {
+                                            var result = await this.xiechengTicketService.CancelTicket
+                                                          (ticket.ticket.ticketNumber, 1);
+                                            if (result.code == 0)
+                                            {
+                                                confirm.confirmResultCode = "2002";
+                                                confirm.confirmResultMessage = result.message;
+                                                await _cache.ReleaseLock(key, locker);
+                                                return confirm;
+                                            }
+                                        }
                                         ticket.ticket.stauts = TicketStatus.已冻结;
                                         ticket.ticket.cancelCount = 1;
                                         ticket.voucherStatus = 2;
                                         usedCount++;
                                         await _cache.Del("Ticket:" + ticket.ticket.ticketNumber);
-                                        await xiechengTicketService.UpdateNow(ticket);
                                     }
                                     vouchers.Add(new XieChengVouchers { voucherId = ticket.ticket.ticketNumber });
                                 }
+                                await xiechengTicketService.UpdateNow(tickets);
                                 await s_service.SaleStock(xiechengOrder.objectId, -usedCount);
                             }
                             else
@@ -535,16 +559,28 @@ namespace 通用订票.OTA.携程.Service
                                     var ticket = tickets.Where(a => a.OTAPassengerId == pass.passengerId).FirstOrDefault();
                                     if (ticket.ticket.stauts != TicketStatus.已冻结)
                                     {
+                                        if (ticket.ticket.isMultiPart == true)
+                                        {
+                                            var result = await this.xiechengTicketService.CancelTicket
+                                                          (ticket.ticket.ticketNumber, ticket.ticket.totalCount);
+                                            if (result.code == 0)
+                                            {
+                                                confirm.confirmResultCode = "2002";
+                                                confirm.confirmResultMessage = result.message;
+                                                await _cache.ReleaseLock(key, locker);
+                                                return confirm;
+                                            }
+                                        }
+
                                         ticket.ticket.stauts = TicketStatus.已冻结;
                                         ticket.ticket.cancelCount = ticket.ticket.totalCount;
                                         ticket.voucherStatus = 2;
                                         usedCount++;
                                         await _cache.Del("Ticket:" + ticket.ticket.ticketNumber);
-                                        await xiechengTicketService.UpdateNow(ticket);
-                                        
                                     }
                                     vouchers.Add(new XieChengVouchers { voucherId = ticket.ticket.ticketNumber });
                                 }
+                                await xiechengTicketService.UpdateNow(tickets);
                                 await s_service.SaleStock(xiechengOrder.objectId, -usedCount);
 
                             }
@@ -575,7 +611,7 @@ namespace 通用订票.OTA.携程.Service
             return confirm;
         }
 
-        public async Task<XieChengTIcketVerifyResult> Verify(string ticket_number, int useCount)
+        public async Task<XieChengTIcketVerifyResult> Verify(string ticket_number, int useCount,string exhibitionId)//这里的是子项的ID
         {
             XieChengTicket ticket = null;
             XieChengOrder xiechengOrder = null;
@@ -597,10 +633,13 @@ namespace 通用订票.OTA.携程.Service
                 ticket = await xiechengTicketService.GetTicket(ticket_number);
                 xiechengOrder = await this.GetQueryable(a => a.trade_no == ticket.ticket.objectId).FirstOrDefaultAsync();
 
-                var result = await xiechengTicketService.TicketVerify(ticket, useCount);
+                var result = await xiechengTicketService.TicketVerify(ticket, useCount, exhibitionId);
+
+                if(result.shouldUpdate == false){
+                    return result;
+                }
                 var app = await s_service.GetAppointmentById(ticket.ticket.AppointmentId);
-                var exhibition = await exhibitionService.GetExhibitionByID(app.objectId);
-                
+                var exhibition = await exhibitionService.GetExhibitionByID(app.objectId);//不要弄混了，这里的exhibition是联票的ID
                 if (result.code == 1)
                 {
                     ticket = result.ticket;

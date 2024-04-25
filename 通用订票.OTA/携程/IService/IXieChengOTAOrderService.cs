@@ -22,7 +22,7 @@ namespace 通用订票.OTA.携程.IService
         Task<bool> CanclePreOrder(XieChengOrderQuery query);
         Task<XieChengCancelOrderResponse> CancelOrder(XieChengCancelOrder order);
         Task<XieChengCancelOrderConfirm> CancleOrderConfirm(XieChengCancelOrder order);
-        Task<XieChengTIcketVerifyResult> Verify(string ticket_number, int useCount);
+        Task<XieChengTIcketVerifyResult> Verify(string ticket_number, int useCount,string exhibition);
         Task<string[]> GetPassengersIds(string otaOrderId, string itemId);
         Task<XieChengConfig> GetConfig(string tenant_id);
         Task<ICollection<XieChengOrder>> GetOrder(string otaOrderId);

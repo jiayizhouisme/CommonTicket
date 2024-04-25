@@ -42,8 +42,7 @@ namespace 通用订票.JobTask
                 {
                     var service = ServiceFactory.GetSaasService<IXieChengOTAOrderService, XieChengOrder>(scope.ServiceProvider, ticket.tenant_id);
                     service.SetTenant(ticket.tenant_id);
-
-                    await service.Verify(ticket.ticketNumber, ticket.count);
+                    await service.Verify(ticket.ticketNumber, ticket.count,ticket.exhibitionId);
                 }
             }
         }

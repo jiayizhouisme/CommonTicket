@@ -263,9 +263,9 @@ namespace 通用订票.Web.Entry.Controllers
 
         [HttpGet(Name = "CheckTicket")]
         [NonUnify]
-        public async Task<TicketVerifyResult> CheckTicket([FromQuery] string ticket_number, [FromQuery] int count = 1)
+        public async Task<TicketVerifyResult> CheckTicket([FromQuery] string ticket_number, [FromQuery] int count = 1, [FromQuery] string exhibition = null)
         {
-            var ticket = await ticketService.TicketBeginCheck(ticket_number, count);
+            var ticket = await ticketService.TicketBeginCheck(ticket_number, count,exhibition);
             if (ticket.ticket != null)
             {
                 ticket.order = await myOrderService.GetOrderById(ticket.ticket.objectId);
@@ -280,7 +280,8 @@ namespace 通用订票.Web.Entry.Controllers
                     type = ticket.ticket.ota,
                     ticketNumber = ticket_number,
                     count = count,
-                    tenant_id = httpContextUser.TenantId
+                    tenant_id = httpContextUser.TenantId,
+                    exhibitionId = exhibition
                 });
             }
             else

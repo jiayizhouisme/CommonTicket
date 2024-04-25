@@ -7,12 +7,6 @@ namespace 通用订票.Application.System.ServiceBases.IService
 {
     public interface ITicketService<T> : IBaseTicketService<T> where T : Core.Entity.Ticket, new()
     {
-        /// <summary>
-        /// 验票
-        /// </summary>
-        /// <param name="ticket"></param>
-        /// <returns></returns>
-        Task<TicketVerifyResult> TicketCheck(T ticket, int useCount);
         Task AfterTicketToke(long objectId);
     }
 }

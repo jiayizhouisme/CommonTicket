@@ -76,7 +76,7 @@ namespace 通用订票.Application.System.ServiceBases.Service
                 var order = await TakeOrder(amount, status,extraInfo);
                 order.objectId = objectId;
                 order.createTime = DateTime.Now;
-                order.name = "普通订单:" + name;
+                order.name = name;
                 return order;
             }
             catch

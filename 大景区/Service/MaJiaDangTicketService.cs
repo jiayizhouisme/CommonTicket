@@ -10,7 +10,8 @@ namespace 通用订票.大景区.Service
     [Injection(Order = 0)]
     public class MaJiaDangTicketService : DefaultTicketService, ITransient
     {
-        public MaJiaDangTicketService(IRepository<Core.Entity.Ticket, MasterDbContextLocator> _dal, ICacheOperation _cache) : base(_dal, _cache)
+        public MaJiaDangTicketService(IRepository<Core.Entity.Ticket, MasterDbContextLocator> _dal,
+            ICacheOperation _cache,IMultiTicketService multiTicketService) : base(_dal, _cache,multiTicketService)
         {
         }
     }

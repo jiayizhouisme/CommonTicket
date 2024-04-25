@@ -4,15 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using 通用订票.Core.Entity;
-using 通用订票.OTA.携程.Entity;
 
-namespace 通用订票.OTA.携程.Model
+namespace 通用订票.Application.System.Models
 {
-    public struct XieChengTIcketVerifyResult
+    public struct MultiTicketCancelResult
     {
         public int code { get; set; }
         public string message { get; set; }
-        public XieChengTicket ticket { get; set; }
-        public bool shouldUpdate { get; set; }
+        public bool shouldUpdate {  get; set; }
     }
+
 }

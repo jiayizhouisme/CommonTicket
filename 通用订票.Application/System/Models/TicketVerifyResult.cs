@@ -15,5 +15,12 @@ namespace 通用订票.Application.System.Models
         public Exhibition exhibition { get; set; }
         public Appointment app { get; set; }
         public Core.Entity.Order order { get; set; }
+        public bool shouldUpdate { get; set; }
+    }
+
+    public struct MultiTicketVerifyResult
+    {
+        public int code { get; set; }
+        public int usedCount { get; set; }
     }
 }
