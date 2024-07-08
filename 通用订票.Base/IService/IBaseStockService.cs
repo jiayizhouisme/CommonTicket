@@ -9,6 +9,6 @@ namespace 通用订票.Base.IService
         /// </summary>
         /// <param name="stockId"></param>
         /// <returns></returns>
-        Task<T> SaleStock(string stockId,int count);
+        Task<bool> SaleStock(string stockId,int count);
     }
 }

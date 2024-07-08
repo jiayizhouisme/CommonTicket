@@ -1,7 +1,11 @@
-﻿using Core.Cache;
+﻿using Core.Auth;
+using Core.Cache;
+using Core.Queue;
 using Core.Queue.IQueue;
 using Core.Services.ServiceFactory;
 using Core.SignalR;
+using DotNetCore.CAP.Dashboard;
+using Furion;
 using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Furion.EventBus;
@@ -35,81 +39,63 @@ namespace 通用订票.RedisMQ
         private readonly IEventPublisher _eventPublisher;
         private readonly IServiceProvider _serviceProvider;
         private readonly IJsonSerializerProvider jsonSerializerProvider;
-
+        private readonly ICacheOperation _cache;
+        private readonly IQueuePushInfo _queue;
+        private readonly ILogger<OrderCreateSubscribe> _logger;
         public OrderCreateSubscribe(
             IEventPublisher _eventPublisher,
             IJsonSerializerProvider jsonSerializerProvider,
-            IServiceProvider _serviceProvider)
+            IServiceProvider _serviceProvider,
+            ICacheOperation _cache,
+            ILogger<OrderCreateSubscribe> logger,
+            IQueuePushInfo _queue)
         {
             this._eventPublisher = _eventPublisher;
             this.jsonSerializerProvider = jsonSerializerProvider;
             this._serviceProvider = _serviceProvider;
+            this._cache = _cache;
+            _logger = logger;
+            this._queue = _queue;
         }
 
         [Subscribe("CreateOrder")]
         public async Task CreateOrder(string json)
         {
             IDefaultAppointmentService s_service;
-            IDefaultOrderServices o_service;
             OrderCreate data = jsonSerializerProvider.Deserialize<OrderCreate>(json);
-            if (data == null)
-            {
-                return;
-            }
-            Core.Entity.Order order = null;
-            Appointment stockret = null;
             var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
-            using (var scope = _serviceProvider.CreateScope())
+            using (var scope = _serviceProvider.CreateScope()) 
             {
-                #region 获取services
-                var dbcontext = Db.GetDbContext(scope.ServiceProvider);
+
                 var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
-                var _orderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultOrderServices>>();
-
                 s_service = factory.GetStockService(_stockProvider);
-                o_service = factory.GetOrderService(_orderProvider);
+                s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>
+                    (scope.ServiceProvider, s_service, data.tenantId);
 
-                s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, data.tenantId);
-                o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
-                #endregion
-                o_service.SetUserContext(data.userid);
-                stockret = s_service.checkStock(data.appid).Result;
-                if (stockret != null && ((stockret.sale + data.ids.Count) <= stockret.amount))
+                var locker = _cache.Lock("OrderCloseLock:" + data.appid, data.appid).Result;
+                var app = s_service.checkStock(data.appid).Result;
+                app.sale += data.ids.Count;
+                if (app.sale > app.amount)
                 {
-                    using (var trans = dbcontext.Database.BeginTransaction())
-                    {
-                        try
-                        {
-                            string extraInfo = jsonSerializerProvider.Serialize(new { a = data.appid,i = data.ids});
-                            if (data.price > 0)
-                            {
-                                order = o_service.CreateOrder(stockret.id, stockret.stockName, data.price * data.ids.Count,OrderStatus.未付款, extraInfo).Result;
-                            }
-                            else
-                            {
-                                order = o_service.CreateOrder(stockret.id, stockret.stockName, data.price * data.ids.Count, OrderStatus.已付款, extraInfo).Result;
-                            }
-                            var _stockret = s_service.SaleStock(data.appid, data.ids.Count).Result;
-
-                            if (_stockret == null)
-                            {
-                                await o_service.DelOrderFromCache(order.trade_no);
-                                throw new Exception("错误");
-                            }
-
-                            var entity = new OnOrderCreated() { app = stockret, order = order, ids = data.ids, tenantId = data.tenantId, userId = data.userid };
-                            await trans.CommitAsync();
-                            await _eventPublisher.PublishAsync(new OnOrderCreatedEvent(entity));
-                        }
-                        catch (Exception e)
-                        {
-                            await PublishOrderCreateFail(stockret, order, data.ids.Count, data.tenantId, data.userid);
-                            throw e;
-                        }
-                    }
+                    app.sale = app.amount;
                 }
-                
+                s_service.UpdateNow(app).Wait();
+                //await s_service.DelStockFromCache(app.id);
+                locker = await _cache.ReleaseLock("OrderCloseLock:" + data.appid, data.appid);
+
+                var CreateOrder = new OrderCloseQueueEntity(new OrderClose()
+                {
+                    trade_no = data.order.trade_no,
+                    appid = data.appid,
+                    userId = data.userid,
+                    delay = 30,
+                    tenantId = data.tenantId,
+                    count = data.ids.Count,
+                    realTenantId = data.tenantId
+                });
+                await _queue.PushMessageDelay(CreateOrder, DateTime.Now.AddSeconds(60));
             }
+           
             await Task.CompletedTask;
         }
 

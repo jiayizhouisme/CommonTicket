@@ -1,4 +1,5 @@
-﻿using Core.Cache;
+﻿using Core.Auth;
+using Core.Cache;
 using Core.Services.ServiceFactory;
 using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
@@ -18,6 +19,7 @@ using 通用订票.Core.Entity;
 using 通用订票.EventBus.Entity;
 using 通用订票.EventBus.EventEntity;
 using 通用订票.Procedure.Entity;
+using 通用订票.Procedure.Entity.QueueEntity;
 using 通用订票Order.Entity;
 
 namespace 通用订票.RedisMQ
@@ -56,40 +58,62 @@ namespace 通用订票.RedisMQ
             Core.Entity.Order order = null;
             string lockerId = Guid.NewGuid().ToString();
             var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
-            
-            var lo = _cache.Lock("OrderLocker_" + data.trade_no, lockerId).Result;
+
             using (var scope = _serviceProvider.CreateScope())
             {
+                
                 #region 获取services
                 var _orderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultOrderServices>>();
                 var o_service = factory.GetOrderService(_orderProvider);
                 o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
                 o_service.SetUserContext(data.userId);
+                DbContext dbContext = Db.GetDbContext(scope.ServiceProvider);
+                var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
+                var s_service = factory.GetStockService(_stockProvider);
+                s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, data.tenantId);
                 #endregion
+                var lo = _cache.Lock("OrderLocker_" + data.trade_no, lockerId).Result;
+                order = o_service.GetOrderById(data.trade_no).Result;
+                var orderInfo = jsonSerializerProvider.Deserialize<OrderInfo>(order.extraInfo);
+                var saleResult = s_service.SaleStock(order.objectId, -orderInfo.ids.Count()).Result;
 
                 try
                 {
-                    order = o_service.GetOrderById(data.trade_no).Result;
                     if (order.status != OrderStatus.未付款)
-                    {
-                        throw new Exception("");
-                    }
-                    var o = o_service.CancelOrder(order).Result;
-                    if (o == null)
                     {
                         throw new Exception("订单已支付或不存在");
                     }
-                    var orderClosed = new OnOrderClosed() { order = order,tenantId = data.tenantId };
-                    await eventPublisher.PublishAsync(new OnOrderClosedEvent(orderClosed));
+                    using (var transaction = dbContext.Database.BeginTransaction())
+                    {
+                        var o = o_service.CancelOrder(order).Result;
+                        if (o == null)
+                        {
+                            throw new Exception("订单已支付或不存在");
+                        }
+                        var l = _cache.Lock("OrderCloseLock:" + order.objectId, order.objectId).Result;
+
+                        var stock = s_service.checkStock(order.objectId).Result;
+                        stock.sale -= orderInfo.ids.Count();
+                        if (stock.sale < 0)
+                        {
+                            stock.sale = 0;
+                        }
+                        await s_service.UpdateNow(stock);
+
+                        //await s_service.DelStockFromCache(stock.id);
+                        await transaction.CommitAsync();
+                    }
+                   
                 }
                 catch (Exception e1)
                 {
- 
+                    saleResult = await s_service.SaleStock(order.objectId, orderInfo.ids.Count());
                 }
                 finally
                 {
 
                     await _cache.ReleaseLock("OrderLocker_" + data.trade_no, lockerId.ToString());
+                    await _cache.ReleaseLock("OrderCloseLock:" + order.objectId, order.objectId);
                 }
                 
             }

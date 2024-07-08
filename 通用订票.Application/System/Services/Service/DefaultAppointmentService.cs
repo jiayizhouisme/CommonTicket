@@ -16,45 +16,42 @@ namespace 通用订票.Application.System.Services.Service
             this._cache = _cache;
         }
 
-        public override async Task<Appointment> SaleStock(string stockId, int count = 1)
+        //public override async Task<Appointment> SaleStock(string stockId, int count = 1)
+        //{
+        //    string lockerId = Guid.NewGuid().ToString();
+        //    Appointment stock = null;
+        //    await _cache.Lock("StockUpdateLocker" + stockId, lockerId);
+        //    try
+        //    {
+        //        stock = await base.SaleStock(stockId, count);
+        //        if (stock == null || stock.sale > stock.amount || stock.sale < 0)
+        //        {
+        //            return null;
+        //        }
+        //        await this.UpdateNow(stock);
+        //        await SetStockToCache(stock);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        await this.DelStockFromCache(stockId);
+        //        throw e;
+        //    }
+        //    finally
+        //    {
+        //        await _cache.ReleaseLock("StockUpdateLocker" + stockId, lockerId);
+        //    }
+        //    return stock;
+        //}
+        public override async Task<bool> SaleStock(string stockId, int count = 1)
         {
-            string lockerId = Guid.NewGuid().ToString();
-            Appointment stock = null;
-            await _cache.Lock("StockUpdateLocker" + stockId, lockerId);
-            try
-            {
-                stock = await base.SaleStock(stockId, count);
-                if (stock == null || stock.sale > stock.amount || stock.sale < 0)
-                {
-                    return null;
-                }
-                await this.UpdateNow(stock);
-                await SetStockToCache(stock);
-            }
-            catch (Exception e)
-            {
-                await this.DelStockFromCache(stockId);
-                throw e;
-            }
-            finally
-            {
-                await _cache.ReleaseLock("StockUpdateLocker" + stockId, lockerId);
-            }
-            return stock;
+            return await base.SaleStock(stockId,count);
         }
 
         public override async Task<Appointment> checkStock(string stockId)
         {
             var result = await base.checkStock(stockId);
-            var vaild = this.vaildStock(result);
-            if (vaild == true)
-            {
-                return result;
-            }
-            else
-            {
-                return null;
-            }
+            //var vaild = this.vaildStock(result);
+            return result;
         }
 
         public virtual void SetUserContext(Guid userId)

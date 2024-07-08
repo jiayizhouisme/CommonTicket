@@ -6,8 +6,12 @@ using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Furion.DynamicApiController;
 using Furion.EventBus;
+using Furion.JsonSerialization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ProtoBuf.Meta;
+using StackExchange.Redis;
+using System.Net.Sockets;
 using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
@@ -19,6 +23,7 @@ using 通用订票.JobTask;
 using 通用订票.Procedure.Entity;
 using 通用订票.Procedure.Entity.QueueEntity;
 using 通用订票Order.Entity;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace 通用订票.Web.Entry.Controllers
 {
@@ -35,6 +40,7 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly ICacheOperation _cache;
         private readonly IQueuePushInfo _queue;
         private readonly IEventPublisher eventPublisher;
+        private readonly IJsonSerializerProvider jsonSerializerProvider;
 
         public OrderController(IUserInfoService userinfoService,
             ICacheOperation _cache,
@@ -46,7 +52,8 @@ namespace 通用订票.Web.Entry.Controllers
             INamedServiceProvider<IDefaultOrderServices> _orderProvider,
             INamedServiceProvider<IDefaultTicketService> _ticketProvider,
             IQueuePushInfo _queue,
-             IEventPublisher eventPublisher)
+             IEventPublisher eventPublisher,
+             IJsonSerializerProvider jsonSerializerProvider)
         {
             this._cache = _cache;
             this.httpContextUser = httpContextUser;
@@ -56,6 +63,7 @@ namespace 通用订票.Web.Entry.Controllers
             this.exhibitionService = exhibitionService;
             this._queue = _queue;
             this.eventPublisher = eventPublisher;
+            this.jsonSerializerProvider = jsonSerializerProvider;
 
             var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
             this.stockService = factory.GetStockService(_stockProvider);
@@ -72,20 +80,18 @@ namespace 通用订票.Web.Entry.Controllers
             var userid = httpContextUser.ID;
             string lockierid = userid;
 
+            var saleRet = await stockService.SaleStock(oc.appid, oc.ids.Count);
+            if (saleRet == false)
+            {
+                return new { status = 1, message = "库存不足" };
+            }
+
             myOrderService.SetUserContext(userid);
             //var _lock = await myOrderService.PreOrder(oc.appid);
             //if (_lock == false)
             //{
             //    return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
             //}
-
-            var stock = await stockService.checkStock(oc.appid);
-            if (stock == null)
-            {
-                await myOrderService.OrderFail(oc.appid);
-                return new { code = 0, message = "库存不足" };
-            }
-
             oc.ids = oc.ids.Distinct().ToArray();
             foreach (var item in oc.ids)
             {
@@ -109,39 +115,52 @@ namespace 通用订票.Web.Entry.Controllers
                 
             }
 
-            var left = stock.amount - stock.sale; //获取剩余票数
-            var myid = await _cache.Incrby("QueueIn_" + oc.appid,oc.ids.Count);
-
-            if (myid > left)
-            {
-                await _cache.Decrby("QueueIn_" + oc.appid, oc.ids.Count);
-                await myOrderService.OrderFail(oc.appid);
-                return new { code = 0, message = "库存不足" };
-            }
-
             //ticketService.SetUserContext(userid);
             //var vaild = await ticketService.Vaild(oc.ids.ToArray(), stock);
             //if (vaild == false)
             //{
-            //    await _cache.Decrby("QueueIn_" + oc.appid, oc.ids.Count);
             //    await myOrderService.OrderFail(oc.appid);
             //    return new { status = 1,message = "用户重复" };
             //}
-
-            var exhibition = await exhibitionService.GetExhibitionByID(stock.objectId);
-
-            var CreateOrder = new OrderCreateQueueEntity(new OrderCreate()
+            var stock = await stockService.checkStock(oc.appid);
+            try
             {
-                appid = oc.appid,
-                ids = oc.ids,
-                userid = userid,
-                tenantId = httpContextUser.TenantId,
-                price = exhibition.basicPrice
-            });
+                var exhibition = await exhibitionService.GetExhibitionByID(stock.objectId);
+                string extraInfo = jsonSerializerProvider.Serialize(new OrderInfo { appid = oc.appid, ids = oc.ids.ToArray() });
+                通用订票.Core.Entity.Order order = null;
+                if (exhibition.basicPrice > 0)
+                {
+                    order = await myOrderService.CreateOrder(stock.id, stock.stockName,
+                        exhibition.basicPrice * oc.ids.Count,
+                        OrderStatus.未付款, extraInfo);
+                }
+                else
+                {
+                    order = await myOrderService.CreateOrder(stock.id,
+                        stock.stockName,
+                        exhibition.basicPrice * oc.ids.Count,
+                        OrderStatus.已付款,
+                        extraInfo);
+                }
 
-            await _queue.PushMessage(CreateOrder);
+                var CreateOrder = new OrderCreateQueueEntity(new OrderCreate()
+                {
+                    order = order,
+                    appid = oc.appid,
+                    ids = oc.ids,
+                    userid = userid,
+                    tenantId = httpContextUser.TenantId,
+                    price = exhibition.basicPrice
+                });
+                await _queue.PushMessage(CreateOrder);
 
-            return new { status = 1,message = "下单请求成功，请等待下单结果" };
+                return new { status = 1, message = "下单请求成功，请等待下单结果", data = order };
+            }
+            catch
+            {
+                await stockService.SaleStock(stock.id, -oc.ids.Count);
+                return new { status = 0, message = "服务端错误,下单请求失败"};
+            }
         }
 
         [Authorize]
@@ -241,16 +260,18 @@ namespace 通用订票.Web.Entry.Controllers
                 await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId);
                 throw new Exception("目前状态不可关闭订单");
             }
-
+            var orderInfo = jsonSerializerProvider.Deserialize<OrderInfo>(order.extraInfo);
+            var saleResult = await stockService.SaleStock(order.objectId, -orderInfo.ids.Count());
             try
             {
                 var o = await myOrderService.CancelOrder(order);
-                var onOrderClosed = new OnOrderClosed() {order = order,tenantId = httpContextUser.TenantId,userId = httpContextUser.ID };
-                await eventPublisher.PublishAsync(new OnOrderClosedEvent(onOrderClosed));            
+
+                var onOrderClosed = new OnOrderClosed() { order = order, tenantId = httpContextUser.TenantId, userId = httpContextUser.ID };
+                await eventPublisher.PublishAsync(new OnOrderClosedEvent(onOrderClosed));
             }
             catch(Exception e)
             {
-                throw e;
+                var _ = await stockService.SaleStock(order.objectId, orderInfo.ids.Count());
             }
             finally
             {

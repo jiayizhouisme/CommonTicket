@@ -1,6 +1,7 @@
 ﻿using Core.Cache;
 using Core.Services;
 using 通用订票.Application.System.ServiceBases.IService;
+using 通用订票.Core.BaseEntity;
 
 namespace 通用订票.Application.System.ServiceBases.Service
 {
@@ -8,7 +9,6 @@ namespace 通用订票.Application.System.ServiceBases.Service
     {
         private readonly ICacheOperation _cache;
         private long lo = 0;
-
         public StockBaseService(IRepository<T, DbLocator> _dal, ICacheOperation _cache)
         {
             this._dal = _dal;
@@ -53,7 +53,21 @@ namespace 通用订票.Application.System.ServiceBases.Service
             return stock;//再判断一次
         }
 
-        public virtual async Task<T> SaleStock(string stockId, int count = 1)
+        //public virtual async Task<T> SaleStock(string stockId, int count = 1)
+        //{
+        //    T stock = null;
+        //    stock = await GetStockFromCache(stockId.ToString());
+        //    if (stock == null)
+        //    {
+        //        stock = await GetStockFromDb(stockId);
+        //    }
+        //    if (stock != null)
+        //        stock.sale = stock.sale + count;
+
+        //    return stock;
+        //}
+
+        public virtual async Task<bool> SaleStock(string stockId, int count = 1)
         {
             T stock = null;
             stock = await GetStockFromCache(stockId.ToString());
@@ -62,9 +76,36 @@ namespace 通用订票.Application.System.ServiceBases.Service
                 stock = await GetStockFromDb(stockId);
             }
             if (stock != null)
-                stock.sale = stock.sale + count;
+            {
+                int? init = await GetSaled(stockId);
+                if (init == null)
+                {
+                    await _cache.Lock("StockCheckLock:" + stockId, stockId);
+                    init = await GetSaled(stockId);
+                    if (init == null)
+                    {
+                        await _cache.Set("StockSales:" + stockId, stock.sale, 36000);
+                    }
+                    await _cache.ReleaseLock("StockCheckLock:" + stockId, stockId);
+                }
 
-            return stock;
+                var sales = await _cache.Incrby("StockSales:" + stockId, count, 36000);
+                if (sales < 0)
+                {
+                    await _cache.Decrby("StockSales:" + stockId, (int)sales, 36000);
+                    return false;
+                }
+                if (sales > stock.amount)
+                {
+                    await _cache.Decrby("StockSales:" + stockId, count, 36000);
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+            return true;
         }
 
         protected async Task<T> GetStockFromDb(string stockId)
@@ -100,6 +141,11 @@ namespace 通用订票.Application.System.ServiceBases.Service
         public async Task DelStockFromCache(string stockId)
         {
             await _cache.Del("stock:" + stockId);
+        }
+
+        public async Task<int?> GetSaled(string stockId)
+        {
+            return await _cache.Get<int?>("StockSales:" + stockId);
         }
     }
 }

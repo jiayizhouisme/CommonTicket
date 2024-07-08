@@ -42,7 +42,7 @@ namespace 通用订票.Web.Core
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddConsoleFormatter();
-            Array.ForEach(new[] { LogLevel.Information, LogLevel.Warning, LogLevel.Error }, logLevel =>
+            Array.ForEach(new[] { LogLevel.Information, LogLevel.Warning, LogLevel.Error,LogLevel.Debug }, logLevel =>
             {
                 services.AddFileLogging("log/application-{1}-{0:yyyy}-{0:MM}-{0:dd}.log", options =>
                 {
