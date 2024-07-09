@@ -9,43 +9,27 @@ namespace 通用订票.Core.RetValues
 {
     public struct OpreationResult
     {
-        private static object _NULL = new { };
-        private static string _NULLSTR = "";
-        public OpreationResult()
-        {
-            this.data = _NULL;
-            data = _NULLSTR;
-        }
-        public int code { get; set; }
-        public string message { get; set; }
-        public object data { get; set; }
-        public string detail { get; set; }
-
+        public string name { get; set; }
+        public string opreation1 { get; set; }
+        public string opreation2 { get; set; }
+        public string successed { get; set;  }
     }
     public static class RetValues
     {
-        
-        
-        public static OpreationResult Ok(object data = null,string detail = null)
-        {
-            return CreateOrderSuccessed;
-        }
+        private static readonly string Create = "创建";
+        private static readonly string Close = "关闭";
+        private static readonly string Pay = "支付";
+        private static readonly string Refund = "退款";
 
-        private static OpreationResult CreateOrderSuccessed = 
-            new OpreationResult { code = 200,message = "订单创建成功"};
-        private static OpreationResult CreateOrderFailed  = 
-            new OpreationResult { code = 200, message = "订单创建失败" };
-        private static OpreationResult CloseOrderSuccessed = 
-            new OpreationResult { code = 200, message = "订单关闭成功" };
-        private static OpreationResult CloseOrderFailed = 
-            new OpreationResult { code = 200, message = "订单关闭失败" };
-        private static OpreationResult PayOrderSuccessed =
-            new OpreationResult { code = 200, message = "订单支付成功" };
-        private static OpreationResult PayOrderOrderFailed =
-            new OpreationResult { code = 200, message = "订单支付失败" };
-        private static OpreationResult RefundOrderSuccessed =
-            new OpreationResult { code = 200, message = "订单退款成功" };
-        private static OpreationResult RefundOrderFailed =
-            new OpreationResult { code = 200, message = "订单退款失败" };
+        private static readonly string Entity = "订单";
+
+        public static OpreationResult CreateOrder = 
+            new OpreationResult { opreation1 = "创建",name = "订单",opreation2 = "创建"};
+        public static OpreationResult CloseOrder =
+            new OpreationResult { name = "订单", opreation2 = "创建" };
+        public static OpreationResult PayOrder =
+            new OpreationResult { name = "订单", opreation2 = "创建" };
+        public static OpreationResult RefundOrder =
+            new OpreationResult { name = "订单", opreation2 = "创建" };
     }
 }

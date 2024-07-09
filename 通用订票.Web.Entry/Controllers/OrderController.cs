@@ -75,7 +75,7 @@ namespace 通用订票.Web.Entry.Controllers
         [Authorize]
         //[TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpPost(Name = "CreateOrder")]
-        public async Task<dynamic> CreateOrder([FromBody]BaseOrderCreate oc)
+        public async Task<object> CreateOrder([FromBody]BaseOrderCreate oc)
         {
             var userid = httpContextUser.ID;
             string lockierid = userid;
