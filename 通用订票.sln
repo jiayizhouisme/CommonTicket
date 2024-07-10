@@ -58,7 +58,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "通用订票.小景区", "�
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "通用订票.大景区", "大景区\通用订票.大景区.csproj", "{1DF6126F-E455-4991-B31F-109EB287099C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "通用订票.OTA", "通用订票.OTA\通用订票.OTA.csproj", "{5FE7EE8E-ACAF-48A8-AB6C-BFDB5DE27DD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "通用订票.OTA", "通用订票.OTA\通用订票.OTA.csproj", "{5FE7EE8E-ACAF-48A8-AB6C-BFDB5DE27DD2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Wechat", "..\Cores\Core.Wechat\Core.Wechat.csproj", "{2534048D-C999-466A-BAA2-1050BDA1B554}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -158,6 +160,10 @@ Global
 		{5FE7EE8E-ACAF-48A8-AB6C-BFDB5DE27DD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5FE7EE8E-ACAF-48A8-AB6C-BFDB5DE27DD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FE7EE8E-ACAF-48A8-AB6C-BFDB5DE27DD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2534048D-C999-466A-BAA2-1050BDA1B554}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2534048D-C999-466A-BAA2-1050BDA1B554}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2534048D-C999-466A-BAA2-1050BDA1B554}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2534048D-C999-466A-BAA2-1050BDA1B554}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -187,6 +193,7 @@ Global
 		{7BC843EC-AA32-47A3-A4ED-D891431EF0BE} = {653C05C6-0507-4235-B0BA-CCB164A21F0E}
 		{1DF6126F-E455-4991-B31F-109EB287099C} = {653C05C6-0507-4235-B0BA-CCB164A21F0E}
 		{5FE7EE8E-ACAF-48A8-AB6C-BFDB5DE27DD2} = {21196BB4-F473-4CBB-9356-BF2CC0375636}
+		{2534048D-C999-466A-BAA2-1050BDA1B554} = {C11C3504-64B5-46FE-8AC4-8204FAFB094C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C53A7C6F-76AF-4F0F-95B5-BE403989F34F}
