@@ -29,15 +29,18 @@ namespace 通用订票.JobTask
 
         public async System.Threading.Tasks.Task ExecuteAsync(JobExecutingContext context, CancellationToken stoppingToken)
         {
-            var scope = _serviceProvider.CreateScope();
-            await _cache.Del("Tenants");
-            var te = Db.GetRepository<Tenant, MultiTenantDbContextLocator>(scope.ServiceProvider);
-            var tenants = await te.AsQueryable().ToListAsync();
-            foreach (var item in tenants)
+            using (var scope = _serviceProvider.CreateScope())
             {
-                await _cache.PushToList("Tenants",item);
+                await _cache.Del("Tenants");
+                var te = Db.GetRepository<Tenant, MultiTenantDbContextLocator>(scope.ServiceProvider);
+                var tenants = await te.AsQueryable().ToListAsync();
+                foreach (var item in tenants)
+                {
+                    await _cache.PushToList("Tenants", item);
+                }
+                _logger.LogInformation("Tenant添加到缓存");
             }
-            _logger.LogInformation("Tenant添加到缓存");
+               
         }
     }
 }
