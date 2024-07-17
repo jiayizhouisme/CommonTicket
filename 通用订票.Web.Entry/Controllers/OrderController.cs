@@ -27,6 +27,9 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace 通用订票.Web.Entry.Controllers
 {
+    /// <summary>
+    /// 订票系统
+    /// </summary>
     public class OrderController : IDynamicApiController
     {
         private readonly IUserInfoService userinfoService;
