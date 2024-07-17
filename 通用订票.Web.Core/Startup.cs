@@ -1,7 +1,7 @@
 ﻿using Core.Auth;
 using Core.Auth.Handler;
 using Core.Cache;
-using Core.MiddelWares;
+using Core.MiddelWares.HttpTenantContextMiddleWare;
 using Core.Queue.IQueue;
 using Core.SignalR;
 using Core.User.Service;
@@ -126,7 +126,7 @@ namespace 通用订票.Web.Core
             services.AddSignalR().AddStackExchangeRedis(App.Configuration["RedisConfig:ConnectionString"], options => {
                 options.Configuration.ChannelPrefix = App.Configuration["ServerConfig:CachePrefix"];
             });
-
+            services.AddSingleton<IGetTenantInHttpContext,GetTenantByUrl>();
             services.AddSchedule(options =>
             {
                 options.BuildSqlType = SqlTypes.SqlServer;
