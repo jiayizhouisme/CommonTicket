@@ -147,5 +147,26 @@ namespace 通用订票.Application.System.ServiceBases.Service
         {
             return await _cache.Get<int?>("StockSales:" + stockId);
         }
+
+        public async Task<bool> SaleStockAndUpdate(string stockId, int count)
+        {
+            var result = await this.SaleStock(stockId,count);
+            if (result == true)
+            {
+                T stock = null;
+                await _cache.Lock("OrderCloseLock:" + stockId, stockId);
+                stock = await GetStockFromCache(stockId.ToString());
+                if (stock == null)
+                {
+                    stock = await GetStockFromDb(stockId);
+                }
+                stock.sale += count;
+                await this.UpdateNow(stock);
+                await this.DelStockFromCache(stockId);
+                await _cache.ReleaseLock("OrderCloseLock:" + stockId, stockId);
+            }
+            return result;
+
+        }
     }
 }

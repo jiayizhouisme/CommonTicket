@@ -131,7 +131,7 @@ namespace 通用订票.OTA.携程.Service
                             order.userId = "";
                             order.locale = "zh-CN";
                             order.passengerIds = string.Join(" ", order.passengers.Select(a => a.passengerId).ToArray());
-                            await s_service.SaleStock(app.id, order.quantity);
+                            await s_service.SaleStockAndUpdate(app.id, order.quantity);
                             await this.AddNow(order);
                             await _cache.PushToList("XieChengOrders:" + order.otaOrderId, order);
                             await trans.CommitAsync();
@@ -244,7 +244,7 @@ namespace 通用订票.OTA.携程.Service
                         {
                             order.orderStatus = XieChengOrderStatus.预下单取消成功;
                             await this.UpdateNow(order);
-                            await s_service.SaleStock(order.objectId, -order.quantity);
+                            await s_service.SaleStockAndUpdate(order.objectId, -order.quantity);
                         }
                         await _cache.ReleaseLock(key, locker);
                     }
@@ -516,7 +516,7 @@ namespace 通用订票.OTA.携程.Service
                             await xiechengTicketService.UpdateNow(tickets);
                             if (cancelCount > 0)
                             {
-                                await s_service.SaleStock(xiechengOrder.objectId, -cancelCount);
+                                await s_service.SaleStockAndUpdate(xiechengOrder.objectId, -cancelCount);
                             }
                         }
                         else if (exhibition.passType == PassTemplate.一张一人)
@@ -549,7 +549,7 @@ namespace 通用订票.OTA.携程.Service
                                     vouchers.Add(new XieChengVouchers { voucherId = ticket.ticket.ticketNumber });
                                 }
                                 await xiechengTicketService.UpdateNow(tickets);
-                                await s_service.SaleStock(xiechengOrder.objectId, -usedCount);
+                                await s_service.SaleStockAndUpdate(xiechengOrder.objectId, -usedCount);
                             }
                             else
                             {
@@ -581,7 +581,7 @@ namespace 通用订票.OTA.携程.Service
                                     vouchers.Add(new XieChengVouchers { voucherId = ticket.ticket.ticketNumber });
                                 }
                                 await xiechengTicketService.UpdateNow(tickets);
-                                await s_service.SaleStock(xiechengOrder.objectId, -usedCount);
+                                await s_service.SaleStockAndUpdate(xiechengOrder.objectId, -usedCount);
 
                             }
                         }

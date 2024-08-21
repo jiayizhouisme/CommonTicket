@@ -255,6 +255,7 @@ namespace 通用订票.Web.Entry.Controllers
             var order = await myOrderService.GetOrderById(trade_no);
             if (order == null || order.userId.ToString() != httpContextUser.ID)
             {
+                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId);
                 throw new ArgumentException("目前状态不可关闭订单");
             }
 

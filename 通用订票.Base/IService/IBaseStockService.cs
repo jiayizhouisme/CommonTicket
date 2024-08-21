@@ -10,5 +10,6 @@ namespace 通用订票.Base.IService
         /// <param name="stockId"></param>
         /// <returns></returns>
         Task<bool> SaleStock(string stockId,int count);
+        Task<bool> SaleStockAndUpdate(string stockId, int count);
     }
 }

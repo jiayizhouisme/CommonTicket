@@ -1,4 +1,5 @@
-﻿using Core.Auth;
+﻿using Consul;
+using Core.Auth;
 using Core.Cache;
 using Core.Queue;
 using Core.Queue.IQueue;
@@ -71,18 +72,23 @@ namespace 通用订票.RedisMQ
                 s_service = factory.GetStockService(_stockProvider);
                 s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>
                     (scope.ServiceProvider, s_service, data.tenantId);
-
-                var locker = _cache.Lock("OrderCloseLock:" + data.appid, data.appid).Result;
-                var app = s_service.checkStock(data.appid).Result;
-                app.sale += data.ids.Count;
-                if (app.sale > app.amount)
+                try
                 {
-                    app.sale = app.amount;
+                    var locker = _cache.Lock("OrderCloseLock:" + data.appid, data.appid).Result;
+                    var app = s_service.checkStock(data.appid).Result;
+                    app.sale += data.ids.Count;
+                    if (app.sale > app.amount)
+                    {
+                        app.sale = app.amount;
+                    }
+                    s_service.UpdateNow(app).Wait();
+                    await s_service.DelStockFromCache(app.id);
                 }
-                s_service.UpdateNow(app).Wait();
-                //await s_service.DelStockFromCache(app.id);
-                locker = await _cache.ReleaseLock("OrderCloseLock:" + data.appid, data.appid);
-
+                finally
+                {
+                    await _cache.ReleaseLock("OrderCloseLock:" + data.appid, data.appid);
+                }
+                
                 var CreateOrder = new OrderCloseQueueEntity(new OrderClose()
                 {
                     trade_no = data.order.trade_no,

@@ -100,7 +100,7 @@ namespace 通用订票.RedisMQ
                         }
                         await s_service.UpdateNow(stock);
 
-                        //await s_service.DelStockFromCache(stock.id);
+                        await s_service.DelStockFromCache(stock.id);
                         await transaction.CommitAsync();
                     }
                    

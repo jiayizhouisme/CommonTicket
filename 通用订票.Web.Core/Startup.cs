@@ -1,6 +1,7 @@
 ﻿using Core.Auth;
 using Core.Auth.Handler;
 using Core.Cache;
+using Core.MiddelWares;
 using Core.MiddelWares.HttpTenantContextMiddleWare;
 using Core.Queue.IQueue;
 using Core.SignalR;
@@ -178,8 +179,10 @@ namespace 通用订票.Web.Core
 
             app.UseResponseCaching();
             app.UseRouting();
-
+            
             app.UseCorsAccessor();
+
+            
             app.UseAuthentication();
             app.UseAuthorization();
             
