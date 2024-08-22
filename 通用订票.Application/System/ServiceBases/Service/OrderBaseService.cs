@@ -77,6 +77,7 @@ namespace 通用订票.Application.System.ServiceBases.Service
                 order.objectId = objectId;
                 order.createTime = DateTime.Now;
                 order.name = name;
+                order.extraInfo = extraInfo;
                 return order;
             }
             catch

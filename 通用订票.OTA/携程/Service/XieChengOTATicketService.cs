@@ -133,7 +133,7 @@ namespace 通用订票.OTA.携程.Service
                 xr.shouldUpdate = result.shouldUpdate;
                 if (result.shouldUpdate == false)
                 {
-                    await _ticketServices.TicketEndCheck(xiechengTicket.ticket.ticketNumber);
+                    await _ticketServices.TicketEndCheck(xiechengTicket.ticket);
                     return xr;
                 }
                 if (result.code == 1)
@@ -160,7 +160,7 @@ namespace 通用订票.OTA.携程.Service
                 xr.message = "未找到门票";
                 xr.ticket = xiechengTicket;
             }
-            await _ticketServices.TicketEndCheck(xiechengTicket.ticket.ticketNumber);
+            await _ticketServices.TicketEndCheck(xiechengTicket.ticket);
             return xr;
         }
 

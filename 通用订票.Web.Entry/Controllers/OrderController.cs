@@ -214,7 +214,7 @@ namespace 通用订票.Web.Entry.Controllers
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "PaidOrder")]
-        public async Task<dynamic> PaidOrder(long trade_no)
+        public async Task<通用订票.Core.Entity.Order> PaidOrder(long trade_no)
         {
             string lockid = Guid.NewGuid().ToString();
             await _cache.Lock("OrderLocker_" + trade_no, lockid);
@@ -241,7 +241,7 @@ namespace 通用订票.Web.Entry.Controllers
             {
                 await _cache.ReleaseLock("OrderLocker_" + trade_no, lockid);
             }
-            return null;
+            return order;
         }
 
         [Authorize]
@@ -311,83 +311,61 @@ namespace 通用订票.Web.Entry.Controllers
             }
             else
             {
-                await ticketService.TicketEndCheck(ticket_number);
+                await ticketService.TicketEndCheck(ticket.ticket);
             }
             return ticket;
         }
 
-        [Authorize]
+        //[Authorize]
         //[TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "Test")]
-        public async Task Test()
+        public async Task<string> Test(long trade_no)
         {
-            if (httpContextUser.TenantId.Contains("5003"))
+            var order = await PaidOrder(trade_no);
+            if (order == null)
             {
-                var normaluser = await userinfoService.GetWithConditionNt(a => a.id > 0);
-                var adminuser = await userService.GetWithConditionNt(a => a.authLevel == 1);
-                var num = normaluser.Count() / adminuser.Count();
-                for (int k = 0; k < adminuser.Count; k++)
+                return "生成票务失败";
+            }
+            var app = await stockService.GetAppointmentById(order.objectId);
+            var exhibition = await exhibitionService.GetExhibitionByID(app.objectId);
+
+            var orderInfo = jsonSerializerProvider.Deserialize<OrderInfo>(order.extraInfo);
+
+            var startTime = order.createTime.Value.AddDays(app.day).Date.Add(app.startTime.TimeOfDay);
+            var endTime = order.createTime.Value.AddDays(app.day).Date.Add(app.endTime.TimeOfDay);
+
+            if (exhibition.isMultiPart == true)
+            {
+                await _queue.PushMessage(new TicketCreateQueueEntity(new TicketCreate()
                 {
-                    await Task.Run(async () =>
-                    {
-                        int offset = new Random().Next(1, 5);
-                        for (int i = k * num; i < k * num + num; i += offset)
-                        {
-                            string stockid = "3DC16154-C4F5-42D6-BEEC-CC3B09D2D2D6";
-                            if ((i + offset) < (k * num + num))
-                            {
-                                await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
-                            }
-                        }
-                    });
-                    await Task.Run(async () =>
-                    {
-                        int offset = new Random().Next(1, 5);
-                        for (int i = k * num; i < k * num + num; i += offset)
-                        {
-                            string stockid = "BA050247-0548-4A05-9C60-1D8D6672A05B";
-                            if ((i + offset) < (k * num + num))
-                            {
-                                await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
-                            }
-                        }
-                    });
-                }
+                    startTime = startTime,
+                    endTime = endTime,
+                    exhibitions = exhibition.exhibitions.Split(' '),
+                    order = order,
+                    realTenantId = httpContextUser.RealTenantId,
+                    status = Base.Entity.TicketStatus.未使用,
+                    tenantId = httpContextUser.TenantId,
+                    uid = orderInfo.ids,
+                    userid = order.userId
+                }));
+
             }
             else
             {
-                var normaluser = await userinfoService.GetWithConditionNt(a => a.id > 0);
-                var adminuser = await userService.GetWithConditionNt(a => a.authLevel == 1);
-                var num = normaluser.Count() / adminuser.Count();
-                for (int k = 0; k < adminuser.Count; k++)
+                await _queue.PushMessage(new TicketCreateQueueEntity(new TicketCreate()
                 {
-                    await Task.Run(async () =>
-                    {
-                        int offset = new Random().Next(1, 5);
-                        for (int i = k * num; i < k * num + num; i += offset)
-                        {
-                            string stockid = "70FB3A70-A214-6FDD-F1F3-1A360984DA68";
-                            if ((i + offset) < (k * num + num))
-                            {
-                                await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
-                            }
-                        }
-                    });
-                    await Task.Run(async () =>
-                    {
-                        int offset = new Random().Next(1, 5);
-                        for (int i = k * num; i < k * num + num; i += offset)
-                        {
-                            string stockid = "94D175BB-4F46-4E9D-B593-32782DE5D33C";
-                            if ((i + offset) < (k * num + num))
-                            {
-                                await CreateOrder(new OrderCreate() { appid = stockid, ids = normaluser.GetRange(i, offset).Select(a => a.id).ToArray() });
-                            }
-                        }
-                    });
-                }
+                    startTime = startTime,
+                    endTime = endTime,
+                    exhibitions = null,
+                    order = order,
+                    realTenantId = httpContextUser.RealTenantId,
+                    status = Base.Entity.TicketStatus.未使用,
+                    tenantId = httpContextUser.TenantId,
+                    uid = orderInfo.ids,
+                    userid = order.userId
+                }));
             }
-            
+            return "生成票务成功";
         }
     }
 }

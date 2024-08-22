@@ -73,7 +73,7 @@ namespace 通用订票.EventBus
                     stock.sale = 0;
                 }
                 await s_service.UpdateNow(stock);
-                //await s_service.DelStockFromCache(stock.id);
+                await s_service.DelStockFromCache(stock.id);
             }
             catch
             {

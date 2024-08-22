@@ -19,8 +19,6 @@ using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
 using 通用订票.OTA.携程.Entity;
 using 通用订票.OTA.携程.IService;
-using 通用订票.OTA.携程.Model;
-using 通用订票.OTA.携程.Tool;
 
 namespace 通用订票.JobTask
 {
@@ -43,6 +41,16 @@ namespace 通用订票.JobTask
                     var service = ServiceFactory.GetSaasService<IXieChengOTAOrderService, XieChengOrder>(scope.ServiceProvider, ticket.tenant_id);
                     service.SetTenant(ticket.tenant_id);
                     await service.Verify(ticket.ticketNumber, ticket.count,ticket.exhibitionId);
+                }
+            }
+            else if(ticket.type == OTAType.Normal)
+            {
+                using (var scope = ScopeFactory.CreateScope())
+                {
+                    var service = ServiceFactory.GetSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, ticket.tenant_id);
+                    var _ticket = await service.GetTicket(ticket.ticketNumber);
+                    var result = await service.TicketCheck(_ticket,ticket.count,ticket.exhibitionId);
+                    await service.TicketEndCheck(_ticket);
                 }
             }
         }

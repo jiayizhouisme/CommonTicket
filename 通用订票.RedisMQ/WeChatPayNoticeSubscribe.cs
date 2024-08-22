@@ -18,7 +18,6 @@ namespace 通用订票.RedisMQ
         private readonly IJsonSerializerProvider jsonSerializerProvider;
         private readonly ILogger<WeChatPayNoticeSubscribe> _logger;
         private readonly ICacheOperation _cache;
-        private DbContext dbContext;
         private readonly IServiceProvider _serviceProvider;
 
         public WeChatPayNoticeSubscribe(ILogger<WeChatPayNoticeSubscribe> _logger, IServiceProvider _serviceProvider, IJsonSerializerProvider jsonSerializerProvider,
@@ -35,15 +34,9 @@ namespace 通用订票.RedisMQ
         {
             using (var scope = _serviceProvider.CreateScope())
             {
-                dbContext = Db.GetDbContext(scope.ServiceProvider);
-
-                var o_service = ServiceFactory.GetSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, "默认租户");
-                var t_service = ServiceFactory.GetSaasService<IDefaultTicketService, Core.Entity.Ticket>(scope.ServiceProvider, "默认租户");
-
-
                 Core.Entity.Order order = null;
                 var notify = jsonSerializerProvider.Deserialize<WeChatPayUnifiedOrderNotify>(msg);
-
+                var o_service = ServiceFactory.GetSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, "默认租户");
                 if (notify is { ReturnCode: WeChatPayCode.Success })
                 {
                     if (notify.ResultCode == WeChatPayCode.Success)
@@ -54,10 +47,7 @@ namespace 通用订票.RedisMQ
                         try
                         {
                             order = await o_service.GetOrderById(long.Parse(notify.Attach));
-                            var tickets = await t_service.GetTickets(order.trade_no);
-
                             var result = await o_service.PayFinished(order);
-                            var ticket = await t_service.EnableTickets(tickets);
                         }
                         catch (Exception e)
                         {
@@ -65,7 +55,6 @@ namespace 通用订票.RedisMQ
                         }
                         finally
                         {
-                            await t_service.AfterTicketToke(order.trade_no);
                             await _cache.ReleaseLock("OrderLocker_" + notify.Attach, lockerId);
                         }
                     }

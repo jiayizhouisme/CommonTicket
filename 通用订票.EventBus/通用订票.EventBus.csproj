@@ -21,6 +21,7 @@
     <ProjectReference Include="..\通用订票.Application\通用订票.Application.csproj" />
     <ProjectReference Include="..\通用订票.Base\通用订票.Base.csproj" />
     <ProjectReference Include="..\通用订票.Core\通用订票.Core.csproj" />
+    <ProjectReference Include="..\通用订票.OTA\通用订票.OTA.csproj" />
     <ProjectReference Include="..\通用订票.Procedure\通用订票.Procedure.csproj" />
   </ItemGroup>
 

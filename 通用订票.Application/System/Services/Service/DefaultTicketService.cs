@@ -20,6 +20,7 @@ using 通用订票.Base.Entity;
 using 通用订票.Order.Entity;
 using SqlSugar;
 using 通用订票.Application.System.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace 通用订票.Application.System.Services.Service
 {
@@ -43,14 +44,16 @@ namespace 通用订票.Application.System.Services.Service
         /// <param name="order"></param>
         /// <param name="uids"></param>
         /// <returns></returns>
-        public virtual async Task<List<Core.Entity.Ticket>> GenarateTickets(
+        public virtual async Task<List<Ticket>> GenarateTickets(
             DateTime startTime,
-            DateTime endTime, OrderBase<string> order,
+            DateTime endTime, 
+            OrderBase<string> order,
             int[] uids,
+            string[] exhibitions,
             TicketStatus status = TicketStatus.未激活,
             OTAType otaType = OTAType.Normal)
         {
-            List<Core.Entity.Ticket> result = new List<Core.Entity.Ticket>();
+            List<Ticket> result = new List<Ticket>();
             foreach (var id in uids)
             {
                 var ticket = base.GenerateTicket(startTime, endTime);
@@ -62,6 +65,15 @@ namespace 通用订票.Application.System.Services.Service
                 ticket.ota = otaType;
                 ticket.usedCount = 0;
                 ticket.totalCount = 1;
+                if (exhibitions != null)
+                {
+                    ticket.isMultiPart = true;
+                    await multiTicketService.GenerateTicket(ticket.ticketNumber, exhibitions, 1);
+                }
+                else
+                {
+                    ticket.isMultiPart = false;
+                }
                 result.Add(ticket);
             }
             try
@@ -199,13 +211,13 @@ namespace 通用订票.Application.System.Services.Service
             this.userId = user;
         }
 
-        private async Task SetTicketUserToCache(string appointmentId, int[] uids)
-        {
-            foreach (var uid in uids)
-            {
-                await _cache.Set(GetKey(appointmentId, uid), "1", 20);
-            }
-        }
+        //private async Task SetTicketUserToCache(string appointmentId, int[] uids)
+        //{
+        //    foreach (var uid in uids)
+        //    {
+        //        await _cache.Set(GetKey(appointmentId, uid), "1", 20);
+        //    }
+        //}
 
         private async Task SetTicketToCache(long orderId, IEnumerable<Core.Entity.Ticket> tickets)
         {
@@ -332,10 +344,9 @@ namespace 通用订票.Application.System.Services.Service
             }
         }
 
-        public async Task TicketEndCheck(string ticket_number)
+        public async Task TicketEndCheck(Ticket ticket)
         {
-            var ticket = await this.GetTicket(ticket_number);
-            await _cache.ReleaseLock("OrderLocker_" + ticket.objectId, ticket_number);
+            await _cache.ReleaseLock("OrderLocker_" + ticket.objectId, ticket.ticketNumber);
         }
 
         /// <summary>

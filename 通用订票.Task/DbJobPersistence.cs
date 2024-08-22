@@ -1,4 +1,5 @@
-﻿using Furion;
+﻿using Core.User.JobTask;
+using Furion;
 using Furion.DatabaseAccessor;
 using Furion.Schedule;
 using Microsoft.Extensions.DependencyInjection;
