@@ -11,5 +11,6 @@ namespace 通用订票.Application.System.Services.IService
     public interface IWechatBillService : IBaseService<WechatBill>
     {
         Task<WechatBill> GenWechatBill(WechatBill bill);
+        Task<WechatBill> GetWechatBill(long trade_no);
     }
 }

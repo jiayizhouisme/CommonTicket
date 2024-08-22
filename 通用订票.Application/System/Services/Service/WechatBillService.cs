@@ -40,10 +40,10 @@ namespace 通用订票.Application.System.Services.Service
         public async Task<WechatBill> GenWechatBill(WechatBill entity)
         {
             //var jm = new WebApiCallBack();
-            var billInCache = await _cache.Get<WechatBill>("Bill:" + entity.tradeNo);
-            if (billInCache != null)
+            var bill = await GetWechatBill(entity.tradeNo);
+            if (bill != null)
             {
-                return billInCache;
+                return bill;
             }
             var weChatPayUrl = "http://127.0.0.1/payback";
             if (string.IsNullOrEmpty(weChatPayUrl))
@@ -90,6 +90,12 @@ namespace 通用订票.Application.System.Services.Service
             }
 
             return null;
+        }
+
+        public async Task<WechatBill> GetWechatBill(long trade_no)
+        {
+            var billInCache = await _cache.Get<WechatBill>("Bill:" + trade_no);
+            return billInCache;
         }
     }
 }
