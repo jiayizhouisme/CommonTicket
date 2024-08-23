@@ -15,6 +15,7 @@ namespace 通用订票.Application.System.Models
         public Exhibition exhibition { get; set; }
         public Appointment app { get; set; }
         public Core.Entity.Order order { get; set; }
+        //是否上传到OTA，只有OTA会用到这个值
         public bool shouldUpdate { get; set; }
     }
 

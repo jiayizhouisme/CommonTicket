@@ -100,6 +100,8 @@ namespace 通用订票.Core.Entity
 
         public System.DateTime createTime { get; set; }
 
+        public string Attach { get; set; }
+
         /// <summary>
         /// 更新时间
         /// </summary>
@@ -113,4 +115,11 @@ namespace 通用订票.Core.Entity
             entityBuilder.HasOne(a => a.order).WithMany().HasForeignKey(a => a.tradeNo) ;
         }
     }
+
+    public struct WechatBillAttach
+    {
+        public long trade_no { get; set; }
+        public string tenant_id { get; set; }
+    }
+
 }

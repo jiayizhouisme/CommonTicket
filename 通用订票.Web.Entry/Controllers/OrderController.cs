@@ -76,7 +76,7 @@ namespace 通用订票.Web.Entry.Controllers
 
 
         [Authorize]
-        //[TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpPost(Name = "CreateOrder")]
         public async Task<object> CreateOrder([FromBody]BaseOrderCreate oc)
         {
@@ -191,7 +191,7 @@ namespace 通用订票.Web.Entry.Controllers
                 if (order.status == OrderStatus.未付款)
                 {
                     var bill = new WechatBill() { payTitle = "通用订票", tradeNo = order.trade_no,money = order.amount,
-                        ip = "127.0.0.1"};
+                        ip = "127.0.0.1",Attach = jsonSerializerProvider.Serialize(new WechatBillAttach { trade_no = trade_no,tenant_id = httpContextUser.TenantId })};
                     var result = await billService.GenWechatBill(bill);
                     return result;
                 }
@@ -245,7 +245,7 @@ namespace 通用订票.Web.Entry.Controllers
         }
 
         [Authorize]
-        //[TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "CloseOrder")]
         [UnitOfWork]
         public async Task<dynamic> CloseOrder(long trade_no)
@@ -329,8 +329,6 @@ namespace 通用订票.Web.Entry.Controllers
             var app = await stockService.GetAppointmentById(order.objectId);
             var exhibition = await exhibitionService.GetExhibitionByID(app.objectId);
 
-            var orderInfo = jsonSerializerProvider.Deserialize<OrderInfo>(order.extraInfo);
-
             var startTime = order.createTime.Value.AddDays(app.day).Date.Add(app.startTime.TimeOfDay);
             var endTime = order.createTime.Value.AddDays(app.day).Date.Add(app.endTime.TimeOfDay);
 
@@ -345,10 +343,9 @@ namespace 通用订票.Web.Entry.Controllers
                     realTenantId = httpContextUser.RealTenantId,
                     status = Base.Entity.TicketStatus.未使用,
                     tenantId = httpContextUser.TenantId,
-                    uid = orderInfo.ids,
+                    uid = order.GetExtraInfo().ids,
                     userid = order.userId
                 }));
-
             }
             else
             {
@@ -361,7 +358,7 @@ namespace 通用订票.Web.Entry.Controllers
                     realTenantId = httpContextUser.RealTenantId,
                     status = Base.Entity.TicketStatus.未使用,
                     tenantId = httpContextUser.TenantId,
-                    uid = orderInfo.ids,
+                    uid = order.GetExtraInfo().ids,
                     userid = order.userId
                 }));
             }

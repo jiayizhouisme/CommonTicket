@@ -23,17 +23,13 @@ namespace 通用订票.Application.System.Services.Service
     {
         private readonly WeChatPayOptions _wechatpay;
         private readonly IWeChatPayClient _client;
-        private readonly IHttpContextUser _user;
-        private readonly IUserService _userServices;
         private readonly ICacheOperation _cache;
-        public WechatBillService(IOptions<WeChatPayOptions> _wechatpay, IRepository<WechatBill, MasterDbContextLocator> _dal, IUserService _userServices,
-            IWeChatPayClient _client, IHttpContextUser _user, ICacheOperation _cache)
+        public WechatBillService(IOptions<WeChatPayOptions> _wechatpay, IRepository<WechatBill, MasterDbContextLocator> _dal,
+            IWeChatPayClient _client,ICacheOperation _cache)
         {
             this._dal = _dal;
-            this._userServices = _userServices;
-            this._user = _user;
             this._client = _client;
-            //this._wechatpay = _wechatpay.Value;
+            this._wechatpay = _wechatpay.Value;
             this._cache = _cache;
         }
 
@@ -64,7 +60,7 @@ namespace 通用订票.Application.System.Services.Service
                 NotifyUrl = weChatPayUrl,
                 TradeType = tradeType,
                 OpenId = openId,
-                Attach = entity.tradeNo.ToString()
+                Attach = entity.Attach
             };
 
             var response = await _client.ExecuteAsync(request, _wechatpay);

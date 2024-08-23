@@ -100,7 +100,8 @@ namespace 通用订票.Application.System.Services.Service
                 userId = a.userId,
                 status = a.status,
                 payedAmount = a.payedAmount,
-                objectId = a.objectId
+                objectId = a.objectId,
+                extraInfo = a.extraInfo
             });
             var _result = await result.FirstOrDefaultAsync();
             if (_result == null)

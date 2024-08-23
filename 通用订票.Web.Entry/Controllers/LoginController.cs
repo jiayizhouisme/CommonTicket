@@ -21,11 +21,11 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpPost(Name = "Login")]
         public async Task<IActionResult> Login([FromBody]Login_Web user)
         {
-            var tenant_id = _contextAccessor.HttpContext.Request.Headers["Tenant-Id"].ToString();
-            if (tenant_id.IsNullOrEmpty())
-            {
-                //return new UnauthorizedResult();
-            }
+            var tenant_id = _contextAccessor.HttpContext.Request.Headers["Tenant_Name"].ToString();
+            //if (tenant_id.IsNullOrEmpty())
+            //{
+            //    return new UnauthorizedResult();
+            //}
 
             var result = await userService.GetToken(user.Adapt<User>(),tenant_id);
             if (result == null)

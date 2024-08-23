@@ -1,10 +1,13 @@
-﻿using Core.Queue.IQueue;
+﻿using Core.Auth;
+using Core.Queue.IQueue;
 using Essensoft.Paylink.WeChatPay;
 using Essensoft.Paylink.WeChatPay.V2;
 using Essensoft.Paylink.WeChatPay.V2.Notify;
 using Furion.DynamicApiController;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using 通用订票.Core.Entity;
 using 通用订票.Procedure.Entity.QueueEntity;
 
 namespace 通用订票.Web.Entry.Controllers
@@ -15,24 +18,31 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IWeChatPayNotifyClient _client;
         private readonly IOptions<WeChatPayOptions> _optionsAccessor;
         private readonly IQueuePushInfo _redisOperationRepository;
+        private readonly IHttpContextUser httpContextUser;
         public PayNotifyController(IWeChatPayNotifyClient _client, IOptions<WeChatPayOptions> optionsAccessor,
-            IQueuePushInfo _redisOperationRepository,IHttpContextAccessor contextAccessor)
+            IQueuePushInfo _redisOperationRepository,IHttpContextAccessor contextAccessor, IHttpContextUser httpContextUser)
         {
             _contextAccessor = contextAccessor;
             this._client = _client;
             this._optionsAccessor = optionsAccessor;
             this._redisOperationRepository = _redisOperationRepository;
+            this.httpContextUser = httpContextUser;
         }
 
         /// <summary>
         ///     统一下单支付结果通知
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> Unifiedorder()
+        [NonUnify]
+        public async Task<IActionResult> Unifiedorder([FromQuery]long trade_no)
         {
             try
             {
-                var notify = await _client.ExecuteAsync<WeChatPayUnifiedOrderNotify>(_contextAccessor.HttpContext.Request, _optionsAccessor.Value);
+                //var notify = await _client.ExecuteAsync<WeChatPayUnifiedOrderNotify>(_contextAccessor.HttpContext.Request, _optionsAccessor.Value);
+                var notify = new WeChatPayUnifiedOrderNotify();
+                notify.Attach = JsonConvert.SerializeObject(new WechatBillAttach { tenant_id = httpContextUser.TenantId, trade_no = trade_no });
+                notify.ResultCode = WeChatPayCode.Success;
+                notify.ReturnCode = WeChatPayCode.Success;
                 if (notify.ReturnCode == WeChatPayCode.Success)
                 {
                     var entity = new WechatPayCallBackQueueEntity(notify);
