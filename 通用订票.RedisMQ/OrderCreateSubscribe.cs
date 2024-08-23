@@ -84,6 +84,10 @@ namespace 通用订票.RedisMQ
                     s_service.UpdateNow(app).Wait();
                     await s_service.DelStockFromCache(app.id);
                 }
+                catch
+                {
+                    await s_service.SaleStock(data.appid,-data.ids.Count);
+                }
                 finally
                 {
                     await _cache.ReleaseLock("OrderCloseLock:" + data.appid, data.appid);

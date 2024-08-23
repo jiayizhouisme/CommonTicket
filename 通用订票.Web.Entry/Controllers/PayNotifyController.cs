@@ -6,8 +6,6 @@ using Essensoft.Paylink.WeChatPay.V2.Notify;
 using Furion.DynamicApiController;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using 通用订票.Core.Entity;
 using 通用订票.Procedure.Entity.QueueEntity;
 
 namespace 通用订票.Web.Entry.Controllers
@@ -38,11 +36,10 @@ namespace 通用订票.Web.Entry.Controllers
         {
             try
             {
-                //var notify = await _client.ExecuteAsync<WeChatPayUnifiedOrderNotify>(_contextAccessor.HttpContext.Request, _optionsAccessor.Value);
-                var notify = new WeChatPayUnifiedOrderNotify();
-                notify.Attach = JsonConvert.SerializeObject(new WechatBillAttach { tenant_id = httpContextUser.TenantId, trade_no = trade_no });
-                notify.ResultCode = WeChatPayCode.Success;
-                notify.ReturnCode = WeChatPayCode.Success;
+                var notify = await _client.ExecuteAsync<WeChatPayUnifiedOrderNotify>(
+                    _contextAccessor.HttpContext.Request, 
+                    _optionsAccessor.Value
+                    );
                 if (notify.ReturnCode == WeChatPayCode.Success)
                 {
                     var entity = new WechatPayCallBackQueueEntity(notify);

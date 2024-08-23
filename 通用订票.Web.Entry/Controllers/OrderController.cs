@@ -83,12 +83,6 @@ namespace 通用订票.Web.Entry.Controllers
             var userid = httpContextUser.ID;
             string lockierid = userid;
 
-            var saleRet = await stockService.SaleStock(oc.appid, oc.ids.Count);
-            if (saleRet == false)
-            {
-                return new { status = 1, message = "库存不足" };
-            }
-
             myOrderService.SetUserContext(userid);
             //var _lock = await myOrderService.PreOrder(oc.appid);
             //if (_lock == false)
@@ -116,6 +110,12 @@ namespace 通用订票.Web.Entry.Controllers
                     }
                 }
                 
+            }
+
+            var saleRet = await stockService.SaleStock(oc.appid, oc.ids.Count);
+            if (saleRet == false)
+            {
+                return new { status = 1, message = "库存不足" };
             }
 
             //ticketService.SetUserContext(userid);
@@ -190,8 +190,17 @@ namespace 通用订票.Web.Entry.Controllers
                 }
                 if (order.status == OrderStatus.未付款)
                 {
-                    var bill = new WechatBill() { payTitle = "通用订票", tradeNo = order.trade_no,money = order.amount,
-                        ip = "127.0.0.1",Attach = jsonSerializerProvider.Serialize(new WechatBillAttach { trade_no = trade_no,tenant_id = httpContextUser.TenantId })};
+                    var bill = new WechatBill()
+                    {
+                        payTitle = "通用订票",
+                        tradeNo = order.trade_no,
+                        money = order.amount,
+                        ip = "127.0.0.1",
+                        Attach = jsonSerializerProvider.Serialize(new WechatBillAttach { 
+                            tenant_id = httpContextUser.TenantId,
+                            trade_no = trade_no
+                        })
+                    };
                     var result = await billService.GenWechatBill(bill);
                     return result;
                 }
