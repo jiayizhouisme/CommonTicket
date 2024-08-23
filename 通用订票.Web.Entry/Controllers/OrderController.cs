@@ -83,12 +83,6 @@ namespace 通用订票.Web.Entry.Controllers
             var userid = httpContextUser.ID;
             string lockierid = userid;
 
-            var saleRet = await stockService.SaleStock(oc.appid, oc.ids.Count);
-            if (saleRet == false)
-            {
-                return new { status = 1, message = "库存不足" };
-            }
-
             myOrderService.SetUserContext(userid);
             //var _lock = await myOrderService.PreOrder(oc.appid);
             //if (_lock == false)
@@ -116,6 +110,12 @@ namespace 通用订票.Web.Entry.Controllers
                     }
                 }
                 
+            }
+
+            var saleRet = await stockService.SaleStock(oc.appid, oc.ids.Count);
+            if (saleRet == false)
+            {
+                return new { status = 1, message = "库存不足" };
             }
 
             //ticketService.SetUserContext(userid);

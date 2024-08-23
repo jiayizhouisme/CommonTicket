@@ -83,7 +83,7 @@ namespace 通用订票.RedisMQ
 
                             if (order.status == 通用订票Order.Entity.OrderStatus.已关闭)
                             {
-                                await s_service.SaleStockAndUpdate(order.objectId, -order.GetExtraInfo().ids.Count());
+                                await s_service.SaleStockAndUpdate(order.objectId, order.GetExtraInfo().ids.Count());
                             }
 
                             var result = await o_service.PayFinished(order);
