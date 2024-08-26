@@ -43,7 +43,7 @@ namespace 通用订票.Web.Core
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddConsoleFormatter();
-            Array.ForEach(new[] { LogLevel.Information, LogLevel.Warning, LogLevel.Error,LogLevel.Debug }, logLevel =>
+            Array.ForEach(new[] { LogLevel.Error}, logLevel =>
             {
                 services.AddFileLogging("log/application-{1}-{0:yyyy}-{0:MM}-{0:dd}.log", options =>
                 {
@@ -158,7 +158,13 @@ namespace 通用订票.Web.Core
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
+
+            if (App.Configuration["ServerConfig:SubSite:IsSubSite"] == "true")
+            {
+                app.UseMiddleware<SubSiteMiddleWare>();
+            }
             app.UseMiddleware<HttpContextMiddleware>();
+
             app.UseDefaultFiles();
             StaticFileOptions options = new StaticFileOptions { 
                 ContentTypeProvider = new FileExtensionContentTypeProvider()
@@ -182,7 +188,6 @@ namespace 通用订票.Web.Core
             
             app.UseCorsAccessor();
 
-            
             app.UseAuthentication();
             app.UseAuthorization();
             
@@ -190,7 +195,7 @@ namespace 通用订票.Web.Core
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<ChatHub>("/hubs/chathub");
+                //endpoints.MapHub<ChatHub>("/hubs/chathub");
 
                 endpoints.MapControllerRoute(
                     name: "default",
