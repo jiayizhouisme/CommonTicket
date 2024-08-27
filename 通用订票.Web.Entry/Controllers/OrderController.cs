@@ -129,6 +129,18 @@ namespace 通用订票.Web.Entry.Controllers
             try
             {
                 var exhibition = await exhibitionService.GetExhibitionByID(stock.objectId);
+                var rule = exhibition.GetForbiddenRule();
+                
+                if (rule != null && rule.IsDateVaild(DateTime.Now.AddDays(stock.day)) == false)
+                {
+                    throw new Exception("选择的日期不可用");
+                }
+
+                if(stock.day - exhibition.beforeDays <= 0)
+                {
+                    throw new Exception("选择日期不正确");
+                }
+
                 string extraInfo = jsonSerializerProvider.Serialize(new OrderInfo { appid = oc.appid, ids = oc.ids.ToArray() });
                 通用订票.Core.Entity.Order order = null;
                 if (exhibition.basicPrice > 0)

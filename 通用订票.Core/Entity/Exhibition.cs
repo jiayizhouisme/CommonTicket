@@ -1,5 +1,9 @@
 ﻿using Furion.DatabaseAccessor;
+using Newtonsoft.Json;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
+using 通用订票.Core.Model;
 
 namespace 通用订票.Core.Entity
 {
@@ -10,13 +14,27 @@ namespace 通用订票.Core.Entity
         public string description { get;set;}
         public string imgs { get; set; }
         public int status { get; set; }
+        [NotNull]
+        public int beforeDays { get; set; }
+        [NotNull]
         public bool isDeleted { get; set; }
         public DateTime createTime { get; set; }
         public decimal basicPrice { get; set; }
+        [NotNull]
         public PassTemplate passType { get; set; }
         public string exhibitions { get; set; }
+        [NotNull]
         public bool isMultiPart { get; set; }
-        
+        public string forbiddenRule { get; set; }
+
+        public ForbiddenRule GetForbiddenRule()
+        {
+            if (forbiddenRule != null)
+            {
+                return JsonConvert.DeserializeObject<ForbiddenRule>(forbiddenRule);
+            }
+            return null;
+        }
     }
     public enum PassTemplate
     {

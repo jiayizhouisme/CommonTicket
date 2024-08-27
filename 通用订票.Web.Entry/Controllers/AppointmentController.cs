@@ -9,7 +9,9 @@ using Microsoft.EntityFrameworkCore;
 using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
+using 通用订票.Application.System.Services.Service;
 using 通用订票.Core.Entity;
+using 通用订票.Web.Entry.Model;
 
 namespace 通用订票.Web.Entry.Controllers
 {
@@ -84,13 +86,17 @@ namespace 通用订票.Web.Entry.Controllers
         public async Task<List<dynamic>> GetAppointments([FromQuery] Guid FID, [FromQuery] int day = 3)
         {
             List<dynamic> result = new List<dynamic>();
+            Exhibition exhibition = await _exhibitionService.GetExhibitionByID(FID);
+            var price = exhibition.basicPrice;
 
-            for (var _day = 0;_day < day;_day++)
+            for (var _day = exhibition.beforeDays; _day < day + exhibition.beforeDays; _day++)
             {
-                var price = (await _exhibitionService.GetExhibitionByID(FID)).basicPrice;
-                var _r = await this._appointmentService.GetQueryableNt(a => a.day == _day && a.objectId == FID)
+                var _r = await this._appointmentService
+                    .GetQueryableNt(a => a.day == _day && a.objectId == FID)
                     .Select(a => new {a.amount,a.sale,a.startTime,a.endTime,a.day,a.id,total_fee = price })
-                    .OrderBy(a => a.day).ThenBy(a => a.startTime).ToListAsync();
+                    .OrderBy(a => a.day)
+                    .ThenBy(a => a.startTime)
+                    .ToListAsync();
                 result.Add(new {app = _r,day = _day,date = DateTime.Now.AddDays(_day).Date });
             }
             return result;
@@ -107,8 +113,63 @@ namespace 通用订票.Web.Entry.Controllers
                     a.day,
                     startTime = a.startTime.AddDays(a.day),
                     endTime = a.endTime.AddDays(a.day),
-                    a.id})
+                    a.id,
+                    a.sale
+                })
                 .ToPagedListAsync(pageIndex,pageSize);
+        }
+
+        [HttpGet("GetAviliableDate")]
+        [NonUnify]
+        [TypeFilter(typeof(CacheFilter))]
+        public async Task<ICollection<AppointmentEasyModel>> GetAviliableDate([FromQuery] Guid FID)
+        {
+            var exhibtion = await _exhibitionService.GetExhibitionByID(FID);
+            var rule = exhibtion.GetForbiddenRule();
+            var dates = await _appointmentService.GetQueryableNt(a => a.objectId == FID)
+                .Select(a => new AppointmentEasyModel { 
+                    price = exhibtion.basicPrice, 
+                    date = DateTime.Now.AddDays(a.day).Date,
+                    salesLeft = a.amount - a.sale
+                }).OrderBy(a => a.date).ToArrayAsync();
+
+            var group = dates.GroupBy(a => a.date);
+            AppointmentEasyModel[] models = new AppointmentEasyModel[group.Count()];
+            int i = 0;
+            foreach (var model in group)
+            {
+                var date = model.Key;
+                var sales = model.Sum(a => a.salesLeft);
+                models[i] = new AppointmentEasyModel {
+                    price = exhibtion.basicPrice,
+                    date = date,
+                    salesLeft = sales,
+                    available = true
+                };
+                
+                if (models[i].salesLeft <= 0)
+                {
+                    models[i].available = false;
+                    models[i].closeReason = CloseReason.票已售空;
+                }
+                i++;
+            }
+
+            if (rule == null)
+            {
+                return models;
+            }
+
+            for (i = 0;i < models.Length;i++)
+            {
+                if (rule.IsDateVaild(models[i].date) == false)
+                {
+                    models[i].closeReason = CloseReason.展馆关闭;
+                    models[i].available = false;
+                }
+            }
+
+            return models;
         }
 
         [HttpGet(Name = "Test")]

@@ -4,6 +4,7 @@ using Core.EntityFrameWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace 通用订票.Database.Migrations.Migrations
 {
     [DbContext(typeof(MasterDbContext_SQL))]
-    partial class MasterDbContext_SQLModelSnapshot : ModelSnapshot
+    [Migration("20240827021229_v1.1")]
+    partial class v11
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,9 +93,6 @@ namespace 通用订票.Database.Migrations.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("exhibitions")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("forbiddenDays")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("imgs")

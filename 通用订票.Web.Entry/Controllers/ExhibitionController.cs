@@ -20,14 +20,17 @@ namespace 通用订票.Web.Entry.Controllers
             this._exhibitionService = _exhibitionService;
         }
 
-        [Authorize]
+        //[Authorize]
         //[TypeFilter(typeof(SaaSAuthorizationFilter))]
         [TypeFilter(typeof(CacheFilter))]
         [NonUnify]
         [HttpGet(Name = "Get")]
-        public async Task<PagedList<Exhibition>> GetExhibitions([FromQuery]int pageIndex = 1, [FromQuery] int pageSize = 10)
+        public async Task<object> GetExhibitions([FromQuery]int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            return await _exhibitionService.GetQueryableNt(a => a.isDeleted == false).ToPagedListAsync(pageIndex,pageSize);
+            return await _exhibitionService.GetQueryableNt(a => a.isDeleted == false)
+                .Select(a => new  {id = a.id,description = a.description,basicPrice = a.basicPrice,beforeDays = a.beforeDays,
+                name = a.name,imgs = a.imgs})
+                .ToPagedListAsync(pageIndex,pageSize);
         }
     }
 }

@@ -101,11 +101,19 @@ namespace 通用订票.Application.System.Services.Service
             return this._dal.Where(a => a.objectId == exhibitionID && a.day < day && a.allday == false).AsNoTracking();
         }
 
-        public virtual async Task<IQueryable<Appointment>> GetAppointmentsByDate(Guid exhibitionID, DateTime date)
+        public virtual async Task<IQueryable<Appointment>> GetAppointmentsByDate(Guid exhibitionID, DateTime date,bool allday = false)
         {
             var day = date.Date.Subtract(DateTime.Now.Date).TotalDays;
-            var entity = this._dal.Where(a => a.objectId == exhibitionID && a.day == day && a.allday == false).AsNoTracking();
-            return entity;
+            if (allday == false)
+            {
+                var entity = this._dal.Where(a => a.objectId == exhibitionID && a.day == day).AsNoTracking();
+                return entity;
+            }
+            else
+            {
+                var entity = this._dal.Where(a => a.objectId == exhibitionID && a.day == day && a.allday == allday).AsNoTracking();
+                return entity;
+            }
         }
 
         public virtual async Task RefreshAppoints(Guid exhibitionID)
