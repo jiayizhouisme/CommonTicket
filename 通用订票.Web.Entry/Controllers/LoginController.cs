@@ -1,7 +1,13 @@
-﻿using Core.User.Entity;
+﻿using Core.Auth;
+using Core.User.Entity;
+using Furion.DataEncryption;
 using Furion.DynamicApiController;
+using Furion.FriendlyException;
 using Furion.LinqBuilder;
+using Furion.RemoteRequest.Extensions;
 using Mapster;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using 通用订票.Application.System.Services.IService;
@@ -39,12 +45,37 @@ namespace 通用订票.Web.Entry.Controllers
             return new OkResult();
         }
 
+        [HttpGet(Name = "Login")]
+        public async Task<IActionResult> WechatLogin([FromQuery] string openid)
+        {
+            var tenant_id = _contextAccessor.HttpContext.Request.Headers["Tenant_Name"].ToString();
+            
+            try
+            {
+                var token = await userService.GetWechatToken(openid,tenant_id);
+                // 设置响应报文头
+                _contextAccessor.HttpContext.Response.Headers["access-token"] = token[0];
+                _contextAccessor.HttpContext.Response.Headers["x-access-token"] = token[1];
+                return new OkResult();
+            }
+            catch
+            {
+                return new BadRequestResult();
+            }
+        }
+
         [HttpGet(Name = "Logout")]
         public bool Logout()
         {
             _contextAccessor.HttpContext.Response.Headers["access-token"] = "";
             _contextAccessor.HttpContext.Response.Headers["x-access-token"] = "";
             return true;
+        }
+
+        [HttpGet]
+        public async Task<User> Test()
+        {
+            return await userService.RegisteNewUser(new User { username = "test",password = "123"});
         }
     }
 }

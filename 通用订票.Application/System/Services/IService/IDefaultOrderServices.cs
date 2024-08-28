@@ -9,7 +9,7 @@ using Core.Auth;
 
 namespace 通用订票.Application.System.Services.IService
 {
-    public interface IDefaultOrderServices : IOrderService<Core.Entity.Order>,IUserContext<string>
+    public interface IDefaultOrderServices : IOrderService<Core.Entity.Order>,IUserContext<long>
     {
         Task<Core.Entity.Order> GetOrderById(long orderId);
         Task<bool> PreOrder(string objectId);

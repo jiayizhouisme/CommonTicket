@@ -1,11 +1,11 @@
 ﻿using Core.Cache;
+using Core.Utill.UniqueCode;
 using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using 通用订票.Application.System.ServiceBases.IService;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Application.System.Services.Service;
-using 通用订票.Base.TradeNo;
 using 通用订票Order.Entity;
 
 namespace 通用订票.小景区.Service
@@ -16,7 +16,7 @@ namespace 通用订票.小景区.Service
         private ILogger _log { get; set; }
 
         public ShagouOrderService(
-            ITradeNoGenerate<long> tradeNoGenerate,
+            ITradeNoGenerater<long> tradeNoGenerate,
             IRepository<Core.Entity.Order, MasterDbContextLocator> _dal,
             ICacheOperation cache, ILoggerFactory logger) 
             : base(tradeNoGenerate,_dal, cache)

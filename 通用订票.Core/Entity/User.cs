@@ -1,4 +1,5 @@
-﻿using Core.User.Entity;
+﻿using Core.Auth;
+using Core.User.Entity;
 using Furion.DatabaseAccessor;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -8,9 +9,9 @@ namespace 通用订票.Core.Entity
 {
     public class User : UserBase,IEntity, IEntitySeedData<User>
     {
-        public string id { get; set; }
+        public long id { get; set; }
 
-        public int authLevel { get; set; }
+        public Permissions authLevel { get; set; }
         public bool isDeleted { get; set; }
         public DateTime CreateTime { get; set; }
 

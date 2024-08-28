@@ -8,7 +8,7 @@ using 通用订票.Order.Entity;
 
 namespace 通用订票.Core.Entity
 {
-    public class Order : OrderBase<string>,IEntity, IEntityTypeBuilder<Order>
+    public class Order : OrderBase<long>,IEntity, IEntityTypeBuilder<Order>
     {
         public DateTime? createTime { get; set; }
         public string extraInfo { get; set; }

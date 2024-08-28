@@ -1,7 +1,7 @@
 ﻿using Core.Cache;
+using Core.Utill.UniqueCode;
 using 通用订票.Application.System.ServiceBases.Service;
 using 通用订票.Application.System.Services.IService;
-using 通用订票.Base.TradeNo;
 using 通用订票Order.Entity;
 
 namespace 通用订票.Application.System.Services.Service
@@ -9,9 +9,9 @@ namespace 通用订票.Application.System.Services.Service
     [Injection(Order = 1)]
     public class DefaultOrderService : OrderBaseService<Core.Entity.Order, MasterDbContextLocator>, IDefaultOrderServices, ITransient
     {
-        private string userId { get; set; }
+        private long userId { get; set; }
         private readonly ICacheOperation _cache;
-        public DefaultOrderService(ITradeNoGenerate<long> tradeNoGenerate,IRepository<Core.Entity.Order, MasterDbContextLocator> _dal, ICacheOperation cache) : base(tradeNoGenerate,_dal)
+        public DefaultOrderService(ITradeNoGenerater<long> tradeNoGenerate,IRepository<Core.Entity.Order, MasterDbContextLocator> _dal, ICacheOperation cache) : base(tradeNoGenerate,_dal)
         {
             _cache = cache;
         }
@@ -67,7 +67,7 @@ namespace 通用订票.Application.System.Services.Service
             return result;
         }
 
-        public virtual void SetUserContext(string userId)
+        public virtual void SetUserContext(long userId)
         {
             this.userId = userId;
         }
@@ -160,7 +160,7 @@ namespace 通用订票.Application.System.Services.Service
 
         private async Task ReleaseLock(string objectId)
         {
-            await _cache.ReleaseLock("PreOrder:" + objectId.ToString() + "User:" + userId, userId);//解锁 
+            await _cache.ReleaseLock("PreOrder:" + objectId.ToString() + "User:" + userId, userId.ToString());//解锁 
         }
 
         private async Task RecordOrder(string objectId)

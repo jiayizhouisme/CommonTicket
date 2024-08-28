@@ -22,7 +22,7 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpGet(Name = "Get")]
         public async Task<IEnumerable<object>> Get()
         {
-            this.userService.SetUserContext(httpContextUser.ID);
+            this.userService.SetUserContext(long.Parse(httpContextUser.ID));
             return (await this.userService.GetUserInfoByUser()).Select(a => new { a.id,a.name,a.idCard,a.phoneNumber}).ToPagedList(1,5).Items;
         }
 
@@ -30,7 +30,7 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpPost(Name = "Add")]
         public async Task<UserInfo> Add([FromBody]UserInfo userinfo)
         {
-            this.userService.SetUserContext(httpContextUser.ID);
+            this.userService.SetUserContext(long.Parse(httpContextUser.ID));
             return await this.userService.Add(userinfo);
         }
     }

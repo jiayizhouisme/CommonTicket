@@ -10,6 +10,7 @@ using 通用订票.Procedure.Entity.QueueEntity;
 
 namespace 通用订票.Web.Entry.Controllers
 {
+    [Route("payNotify")]
     public class PayNotifyController : IDynamicApiController
     {
         private readonly IHttpContextAccessor _contextAccessor;
@@ -32,6 +33,7 @@ namespace 通用订票.Web.Entry.Controllers
         /// </summary>
         [HttpPost]
         [NonUnify]
+        [Route("Unifiedorder")]
         public async Task<IActionResult> Unifiedorder([FromQuery]long trade_no)
         {
             try

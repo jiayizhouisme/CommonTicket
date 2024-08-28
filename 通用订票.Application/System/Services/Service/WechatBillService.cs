@@ -16,6 +16,7 @@ using Core.Auth;
 using StackExchange.Profiling.Internal;
 using Core.Cache;
 using Core.Services;
+using Furion.JsonSerialization;
 
 namespace 通用订票.Application.System.Services.Service
 {
@@ -33,7 +34,7 @@ namespace 通用订票.Application.System.Services.Service
             this._cache = _cache;
         }
 
-        public async Task<WechatBill> GenWechatBill(WechatBill entity)
+        public async Task<WechatBill> GenWechatBill(WechatBill entity,string openId)
         {
             //var jm = new WebApiCallBack();
             var bill = await GetWechatBill(entity.tradeNo);
@@ -41,7 +42,9 @@ namespace 通用订票.Application.System.Services.Service
             {
                 return bill;
             }
-            var weChatPayUrl = "http://127.0.0.1/payback";
+            var billattach = JsonConvert.DeserializeObject<WechatBillAttach>(entity.Attach);
+
+            var weChatPayUrl = "https://ticket.z2ww.com/" + billattach.tenant_id + "/api/payNotify/Unifiedorder";
             if (string.IsNullOrEmpty(weChatPayUrl))
             {
                 return null;
@@ -49,7 +52,7 @@ namespace 通用订票.Application.System.Services.Service
 
             var tradeType = "JSAPI";
 
-            var openId = "oBuO66JLrmascVJYSMWEeVlIjigE";
+            //var openId = "oBuO66JLrmascVJYSMWEeVlIjigE";
 
             var request = new WeChatPayUnifiedOrderRequest
             {
@@ -74,10 +77,11 @@ namespace 通用订票.Application.System.Services.Service
                 var parameter = await _client.ExecuteAsync(req, _wechatpay);
                 // 将参数(parameter)给 公众号前端 让他在微信内H5调起支付(https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=7_7&index=6)
                 parameter.Add("paymentId", entity.tradeNo);
-                //entity.id = Guid.NewGuid();
-                //await this.Add(entity);
                 entity.parameters = parameter.ToJson();
-                await _cache.Set("Bill:" + entity.tradeNo,entity,600);
+                entity.status = 通用订票Order.Entity.OrderStatus.未付款;
+                entity.paymentCode = tradeType;
+                await this.AddNow(entity);
+                await _cache.Set("Bill:" + entity.tradeNo,entity.parameters,600);
                 return entity;
             }
             else

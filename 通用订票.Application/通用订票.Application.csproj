@@ -35,6 +35,7 @@
 		<ProjectReference Include="..\..\Cores\Core.Queue\Core.Queue.csproj" />
 		<ProjectReference Include="..\..\Cores\Core.Service\Core.Services.csproj" />
 		<ProjectReference Include="..\..\Cores\Core.User\Core.User.csproj" />
+		<ProjectReference Include="..\Core.Utill\Core.Utill.csproj" />
 		<ProjectReference Include="..\通用订票.Core\通用订票.Core.csproj" />
 	</ItemGroup>
 

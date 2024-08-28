@@ -307,7 +307,7 @@ namespace 通用订票.OTA.携程.Service
                 s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, tenant_id);
                
                 var order = await _orderServices.GetOrderById(long.Parse(data.supplierOrderId));
-                t_service.SetUserContext("xiecheng");
+                t_service.SetUserContext(-1);
                 xiechengTicketService.SetService(t_service);
                 #endregion
                 XieChengPayPreConfirmResponseWithHeader wh = new XieChengPayPreConfirmResponseWithHeader();
@@ -627,7 +627,7 @@ namespace 通用订票.OTA.携程.Service
                 var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
                 var s_service = factory.GetStockService(_stockProvider);
                 s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, tenant_id);
-                t_service.SetUserContext("xiecheng");
+                t_service.SetUserContext(-1);
                 xiechengTicketService.SetService(t_service);
                 #endregion
                 ticket = await xiechengTicketService.GetTicket(ticket_number);

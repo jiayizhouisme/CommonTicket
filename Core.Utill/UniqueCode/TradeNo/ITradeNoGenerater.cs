@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace 通用订票.Base.TradeNo
+namespace Core.Utill.UniqueCode
 {
-    public interface ITradeNoGenerate<T>
+    public interface ITradeNoGenerater<T>
     {
         Task<T> Generate();
     }

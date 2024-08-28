@@ -1,11 +1,11 @@
 ﻿using Core.Cache;
+using Core.Utill.UniqueCode;
 using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using 通用订票.Application.System.ServiceBases.IService;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Application.System.Services.Service;
-using 通用订票.Base.TradeNo;
 using 通用订票Order.Entity;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
@@ -17,7 +17,7 @@ namespace 通用订票.大景区.Service
     {
         private ILogger _log { get; set; }
 
-        public MaJiaDangOrderService(ITradeNoGenerate<long> tradeNoGenerate,IRepository<Core.Entity.Order, MasterDbContextLocator> _dal, ICacheOperation cache, ILoggerFactory logger) : base(tradeNoGenerate,_dal, cache)
+        public MaJiaDangOrderService(ITradeNoGenerater<long> tradeNoGenerate,IRepository<Core.Entity.Order, MasterDbContextLocator> _dal, ICacheOperation cache, ILoggerFactory logger) : base(tradeNoGenerate,_dal, cache)
         {
             _log = logger.CreateLogger("MaJiaDangOrder");
         }

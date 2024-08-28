@@ -16,7 +16,7 @@ namespace 通用订票.Procedure.Entity
     public class OrderCreate : BaseOrderCreate, IProcedureEntity
     {
         public Core.Entity.Order order { get; set; }
-        public string userid { get; set; }
+        public long userid { get; set; }
         public string tenantId { get; set; }
         public decimal price { get; set; }
         

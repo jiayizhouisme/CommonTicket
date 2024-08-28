@@ -10,6 +10,6 @@ namespace 通用订票.Procedure.Entity
         public string tenantId { get; set; }
         public string realTenantId { get; set; }
         public int count { get; set; }
-        public string userId { get; set; }
+        public long userId { get; set; }
     }
 }

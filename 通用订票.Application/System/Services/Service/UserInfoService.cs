@@ -11,14 +11,14 @@ namespace 通用订票.Application.System.Services.Service
 {
     public class UserInfoService : BaseService<UserInfo,MasterDbContextLocator>, IUserInfoService, ITransient
     {
-        private string userid { get; set; }
+        private long userid { get; set; }
 
         public UserInfoService(IRepository<UserInfo, MasterDbContextLocator> dal)
         {
             this._dal = dal;
         }
 
-        public void SetUserContext(string user)
+        public void SetUserContext(long user)
         {
             userid = user;
         }

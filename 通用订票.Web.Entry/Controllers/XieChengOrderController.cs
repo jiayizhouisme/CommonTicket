@@ -94,7 +94,7 @@ namespace 通用订票.Web.Entry.Controllers
             }
 
             var body = XieChengTool.AESDecrypt(request.body, config.AESKey, config.AESVector);
-            defaultOrderServices.SetUserContext("xiecheng");
+            defaultOrderServices.SetUserContext(-1);
             xieChengOTAOrderService.SetService(defaultOrderServices);
             xieChengOTAOrderService.SetTenant(httpContextUser.TenantId);
             if (request.header.serviceName == CreatePreOrder)

@@ -6,7 +6,7 @@ using 通用订票.Base.Entity;
 
 namespace 通用订票.Core.Entity
 {
-    public class Ticket : TicketBase<string>,IEntity,IEntityTypeBuilder<Ticket>
+    public class Ticket : TicketBase<long>,IEntity,IEntityTypeBuilder<Ticket>
     {
         public int _id { get; set; }
         public DateTime? createTime { get; set; }

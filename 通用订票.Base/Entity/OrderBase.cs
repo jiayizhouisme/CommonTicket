@@ -11,7 +11,7 @@ namespace 通用订票.Order.Entity
         /// <summary>
         /// 关联ID
         /// </summary>
-        public T objectId { get; set; }
+        public string objectId { get; set; }
 
         /// <summary>
         /// 下单用户ID

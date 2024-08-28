@@ -6,6 +6,7 @@ using Core.MiddelWares.HttpTenantContextMiddleWare;
 using Core.Queue.IQueue;
 using Core.SignalR;
 using Core.User.Service;
+using Core.Utill.UniqueCode;
 using Essensoft.Paylink.WeChatPay;
 using Furion;
 using Furion.Core;
@@ -30,7 +31,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using 通用订票.Base.TradeNo;
 using 通用订票.EntityFramework.Core;
 using 通用订票.EventBus.Monitor;
 using 通用订票.JobTask;
@@ -77,7 +77,9 @@ namespace 通用订票.Web.Core
             services.AddSingleton<ISignalRUserService, JwtCacheUserService>();
             services.AddSingleton<TenantService>();
             services.AddScoped<IHttpContextUser, JwtUserContext>();
-            services.AddSingleton<ITradeNoGenerate<long>,RedisTradeNoGenerate>();
+            services.AddSingleton<IUniqueCodeGenerater<long>,RedisUniqueCodeGenerator>();
+            services.AddSingleton<ITradeNoGenerater<long>, TradeNoGenerater>();
+            services.AddSingleton<IIdGenerater<long>, IdGenerater>();
             services.AddSingleton<ConnectionMultiplexer>(sp =>
             {
                 //获取连接字符串

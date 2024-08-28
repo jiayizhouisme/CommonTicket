@@ -9,7 +9,6 @@ namespace 通用订票.Application.System.Services.Service
     [Injection(Order = 1)]
     public class DefaultAppointmentService : StockBaseService<Appointment, MasterDbContextLocator>, IDefaultAppointmentService, ITransient
     {
-        private Guid userId;
         private ICacheOperation _cache;
         public DefaultAppointmentService(IRepository<Appointment, MasterDbContextLocator> _dal, ICacheOperation _cache) : base(_dal, _cache)
         {
@@ -52,11 +51,6 @@ namespace 通用订票.Application.System.Services.Service
             var result = await base.checkStock(stockId);
             //var vaild = this.vaildStock(result);
             return result;
-        }
-
-        public virtual void SetUserContext(Guid userId)
-        {
-            this.userId = userId;
         }
 
         /// <summary>

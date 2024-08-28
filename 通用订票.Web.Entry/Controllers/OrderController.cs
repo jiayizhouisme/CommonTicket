@@ -44,6 +44,7 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IQueuePushInfo _queue;
         private readonly IEventPublisher eventPublisher;
         private readonly IJsonSerializerProvider jsonSerializerProvider;
+        private readonly IHttpContextAccessor httpContextAccessor;
 
         public OrderController(IUserInfoService userinfoService,
             ICacheOperation _cache,
@@ -55,8 +56,9 @@ namespace 通用订票.Web.Entry.Controllers
             INamedServiceProvider<IDefaultOrderServices> _orderProvider,
             INamedServiceProvider<IDefaultTicketService> _ticketProvider,
             IQueuePushInfo _queue,
-             IEventPublisher eventPublisher,
-             IJsonSerializerProvider jsonSerializerProvider)
+            IEventPublisher eventPublisher,
+            IJsonSerializerProvider jsonSerializerProvider,
+            IHttpContextAccessor httpContextAccessor)
         {
             this._cache = _cache;
             this.httpContextUser = httpContextUser;
@@ -67,6 +69,7 @@ namespace 通用订票.Web.Entry.Controllers
             this._queue = _queue;
             this.eventPublisher = eventPublisher;
             this.jsonSerializerProvider = jsonSerializerProvider;
+            this.httpContextAccessor = httpContextAccessor;
 
             var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
             this.stockService = factory.GetStockService(_stockProvider);
@@ -80,8 +83,8 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpPost(Name = "CreateOrder")]
         public async Task<object> CreateOrder([FromBody]BaseOrderCreate oc)
         {
-            var userid = httpContextUser.ID;
-            string lockierid = userid;
+            var userid = long.Parse(httpContextUser.ID);
+            string lockierid = httpContextUser.ID;
 
             myOrderService.SetUserContext(userid);
             //var _lock = await myOrderService.PreOrder(oc.appid);
@@ -181,40 +184,37 @@ namespace 通用订票.Web.Entry.Controllers
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "PayOrder")]
-        public async Task<WechatBill> PayOrder(long trade_no)
+        public async Task<string> PayOrder(long trade_no)
         {
+            var userid = httpContextUser.ID;
             string lockid = Guid.NewGuid().ToString();
 
             await _cache.Lock("OrderLocker_" + trade_no, lockid);
             var order = await myOrderService.GetOrderById(trade_no);
-
-            if (order == null || order.userId.ToString() != httpContextUser.ID)
-            {
-                throw new ArgumentException("订单已不可支付");
-            }
-
-            var stock = await stockService.checkStock(order.objectId);
             try
             {
-                if (stock == null)
+                if (order == null || order.userId.ToString() != httpContextUser.ID)
                 {
-                    throw new ArgumentException("支付时间已过");
+                    throw new ArgumentException("订单已不可支付");
                 }
+
                 if (order.status == OrderStatus.未付款)
                 {
                     var bill = new WechatBill()
                     {
-                        payTitle = "通用订票",
+                        createTime = DateTime.Now,
+                        payTitle = order.name,
                         tradeNo = order.trade_no,
                         money = order.amount,
-                        ip = "127.0.0.1",
+                        id = Guid.NewGuid(),
+                        ip = httpContextAccessor.HttpContext.GetRemoteIpAddressToIPv4(),
                         Attach = jsonSerializerProvider.Serialize(new WechatBillAttach { 
                             tenant_id = httpContextUser.TenantId,
                             trade_no = trade_no
                         })
                     };
-                    var result = await billService.GenWechatBill(bill);
-                    return result;
+                    var result = await billService.GenWechatBill(bill, userid);
+                    return result.parameters;
                 }
                 else
                 {
@@ -229,7 +229,7 @@ namespace 通用订票.Web.Entry.Controllers
             {
                 await _cache.ReleaseLock("OrderLocker_" + trade_no, lockid);
             }
-            return null;   
+            return "";   
         }
 
         [Authorize]

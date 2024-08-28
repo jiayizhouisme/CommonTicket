@@ -12,14 +12,12 @@ namespace 通用订票.Core.Entity
         public string phoneNumber { get; set; }
         public string idCard { get; set; }
         public DateTime createTime { get; set; }
-        public string userID { get; set; }
-        public User user { get; set; }
+        public long userID { get; set; }
 
         public void Configure(EntityTypeBuilder<UserInfo> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
             entityBuilder.HasKey(a => a.id);
             entityBuilder.Property(x => x.id).ValueGeneratedOnAdd();
-            entityBuilder.HasOne(a => a.user).WithMany().HasForeignKey(a => a.userID);
         }
 
       

@@ -1,15 +1,15 @@
 ﻿using Core.Services;
+using Core.Utill.UniqueCode;
 using 通用订票.Application.System.ServiceBases.IService;
 using 通用订票.Base.Entity;
-using 通用订票.Base.TradeNo;
 using 通用订票Order.Entity;
 
 namespace 通用订票.Application.System.ServiceBases.Service
 {
     public abstract class OrderBaseService<T, DbLocator> : BaseService<T, DbLocator>, IOrderService<T> where T : Core.Entity.Order, new() where DbLocator : class, IDbContextLocator
     {
-        private readonly ITradeNoGenerate<long> tradeNoGenerate;
-        public OrderBaseService(ITradeNoGenerate<long> tradeNoGenerate,IRepository<T, DbLocator> _dal)
+        private readonly ITradeNoGenerater<long> tradeNoGenerate;
+        public OrderBaseService(ITradeNoGenerater<long> tradeNoGenerate,IRepository<T, DbLocator> _dal)
         {
             base._dal = _dal;
             this.tradeNoGenerate = tradeNoGenerate;

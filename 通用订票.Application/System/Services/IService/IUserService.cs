@@ -11,6 +11,8 @@ namespace 通用订票.Application.System.Services.IService
 {
     public interface IUserService : IUserLoginService<User>,IBaseService<User>
     {
+        public Task<User> RegisteNewUser(User user);
         public Task<string[]> GetToken(User user, string extra_info);
+        public Task<string[]> GetWechatToken(string openid, string extra_info);
     }
 }

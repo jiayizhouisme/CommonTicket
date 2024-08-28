@@ -27,7 +27,7 @@ namespace 通用订票.Application.System.Services.Service
     [Injection(Order = 1)]
     public class DefaultTicketService : TicketBaseService<Ticket, MasterDbContextLocator>, IDefaultTicketService, ITransient
     {
-        private string userId;
+        private long userId;
         private readonly ICacheOperation _cache;
         private readonly IMultiTicketService multiTicketService;
         public DefaultTicketService(IRepository<Ticket, MasterDbContextLocator> _dal, ICacheOperation _cache, IMultiTicketService multiTicketService) : base(_dal)
@@ -47,7 +47,7 @@ namespace 通用订票.Application.System.Services.Service
         public virtual async Task<List<Ticket>> GenarateTickets(
             DateTime startTime,
             DateTime endTime, 
-            OrderBase<string> order,
+            OrderBase<long> order,
             int[] uids,
             string[] exhibitions,
             TicketStatus status = TicketStatus.未激活,
@@ -90,7 +90,7 @@ namespace 通用订票.Application.System.Services.Service
             return result;
         }
 
-        public virtual async Task<Ticket> GenarateTicket(DateTime startTime, DateTime endTime, OrderBase<string> order, int number, TicketStatus status, string[] exhibitions, OTAType otaType = OTAType.Normal)
+        public virtual async Task<Ticket> GenarateTicket(DateTime startTime, DateTime endTime, OrderBase<long> order, int number, TicketStatus status, string[] exhibitions, OTAType otaType = OTAType.Normal)
         {
             var ticket = base.GenerateTicket(startTime, endTime);
             ticket.TUserId = -1;
@@ -114,7 +114,7 @@ namespace 通用订票.Application.System.Services.Service
             return ticket;
         }
 
-        public async Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<string> order, int number, TicketStatus status,string[] exhibitions, OTAType otaType = OTAType.Normal)
+        public async Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<long> order, int number, TicketStatus status,string[] exhibitions, OTAType otaType = OTAType.Normal)
         {
             List<Core.Entity.Ticket> result = new List<Core.Entity.Ticket>();
             for (int i = 0;i < number;i++)
@@ -206,7 +206,7 @@ namespace 通用订票.Application.System.Services.Service
             return result;
         }
 
-        public virtual void SetUserContext(string user)
+        public virtual void SetUserContext(long user)
         {
             this.userId = user;
         }
@@ -224,10 +224,7 @@ namespace 通用订票.Application.System.Services.Service
             string cacheKey = "Tickets:" + orderId;
             foreach (var item in tickets)
             {
-                if (item.userID != Guid.Empty.ToString() && item.userID != null)
-                {
-                    await _cache.PushToList<Core.Entity.Ticket>("Tickets:" + orderId, item);
-                }
+                await _cache.PushToList<Core.Entity.Ticket>(cacheKey, item);
             }
 
             //string cacheKey = "Tickets:" + orderId;

@@ -6,14 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace 通用订票.Base.TradeNo
+namespace Core.Utill.UniqueCode
 {
-    public class RedisTradeNoGenerate : ITradeNoGenerate<long>,ISingleton
+    public class TradeNoGenerater : ITradeNoGenerater<long>,ISingleton
     {
-        private readonly ICacheOperation _cache;
-        public RedisTradeNoGenerate(ICacheOperation _cache)
+        private readonly IUniqueCodeGenerater<long> codeGenerator;
+        public TradeNoGenerater(IUniqueCodeGenerater<long> codeGenerator)
         {
-            this._cache = _cache;
+            this.codeGenerator = codeGenerator;
         }
         public async Task<long> Generate()
         {
@@ -24,12 +24,7 @@ namespace 通用订票.Base.TradeNo
             string yyMMddSecond = originDateStr + differSecond.ToString().PadLeft(5, '0');
             var parsed = long.Parse(yyMMddSecond);
 
-            long? res = await _cache.Get<long>("TradeNo");
-            if (res == null)
-            {
-                await _cache.Set("TradeNo", 0, 60);
-            }
-            res = await _cache.Incr("TradeNo");
+            var res = await codeGenerator.Generate("TradeNo");
 
             //生成订单编号
             string orderNo = parsed.ToString() + res.ToString().PadLeft(4, '0');

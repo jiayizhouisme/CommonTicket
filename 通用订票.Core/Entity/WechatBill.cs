@@ -1,22 +1,24 @@
 ﻿using Furion.DatabaseAccessor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SqlSugar;
 using System;
 using System.ComponentModel.DataAnnotations;
+using 通用订票Order.Entity;
 
 namespace 通用订票.Core.Entity
 {
     public class WechatBill : IEntity,IEntityTypeBuilder<WechatBill>
     {
+        public Guid id { get; set; }
+
         /// <summary>
         /// 支付单号
         /// </summary>
         [Display(Name = "支付单号")]
         [Required(ErrorMessage = "请输入{0}")]
         [StringLength(maximumLength: 20, ErrorMessage = "{0}不能超过{1}字")]
-        public Guid id { get; set; }
-
-        public int _id { get; set; }
+        public System.String paymentId { get; set; }
 
         /// <summary>
         /// 资源编号
@@ -56,7 +58,7 @@ namespace 通用订票.Core.Entity
         [Display(Name = "支付状态")]
         [Required(ErrorMessage = "请输入{0}")]
 
-        public System.Int32 status { get; set; }
+        public OrderStatus status { get; set; }
 
         /// <summary>
         /// 支付类型编码 关联payments.code
@@ -108,11 +110,11 @@ namespace 通用订票.Core.Entity
         [Display(Name = "更新时间")]
 
         public System.DateTime? updateTime { get; set; }
-        public Order order { get; set; }
 
         public void Configure(EntityTypeBuilder<WechatBill> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
-            entityBuilder.HasOne(a => a.order).WithMany().HasForeignKey(a => a.tradeNo) ;
+
+            entityBuilder.HasKey(a => a.id);
         }
     }
 
