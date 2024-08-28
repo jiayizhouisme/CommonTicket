@@ -26,6 +26,7 @@ namespace 通用订票.Application.System.Services.Service
                 { "jti", _user.id.ToString()},  // 存储Id
                 { "name",_user.username }, // 存储用户名
                 { "tenant-id",extra_info},
+                { "loginType","normal"},
                 { "permissions",Permissions.Normal}
             }, 7200);
             // 获取刷新 token
@@ -44,11 +45,23 @@ namespace 通用订票.Application.System.Services.Service
             {
                 throw new Exception("登录超时");
             }
+            User user = await this.GetQueryableNt(a => a.openId == originOpenid).FirstOrDefaultAsync();
+            if(user == null)
+            {
+                user = await this.RegisteNewUser(new User {username = DateTime.Now.ToFileTime().ToString(),password = "-1" });
+                user.openId = originOpenid;
+            }
 
+            if (user == null)
+            {
+                throw new Exception("用户登陆时发生错误");
+            }
             var accessToken = JWTEncryption.Encrypt(new Dictionary<string, object>()
             {
-                { "jti", originOpenid},  // 存储Id
-                { "name",originOpenid}, // 存储用户名
+                { "jti", user.id.ToString()},  // 存储Id
+                { "name",user.username}, // 存储用户名
+                { "openid",user.openId},
+                { "loginType","wechat"},
                 { "tenant-id",extra_info},
                 { "permissions",Permissions.Normal}
             }, 7200);

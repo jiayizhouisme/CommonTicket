@@ -14,7 +14,7 @@ namespace 通用订票.Core.Entity
         public Permissions authLevel { get; set; }
         public bool isDeleted { get; set; }
         public DateTime CreateTime { get; set; }
-
+        public string openId { get; set; }
         public IEnumerable<User> HasData(DbContext dbContext, Type dbContextLocator)
         {
             //List<User> users = new List<User>();
