@@ -85,5 +85,11 @@
             <param name="ticket"></param>
             <returns></returns>
         </member>
+        <member name="T:通用订票.Application.System.Services.Service.WechatTenantMerchantConfigService">
+            <summary>
+            这是多租户模式下的配置
+            如果不适用多租户就在创建一个类
+            </summary>
+        </member>
     </members>
 </doc>

@@ -22,20 +22,26 @@ namespace 通用订票.Application.System.Services.Service
 {
     public class WechatBillService : BaseService<WechatBill, MasterDbContextLocator>, IWechatBillService,ITransient
     {
-        private readonly WeChatPayOptions _wechatpay;
+        private readonly IWechatMerchantConfigService _merchantConfigService;
         private readonly IWeChatPayClient _client;
         private readonly ICacheOperation _cache;
-        public WechatBillService(IOptions<WeChatPayOptions> _wechatpay, IRepository<WechatBill, MasterDbContextLocator> _dal,
-            IWeChatPayClient _client,ICacheOperation _cache)
+        public WechatBillService(IRepository<WechatBill, MasterDbContextLocator> _dal,
+            IWeChatPayClient _client,ICacheOperation _cache, IWechatMerchantConfigService merchantConfigService)
         {
             this._dal = _dal;
             this._client = _client;
-            this._wechatpay = _wechatpay.Value;
             this._cache = _cache;
+            _merchantConfigService = merchantConfigService;
         }
 
         public async Task<WechatBill> GenWechatBill(WechatBill entity,string openId)
         {
+            var config = await _merchantConfigService.GetConfig();
+            if (config == null)
+            {
+                return null;
+            }
+            WeChatPayOptions _wechatpay = config.Adapt<WeChatPayOptions>();
             //var jm = new WebApiCallBack();
             var bill = await GetWechatBill(entity.tradeNo);
             if (bill != null)

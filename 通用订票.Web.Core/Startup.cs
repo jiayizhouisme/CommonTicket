@@ -31,6 +31,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using 通用订票.Application.System.Services.IService;
+using 通用订票.Application.System.Services.Service;
 using 通用订票.EntityFramework.Core;
 using 通用订票.EventBus.Monitor;
 using 通用订票.JobTask;
@@ -80,6 +82,7 @@ namespace 通用订票.Web.Core
             services.AddSingleton<IUniqueCodeGenerater<long>,RedisUniqueCodeGenerator>();
             services.AddSingleton<ITradeNoGenerater<long>, TradeNoGenerater>();
             services.AddSingleton<IIdGenerater<long>, IdGenerater>();
+            services.AddTransient<IWechatMerchantConfigService,WechatTenantMerchantConfigService>();
             services.AddSingleton<ConnectionMultiplexer>(sp =>
             {
                 //获取连接字符串
