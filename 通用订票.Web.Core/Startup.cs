@@ -169,6 +169,7 @@ namespace 通用订票.Web.Core
                 app.UseMiddleware<SubSiteMiddleWare>();
             }
             app.UseMiddleware<HttpContextMiddleware>();
+            app.UseMiddleware<WebRouteMiddleware>();
 
             app.UseDefaultFiles();
             StaticFileOptions options = new StaticFileOptions { 
