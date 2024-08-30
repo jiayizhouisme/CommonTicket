@@ -1,6 +1,7 @@
 ﻿using BeetleX.Redis.Commands;
 using Core.Auth;
 using Core.Cache;
+using Core.MiddelWares;
 using Core.Queue.IQueue;
 using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
@@ -64,7 +65,7 @@ namespace 通用订票.Web.Entry.Controllers
                 httpContextAccessor.HttpContext.Request.Scheme + "://" + 
                     httpContextAccessor.HttpContext.Request.Headers["Origin_Host"] +
                     "/" + 
-                    httpContextAccessor.HttpContext.Request.Headers["Tenant_Name"] +
+                    httpContextAccessor.HttpContext.Request.Headers[HttpContextMiddleware.Key_TenantName] +
                     httpContextAccessor.HttpContext.Request.Path.ToString();
             if (httpContextUser.TenantId == null)
             {

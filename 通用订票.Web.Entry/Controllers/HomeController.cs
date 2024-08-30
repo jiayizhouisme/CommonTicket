@@ -1,4 +1,6 @@
-﻿using DotNetCore.CAP;
+﻿using Core.Auth;
+using Core.MiddelWares;
+using DotNetCore.CAP;
 using Furion.DatabaseAccessor;
 using Furion.DataEncryption;
 using Furion.RemoteRequest.Extensions;
@@ -17,9 +19,17 @@ using 通用订票.Core.Entity;
 
 namespace 通用订票.Web.Entry.Controllers
 {
+
     [AllowAnonymous]
     public class HomeController : Controller
     {
+        private readonly IHttpContextAccessor httpContextAccessor;
+
+        public HomeController(IHttpContextAccessor httpContextAccessor)
+        {
+            this.httpContextAccessor = httpContextAccessor;
+        }
+
         public async Task<IActionResult> Index()
         {
             return View();

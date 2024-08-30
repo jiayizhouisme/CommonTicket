@@ -1,4 +1,5 @@
 ﻿using Core.Auth;
+using Core.MiddelWares;
 using Core.User.Entity;
 using Furion.DataEncryption;
 using Furion.DynamicApiController;
@@ -27,7 +28,7 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpPost(Name = "Login")]
         public async Task<IActionResult> Login([FromBody]Login_Web user)
         {
-            var tenant_id = _contextAccessor.HttpContext.Request.Headers["Tenant_Name"].ToString();
+            var tenant_id = _contextAccessor.HttpContext.Request.Headers[HttpContextMiddleware.Key_TenantName].ToString();
             //if (tenant_id.IsNullOrEmpty())
             //{
             //    return new UnauthorizedResult();
@@ -48,7 +49,7 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpGet(Name = "Login")]
         public async Task<IActionResult> WechatLogin([FromQuery] string openid)
         {
-            var tenant_id = _contextAccessor.HttpContext.Request.Headers["Tenant_Name"].ToString();
+            var tenant_id = _contextAccessor.HttpContext.Request.Headers[HttpContextMiddleware.Key_TenantName].ToString();
             
             try
             {

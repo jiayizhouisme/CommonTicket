@@ -33,7 +33,6 @@ namespace 通用订票.Web.Entry.Controllers
     public class OrderController : IDynamicApiController
     {
         private readonly IUserInfoService userinfoService;
-        private readonly IUserService userService;
         private readonly IDefaultAppointmentService stockService;
         private readonly IDefaultTicketService ticketService;
         private readonly IDefaultOrderServices myOrderService;
@@ -51,7 +50,6 @@ namespace 通用订票.Web.Entry.Controllers
             IHttpContextUser httpContextUser,
             IWechatBillService billService,
             IExhibitionService exhibitionService,
-            IUserService userService,
             INamedServiceProvider<IDefaultAppointmentService> _stockProvider,
             INamedServiceProvider<IDefaultOrderServices> _orderProvider,
             INamedServiceProvider<IDefaultTicketService> _ticketProvider,
@@ -64,7 +62,6 @@ namespace 通用订票.Web.Entry.Controllers
             this.httpContextUser = httpContextUser;
             this.userinfoService = userinfoService;
             this.billService = billService;
-            this.userService = userService;
             this.exhibitionService = exhibitionService;
             this._queue = _queue;
             this.eventPublisher = eventPublisher;
