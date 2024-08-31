@@ -1,8 +1,9 @@
 ﻿using Core.Auth;
 using Core.Auth.Handler;
 using Core.Cache;
+using Core.HttpTenant.HttpTenantContext;
+using Core.HttpTenant.Service;
 using Core.MiddelWares;
-using Core.MiddelWares.HttpTenantContextMiddleWare;
 using Core.Queue.IQueue;
 using Core.SignalR;
 using Core.User.Service;
@@ -78,7 +79,7 @@ namespace 通用订票.Web.Core
             services.AddSingleton<ICacheOperation, RedisOperationRepository>();
             services.AddSingleton<ISignalRUserService, JwtCacheUserService>();
             services.AddSingleton<TenantService>();
-            services.AddScoped<IHttpContextUser, JwtUserContext>();
+            services.AddScoped<IHttpContextUser, JwtUserContext_Real>();
             services.AddSingleton<IUniqueCodeGenerater<long>,RedisUniqueCodeGenerator>();
             services.AddSingleton<ITradeNoGenerater<long>, TradeNoGenerater>();
             services.AddSingleton<IIdGenerater<long>, IdGenerater>();

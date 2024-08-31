@@ -1,4 +1,5 @@
 ﻿using Core.Cache;
+using Core.HttpTenant.Service;
 using Core.Services.ServiceFactory;
 using Core.User.Service;
 using Furion.DatabaseAccessor;
