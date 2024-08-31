@@ -1,4 +1,5 @@
 ﻿using Core.Auth;
+using Core.HttpTenant;
 using Core.MiddelWares;
 using Core.User.Entity;
 using Furion.DataEncryption;
@@ -19,16 +20,18 @@ namespace 通用订票.Web.Entry.Controllers
     {
         private readonly IUserService userService;
         private readonly IHttpContextAccessor _contextAccessor;
-        public LoginController(IUserService userService, IHttpContextAccessor contextAccessor)
+        private readonly ITenantGetSetor tenantGetSetor;
+        public LoginController(IUserService userService, IHttpContextAccessor contextAccessor, ITenantGetSetor tenantGetSetor)
         {
             this.userService = userService;
             _contextAccessor = contextAccessor;
+            this.tenantGetSetor = tenantGetSetor;
         }
 
         [HttpPost(Name = "Login")]
         public async Task<IActionResult> Login([FromBody]Login_Web user)
         {
-            var tenant_id = _contextAccessor.HttpContext.Request.Headers[HttpContextMiddleware.Key_TenantName].ToString();
+            var tenant_id = tenantGetSetor.Get();
             //if (tenant_id.IsNullOrEmpty())
             //{
             //    return new UnauthorizedResult();
@@ -49,8 +52,8 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpGet(Name = "Login")]
         public async Task<IActionResult> WechatLogin([FromQuery] string openid)
         {
-            var tenant_id = _contextAccessor.HttpContext.Request.Headers[HttpContextMiddleware.Key_TenantName].ToString();
-            
+            var tenant_id = tenantGetSetor.Get();
+
             try
             {
                 var token = await userService.GetWechatToken(openid,tenant_id);

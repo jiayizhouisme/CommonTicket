@@ -1,6 +1,7 @@
 ﻿using BeetleX.Redis.Commands;
 using Core.Auth;
 using Core.Cache;
+using Core.HttpTenant;
 using Core.MiddelWares;
 using Core.Queue.IQueue;
 using Furion.DatabaseAccessor;
@@ -39,6 +40,7 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IXieChengOTAOrderService xieChengOTAOrderService;
         private readonly IDefaultOrderServices defaultOrderServices;
         private readonly ILogger<XieChengOrderController> _logger;
+        private readonly ITenantGetSetor tenantGetSetor;
         public const string CreatePreOrder = "CreatePreOrder";
         public const string QueryOrder = "QueryOrder";
         public const string PayPreOrder = "PayPreOrder";
@@ -50,12 +52,14 @@ namespace 通用订票.Web.Entry.Controllers
             IXieChengOTAOrderService xieChengOTAOrderService,
             IHttpContextAccessor httpContextAccessor,
             INamedServiceProvider<IDefaultOrderServices> _orderProvider,
-            ILogger<XieChengOrderController> _logger)
+            ILogger<XieChengOrderController> _logger,
+            ITenantGetSetor tenantGetSetor)
         {
             this.xieChengOTAOrderService = xieChengOTAOrderService;
             this.httpContextAccessor = httpContextAccessor;
             this._logger = _logger;
-            tenant_name = httpContextAccessor.HttpContext.Request.Headers[HttpContextMiddleware.Key_TenantName];
+            this.tenantGetSetor = tenantGetSetor;
+            tenant_name = tenantGetSetor.Get();
             var factory = SaaSServiceFactory.GetServiceFactory(tenant_name);
             this.defaultOrderServices = factory.GetOrderService(_orderProvider);
         }
