@@ -35,25 +35,28 @@ namespace 通用订票.Web.Entry.Controllers
     [Route("api")]
     public class XieChengOrderController : IDynamicApiController
     {
-        private readonly IHttpContextUser httpContextUser;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IXieChengOTAOrderService xieChengOTAOrderService;
         private readonly IDefaultOrderServices defaultOrderServices;
+        private readonly ILogger<XieChengOrderController> _logger;
         public const string CreatePreOrder = "CreatePreOrder";
         public const string QueryOrder = "QueryOrder";
         public const string PayPreOrder = "PayPreOrder";
         public const string CancelPreOrder = "CancelPreOrder";
         public const string CancelOrder = "CancelOrder";
+
+        private string tenant_name = null;
         public XieChengOrderController(
             IXieChengOTAOrderService xieChengOTAOrderService,
-            IHttpContextUser httpContextUser,
             IHttpContextAccessor httpContextAccessor,
-            INamedServiceProvider<IDefaultOrderServices> _orderProvider)
+            INamedServiceProvider<IDefaultOrderServices> _orderProvider,
+            ILogger<XieChengOrderController> _logger)
         {
             this.xieChengOTAOrderService = xieChengOTAOrderService;
-            this.httpContextUser = httpContextUser;
             this.httpContextAccessor = httpContextAccessor;
-            var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
+            this._logger = _logger;
+            tenant_name = httpContextAccessor.HttpContext.Request.Headers[HttpContextMiddleware.Key_TenantName];
+            var factory = SaaSServiceFactory.GetServiceFactory(tenant_name);
             this.defaultOrderServices = factory.GetOrderService(_orderProvider);
         }
 
@@ -61,20 +64,22 @@ namespace 通用订票.Web.Entry.Controllers
         [NonUnify]
         public async Task<XieChengResponse> xiecheng([FromBody] XieChengRequest request)
         {
-            string path =
-                httpContextAccessor.HttpContext.Request.Scheme + "://" + 
-                    httpContextAccessor.HttpContext.Request.Headers["Origin_Host"] +
-                    "/" + 
-                    httpContextAccessor.HttpContext.Request.Headers[HttpContextMiddleware.Key_TenantName] +
-                    httpContextAccessor.HttpContext.Request.Path.ToString();
-            if (httpContextUser.TenantId == null)
+            if (string.IsNullOrEmpty(tenant_name))
             {
                 return new XieChengResponse
                 {
                     header = new XieChengResponseHeader { resultCode = "9999", resultMessage = "租户异常" }
                 };
             }
-            var config = await xieChengOTAOrderService.GetConfig(httpContextUser.TenantId);
+
+            string path =
+                httpContextAccessor.HttpContext.Request.Scheme + "://" + 
+                    httpContextAccessor.HttpContext.Request.Host.ToString() +
+                    "/" +
+                    tenant_name +
+                    httpContextAccessor.HttpContext.Request.Path.ToString();
+            
+            var config = await xieChengOTAOrderService.GetConfig(tenant_name);
             bool signVerify = XieChengTool.SignVerify(request.header.accountId, request.header.serviceName,
                 request.header.requestTime, request.body, request.header.version,config.ApiKey,request.header.sign);
             
@@ -97,7 +102,7 @@ namespace 通用订票.Web.Entry.Controllers
             var body = XieChengTool.AESDecrypt(request.body, config.AESKey, config.AESVector);
             defaultOrderServices.SetUserContext(-1);
             xieChengOTAOrderService.SetService(defaultOrderServices);
-            xieChengOTAOrderService.SetTenant(httpContextUser.TenantId);
+            xieChengOTAOrderService.SetTenant(tenant_name);
             if (request.header.serviceName == CreatePreOrder)
             {
                 var createOrder = JsonConvert.DeserializeObject<XiechengCreateOrder>(body);
@@ -156,7 +161,7 @@ namespace 通用订票.Web.Entry.Controllers
                 var cancelOrder = JsonConvert.DeserializeObject<XieChengCancelOrder>(body);
 
                 cancelOrder.supplierConfirmType = 1;
-                cancelOrder.tenant_id = httpContextUser.TenantId;
+                cancelOrder.tenant_id = tenant_name;
                 var confirmResult = await this.xieChengOTAOrderService.CancleOrderConfirm(cancelOrder);
                 var _body = JsonConvert.SerializeObject(confirmResult);
                 body = XieChengTool.EncodeBytes(XieChengTool.AESEncrypt(_body, config.AESKey, config.AESVector));
