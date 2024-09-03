@@ -1,5 +1,5 @@
 ﻿using Core.Cache;
-using Core.User.JobTask;
+using Core.TenantJob;
 using Furion.DatabaseAccessor;
 using Furion.Schedule;
 using Microsoft.EntityFrameworkCore;

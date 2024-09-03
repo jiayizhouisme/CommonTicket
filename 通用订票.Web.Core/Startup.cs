@@ -1,6 +1,7 @@
 ﻿using Core.Auth;
 using Core.Auth.Handler;
 using Core.Cache;
+using Core.EntityFrameWork.Config;
 using Core.HttpTenant.HttpTenantContext;
 using Core.HttpTenant.Service;
 using Core.MiddelWares;
@@ -75,11 +76,11 @@ namespace 通用订票.Web.Core
             
             services.AddWeChatPay();
             services.Configure<WeChatPayOptions>(App.Configuration.GetSection("WeChatPay"));
-            //ervices.AddSingleton<ICacheOperation, BettleX_Redis>();
             services.AddSingleton<ICacheOperation, RedisOperationRepository>();
             services.AddSingleton<ISignalRUserService, JwtCacheUserService>();
-            services.AddSingleton<TenantService>();
-            services.AddScoped<IHttpContextUser, JwtUserContext_Real>();
+
+            services.AddTenantService(TenantConfigTypes.ByUrl);
+
             services.AddSingleton<IUniqueCodeGenerater<long>,RedisUniqueCodeGenerator>();
             services.AddSingleton<ITradeNoGenerater<long>, TradeNoGenerater>();
             services.AddSingleton<IIdGenerater<long>, IdGenerater>();
@@ -133,7 +134,7 @@ namespace 通用订票.Web.Core
             services.AddSignalR().AddStackExchangeRedis(App.Configuration["RedisConfig:ConnectionString"], options => {
                 options.Configuration.ChannelPrefix = App.Configuration["ServerConfig:CachePrefix"];
             });
-            services.AddSingleton<IGetTenantInHttpContext,GetTenantByUrl>();
+           
             services.AddSchedule(options =>
             {
                 options.BuildSqlType = SqlTypes.SqlServer;

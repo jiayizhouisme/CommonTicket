@@ -1,4 +1,4 @@
-﻿using Core.User.JobTask;
+﻿using Core.TenantJob;
 using Furion;
 using Furion.DatabaseAccessor;
 using Furion.Schedule;
