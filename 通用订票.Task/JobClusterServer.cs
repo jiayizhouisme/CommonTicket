@@ -136,7 +136,7 @@ namespace 通用订票.JobTask
             item.UpdatedTime = DateTime.Now;
             await _jobClusterRepository.UpdateNowAsync(item);
 
-            _schedulerFactory.AddJob<AutoRefreshStockEveryDay>(Triggers.Daily()); // 表示每天执行
+            _schedulerFactory.AddJob<AutoRefreshStockEveryDay>(Triggers.DailyAt(23).SetRunOnStart(false)); // 表示每天执行
             _schedulerFactory.AddJob<AutoCloseOrderEveryDay>(Triggers.DailyAt(23).SetRunOnStart(false));
             _schedulerFactory.AddJob<TenantToCacheJob>(Triggers.Daily().SetRunOnStart(true));
             //_schedulerFactory.AddJob<UploadConsumeTask>(Triggers.PeriodSeconds(60).SetRunOnStart(false));
