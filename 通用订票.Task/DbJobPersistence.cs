@@ -22,7 +22,7 @@ namespace 通用订票.JobTask
             _triggerRepository = services.GetService<IRepository<JobTrigger>>();
         }
 
-        public IEnumerable<SchedulerBuilder> Preload()
+        public async Task<IEnumerable<SchedulerBuilder>> PreloadAsync(CancellationToken stoppingToken)
         {
             var allJobs = App.EffectiveTypes.ScanToBuilders();
 
@@ -36,7 +36,7 @@ namespace 通用订票.JobTask
                 var jobBuilder = schedulerBuilder.GetJobBuilder();
 
                 // 加载数据库数据
-                var dbDetail = _jobRepository.FirstOrDefault(u => u.JobId == jobBuilder.JobId);
+                var dbDetail = await _jobRepository.FirstOrDefaultAsync(u => u.JobId == jobBuilder.JobId);
                 if (dbDetail == null) continue;
 
                 // 同步数据库数据
@@ -46,7 +46,7 @@ namespace 通用订票.JobTask
                 foreach (var (_, triggerBuilder) in schedulerBuilder.GetEnumerable())
                 {
                     // 加载数据库数据
-                    var dbTrigger = _triggerRepository.FirstOrDefault(u => u.JobId == jobBuilder.JobId && u.TriggerId == triggerBuilder.TriggerId);
+                    var dbTrigger = await _triggerRepository.FirstOrDefaultAsync(u => u.JobId == jobBuilder.JobId && u.TriggerId == triggerBuilder.TriggerId);
                     if (dbTrigger == null) continue;
 
                     triggerBuilder.LoadFrom(dbTrigger)
@@ -60,13 +60,12 @@ namespace 通用订票.JobTask
             return allJobs;
         }
 
-        public void OnChanged(PersistenceContext context)
+        public async Task OnChangedAsync(PersistenceContext context)
         {
             var sql = context.ConvertToSQL("JobDetails");
-            
         }
 
-        public SchedulerBuilder OnLoading(SchedulerBuilder builder)
+        public async Task<SchedulerBuilder> OnLoadingAsync(SchedulerBuilder builder, CancellationToken stoppingToken)
         {
             var newBuilder = SchedulerBuilder.Create<AutoRefreshStockEveryDay>(Triggers.Daily()); // 表示每秒执行
             newBuilder = SchedulerBuilder.Create<AutoCloseOrderEveryDay>(Triggers.DailyAt(23).SetRunOnStart(true));
@@ -76,7 +75,7 @@ namespace 通用订票.JobTask
             return newBuilder.Appended();
         }
 
-        public void OnTriggerChanged(PersistenceTriggerContext context)
+        public async Task OnTriggerChangedAsync(PersistenceTriggerContext context)
         {
             var sql = context.ConvertToSQL("JobTriggers");
         }
@@ -86,7 +85,12 @@ namespace 通用订票.JobTask
             _serviceScope?.Dispose();
         }
 
-        public void OnExecutionRecord(TriggerTimeline timeline)
+        public Task OnExecutionRecordAsync(TriggerTimeline timeline)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task OnExecutionRecordAsync(PersistenceExecutionRecordContext context)
         {
             throw new NotImplementedException();
         }

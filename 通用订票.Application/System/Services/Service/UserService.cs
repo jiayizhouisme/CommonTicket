@@ -3,6 +3,7 @@ using 通用订票.Core.Entity;
 using Core.User.Service;
 using Core.Auth;
 using Core.Utill.UniqueCode;
+using Furion.DataEncryption;
 
 namespace 通用订票.Application.System.Services.Service
 {
@@ -36,7 +37,7 @@ namespace 通用订票.Application.System.Services.Service
 
         public async Task<string[]> GetWechatToken(string openid, string extra_info)
         {
-            DESCEncryption.Decrypt(openid, "q0m3sd8l");
+            DESEncryption.Decrypt(openid, "q0m3sd8l");
 
             var originOpenid = openid.Split(',')[0];
             var date = DateTime.Parse(openid.Split(',')[1]);
