@@ -38,7 +38,7 @@ namespace 通用订票.Application.System.Services.Service
         public async Task<string[]> GetWechatToken(string openid, string extra_info)
         {
             DESEncryption.Decrypt(openid, "q0m3sd8l");
-
+            
             var originOpenid = openid.Split(',')[0];
             var date = DateTime.Parse(openid.Split(',')[1]);
             var id = openid.Split(',')[2];

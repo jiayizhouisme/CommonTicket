@@ -10,16 +10,16 @@ namespace 通用订票.JobTask
     public class DbJobPersistence : IJobPersistence, IDisposable
     {
         private readonly IServiceScope _serviceScope;
-        private readonly IRepository<Core.Entity.JobDetail> _jobRepository;
-        private readonly IRepository<Core.Entity.JobTrigger> _triggerRepository;
+        private readonly IRepository<Core.Entity.JobDetail,MultiTenantDbContextLocator> _jobRepository;
+        private readonly IRepository<Core.Entity.JobTrigger, MultiTenantDbContextLocator> _triggerRepository;
 
         public DbJobPersistence(IServiceScopeFactory serviceScope)
         {
             _serviceScope = serviceScope.CreateScope();
             var services = _serviceScope.ServiceProvider;
 
-            _jobRepository = services.GetService<IRepository<Core.Entity.JobDetail>>();
-            _triggerRepository = services.GetService<IRepository<JobTrigger>>();
+            _jobRepository = services.GetService<IRepository<Core.Entity.JobDetail, MultiTenantDbContextLocator>>();
+            _triggerRepository = services.GetService<IRepository<JobTrigger, MultiTenantDbContextLocator>>();
         }
 
         public async Task<IEnumerable<SchedulerBuilder>> PreloadAsync(CancellationToken stoppingToken)

@@ -84,6 +84,7 @@ namespace 通用订票.Web.Core
             services.AddSingleton<IUniqueCodeGenerater<long>,RedisUniqueCodeGenerator>();
             services.AddSingleton<ITradeNoGenerater<long>, TradeNoGenerater>();
             services.AddSingleton<IIdGenerater<long>, IdGenerater>();
+
             services.AddTransient<IWechatMerchantConfigService,WechatTenantMerchantConfigService>();
             services.AddSingleton<ConnectionMultiplexer>(sp =>
             {
