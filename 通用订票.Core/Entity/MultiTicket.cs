@@ -21,6 +21,7 @@ namespace 通用订票.Core.Entity
         public void Configure(EntityTypeBuilder<MultiTicket> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
             entityBuilder.HasKey(a => a.id);
+            entityBuilder.HasIndex(a => a.ticketNumber);
             entityBuilder.Property(a => a.id).ValueGeneratedOnAdd();
         }
     }

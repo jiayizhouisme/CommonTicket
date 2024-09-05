@@ -1,8 +1,10 @@
 ﻿using Core.Auth;
+using Core.HttpTenant;
 using Core.MiddelWares;
 using DotNetCore.CAP;
 using Furion.DatabaseAccessor;
 using Furion.DataEncryption;
+using Furion.EventBus;
 using Furion.RemoteRequest.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +13,9 @@ using Newtonsoft.Json;
 using ProtoBuf.WellKnownTypes;
 using Quick.RabbitMQPlus;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using System.Security.Cryptography;
+using 通用订票.Application.System.Models;
 using 通用订票.Application.System.ServiceBases.IService;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Application.System.Services.Service;
@@ -23,13 +27,6 @@ namespace 通用订票.Web.Entry.Controllers
     [AllowAnonymous]
     public class HomeController : Controller
     {
-        private readonly IHttpContextAccessor httpContextAccessor;
-
-        public HomeController(IHttpContextAccessor httpContextAccessor)
-        {
-            this.httpContextAccessor = httpContextAccessor;
-        }
-
         public async Task<IActionResult> Index()
         {
             return View();

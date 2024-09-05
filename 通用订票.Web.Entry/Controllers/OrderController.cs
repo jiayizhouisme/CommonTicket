@@ -1,5 +1,6 @@
 ﻿using Core.Auth;
 using Core.Cache;
+using Core.HttpTenant;
 using Core.MiddelWares;
 using Core.Queue.IQueue;
 using Furion.DatabaseAccessor;
@@ -44,7 +45,7 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IEventPublisher eventPublisher;
         private readonly IJsonSerializerProvider jsonSerializerProvider;
         private readonly IHttpContextAccessor httpContextAccessor;
-
+        private readonly ITenantGetSetor tenantGetSetor;
         public OrderController(IUserInfoService userinfoService,
             ICacheOperation _cache,
             IHttpContextUser httpContextUser,
@@ -56,7 +57,8 @@ namespace 通用订票.Web.Entry.Controllers
             IQueuePushInfo _queue,
             IEventPublisher eventPublisher,
             IJsonSerializerProvider jsonSerializerProvider,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            ITenantGetSetor tenantGetSetor)
         {
             this._cache = _cache;
             this.httpContextUser = httpContextUser;
@@ -67,6 +69,7 @@ namespace 通用订票.Web.Entry.Controllers
             this.eventPublisher = eventPublisher;
             this.jsonSerializerProvider = jsonSerializerProvider;
             this.httpContextAccessor = httpContextAccessor;
+            this.tenantGetSetor = tenantGetSetor;
 
             var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
             this.stockService = factory.GetStockService(_stockProvider);
@@ -323,7 +326,7 @@ namespace 通用订票.Web.Entry.Controllers
                     type = ticket.ticket.ota,
                     ticketNumber = ticket_number,
                     count = count,
-                    tenant_id = httpContextUser.TenantId,
+                    tenant_id = tenantGetSetor.Get(),
                     exhibitionId = exhibition
                 });
             }

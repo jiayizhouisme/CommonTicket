@@ -30,7 +30,7 @@ namespace 通用订票.JobTask
             var scope = _serviceProvider.CreateScope();
 
             var te = Db.GetRepository<Tenant, MultiTenantDbContextLocator>(scope.ServiceProvider);
-            var tenants = await te.AsQueryable().Select(a => a.Host).AsNoTracking().ToListAsync();
+            var tenants = await te.AsQueryable().Select(a => a.Name).AsNoTracking().ToListAsync();
             foreach (var item in tenants)
             {
                 await CloseOrdersByid(scope, item);
