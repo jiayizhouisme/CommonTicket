@@ -77,6 +77,8 @@ namespace 通用订票.RedisMQ
                 var orderInfo = jsonSerializerProvider.Deserialize<OrderInfo>(order.extraInfo);
                 var saleResult = s_service.SaleStock(order.objectId, -orderInfo.ids.Count()).Result;
 
+                var billService = ServiceFactory.GetSaasService<IWechatBillService,WechatBill>(scope.ServiceProvider,data.tenantId);
+
                 try
                 {
                     if (order.status != OrderStatus.未付款)
@@ -99,6 +101,7 @@ namespace 通用订票.RedisMQ
                             stock.sale = 0;
                         }
                         await s_service.UpdateNow(stock);
+                        await billService.UpdateStatus(OrderStatus.已关闭,order.trade_no);
 
                         await s_service.DelStockFromCache(stock.id);
                         await transaction.CommitAsync();

@@ -63,6 +63,9 @@ namespace 通用订票.RedisMQ
                 var o_service = factory.GetOrderService(_orderProvider);
                 o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, billattach.tenant_id);
 
+                var wechatBillService = ServiceFactory.GetSaasService<IWechatBillService,WechatBill>
+                    (scope.ServiceProvider,billattach.tenant_id);
+
                 var e_service = ServiceFactory.GetSaasService<IExhibitionService, Exhibition>(scope.ServiceProvider, billattach.tenant_id);
                 if (notify is { ReturnCode: WeChatPayCode.Success })
                 {
@@ -87,6 +90,7 @@ namespace 通用订票.RedisMQ
                             }
 
                             var result = await o_service.PayFinished(order);
+                            await wechatBillService.UpdateStatus(通用订票Order.Entity.OrderStatus.已付款,order.trade_no);
 
                             var app = await s_service.GetAppointmentById(order.objectId);
                             var exhibition = await e_service.GetExhibitionByID(app.objectId);

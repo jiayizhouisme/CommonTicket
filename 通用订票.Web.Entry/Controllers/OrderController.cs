@@ -190,6 +190,7 @@ namespace 通用订票.Web.Entry.Controllers
             string lockid = Guid.NewGuid().ToString();
 
             await _cache.Lock("OrderLocker_" + trade_no, lockid);
+
             var order = await myOrderService.GetOrderById(trade_no);
             try
             {
@@ -206,15 +207,18 @@ namespace 通用订票.Web.Entry.Controllers
                         payTitle = order.name,
                         tradeNo = order.trade_no,
                         money = order.amount,
-                        id = Guid.NewGuid(),
                         ip = httpContextAccessor.HttpContext.GetRemoteIpAddressToIPv4(),
                         Attach = jsonSerializerProvider.Serialize(new WechatBillAttach { 
                             tenant_id = httpContextUser.TenantId,
                             trade_no = trade_no
                         })
                     };
-                    var result = await billService.GenWechatBill(bill, userid);
-                    return result.parameters;
+                    var openid = httpContextUser.GetUserInfoFromToken("openid").FirstOrDefault();
+                    if (openid != null)
+                    {
+                        var result = await billService.GenWechatBill(bill, openid);
+                        return result.parameters;
+                    }
                 }
                 else
                 {
@@ -238,16 +242,16 @@ namespace 通用订票.Web.Entry.Controllers
         public async Task<通用订票.Core.Entity.Order> PaidOrder(long trade_no)
         {
             string lockid = Guid.NewGuid().ToString();
+
             await _cache.Lock("OrderLocker_" + trade_no, lockid);
             var order = await myOrderService.GetOrderById(trade_no);
-
-            if (order == null || order.userId.ToString() != httpContextUser.ID)
-            {
-                throw new ArgumentException("订单已不可支付");
-            }
-
             try
             {
+                if (order == null || order.userId.ToString() != httpContextUser.ID)
+                {
+                    throw new ArgumentException("订单已不可支付");
+                }
+
                 if (order.status != OrderStatus.已付款)
                 {
                     await myOrderService.PayOrder(order);
@@ -274,22 +278,24 @@ namespace 通用订票.Web.Entry.Controllers
             string lockerId = Guid.NewGuid().ToString();
             var lo = await _cache.Lock("OrderLocker_" + trade_no, lockerId);
             var order = await myOrderService.GetOrderById(trade_no);
-            if (order == null || order.userId.ToString() != httpContextUser.ID)
-            {
-                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId);
-                throw new ArgumentException("目前状态不可关闭订单");
-            }
-
-            if (order.status != OrderStatus.未付款)
-            {
-                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId);
-                throw new Exception("目前状态不可关闭订单");
-            }
             var orderInfo = jsonSerializerProvider.Deserialize<OrderInfo>(order.extraInfo);
-            var saleResult = await stockService.SaleStock(order.objectId, -orderInfo.ids.Count());
             try
             {
+                if (order == null || order.userId.ToString() != httpContextUser.ID)
+                {
+                    await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId);
+                    throw new ArgumentException("目前状态不可关闭订单");
+                }
+
+                if (order.status != OrderStatus.未付款)
+                {
+                    await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId);
+                    throw new Exception("目前状态不可关闭订单");
+                }
+                var saleResult = await stockService.SaleStock(order.objectId, -orderInfo.ids.Count());
+            
                 var o = await myOrderService.CancelOrder(order);
+                await billService.UpdateStatus(OrderStatus.已关闭,trade_no);
 
                 var onOrderClosed = new OnOrderClosed() { order = order, tenantId = httpContextUser.TenantId, userId = httpContextUser.ID };
                 await eventPublisher.PublishAsync(new OnOrderClosedEvent(onOrderClosed));

@@ -195,11 +195,6 @@
             购票人选择的用户
             </summary>
         </member>
-        <member name="P:通用订票.Core.Entity.WechatBill.paymentId">
-            <summary>
-            支付单号
-            </summary>
-        </member>
         <member name="P:通用订票.Core.Entity.WechatBill.sourceId">
             <summary>
             资源编号

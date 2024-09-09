@@ -17,6 +17,7 @@ using StackExchange.Profiling.Internal;
 using Core.Cache;
 using Core.Services;
 using Furion.JsonSerialization;
+using 通用订票Order.Entity;
 
 namespace 通用订票.Application.System.Services.Service
 {
@@ -42,7 +43,7 @@ namespace 通用订票.Application.System.Services.Service
                 return null;
             }
             WeChatPayOptions _wechatpay = config.Adapt<WeChatPayOptions>();
-            //var jm = new WebApiCallBack();
+
             var bill = await GetWechatBill(entity.tradeNo);
             if (bill != null)
             {
@@ -57,8 +58,6 @@ namespace 通用订票.Application.System.Services.Service
             }
 
             var tradeType = "JSAPI";
-
-            //var openId = "oBuO66JLrmascVJYSMWEeVlIjigE";
 
             var request = new WeChatPayUnifiedOrderRequest
             {
@@ -100,8 +99,40 @@ namespace 通用订票.Application.System.Services.Service
 
         public async Task<WechatBill> GetWechatBill(long trade_no)
         {
-            var billInCache = await _cache.Get<WechatBill>("Bill:" + trade_no);
-            return billInCache;
+            var now = DateTime.Now;
+            var key = "Bill:" + trade_no;
+            var bill= await _cache.Get<WechatBill>(key);
+            if (bill == null)
+            {
+                
+                bill = await this.GetQueryableNt(a => a.tradeNo == trade_no).FirstOrDefaultAsync();
+                if (bill != null && now.Subtract(bill.createTime).Hours < 2)
+                {
+                    await _cache.Set(key,bill);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else if(now.Subtract(bill.createTime).Hours < 2)
+            {
+                return null;
+            }
+            return bill;
+        }
+
+        public async Task<WechatBill> UpdateStatus(OrderStatus status, long trade_no)
+        {
+            var wechatBill = await this.GetWechatBill(trade_no);
+            if (wechatBill != null)
+            {
+                var key = "Bill:" + trade_no;
+                wechatBill.status = status;
+                await this.UpdateNow(wechatBill);
+                await _cache.Del(key);
+            }
+            return wechatBill;
         }
     }
 }

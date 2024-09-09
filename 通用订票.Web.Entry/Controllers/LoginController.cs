@@ -49,7 +49,7 @@ namespace 通用订票.Web.Entry.Controllers
             return new OkResult();
         }
 
-        [HttpGet(Name = "Login")]
+        [HttpGet(Name = "WechatLogin")]
         public async Task<IActionResult> WechatLogin([FromQuery] string openid)
         {
             var tenant_id = tenantGetSetor.Get();
