@@ -11,7 +11,7 @@ namespace 通用订票.Application.System.Services.IService
     public interface IWechatBillService : IBaseService<WechatBill>
     {
         Task<WechatBill> UpdateStatus(通用订票Order.Entity.OrderStatus status, long trade_no);
-        Task<WechatBill> GenWechatBill(WechatBill bill,string openId);
+        Task<WechatBill> GenWechatBill(通用订票.Core.Entity.Order order, WechatBillAttach attach,long userId);
         Task<WechatBill> GetWechatBill(long trade_no);
     }
 }

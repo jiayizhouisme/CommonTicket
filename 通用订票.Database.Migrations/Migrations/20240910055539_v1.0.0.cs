@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace 通用订票.Database.Migrations.Migrations
 {
     /// <inheritdoc />
-    public partial class v14 : Migration
+    public partial class v100 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -41,7 +41,7 @@ namespace 通用订票.Database.Migrations.Migrations
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     exhibitionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ticketNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ticketNumber = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     totalCount = table.Column<int>(type: "int", nullable: false),
                     usedCount = table.Column<int>(type: "int", nullable: false),
                     cancelCount = table.Column<int>(type: "int", nullable: false)
@@ -120,7 +120,7 @@ namespace 通用订票.Database.Migrations.Migrations
                 name: "UserInfo",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "int", nullable: false)
+                    id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     phoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -134,11 +134,25 @@ namespace 通用订票.Database.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "WebRouteConfig",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    keyPath = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    routePath = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WebRouteConfig", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "WechatBill",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    paymentId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    tradeNo = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     sourceId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     payTitle = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     money = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -149,14 +163,13 @@ namespace 通用订票.Database.Migrations.Migrations
                     ip = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     parameters = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     payedMsg = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    tradeNo = table.Column<long>(type: "bigint", nullable: false),
                     createTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Attach = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     updateTime = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_WechatBill", x => x.id);
+                    table.PrimaryKey("PK_WechatBill", x => x.tradeNo);
                 });
 
             migrationBuilder.CreateTable(
@@ -164,10 +177,10 @@ namespace 通用订票.Database.Migrations.Migrations
                 columns: table => new
                 {
                     appid = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    mchId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    apiKey = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    mchId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    apiKey = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     apiv3Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    certificate = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    certificate = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RsaPublicKey = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -292,6 +305,11 @@ namespace 通用订票.Database.Migrations.Migrations
                 column: "objectId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_MultiTicket_ticketNumber",
+                table: "MultiTicket",
+                column: "ticketNumber");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Ticket_objectId",
                 table: "Ticket",
                 column: "objectId");
@@ -325,6 +343,9 @@ namespace 通用订票.Database.Migrations.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserInfo");
+
+            migrationBuilder.DropTable(
+                name: "WebRouteConfig");
 
             migrationBuilder.DropTable(
                 name: "WechatBill");

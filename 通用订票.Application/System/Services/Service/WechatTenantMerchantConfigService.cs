@@ -1,4 +1,5 @@
 ﻿using Core.Cache;
+using Core.HttpTenant;
 using Core.Services;
 using Furion.DatabaseAccessor;
 using System;
@@ -19,19 +20,21 @@ namespace 通用订票.Application.System.Services.Service
         , IWechatMerchantConfigService
     {
         private readonly ICacheOperation _cache;
+        private readonly ITenantGetSetor tenantGetSetor;
         
         public WechatTenantMerchantConfigService(IRepository<WechatMerchantConfig, MasterDbContextLocator> _dal
-            , ICacheOperation _cache)
+            , ICacheOperation _cache, ITenantGetSetor tenantGetSetor)
         {
             this._dal = _dal;
             this._cache = _cache;
+            this.tenantGetSetor = tenantGetSetor;
         }
         public async Task ConfigMerchantInfo(WechatMerchantConfig config)
         {
-            var tenant = this._dal.Tenant;
+            var tenant = tenantGetSetor.Get();
             if (tenant != null)
             {
-                string key = "MerchantConfig:" + tenant.Name;
+                string key = "MerchantConfig:" + tenant;
                 await _cache.Del(key);
             }
             var _config = await this.Exist(a => a.appid == config.appid);
@@ -47,10 +50,10 @@ namespace 通用订票.Application.System.Services.Service
 
         public async Task<WechatMerchantConfig> GetConfig()
         {
-            var tenant = this._dal.Tenant;
+            var tenant = tenantGetSetor.Get();
             if (tenant != null)
             {
-                string key = "MerchantConfig:" + tenant.Name;
+                string key = "MerchantConfig:" + tenant;
                 var config = await this._cache.Get<WechatMerchantConfig>(key);
                 if (config != null)
                 {

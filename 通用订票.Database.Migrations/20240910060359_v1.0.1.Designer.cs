@@ -12,18 +12,39 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace 通用订票.Database.Migrations.Migrations
 {
     [DbContext(typeof(MasterDbContext_SQL))]
-    [Migration("20240827070743_v1.2")]
-    partial class v12
+    [Migration("20240910060359_v1.0.1")]
+    partial class v101
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.1")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Core.User.Entity.WebRouteConfig", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("keyPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("routePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("id");
+
+                    b.ToTable("WebRouteConfig");
+                });
 
             modelBuilder.Entity("通用订票.Core.Entity.Appointment", b =>
                 {
@@ -95,7 +116,7 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<string>("exhibitions")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("forbiddenDays")
+                    b.Property<string>("forbiddenRule")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("imgs")
@@ -136,7 +157,7 @@ namespace 通用订票.Database.Migrations.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ticketNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("totalCount")
                         .HasColumnType("int");
@@ -145,6 +166,8 @@ namespace 通用订票.Database.Migrations.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("id");
+
+                    b.HasIndex("ticketNumber");
 
                     b.ToTable("MultiTicket");
                 });
@@ -171,6 +194,7 @@ namespace 通用订票.Database.Migrations.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("objectId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("payedAmount")
@@ -179,8 +203,8 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<int>("status")
                         .HasColumnType("int");
 
-                    b.Property<string>("userId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long>("userId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("trade_no");
 
@@ -235,8 +259,8 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<int>("usedCount")
                         .HasColumnType("int");
 
-                    b.Property<string>("userID")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long>("userID")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("verifyTime")
                         .HasColumnType("datetime2");
@@ -252,8 +276,11 @@ namespace 通用订票.Database.Migrations.Migrations
 
             modelBuilder.Entity("通用订票.Core.Entity.User", b =>
                 {
-                    b.Property<string>("id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("id"));
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime2");
@@ -263,6 +290,9 @@ namespace 通用订票.Database.Migrations.Migrations
 
                     b.Property<bool>("isDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<string>("openId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("password")
                         .IsRequired()
@@ -279,11 +309,11 @@ namespace 通用订票.Database.Migrations.Migrations
 
             modelBuilder.Entity("通用订票.Core.Entity.UserInfo", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<long>("id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("id"));
 
                     b.Property<DateTime>("createTime")
                         .HasColumnType("datetime2");
@@ -297,28 +327,24 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<string>("phoneNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("userID")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("userID")
+                        .HasColumnType("bigint");
 
                     b.HasKey("id");
-
-                    b.HasIndex("userID");
 
                     b.ToTable("UserInfo");
                 });
 
             modelBuilder.Entity("通用订票.Core.Entity.WechatBill", b =>
                 {
-                    b.Property<Guid>("id")
+                    b.Property<long>("tradeNo")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("tradeNo"));
 
                     b.Property<string>("Attach")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("_id")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("createTime")
                         .HasColumnType("datetime2");
@@ -352,9 +378,6 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<int>("status")
                         .HasColumnType("int");
 
-                    b.Property<long>("tradeNo")
-                        .HasColumnType("bigint");
-
                     b.Property<int>("type")
                         .HasColumnType("int");
 
@@ -364,11 +387,89 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<int>("userId")
                         .HasColumnType("int");
 
-                    b.HasKey("id");
+                    b.HasKey("tradeNo");
+
+                    b.ToTable("WechatBill");
+                });
+
+            modelBuilder.Entity("通用订票.Core.Entity.WechatBillRefund", b =>
+                {
+                    b.Property<long>("refundId")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("refundId"));
+
+                    b.Property<string>("aftersalesId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("createTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("memo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("money")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("paymentCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("sourceId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<long>("tradeNo")
+                        .HasMaxLength(50)
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("updateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("userId")
+                        .HasColumnType("int");
+
+                    b.HasKey("refundId");
 
                     b.HasIndex("tradeNo");
 
-                    b.ToTable("WechatBill");
+                    b.ToTable("WechatBillRefund");
+                });
+
+            modelBuilder.Entity("通用订票.Core.Entity.WechatMerchantConfig", b =>
+                {
+                    b.Property<string>("appid")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RsaPublicKey")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("apiKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("apiv3Key")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("certificate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("mchId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("appid");
+
+                    b.ToTable("WechatMerchantConfig");
                 });
 
             modelBuilder.Entity("通用订票.OTA.携程.Entity.XieChengConfig", b =>
@@ -541,26 +642,6 @@ namespace 通用订票.Database.Migrations.Migrations
                         .IsRequired();
 
                     b.Navigation("exhibition");
-                });
-
-            modelBuilder.Entity("通用订票.Core.Entity.UserInfo", b =>
-                {
-                    b.HasOne("通用订票.Core.Entity.User", "user")
-                        .WithMany()
-                        .HasForeignKey("userID");
-
-                    b.Navigation("user");
-                });
-
-            modelBuilder.Entity("通用订票.Core.Entity.WechatBill", b =>
-                {
-                    b.HasOne("通用订票.Core.Entity.Order", "order")
-                        .WithMany()
-                        .HasForeignKey("tradeNo")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("order");
                 });
 
             modelBuilder.Entity("通用订票.OTA.携程.Entity.XieChengTicket", b =>

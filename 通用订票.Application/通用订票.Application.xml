@@ -53,6 +53,21 @@
             <param name="otaType"></param>
             <returns></returns>
         </member>
+        <member name="M:通用订票.Application.System.Services.IService.IWechatPayService.PubPay(通用订票.Core.Entity.WechatBill,通用订票.Core.Entity.WechatMerchantConfig,System.String)">
+            <summary>
+                发起支付
+            </summary>
+            <param name="entity">实体数据</param>
+            <returns></returns>
+        </member>
+        <member name="M:通用订票.Application.System.Services.IService.IWechatPayService.Refund(通用订票.Core.Entity.WechatBillRefund,通用订票.Core.Entity.WechatBill,通用订票.Core.Entity.WechatMerchantConfig)">
+            <summary>
+                用户退款
+            </summary>
+            <param name="refundInfo">退款单数据</param>
+            <param name="paymentInfo">支付单数据</param>
+            <returns></returns>
+        </member>
         <member name="M:通用订票.Application.System.Services.Service.DefaultAppointmentService.vaildStock(通用订票.Core.Entity.Appointment)">
             <summary>
             队列之前进行基本判断

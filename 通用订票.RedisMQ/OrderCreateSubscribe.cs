@@ -72,10 +72,11 @@ namespace 通用订票.RedisMQ
                 s_service = factory.GetStockService(_stockProvider);
                 s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>
                     (scope.ServiceProvider, s_service, data.tenantId);
+                var locker = _cache.Lock("OrderCloseLock:" + data.appid, data.appid).Result;
+                Appointment app = null;
                 try
                 {
-                    var locker = _cache.Lock("OrderCloseLock:" + data.appid, data.appid).Result;
-                    var app = s_service.checkStock(data.appid).Result;
+                    app = s_service.checkStock(data.appid).Result;
                     app.sale += data.ids.Count;
                     if (app.sale > app.amount)
                     {
@@ -92,18 +93,59 @@ namespace 通用订票.RedisMQ
                 {
                     await _cache.ReleaseLock("OrderCloseLock:" + data.appid, data.appid);
                 }
-                
-                var CreateOrder = new OrderCloseQueueEntity(new OrderClose()
+
+                if (data.order.amount == 0)
                 {
-                    trade_no = data.order.trade_no,
-                    appid = data.appid,
-                    userId = data.userid,
-                    delay = 30,
-                    tenantId = data.tenantId,
-                    count = data.ids.Count,
-                    realTenantId = data.tenantId
-                });
-                await _queue.PushMessageDelay(CreateOrder, DateTime.Now.AddSeconds(60));
+                    var startTime = data.order.createTime.Value.AddDays(app.day).Date.Add(app.startTime.TimeOfDay);
+                    var endTime = data.order.createTime.Value.AddDays(app.day).Date.Add(app.endTime.TimeOfDay);
+
+                    var e_service = ServiceFactory.GetSaasService<IExhibitionService,Exhibition>(scope.ServiceProvider,data.tenantId);
+                    var exhibition = await e_service.GetExhibitionByID(app.objectId);
+                    if (exhibition.isMultiPart == true)
+                    {
+                        await _queue.PushMessage(new TicketCreateQueueEntity(new TicketCreate()
+                        {
+                            startTime = startTime,
+                            endTime = endTime,
+                            exhibitions = exhibition.exhibitions.Split(' '),
+                            order = data.order,
+                            //realTenantId = httpContextUser.RealTenantId,
+                            status = Base.Entity.TicketStatus.未使用,
+                            tenantId = data.tenantId,
+                            uid = data.order.GetExtraInfo().ids,
+                            userid = data.order.userId
+                        }));
+                    }
+                    else
+                    {
+                        await _queue.PushMessage(new TicketCreateQueueEntity(new TicketCreate()
+                        {
+                            startTime = startTime,
+                            endTime = endTime,
+                            exhibitions = null,
+                            order = data.order,
+                            //realTenantId = httpContextUser.RealTenantId,
+                            status = Base.Entity.TicketStatus.未使用,
+                            tenantId = data.tenantId,
+                            uid = data.order.GetExtraInfo().ids,
+                            userid = data.order.userId
+                        }));
+                    }
+                }
+                else
+                {
+                    var CreateOrder = new OrderCloseQueueEntity(new OrderClose()
+                    {
+                        trade_no = data.order.trade_no,
+                        appid = data.appid,
+                        userId = data.userid,
+                        delay = 30,
+                        tenantId = data.tenantId,
+                        count = data.ids.Count,
+                        realTenantId = data.tenantId
+                    });
+                    await _queue.PushMessageDelay(CreateOrder, DateTime.Now.AddSeconds(60));
+                }
             }
            
             await Task.CompletedTask;

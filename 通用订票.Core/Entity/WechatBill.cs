@@ -32,7 +32,7 @@ namespace 通用订票.Core.Entity
         [Display(Name = "用户ID 关联user.id")]
         [Required(ErrorMessage = "请输入{0}")]
 
-        public System.Int32 userId { get; set; }
+        public long userId { get; set; }
 
         /// <summary>
         /// 单据类型

@@ -255,5 +255,65 @@
             更新时间
             </summary>
         </member>
+        <member name="M:通用订票.Core.Entity.WechatBillRefund.#ctor">
+            <summary>
+            退款单表
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBillRefund.refundId">
+            <summary>
+            退款单ID
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBillRefund.aftersalesId">
+            <summary>
+            售后单id
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBillRefund.money">
+            <summary>
+            退款金额
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBillRefund.userId">
+            <summary>
+            用户ID 关联user.id
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBillRefund.sourceId">
+            <summary>
+            资源id，根据type不同而关联不同的表
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBillRefund.paymentCode">
+            <summary>
+            退款支付类型编码 默认原路返回 关联支付单表支付编码
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBillRefund.tradeNo">
+            <summary>
+            第三方平台交易流水号
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBillRefund.status">
+            <summary>
+            状态
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBillRefund.memo">
+            <summary>
+            退款失败原因
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBillRefund.createTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
+        <member name="P:通用订票.Core.Entity.WechatBillRefund.updateTime">
+            <summary>
+            更新时间
+            </summary>
+        </member>
     </members>
 </doc>

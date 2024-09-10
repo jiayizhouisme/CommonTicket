@@ -46,6 +46,8 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IJsonSerializerProvider jsonSerializerProvider;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ITenantGetSetor tenantGetSetor;
+        private readonly IWechatPayService wechatPayService;
+        private readonly IWechatMerchantConfigService wechatMerchantConfigService;
         public OrderController(IUserInfoService userinfoService,
             ICacheOperation _cache,
             IHttpContextUser httpContextUser,
@@ -58,7 +60,9 @@ namespace 通用订票.Web.Entry.Controllers
             IEventPublisher eventPublisher,
             IJsonSerializerProvider jsonSerializerProvider,
             IHttpContextAccessor httpContextAccessor,
-            ITenantGetSetor tenantGetSetor)
+            ITenantGetSetor tenantGetSetor,
+            IWechatPayService wechatPayService,
+            IWechatMerchantConfigService wechatMerchantConfigService)
         {
             this._cache = _cache;
             this.httpContextUser = httpContextUser;
@@ -70,11 +74,13 @@ namespace 通用订票.Web.Entry.Controllers
             this.jsonSerializerProvider = jsonSerializerProvider;
             this.httpContextAccessor = httpContextAccessor;
             this.tenantGetSetor = tenantGetSetor;
+            this.wechatMerchantConfigService = wechatMerchantConfigService;
 
             var factory = SaaSServiceFactory.GetServiceFactory(httpContextUser.TenantId);
             this.stockService = factory.GetStockService(_stockProvider);
             this.ticketService = factory.GetTicketService(_ticketProvider);
             this.myOrderService = factory.GetOrderService(_orderProvider);
+            this.wechatPayService = wechatPayService;
         }
 
 
@@ -196,29 +202,29 @@ namespace 通用订票.Web.Entry.Controllers
             {
                 if (order == null || order.userId.ToString() != httpContextUser.ID)
                 {
-                    throw new ArgumentException("订单已不可支付");
+                    throw new ArgumentException("订单无效");
                 }
 
                 if (order.status == OrderStatus.未付款)
                 {
-                    var bill = new WechatBill()
+                    var Attach = new WechatBillAttach
                     {
-                        createTime = DateTime.Now,
-                        payTitle = order.name,
-                        tradeNo = order.trade_no,
-                        money = order.amount,
-                        ip = httpContextAccessor.HttpContext.GetRemoteIpAddressToIPv4(),
-                        Attach = jsonSerializerProvider.Serialize(new WechatBillAttach { 
-                            tenant_id = httpContextUser.TenantId,
-                            trade_no = trade_no
-                        })
+                        tenant_id = httpContextUser.TenantId,
+                        trade_no = trade_no
                     };
+
+                    var result = await billService.GenWechatBill(order, Attach, long.Parse(httpContextUser.ID));
+                    var config = await wechatMerchantConfigService.GetConfig();
                     var openid = httpContextUser.GetUserInfoFromToken("openid").FirstOrDefault();
-                    if (openid != null)
+                    if (config != null && string.IsNullOrEmpty(openid))
                     {
-                        var result = await billService.GenWechatBill(bill, openid);
-                        return result.parameters;
+                        result = await wechatPayService.PubPay(result, config, openid);
                     }
+                    else
+                    {
+                        throw new ArgumentException("参数错误");
+                    }
+                    return result.parameters;
                 }
                 else
                 {
@@ -228,6 +234,7 @@ namespace 通用订票.Web.Entry.Controllers
             catch (Exception e)
             {
                 await myOrderService.AfterOrderToke(trade_no);
+                return e.Message;
             }
             finally
             {

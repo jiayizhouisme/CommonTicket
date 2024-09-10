@@ -73,7 +73,7 @@ namespace 通用订票.Application.System.Services.Service
 
         public async Task<User> RegisteNewUser(User user)
         {
-            var tsk = idGenerater.Generate();
+            var tsk = idGenerater.Generate("USER");
             user.authLevel = Permissions.Normal;
             user.isDeleted = false;
             user.CreateTime = DateTime.Now;

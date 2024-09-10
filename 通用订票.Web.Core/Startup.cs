@@ -73,7 +73,6 @@ namespace 通用订票.Web.Core
                     }
                 };
             });
-            
             services.AddWeChatPay();
             services.Configure<WeChatPayOptions>(App.Configuration.GetSection("WeChatPay"));
             services.AddSingleton<ICacheOperation, RedisOperationRepository>();

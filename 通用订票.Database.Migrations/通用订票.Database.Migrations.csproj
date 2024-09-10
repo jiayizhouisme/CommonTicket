@@ -17,13 +17,6 @@
 
 
 	<ItemGroup>
-	  <Compile Include="Migrations\20240329054303_v13.0.cs" />
-	  <Compile Include="Migrations\20240329054303_v13.0.Designer.cs" />
-	</ItemGroup>
-
-
-
-	<ItemGroup>
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
 	</ItemGroup>
 

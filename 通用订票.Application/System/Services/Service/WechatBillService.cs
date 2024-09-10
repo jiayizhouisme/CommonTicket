@@ -18,83 +18,52 @@ using Core.Cache;
 using Core.Services;
 using Furion.JsonSerialization;
 using 通用订票Order.Entity;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace 通用订票.Application.System.Services.Service
 {
     public class WechatBillService : BaseService<WechatBill, MasterDbContextLocator>, IWechatBillService,ITransient
     {
-        private readonly IWechatMerchantConfigService _merchantConfigService;
-        private readonly IWeChatPayClient _client;
         private readonly ICacheOperation _cache;
-        public WechatBillService(IRepository<WechatBill, MasterDbContextLocator> _dal,
-            IWeChatPayClient _client,ICacheOperation _cache, IWechatMerchantConfigService merchantConfigService)
+        private readonly IHttpContextAccessor httpContextAccessor;
+        public WechatBillService(IRepository<WechatBill, MasterDbContextLocator> _dal,ICacheOperation _cache, IHttpContextAccessor httpContextAccessor)
         {
             this._dal = _dal;
-            this._client = _client;
             this._cache = _cache;
-            _merchantConfigService = merchantConfigService;
+            this.httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<WechatBill> GenWechatBill(WechatBill entity,string openId)
+        public async Task<WechatBill> GenWechatBill(通用订票.Core.Entity.Order order, WechatBillAttach attach, long userId)
         {
-            var config = await _merchantConfigService.GetConfig();
-            if (config == null)
-            {
-                return null;
-            }
-            WeChatPayOptions _wechatpay = config.Adapt<WeChatPayOptions>();
-
-            var bill = await GetWechatBill(entity.tradeNo);
+            var bill = await GetWechatBill(order.trade_no);
             if (bill != null)
             {
                 return bill;
             }
-            var billattach = JsonConvert.DeserializeObject<WechatBillAttach>(entity.Attach);
-
-            var weChatPayUrl = "https://ticket.z2ww.com/" + billattach.tenant_id + "/api/payNotify/Unifiedorder";
-            if (string.IsNullOrEmpty(weChatPayUrl))
-            {
-                return null;
-            }
-
             var tradeType = "JSAPI";
-
-            var request = new WeChatPayUnifiedOrderRequest
+            bill = new WechatBill();
+            bill.status = 通用订票Order.Entity.OrderStatus.未付款;
+            bill.paymentCode = tradeType;
+            bill.createTime = DateTime.Now;
+            bill.ip = httpContextAccessor.HttpContext.GetRemoteIpAddressToIPv4();
+            bill.payTitle = order.name;
+            bill.tradeNo = order.trade_no;
+            bill.money = order.amount;
+            bill.Attach = JsonConvert.SerializeObject(attach);
+            bill.userId = userId;
+            if (bill.money == 0)
             {
-                Body = entity.payTitle.Length > 50 ? entity.payTitle[..50] : entity.payTitle,
-                OutTradeNo = entity.tradeNo.ToString(),
-                TotalFee = Convert.ToInt32(entity.money * 100),
-                SpBillCreateIp = entity.ip,
-                NotifyUrl = weChatPayUrl,
-                TradeType = tradeType,
-                OpenId = openId,
-                Attach = entity.Attach
-            };
-
-            var response = await _client.ExecuteAsync(request, _wechatpay);
-            if (response.ReturnCode == WeChatPayCode.Success && response.ResultCode == WeChatPayCode.Success)
-            {
-                var req = new WeChatPayJsApiSdkRequest
-                {
-                    Package = "prepay_id=" + response.PrepayId
-                };
-
-                var parameter = await _client.ExecuteAsync(req, _wechatpay);
-                // 将参数(parameter)给 公众号前端 让他在微信内H5调起支付(https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=7_7&index=6)
-                parameter.Add("paymentId", entity.tradeNo);
-                entity.parameters = parameter.ToJson();
-                entity.status = 通用订票Order.Entity.OrderStatus.未付款;
-                entity.paymentCode = tradeType;
-                await this.AddNow(entity);
-                await _cache.Set("Bill:" + entity.tradeNo,entity.parameters,600);
-                return entity;
+                bill.status = 通用订票Order.Entity.OrderStatus.已付款;
             }
             else
             {
-                return null;
+                bill.status = 通用订票Order.Entity.OrderStatus.未付款;
             }
-
-            return null;
+            
+            await this.AddNow(bill);
+            await _cache.Set("Bill:" + bill.tradeNo, bill.parameters,600);
+            return bill;
         }
 
         public async Task<WechatBill> GetWechatBill(long trade_no)
@@ -108,7 +77,7 @@ namespace 通用订票.Application.System.Services.Service
                 bill = await this.GetQueryableNt(a => a.tradeNo == trade_no).FirstOrDefaultAsync();
                 if (bill != null && now.Subtract(bill.createTime).Hours < 2)
                 {
-                    await _cache.Set(key,bill);
+                    await _cache.Set(key,bill,600);
                 }
                 else
                 {

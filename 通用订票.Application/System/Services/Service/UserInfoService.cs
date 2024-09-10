@@ -6,16 +6,19 @@ using System.Threading.Tasks;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
 using Core.Services;
+using Core.Utill.UniqueCode;
 
 namespace 通用订票.Application.System.Services.Service
 {
     public class UserInfoService : BaseService<UserInfo,MasterDbContextLocator>, IUserInfoService, ITransient
     {
         private long userid { get; set; }
+        private readonly IIdGenerater<long> idGenerater;
 
-        public UserInfoService(IRepository<UserInfo, MasterDbContextLocator> dal)
+        public UserInfoService(IRepository<UserInfo, MasterDbContextLocator> dal, IIdGenerater<long> idGenerater)
         {
             this._dal = dal;
+            this.idGenerater = idGenerater;
         }
 
         public void SetUserContext(long user)
@@ -26,6 +29,7 @@ namespace 通用订票.Application.System.Services.Service
         public async Task<UserInfo> Add(UserInfo user)
         {
             user.userID = userid;
+            user.id = await idGenerater.Generate("UserInfo");
             return await this.AddNow(user);
         }
 
