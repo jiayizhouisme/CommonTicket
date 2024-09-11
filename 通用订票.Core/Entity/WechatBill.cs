@@ -10,13 +10,7 @@ namespace 通用订票.Core.Entity
 {
     public class WechatBill : IEntity,IEntityTypeBuilder<WechatBill>
     {
-        /// <summary>
-        /// 资源编号
-        /// </summary>
-        [Display(Name = "资源编号")]
-        [StringLength(maximumLength: 20, ErrorMessage = "{0}不能超过{1}字")]
-        public System.String sourceId { get; set; }
-
+        public long paymentId { get; set; }
         public System.String payTitle { get; set; }
         /// <summary>
         /// 支付金额
@@ -103,7 +97,8 @@ namespace 通用订票.Core.Entity
 
         public void Configure(EntityTypeBuilder<WechatBill> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
-            entityBuilder.HasKey(a => a.tradeNo);
+            entityBuilder.HasKey(a => a.paymentId);
+            entityBuilder.HasIndex(a => a.tradeNo);
         }
     }
 

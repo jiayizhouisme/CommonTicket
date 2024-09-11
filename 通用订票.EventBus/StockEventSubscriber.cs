@@ -52,13 +52,10 @@ namespace 通用订票.EventBus
             var scope = this.ScopeFactory.CreateScope();
             var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
             var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
-            var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultTicketService>>();
 
             var s_service = factory.GetStockService(_stockProvider);
-            var t_service = factory.GetTicketService(_ticketProvider);
 
             s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, data.tenantId);
-            t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, data.tenantId);
             #endregion
 
             var orderInfo = jsonSerializerProvider.Deserialize<OrderInfo>(data.order.extraInfo);

@@ -214,17 +214,28 @@ namespace 通用订票.Web.Entry.Controllers
                     };
 
                     var result = await billService.GenWechatBill(order, Attach, long.Parse(httpContextUser.ID));
-                    var config = await wechatMerchantConfigService.GetConfig();
-                    var openid = httpContextUser.GetUserInfoFromToken("openid").FirstOrDefault();
-                    if (config != null && string.IsNullOrEmpty(openid))
+                    if (result == null || string.IsNullOrEmpty(result.parameters))
                     {
-                        result = await wechatPayService.PubPay(result, config, openid);
+                        var config = await wechatMerchantConfigService.GetConfig();
+                        var openid = httpContextUser.GetUserInfoFromToken("openid").FirstOrDefault();
+                        if (config != null && string.IsNullOrEmpty(openid))
+                        {
+                            result = await wechatPayService.PubPay(result, config, openid);
+                            if (result != null && !string.IsNullOrEmpty(result.parameters))
+                            {
+                                await billService.UpdateNow(result);
+                            }
+                        }
+                        else
+                        {
+                            throw new ArgumentException("参数错误");
+                        }
+                        return result.parameters;
                     }
                     else
                     {
-                        throw new ArgumentException("参数错误");
+                        return result.parameters;
                     }
-                    return result.parameters;
                 }
                 else
                 {
@@ -279,7 +290,6 @@ namespace 通用订票.Web.Entry.Controllers
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "CloseOrder")]
-        [UnitOfWork]
         public async Task<dynamic> CloseOrder(long trade_no)
         {
             string lockerId = Guid.NewGuid().ToString();
@@ -290,26 +300,25 @@ namespace 通用订票.Web.Entry.Controllers
             {
                 if (order == null || order.userId.ToString() != httpContextUser.ID)
                 {
-                    await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId);
                     throw new ArgumentException("目前状态不可关闭订单");
                 }
 
                 if (order.status != OrderStatus.未付款)
                 {
-                    await _cache.ReleaseLock("OrderLocker_" + trade_no, lockerId);
                     throw new Exception("目前状态不可关闭订单");
                 }
                 var saleResult = await stockService.SaleStock(order.objectId, -orderInfo.ids.Count());
             
                 var o = await myOrderService.CancelOrder(order);
-                await billService.UpdateStatus(OrderStatus.已关闭,trade_no);
 
-                var onOrderClosed = new OnOrderClosed() { order = order, tenantId = httpContextUser.TenantId, userId = httpContextUser.ID };
+                var onOrderClosed = new OnOrderClosed()
+                { order = order, tenantId = httpContextUser.TenantId, userId = long.Parse(httpContextUser.ID )};          
                 await eventPublisher.PublishAsync(new OnOrderClosedEvent(onOrderClosed));
             }
             catch(Exception e)
             {
                 var _ = await stockService.SaleStock(order.objectId, orderInfo.ids.Count());
+                return e.Message;
             }
             finally
             {
@@ -331,7 +340,14 @@ namespace 通用订票.Web.Entry.Controllers
                 ticket.app = await stockService.GetAppointmentById(ticket.ticket.AppointmentId);
                 ticket.exhibition = await exhibitionService.GetExhibitionByID(ticket.app.objectId);
             }
-            
+
+            if (ticket.order.status != OrderStatus.已付款)
+            {
+                ticket.code = 0;
+                ticket.message = "订单已不可用";
+                await ticketService.TicketEndCheck(ticket.ticket);
+            }
+
             if (ticket.code == 1)
             {
                 await eventPublisher.PublishAsync("TicketVerifyEvent", new TicketVerifyEventModel

@@ -78,10 +78,10 @@ namespace 通用订票.RedisMQ
                 {
                     app = s_service.checkStock(data.appid).Result;
                     app.sale += data.ids.Count;
-                    if (app.sale > app.amount)
-                    {
-                        app.sale = app.amount;
-                    }
+                    //if (app.sale > app.amount)
+                    //{
+                    //    app.sale = app.amount;
+                    //}
                     s_service.UpdateNow(app).Wait();
                     await s_service.DelStockFromCache(app.id);
                 }
@@ -151,7 +151,7 @@ namespace 通用订票.RedisMQ
             await Task.CompletedTask;
         }
 
-        private async Task PublishOrderCreateFail(Appointment stockret,Core.Entity.Order order,int count,string tenantId, string userId)
+        private async Task PublishOrderCreateFail(Appointment stockret,Core.Entity.Order order,int count,string tenantId, long userId)
         {
             var entity = new OnOrderCreateFailed() { app = stockret, order = order, count = count, tenantId = tenantId, userId = userId };
             await _eventPublisher.PublishAsync(new OnOrderCreateFailedEvent(entity));

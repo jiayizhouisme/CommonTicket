@@ -75,7 +75,6 @@ namespace 通用订票.RedisMQ
                 var lo = _cache.Lock("OrderLocker_" + data.trade_no, lockerId).Result;
                 order = o_service.GetOrderById(data.trade_no).Result;
                 var orderInfo = jsonSerializerProvider.Deserialize<OrderInfo>(order.extraInfo);
-                var saleResult = s_service.SaleStock(order.objectId, -orderInfo.ids.Count()).Result;
 
                 var billService = ServiceFactory.GetSaasService<IWechatBillService,WechatBill>(scope.ServiceProvider,data.tenantId);
 
@@ -96,25 +95,27 @@ namespace 通用订票.RedisMQ
 
                         var stock = s_service.checkStock(order.objectId).Result;
                         stock.sale -= orderInfo.ids.Count();
-                        if (stock.sale < 0)
-                        {
-                            stock.sale = 0;
-                        }
+                        //if (stock.sale < 0)
+                        //{
+                        //    stock.sale = 0;
+                        //}
                         await s_service.UpdateNow(stock);
                         await billService.UpdateStatus(OrderStatus.已关闭,order.trade_no);
 
                         await s_service.DelStockFromCache(stock.id);
                         await transaction.CommitAsync();
                     }
-                   
+                    var onOrderClosed = new OnOrderClosed() { order = order, tenantId = data.tenantId, userId = data.userId };
+                    await eventPublisher.PublishAsync(new OnOrderClosedEvent(onOrderClosed));
+
                 }
                 catch (Exception e1)
                 {
-                    saleResult = await s_service.SaleStock(order.objectId, orderInfo.ids.Count());
+
                 }
                 finally
                 {
-
+                    var saleResult = await s_service.SaleStock(order.objectId, -orderInfo.ids.Count());
                     await _cache.ReleaseLock("OrderLocker_" + data.trade_no, lockerId.ToString());
                     await _cache.ReleaseLock("OrderCloseLock:" + order.objectId, order.objectId);
                 }

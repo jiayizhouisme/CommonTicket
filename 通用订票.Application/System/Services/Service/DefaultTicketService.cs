@@ -166,6 +166,11 @@ namespace 通用订票.Application.System.Services.Service
             foreach (var item in ticket)
             {
                 var temp = await base.DisableTicket(item);
+                if (item.isMultiPart)
+                {
+                    await this.multiTicketService.CancelTicket(item.ticketNumber,item.totalCount);
+                }
+                
                 //await _cache.Del(GetKey(item.AppointmentId, item.TUserId));
             }
             await this.UpdateNow(ticket);
@@ -277,16 +282,16 @@ namespace 通用订票.Application.System.Services.Service
 
         public virtual async Task<ICollection<Core.Entity.Ticket>> GetTickets(long orderId)
         {
-            var key = "Tickets:" + orderId;
-            var tickets = await _cache.GetList<Core.Entity.Ticket>(key,0);
+            //var key = "Tickets:" + orderId;
+            //var tickets = await _cache.GetList<Core.Entity.Ticket>(key,0);
             //var list = _cache.CreateList<Core.Entity.Ticket>(key);
             //var len = await list.Len();
             //var tickets = (await list.Range(0, (int)len)).ToList();
 
-            if (tickets.Count > 0)
-            {
-                return tickets;
-            }
+            //if (tickets.Count > 0)
+            //{
+            //    return tickets;
+            //}
             var result = await this.GetQueryableNt(a => a.objectId == orderId)
                 .Select(a => new Core.Entity.Ticket
                 {
@@ -304,7 +309,7 @@ namespace 通用订票.Application.System.Services.Service
             {
                 return null;
             }
-            await SetTicketToCache(orderId, result);
+            //await SetTicketToCache(orderId, result);
             return result;
         }
 

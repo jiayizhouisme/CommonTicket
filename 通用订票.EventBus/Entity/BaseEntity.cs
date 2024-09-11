@@ -9,6 +9,6 @@ namespace 通用订票.EventBus.Entity
     public class BaseEntity
     {
         public string tenantId { get; set; }
-        public string userId { get; set; }
+        public long userId { get; set; }
     }
 }

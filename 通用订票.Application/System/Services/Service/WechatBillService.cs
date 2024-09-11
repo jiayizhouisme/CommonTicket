@@ -20,18 +20,22 @@ using Furion.JsonSerialization;
 using 通用订票Order.Entity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Components.Web;
+using Core.Utill.UniqueCode;
 
 namespace 通用订票.Application.System.Services.Service
 {
-    public class WechatBillService : BaseService<WechatBill, MasterDbContextLocator>, IWechatBillService,ITransient
+    public class WechatBillService : BaseService<WechatBill, MasterDbContextLocator>, IWechatBillService, ITransient
     {
         private readonly ICacheOperation _cache;
         private readonly IHttpContextAccessor httpContextAccessor;
-        public WechatBillService(IRepository<WechatBill, MasterDbContextLocator> _dal,ICacheOperation _cache, IHttpContextAccessor httpContextAccessor)
+        private readonly IIdGenerater<long> idGenerater;
+        public WechatBillService
+            (IRepository<WechatBill, MasterDbContextLocator> _dal, ICacheOperation _cache, IHttpContextAccessor httpContextAccessor, IIdGenerater<long> idGenerater)
         {
             this._dal = _dal;
             this._cache = _cache;
             this.httpContextAccessor = httpContextAccessor;
+            this.idGenerater = idGenerater;
         }
 
         public async Task<WechatBill> GenWechatBill(通用订票.Core.Entity.Order order, WechatBillAttach attach, long userId)
@@ -43,6 +47,7 @@ namespace 通用订票.Application.System.Services.Service
             }
             var tradeType = "JSAPI";
             bill = new WechatBill();
+            bill.paymentId = await idGenerater.Generate("paymentId");
             bill.status = 通用订票Order.Entity.OrderStatus.未付款;
             bill.paymentCode = tradeType;
             bill.createTime = DateTime.Now;
@@ -60,9 +65,9 @@ namespace 通用订票.Application.System.Services.Service
             {
                 bill.status = 通用订票Order.Entity.OrderStatus.未付款;
             }
-            
+
             await this.AddNow(bill);
-            await _cache.Set("Bill:" + bill.tradeNo, bill.parameters,600);
+            await _cache.Set("Bill:" + bill.tradeNo, bill, 600);
             return bill;
         }
 
@@ -74,8 +79,8 @@ namespace 通用订票.Application.System.Services.Service
             if (bill == null)
             {
                 
-                bill = await this.GetQueryableNt(a => a.tradeNo == trade_no).FirstOrDefaultAsync();
-                if (bill != null && now.Subtract(bill.createTime).Hours < 2)
+                bill = await this.GetQueryableNt(a => a.tradeNo == trade_no).OrderByDescending(a => a.paymentId).FirstOrDefaultAsync();
+                if (bill != null && now.Subtract(bill.createTime).TotalHours < 2)
                 {
                     await _cache.Set(key,bill,600);
                 }
@@ -84,22 +89,29 @@ namespace 通用订票.Application.System.Services.Service
                     return null;
                 }
             }
-            else if(now.Subtract(bill.createTime).Hours < 2)
+            else if(now.Subtract(bill.createTime).TotalHours > 2)
             {
                 return null;
             }
             return bill;
         }
 
+        public override async Task<WechatBill> UpdateNow(WechatBill wechatBill)
+        {
+            wechatBill.updateTime = DateTime.Now;
+            await base.UpdateNow(wechatBill);
+            await _cache.Del("Bill:" + wechatBill.tradeNo);
+            return wechatBill;
+        }
+
         public async Task<WechatBill> UpdateStatus(OrderStatus status, long trade_no)
         {
             var wechatBill = await this.GetWechatBill(trade_no);
+            
             if (wechatBill != null)
             {
-                var key = "Bill:" + trade_no;
                 wechatBill.status = status;
-                await this.UpdateNow(wechatBill);
-                await _cache.Del(key);
+                await UpdateNow(wechatBill);
             }
             return wechatBill;
         }

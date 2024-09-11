@@ -56,37 +56,68 @@ namespace 通用订票.EventBus
         //    await t_service.GenarateTickets(startTime, endTime, data.order, data.ids.ToArray(), TicketStatus.未激活);
         //}
 
-        //[EventSubscribe("OnOrderClosed")]
-        //public async Task Ticket_OnOrderClosed(EventHandlerExecutingContext context)
-        //{
-        //    var todo = context.Source;
-        //    var data = (OnOrderClosed)todo.Payload;
-        //    #region 获取services
-        //    var scope = this.ScopeFactory.CreateScope();
-        //    var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
-        //    var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultTicketService>>();
+        [EventSubscribe("OnOrderClosed")]
+        public async Task Ticket_OnOrderClosed(EventHandlerExecutingContext context)
+        {
+            var todo = context.Source;
+            var data = (OnOrderClosed)todo.Payload;
+            #region 获取services
+            var scope = this.ScopeFactory.CreateScope();
+            var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
+            var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultTicketService>>();
 
-        //    var t_service = factory.GetTicketService(_ticketProvider);
+            var t_service = factory.GetTicketService(_ticketProvider);
 
-        //    t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, data.tenantId);
-        //    #endregion
-        //    t_service.SetUserContext(data.userId);
-            
-        //    try
-        //    {
-        //        var tickets = await t_service.GetTickets(data.order.trade_no);
-        //        await t_service.DisableTickets(tickets);
-        //    }
-        //    catch(Exception e)
-        //    {
-        //        //var fail = new OnTicketCloseFailed(){ order = data.order};
-        //        //await eventPublisher.PublishAsync(new OnTicketCloseFailedEvent(fail));
-        //        throw e;
-        //    }
-        //    finally
-        //    {
-        //        await t_service.AfterTicketToke(data.order.trade_no);
-        //    }
-        //}
+            t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, data.tenantId);
+            #endregion
+            t_service.SetUserContext(data.userId);
+
+            try
+            {
+                if (data.order.amount == 0)
+                {
+                    var tickets = await t_service.GetTickets(data.order.trade_no);
+                    if (tickets != null)
+                    {
+                        await t_service.DisableTickets(tickets);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [EventSubscribe("OnOrderRefunded")]
+        public async Task Ticket_OnOrderRefunded(EventHandlerExecutingContext context)
+        {
+            var todo = context.Source;
+            var data = (OnOrderClosed)todo.Payload;
+            #region 获取services
+            var scope = this.ScopeFactory.CreateScope();
+            var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
+            var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultTicketService>>();
+
+            var t_service = factory.GetTicketService(_ticketProvider);
+
+            t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, data.tenantId);
+            #endregion
+            t_service.SetUserContext(data.userId);
+
+            try
+            {
+                var tickets = await t_service.GetTickets(data.order.trade_no);
+                if (tickets != null)
+                {
+                    await t_service.DisableTickets(tickets);
+                }
+                
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
     }
 }
