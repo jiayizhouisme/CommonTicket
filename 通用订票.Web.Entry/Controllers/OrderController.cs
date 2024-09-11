@@ -118,7 +118,6 @@ namespace 通用订票.Web.Entry.Controllers
                         return new { code = 0, message = "所选择的用户不存在" };
                     }
                 }
-                
             }
 
             var saleRet = await stockService.SaleStock(oc.appid, oc.ids.Count);

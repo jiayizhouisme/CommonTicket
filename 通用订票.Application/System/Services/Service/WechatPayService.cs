@@ -38,7 +38,7 @@ namespace 通用订票.Application.System.Services.Service
             var request = new WeChatPayUnifiedOrderRequest
             {
                 Body = entity.payTitle.Length > 50 ? entity.payTitle[..50] : entity.payTitle,
-                OutTradeNo = entity.tradeNo.ToString(),
+                OutTradeNo = entity.paymentId.ToString(),
                 TotalFee = Convert.ToInt32(entity.money * 100),
                 SpBillCreateIp = entity.ip,
                 NotifyUrl = weChatPayUrl,
