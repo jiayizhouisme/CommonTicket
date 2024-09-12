@@ -157,15 +157,15 @@ namespace 通用订票.Application.System.Services.Service
             return 1;
         }
 
-        public virtual async Task<int> DisableTickets(ICollection<Core.Entity.Ticket> ticket)
+        public virtual async Task<int> DisableTickets(ICollection<Core.Entity.Ticket> tickets)
         {
-            if (ticket == null || ticket.Count == 0)
+            if (tickets == null || tickets.Count == 0)
             {
                 return 0;
             }
-            foreach (var item in ticket)
+            foreach (var item in tickets)
             {
-                var temp = await base.DisableTicket(item);
+                await base.DisableTicket(item);
                 if (item.isMultiPart)
                 {
                     await this.multiTicketService.CancelTicket(item.ticketNumber,item.totalCount);
@@ -173,7 +173,7 @@ namespace 通用订票.Application.System.Services.Service
                 
                 //await _cache.Del(GetKey(item.AppointmentId, item.TUserId));
             }
-            await this.UpdateNow(ticket);
+            await this.UpdateNow(tickets);
             //await this.DeleteNow(ticket);
             return 1;
         }
@@ -197,10 +197,18 @@ namespace 通用订票.Application.System.Services.Service
             if (ticket.isMultiPart == true)
             {
                 var r = await multiTicketService.ConfirmCheckMultiTicket(ticket.ticketNumber, exhibitionId);
-                if (r.code == 1 && r.usedCount > ticket.usedCount)
+                if (r.code == 1)
                 {
-                    result = await UpdateTicket(ticket, useCount);
-                    result.shouldUpdate = true;
+                    ticket.stauts = TicketStatus.部分使用;
+                    if (r.usedCount > ticket.usedCount)
+                    {
+                        result = await UpdateTicket(ticket, useCount);
+                        result.shouldUpdate = true;
+                    }
+                    else
+                    {
+                        await this.UpdateNow(ticket);
+                    }
                 }
             }
             else
@@ -292,23 +300,7 @@ namespace 通用订票.Application.System.Services.Service
             //{
             //    return tickets;
             //}
-            var result = await this.GetQueryableNt(a => a.objectId == orderId)
-                .Select(a => new Core.Entity.Ticket
-                {
-                    _id = a._id,
-                    AppointmentId = a.AppointmentId,
-                    endTime = a.endTime,
-                    TUserId = a.TUserId,
-                    startTime = a.startTime,
-                    ticketNumber = a.ticketNumber,
-                    stauts = a.stauts
-                })
-                .ToListAsync();
-
-            if (result.Count == 0)
-            {
-                return null;
-            }
+            var result = await this.GetQueryableNt(a => a.objectId == orderId).ToListAsync();
             //await SetTicketToCache(orderId, result);
             return result;
         }

@@ -61,11 +61,21 @@ namespace 通用订票.Application.System.ServiceBases.Service
 
         public virtual async Task<T> RefundOrder(T order)
         {
-            if (order.status != OrderStatus.已付款)
+            if (order.status != OrderStatus.退款中)
             {
                 return null;
             }
             order.status = OrderStatus.已退款;
+            return order;
+        }
+
+        public virtual async Task<T> PreRefundOrder(T order)
+        {
+            if (order.status != OrderStatus.已付款)
+            {
+                return null;
+            }
+            order.status = OrderStatus.退款中;
             return order;
         }
 

@@ -144,7 +144,7 @@ namespace 通用订票.Web.Entry.Controllers
                     throw new Exception("选择的日期不可用");
                 }
 
-                if(stock.day - exhibition.beforeDays <= 0)
+                if(stock.day - exhibition.beforeDays < 0)
                 {
                     throw new Exception("选择日期不正确");
                 }
@@ -179,10 +179,10 @@ namespace 通用订票.Web.Entry.Controllers
 
                 return new { status = 1, message = "下单请求成功，请等待下单结果", data = order };
             }
-            catch
+            catch(Exception e)
             {
                 await stockService.SaleStock(stock.id, -oc.ids.Count);
-                return new { status = 0, message = "服务端错误,下单请求失败"};
+                throw e;
             }
         }
 
@@ -255,6 +255,49 @@ namespace 通用订票.Web.Entry.Controllers
 
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [HttpGet(Name = "RefundOrder")]
+        public async Task<string> RefundOrder(long trade_no)
+        {
+            var userid = httpContextUser.ID;
+            string lockid = Guid.NewGuid().ToString();
+
+            await _cache.Lock("OrderLocker_" + trade_no, lockid);
+
+            var order = await myOrderService.GetOrderById(trade_no);
+            try
+            {
+                if (order == null || order.userId.ToString() != httpContextUser.ID)
+                {
+                    throw new ArgumentException("订单无效");
+                }
+
+                if (order.status == OrderStatus.已付款)
+                {
+                    await myOrderService.PreRefundOrder(order);
+
+                    var onOrderPrerefuned= new OnOrderPreRefunded()
+                    { order = order, tenantId = httpContextUser.TenantId, userId = long.Parse(httpContextUser.ID) };
+                    await eventPublisher.PublishAsync(new OnOrderPreRefundedEvent(onOrderPrerefuned));
+                }
+                else
+                {
+                    throw new ArgumentException("订单已不可退款");
+                }
+            }
+            catch (Exception e)
+            {
+                await myOrderService.AfterOrderToke(trade_no);
+                return e.Message;
+            }
+            finally
+            {
+                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockid);
+            }
+            return "";
+        }
+
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "PaidOrder")]
         public async Task<通用订票.Core.Entity.Order> PaidOrder(long trade_no)
         {
@@ -269,7 +312,7 @@ namespace 通用订票.Web.Entry.Controllers
                     throw new ArgumentException("订单已不可支付");
                 }
 
-                if (order.status != OrderStatus.已付款)
+                if (order.status == OrderStatus.已关闭 || order.status == OrderStatus.未付款)
                 {
                     await myOrderService.PayOrder(order);
                 }
@@ -336,8 +379,6 @@ namespace 通用订票.Web.Entry.Controllers
             if (ticket.ticket != null)
             {
                 ticket.order = await myOrderService.GetOrderById(ticket.ticket.objectId);
-                ticket.app = await stockService.GetAppointmentById(ticket.ticket.AppointmentId);
-                ticket.exhibition = await exhibitionService.GetExhibitionByID(ticket.app.objectId);
             }
 
             if (ticket.order.status != OrderStatus.已付款)
@@ -349,6 +390,8 @@ namespace 通用订票.Web.Entry.Controllers
 
             if (ticket.code == 1)
             {
+                ticket.app = await stockService.GetAppointmentById(ticket.ticket.AppointmentId);
+                ticket.exhibition = await exhibitionService.GetExhibitionByID(ticket.app.objectId);
                 await eventPublisher.PublishAsync("TicketVerifyEvent", new TicketVerifyEventModel
                 {
                     type = ticket.ticket.ota,

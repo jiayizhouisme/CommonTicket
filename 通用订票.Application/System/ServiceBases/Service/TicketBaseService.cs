@@ -20,6 +20,7 @@ namespace 通用订票.Application.System.ServiceBases.Service
         {
             if (ticket.stauts != TicketStatus.已使用 && ticket.stauts != TicketStatus.部分使用)
             {
+                ticket.cancelCount = ticket.totalCount - ticket.usedCount;
                 ticket.stauts = TicketStatus.已冻结;
             }
             return ticket;

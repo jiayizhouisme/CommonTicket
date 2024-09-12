@@ -50,6 +50,7 @@ namespace 通用订票.RedisMQ
                 var order = await o_service.GetOrderById(data.order.trade_no);
                 if (order.status != 通用订票Order.Entity.OrderStatus.已关闭 &&
                     order.status != 通用订票Order.Entity.OrderStatus.已退款 &&
+                    order.status != 通用订票Order.Entity.OrderStatus.退款中 &&
                     order.status != 通用订票Order.Entity.OrderStatus.一部分退款)
                 {
                     if (order.status == 通用订票Order.Entity.OrderStatus.已付款)

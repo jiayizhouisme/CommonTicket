@@ -77,7 +77,7 @@ namespace 通用订票.EventBus
                 if (data.order.amount == 0)
                 {
                     var tickets = await t_service.GetTickets(data.order.trade_no);
-                    if (tickets != null)
+                    if (tickets.Count > 0)
                     {
                         await t_service.DisableTickets(tickets);
                     }
@@ -93,9 +93,9 @@ namespace 通用订票.EventBus
         public async Task Ticket_OnOrderRefunded(EventHandlerExecutingContext context)
         {
             var todo = context.Source;
-            var data = (OnOrderClosed)todo.Payload;
+            var data = (OnOrderRefunded)todo.Payload;
             #region 获取services
-            var scope = this.ScopeFactory.CreateScope();
+            using var scope = this.ScopeFactory.CreateScope();
             var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
             var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultTicketService>>();
 
@@ -107,10 +107,9 @@ namespace 通用订票.EventBus
 
             try
             {
-                var tickets = await t_service.GetTickets(data.order.trade_no);
-                if (tickets != null)
+                if (data.tickets.Count > 0)
                 {
-                    await t_service.DisableTickets(tickets);
+                    await t_service.DisableTickets(data.tickets);
                 }
                 
             }

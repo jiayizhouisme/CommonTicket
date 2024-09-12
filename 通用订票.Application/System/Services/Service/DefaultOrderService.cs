@@ -55,6 +55,28 @@ namespace 通用订票.Application.System.Services.Service
             return result;
         }
 
+        public override async Task<Core.Entity.Order> RefundOrder(Core.Entity.Order Order)
+        {
+            var result = await base.RefundOrder(Order);
+            if (result != null)
+            {
+                await this.UpdateNow(Order);
+                await DelOrderFromCache(Order.trade_no);
+            }
+            return result;
+        }
+
+        public override async Task<Core.Entity.Order> PreRefundOrder(Core.Entity.Order Order)
+        {
+            var result = await base.PreRefundOrder(Order);
+            if (result != null)
+            {
+                await this.UpdateNow(Order);
+                await DelOrderFromCache(Order.trade_no);
+            }
+            return result;
+        }
+
         public override async Task<Core.Entity.Order> PayFinished(Core.Entity.Order Order)
         {
             var result = await base.PayFinished(Order);

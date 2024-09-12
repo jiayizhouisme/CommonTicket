@@ -42,6 +42,7 @@ namespace 通用订票.EventBus
             this._cache = _cache;
         }
 
+       
         [EventSubscribe("OnOrderClosed")]
         public async Task Stock_OnOrderClosed(EventHandlerExecutingContext context)
         {
@@ -65,6 +66,47 @@ namespace 通用订票.EventBus
                 await _cache.Lock("OrderCloseLock:" + data.order.objectId, data.order.objectId);
                 var stock = await s_service.checkStock(data.order.objectId);
                 stock.sale -= orderInfo.ids.Count();
+                if (stock.sale < 0)
+                {
+                    stock.sale = 0;
+                }
+                await s_service.UpdateNow(stock);
+                await s_service.DelStockFromCache(stock.id);
+            }
+            catch
+            {
+            }
+            finally
+            {
+                await _cache.ReleaseLock("OrderCloseLock:" + data.order.objectId, data.order.objectId);
+            }
+
+        }
+
+        [EventSubscribe("OnOrderRefunded")]
+        public async Task Stock_OnOrderRefuned(EventHandlerExecutingContext context)
+        {
+            var todo = context.Source;
+            var data = (OnOrderRefunded)todo.Payload;
+
+            #region 获取services
+            using var scope = this.ScopeFactory.CreateScope();
+            var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
+            var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
+
+            var s_service = factory.GetStockService(_stockProvider);
+
+            s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, data.tenantId);
+            #endregion
+
+            var orderInfo = jsonSerializerProvider.Deserialize<OrderInfo>(data.order.extraInfo);
+
+            try
+            {
+                await _cache.Lock("OrderCloseLock:" + data.order.objectId, data.order.objectId);
+                var stock = await s_service.checkStock(data.order.objectId);
+                stock.sale -= orderInfo.ids.Count();
+                await s_service.SaleStock(stock.id, -orderInfo.ids.Count());
                 if (stock.sale < 0)
                 {
                     stock.sale = 0;

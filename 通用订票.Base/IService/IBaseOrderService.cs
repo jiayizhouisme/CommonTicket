@@ -22,6 +22,8 @@ namespace 通用订票.Order.IService
         /// <returns></returns>
         public Task<T> RefundOrder(T order);
 
+        public Task<T> PreRefundOrder(T orer);
+
         /// <summary>
         /// 支付订单
         /// </summary>
