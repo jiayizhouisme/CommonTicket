@@ -32,6 +32,11 @@ namespace 通用订票.Application.System.Services.Service
         public async Task ConfigMerchantInfo(WechatMerchantConfig config)
         {
             var tenant = tenantGetSetor.Get();
+            if (tenant == null)
+            {
+                tenant = this.GetTenant();
+            }
+
             if (tenant != null)
             {
                 string key = "MerchantConfig:" + tenant;
@@ -51,6 +56,11 @@ namespace 通用订票.Application.System.Services.Service
         public async Task<WechatMerchantConfig> GetConfig()
         {
             var tenant = tenantGetSetor.Get();
+            if (tenant == null)
+            {
+                tenant = this.GetTenant();
+            }
+
             if (tenant != null)
             {
                 string key = "MerchantConfig:" + tenant;
