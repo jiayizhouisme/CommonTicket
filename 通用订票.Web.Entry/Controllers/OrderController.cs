@@ -217,7 +217,7 @@ namespace 通用订票.Web.Entry.Controllers
                     {
                         var config = await wechatMerchantConfigService.GetConfig();
                         var openid = httpContextUser.GetUserInfoFromToken("openid").FirstOrDefault();
-                        if (config != null && string.IsNullOrEmpty(openid))
+                        if (config != null && !string.IsNullOrEmpty(openid))
                         {
                             result = await wechatPayService.PubPay(result, config, openid);
                             if (result != null && !string.IsNullOrEmpty(result.parameters))

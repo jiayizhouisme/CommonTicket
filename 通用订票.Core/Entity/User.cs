@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace 通用订票.Core.Entity
 {
-    public class User : UserBase,IEntity, IEntitySeedData<User>
+    public class User : UserBase,IEntity<MasterDbContextLocator>, IEntitySeedData<User>
     {
         public long id { get; set; }
 
