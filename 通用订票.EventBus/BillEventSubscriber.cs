@@ -38,7 +38,7 @@ namespace 通用订票.EventBus
         }
 
         [EventSubscribe("OnOrderClosed")]
-        public async Task Bill_OnOrderClosed(EventHandlerExecutingContext context)
+        public async Task Bill_OnOrderClosed_Refunded(EventHandlerExecutingContext context)
         {
             var closedEntity = (OnOrderClosed)context.Source.Payload;
 

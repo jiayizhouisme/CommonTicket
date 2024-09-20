@@ -23,16 +23,12 @@ namespace 通用订票.Core.Entity
         /// <summary>
         /// 退款单ID
         /// </summary>
-        [Key]
         [Display(Name = "退款单ID")]
-        [Required(ErrorMessage = "请输入{0}")]
-        [StringLength(20, ErrorMessage = "【{0}】不能超过{1}字符长度")]
         public long refundId { get; set; }
         /// <summary>
         /// 售后单id
         /// </summary>
         [Display(Name = "售后单id")]
-        [Required(ErrorMessage = "请输入{0}")]
         [StringLength(20, ErrorMessage = "【{0}】不能超过{1}字符长度")]
         public System.String aftersalesId { get; set; }
         /// <summary>
@@ -45,14 +41,11 @@ namespace 通用订票.Core.Entity
         /// 用户ID 关联user.id
         /// </summary>
         [Display(Name = "用户ID 关联user.id")]
-        [SugarColumn(ColumnDescription = "用户ID 关联user.id")]
-        [Required(ErrorMessage = "请输入{0}")]
         public System.Int32 userId { get; set; }
         /// <summary>
         /// 资源id，根据type不同而关联不同的表
         /// </summary>
         [Display(Name = "资源id，根据type不同而关联不同的表")]
-        [Required(ErrorMessage = "请输入{0}")]
         [StringLength(20, ErrorMessage = "【{0}】不能超过{1}字符长度")]
         public System.String sourceId { get; set; }
 
@@ -73,12 +66,11 @@ namespace 通用订票.Core.Entity
         /// </summary>
         [Display(Name = "状态")]
         [Required(ErrorMessage = "请输入{0}")]
-        public System.Int32 status { get; set; }
+        public RefundStatus status { get; set; }
         /// <summary>
         /// 退款失败原因
         /// </summary>
         [Display(Name = "退款失败原因")]
-        [SugarColumn(ColumnDescription = "退款失败原因", IsNullable = true)]
         public System.String memo { get; set; }
         /// <summary>
         /// 创建时间
@@ -94,7 +86,15 @@ namespace 通用订票.Core.Entity
 
         public void Configure(EntityTypeBuilder<WechatBillRefund> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
+            entityBuilder.HasKey(a => a.refundId);
             entityBuilder.HasIndex(a => a.tradeNo);
         }
+
+    }
+    public enum RefundStatus
+    {
+        未退款,
+        已退款,
+        退款失败
     }
 }

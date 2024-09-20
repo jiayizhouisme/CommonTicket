@@ -2,12 +2,15 @@
 using Core.Cache;
 using Core.Services.ServiceFactory;
 using DotNetCore.CAP.Dashboard;
+using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Furion.EventBus;
 using Furion.JsonSerialization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ProtoBuf.Meta;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,7 +56,7 @@ namespace 通用订票.EventBus
 
             #region 获取services
             var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
-
+            DbContext dbContext = Db.GetDbContext(scope.ServiceProvider);
             var _orderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultOrderServices>>();
             var o_service = factory.GetOrderService(_orderProvider);
             o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
@@ -63,45 +66,79 @@ namespace 通用订票.EventBus
             t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, data.tenantId);
             t_service.SetUserContext(data.userId);
             var m_service = ServiceFactory.GetSaasService<IMultiTicketService, MultiTicket>(scope.ServiceProvider,data.tenantId);
+            var configService = ServiceFactory.GetSaasService<IWechatMerchantConfigService, WechatMerchantConfig>(scope.ServiceProvider, data.tenantId);
+            var refundBillService = ServiceFactory.GetSaasService<IWechatRefundBillService, WechatBillRefund>(scope.ServiceProvider, data.tenantId);
             #endregion
-           
-            //寻找是否有票已经使用了，如果存在，退款失败，订单状态恢复。
+
             string lockerId = Guid.NewGuid().ToString();
             var lo = await cache.Lock("OrderLocker_" + data.order.trade_no, lockerId);
-            try
-            {
-                var tickets = await t_service.GetTickets(data.order.trade_no);
+            var tickets = await t_service.GetTickets(data.order.trade_no);
 
-                foreach (var ticket in tickets)
+            foreach (var ticket in tickets)
+            {
+                int uselessCount = ticket.usedCount + ticket.cancelCount;
+                if (ticket.stauts != Base.Entity.TicketStatus.未使用 || uselessCount > 0)
                 {
-                    int uselessCount = ticket.usedCount + ticket.cancelCount;
-                    if (ticket.stauts != Base.Entity.TicketStatus.未使用 || uselessCount > 0)
+                    //票之前已被使用,恢复订单状态
+                    await RecoverOrder(o_service, data.order);
+                    return;
+                }
+            }
+
+            //if (data.order.amount > 0)
+            //{
+            //    //如果不是免费的票开始走退款流程 
+            //    var config = await configService.GetConfig();
+            //    try
+            //    {
+            //        var refundResult = await wechatPayService.Refund(data.billRefund, data.bill, config);
+            //        if (refundResult == null)
+            //        {
+            //            throw new Exception("退款失败");
+            //        }
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        await RecoverOrder(o_service, data.order);
+            //        await refundBillService.UpdateStatus(RefundStatus.退款失败, data.bill.paymentId);
+            //        throw e;
+            //    }
+            //}
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var order = await o_service.RefundOrder(data.order); //退款开始
+                    if (order == null)
                     {
-                        //票之前已被使用,恢复订单状态
-                        await RecoverOrder(o_service,data.order);
-                        return;
+                        throw new Exception("退款失败");
                     }
-                }
-                var order = await o_service.RefundOrder(data.order); //退款开始
+                    var bill = await refundBillService.UpdateStatus(RefundStatus.已退款, data.bill.paymentId);
+                    if (bill == null)
+                    {
+                        throw new Exception("退款失败");
+                    }
+                    await transaction.CommitAsync();
 
-                if (order.amount > 0)
+                    //恢复占用的app库存并且冻结所有可用票据
+                    var onOrderRefuned = new OnOrderRefunded()
+                    { order = order, tenantId = data.tenantId, userId = data.userId, tickets = tickets };
+                    await eventPublisher.PublishAsync(new OnOrderRefundedEvent(onOrderRefuned));
+                }
+                catch (Exception ex)
                 {
-                    //如果不是免费的票开始走退款流程 
+                    await transaction.RollbackAsync();
+                    await RecoverOrder(o_service, data.order);
+                    await refundBillService.UpdateStatus(RefundStatus.退款失败, data.bill.paymentId);
+                    throw ex;
                 }
-
-                //恢复占用的app库存并且冻结所有可用票据
-                var onOrderRefuned = new OnOrderRefunded()
-                { order = order, tenantId = data.tenantId, userId = data.userId, tickets = tickets };
-                await eventPublisher.PublishAsync(new OnOrderRefundedEvent(onOrderRefuned));
+                finally
+                {
+                    await cache.ReleaseLock("OrderLocker_" + data.order.trade_no, lockerId);
+                }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                await cache.ReleaseLock("OrderLocker_" + data.order.trade_no, lockerId);
-            }
+            
         }
 
         private async Task RecoverOrder(IDefaultOrderServices o_service,Core.Entity.Order order)
