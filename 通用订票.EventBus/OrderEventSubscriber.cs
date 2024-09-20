@@ -81,65 +81,59 @@ namespace 通用订票.EventBus
                 {
                     //票之前已被使用,恢复订单状态
                     await RecoverOrder(o_service, data.order);
+                    await cache.ReleaseLock("OrderLocker_" + data.order.trade_no, lockerId);
                     return;
                 }
             }
 
-            //if (data.order.amount > 0)
-            //{
-            //    //如果不是免费的票开始走退款流程 
-            //    var config = await configService.GetConfig();
-            //    try
-            //    {
-            //        var refundResult = await wechatPayService.Refund(data.billRefund, data.bill, config);
-            //        if (refundResult == null)
-            //        {
-            //            throw new Exception("退款失败");
-            //        }
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        await RecoverOrder(o_service, data.order);
-            //        await refundBillService.UpdateStatus(RefundStatus.退款失败, data.bill.paymentId);
-            //        throw e;
-            //    }
-            //}
-
-            using (var transaction = dbContext.Database.BeginTransaction())
+            if (data.order.amount > 0)
             {
+                //如果不是免费的票开始走退款流程 
+                var config = await configService.GetConfig();
                 try
                 {
-                    var order = await o_service.RefundOrder(data.order); //退款开始
-                    if (order == null)
+                    var refundResult = await wechatPayService.Refund(data.billRefund, data.bill, config);
+                    if (refundResult == null)
                     {
                         throw new Exception("退款失败");
                     }
-                    var bill = await refundBillService.UpdateStatus(RefundStatus.已退款, data.bill.paymentId);
-                    if (bill == null)
-                    {
-                        throw new Exception("退款失败");
-                    }
-                    await transaction.CommitAsync();
-
-                    //恢复占用的app库存并且冻结所有可用票据
-                    var onOrderRefuned = new OnOrderRefunded()
-                    { order = order, tenantId = data.tenantId, userId = data.userId, tickets = tickets };
-                    await eventPublisher.PublishAsync(new OnOrderRefundedEvent(onOrderRefuned));
                 }
-                catch (Exception ex)
+                catch (Exception e)
                 {
-                    await transaction.RollbackAsync();
                     await RecoverOrder(o_service, data.order);
                     await refundBillService.UpdateStatus(RefundStatus.退款失败, data.bill.paymentId);
-                    throw ex;
+                    throw e;
                 }
                 finally
                 {
                     await cache.ReleaseLock("OrderLocker_" + data.order.trade_no, lockerId);
                 }
             }
-            
+
+            try
+            {
+                var order = await o_service.RefundOrder(data.order); //退款开始
+                if (order == null)
+                {
+                    throw new Exception("退款失败");
+                }
+                //恢复占用的app库存并且冻结所有可用票据
+                var onOrderRefuned = new OnOrderRefunded()
+                { order = order, tenantId = data.tenantId, userId = data.userId, tickets = tickets };
+                await eventPublisher.PublishAsync(new OnOrderRefundedEvent(onOrderRefuned));
+            }
+            catch (Exception ex)
+            {
+                await RecoverOrder(o_service, data.order);
+                await refundBillService.UpdateStatus(RefundStatus.退款失败, data.bill.paymentId);
+                throw ex;
+            }
+            finally
+            {
+                await cache.ReleaseLock("OrderLocker_" + data.order.trade_no, lockerId);
+            }
         }
+           
 
         private async Task RecoverOrder(IDefaultOrderServices o_service,Core.Entity.Order order)
         {
