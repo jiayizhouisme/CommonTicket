@@ -135,17 +135,17 @@ namespace 通用订票.Application.System.Services.Service
 
         private async Task SetTicketFromCache(MultiTicket ticket)
         {
-            await cache.Set("mticket:" + ticket.ticketNumber + ":" + ticket.exhibitionId, ticket);
+            await cache.Set("mticket:" + ticket.ticketNumber + ":" + ticket.exhibitionId.ToString().ToLower(), ticket,600);
         }
 
         private async Task<MultiTicket> GetTicketFromCache(string ticket_number,string exhibitionId)
         {
-            return  await cache.Get<MultiTicket>("mticket:" + ticket_number + ":" + exhibitionId);
+            return  await cache.Get<MultiTicket>("mticket:" + ticket_number + ":" + exhibitionId.ToLower());
         }
 
         private async Task DelTicketFromCache(string ticket_number, string exhibitionId)
         {
-            await cache.Del("mticket:" + ticket_number + ":" + exhibitionId);
+            await cache.Del("mticket:" + ticket_number + ":" + exhibitionId.ToLower());
         }
     }
 }
