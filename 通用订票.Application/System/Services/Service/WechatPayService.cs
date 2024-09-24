@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace 通用订票.Application.System.Services.Service
 {
@@ -75,7 +76,10 @@ namespace 通用订票.Application.System.Services.Service
         /// <returns></returns>
         public async Task<WechatBillRefund> Refund(WechatBillRefund refundInfo, WechatBill entity, WechatMerchantConfig config)
         {
-
+            if (entity.status != BillPaymentsStatus.Payed)
+            {
+                return null;
+            }
             var weChatRefundUrl = "";
             WeChatPayOptions _wechatpay = config.Adapt<WeChatPayOptions>();
             var request = new WeChatPayRefundRequest
