@@ -87,5 +87,36 @@ namespace 通用订票.EventBus
                 throw e;
             }
         }
+
+        [EventSubscribe("OnOrderRefunded")]
+        public async Task Ticket_OnOrderRefunded(EventHandlerExecutingContext context)
+        {
+            var todo = context.Source;
+            var data = (OnOrderRefunded)todo.Payload;
+            #region 获取services
+            using var scope = this.ScopeFactory.CreateScope();
+            var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
+            var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultTicketService>>();
+
+            var t_service = factory.GetTicketService(_ticketProvider);
+
+            t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, data.tenantId);
+            #endregion
+            t_service.SetUserContext(data.userId);
+
+            try
+            {
+                var tickets = await t_service.GetTickets(data.order.trade_no);
+                if (tickets.Count > 0)
+                {
+                    await t_service.DisableTickets(tickets);
+                }
+
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
     }
 }

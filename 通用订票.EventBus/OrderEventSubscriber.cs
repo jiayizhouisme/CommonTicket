@@ -113,7 +113,6 @@ namespace 通用订票.EventBus
             try
             {
                 var order = await o_service.RefundOrder(data.order); //退款开始
-                await t_service.DisableTickets(tickets);
                 if (order == null)
                 {
                     throw new Exception("退款失败");
