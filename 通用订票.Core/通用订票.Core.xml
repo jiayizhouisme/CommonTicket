@@ -250,6 +250,21 @@
             更新时间
             </summary>
         </member>
+        <member name="F:通用订票.Core.Entity.BillPaymentsStatus.NoPay">
+            <summary>
+            待支付
+            </summary>
+        </member>
+        <member name="F:通用订票.Core.Entity.BillPaymentsStatus.Payed">
+            <summary>
+            已支付
+            </summary>
+        </member>
+        <member name="F:通用订票.Core.Entity.BillPaymentsStatus.Other">
+            <summary>
+            其他
+            </summary>
+        </member>
         <member name="M:通用订票.Core.Entity.WechatBillRefund.#ctor">
             <summary>
             退款单表

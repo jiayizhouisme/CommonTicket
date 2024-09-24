@@ -1,4 +1,5 @@
-﻿using Core.Services;
+﻿using Core.Cache;
+using Core.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,13 @@ using 通用订票.Core.Entity;
 
 namespace 通用订票.Application.System.Services.Service
 {
-    public class MultiTicketService : BaseService<MultiTicket, MasterDbContextLocator>, IMultiTicketService,ITransient
+    public class MultiTicketService : BaseService<MultiTicket, MasterDbContextLocator>, IMultiTicketService, ITransient
     {
-        public MultiTicketService(IRepository<MultiTicket, MasterDbContextLocator> rep)
+        private readonly ICacheOperation cache;
+        public MultiTicketService(IRepository<MultiTicket, MasterDbContextLocator> rep,ICacheOperation cache)
         {
             base._dal = rep;
+            this.cache = cache;
         }
 
         public async Task<MultiTicketCancelResult> CancelTicket(string ticket_number, int cancelCount)
@@ -32,6 +35,7 @@ namespace 通用订票.Application.System.Services.Service
             }
             foreach (var _t in t)
             {
+                await DelTicketFromCache(_t.ticketNumber,_t.exhibitionId.ToString());
                 if (cancelCount > _t.totalCount)
                 {
                     mr.code = 0;
@@ -58,7 +62,7 @@ namespace 通用订票.Application.System.Services.Service
                     ticketNumber = ticket_number,
                     cancelCount = 0,
                     usedCount = 0
-                }); 
+                });
             }
             await this.SaveChangeNow();
             return null;
@@ -67,28 +71,54 @@ namespace 通用订票.Application.System.Services.Service
         public async Task<TicketVerifyResult> CheckMultiTicket(string ticket_number, string exhibition)
         {
             TicketVerifyResult tr = new TicketVerifyResult();
-            Guid id = Guid.Parse(exhibition);
-            var mticket = await this.GetQueryableNt
-                (a => a.ticketNumber == ticket_number && a.exhibitionId == id).FirstOrDefaultAsync();
-            var could_use = mticket.totalCount - mticket.usedCount - mticket.cancelCount;
-            if (could_use <= 0)
+            var mticket = await GetTicketFromCache(ticket_number, exhibition);
+            if (mticket == null)
             {
-                tr.message = "门票已用完";
-                tr.code = 0;
+                var t = await this.GetWithConditionNt
+                (a => a.ticketNumber == ticket_number);
+
+                mticket = t.Where(a => a.exhibitionId == Guid.Parse(exhibition)).FirstOrDefault();
+                if (mticket != null)
+                {
+                    await SetTicketFromCache(mticket);
+                }
+            }
+
+            if (mticket != null)
+            {
+                
+                var could_use = mticket.totalCount - mticket.usedCount - mticket.cancelCount;
+                if (could_use <= 0)
+                {
+                    tr.message = "门票已用完";
+                    tr.code = 0;
+                    return tr;
+                }
+                tr.code = 1;
+                tr.message = "门票验证成功";
                 return tr;
             }
-            tr.code = 1;
-            tr.message = "门票验证成功";
-            return tr;
+            else
+            {
+                tr.code = 0;
+                tr.message = "未找到门票";
+                return tr;
+            }
+            
         }
 
         public async Task<MultiTicketVerifyResult> ConfirmCheckMultiTicket(string ticket_number, string exhibition)
         {
             MultiTicketVerifyResult tr = new MultiTicketVerifyResult();
-            var t = await this.GetWithConditionNt
+            var mticket = await GetTicketFromCache(ticket_number, exhibition);
+            if (mticket == null)
+            {
+                var t = await this.GetWithConditionNt
                 (a => a.ticketNumber == ticket_number);
 
-            var mticket = t.Where(a => a.exhibitionId == Guid.Parse(exhibition)).FirstOrDefault();
+                mticket = t.Where(a => a.exhibitionId == Guid.Parse(exhibition)).FirstOrDefault();
+            }
+
             if ((mticket.totalCount - mticket.cancelCount - mticket.usedCount) <= 0)
             {
                 tr.code = 0;
@@ -96,10 +126,26 @@ namespace 通用订票.Application.System.Services.Service
             }
             mticket.usedCount++;
             await this.UpdateNow(mticket);
-            var used = t.Min(a => a.usedCount);
+            await DelTicketFromCache(ticket_number,exhibition);
+            var used = await this.GetQueryableNt(a => a.ticketNumber == ticket_number).MinAsync(a => a.usedCount);
             tr.code = 1;
             tr.usedCount = used;
             return tr;
+        }
+
+        private async Task SetTicketFromCache(MultiTicket ticket)
+        {
+            await cache.Set("mticket:" + ticket.ticketNumber + ":" + ticket.exhibitionId, ticket);
+        }
+
+        private async Task<MultiTicket> GetTicketFromCache(string ticket_number,string exhibitionId)
+        {
+            return  await cache.Get<MultiTicket>("mticket:" + ticket_number + ":" + exhibitionId);
+        }
+
+        private async Task DelTicketFromCache(string ticket_number, string exhibitionId)
+        {
+            await cache.Del("mticket:" + ticket_number + ":" + exhibitionId);
         }
     }
 }

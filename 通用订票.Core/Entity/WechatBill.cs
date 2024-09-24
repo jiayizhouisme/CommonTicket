@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SqlSugar;
 using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using 通用订票Order.Entity;
 
@@ -11,6 +12,9 @@ namespace 通用订票.Core.Entity
     public class WechatBill : IEntity,IEntityTypeBuilder<WechatBill>
     {
         public long paymentId { get; set; }
+
+        [Display(Name = "微信支付订单号")]
+        public string transactionId { get; set; }
         public System.String payTitle { get; set; }
         /// <summary>
         /// 支付金额
@@ -42,7 +46,7 @@ namespace 通用订票.Core.Entity
         [Display(Name = "支付状态")]
         [Required(ErrorMessage = "请输入{0}")]
 
-        public OrderStatus status { get; set; }
+        public BillPaymentsStatus status { get; set; }
 
         /// <summary>
         /// 支付类型编码 关联payments.code
@@ -108,4 +112,22 @@ namespace 通用订票.Core.Entity
         public string tenant_id { get; set; }
     }
 
+    public enum BillPaymentsStatus
+    {
+        /// <summary>
+        /// 待支付
+        /// </summary>
+        [Description("未支付")]
+        NoPay = 1,
+        /// <summary>
+        /// 已支付
+        /// </summary>
+        [Description("已支付")]
+        Payed = 2,
+        /// <summary>
+        /// 其他
+        /// </summary>
+        [Description("其他")]
+        Other = 3
+    }
 }

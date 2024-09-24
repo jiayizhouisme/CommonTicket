@@ -41,29 +41,29 @@ namespace 通用订票.Application.System.Services.Service
         public async Task<WechatBill> GenWechatBill(通用订票.Core.Entity.Order order, WechatBillAttach attach, long userId)
         {
             var bill = await GetWechatBill(order.trade_no);
-            if (bill != null)
+            if (bill != null && bill.status == BillPaymentsStatus.NoPay)
             {
                 return bill;
             }
             var tradeType = "JSAPI";
             bill = new WechatBill();
             bill.paymentId = await idGenerater.Generate("paymentId");
-            bill.status = 通用订票Order.Entity.OrderStatus.未付款;
+            bill.status = BillPaymentsStatus.NoPay;
             bill.paymentCode = tradeType;
             bill.createTime = DateTime.Now;
             bill.ip = httpContextAccessor.HttpContext.GetRemoteIpAddressToIPv4();
             bill.payTitle = order.name;
             bill.tradeNo = order.trade_no;
-            bill.money = order.amount;
+            bill.money = order.amount * 100;
             bill.Attach = JsonConvert.SerializeObject(attach);
             bill.userId = userId;
             if (bill.money == 0)
             {
-                bill.status = 通用订票Order.Entity.OrderStatus.已付款;
+                bill.status = BillPaymentsStatus.Payed;
             }
             else
             {
-                bill.status = 通用订票Order.Entity.OrderStatus.未付款;
+                bill.status = BillPaymentsStatus.NoPay;
             }
 
             await this.AddNow(bill);
@@ -104,13 +104,17 @@ namespace 通用订票.Application.System.Services.Service
             return wechatBill;
         }
 
-        public async Task<WechatBill> UpdateStatus(OrderStatus status, long trade_no)
+        public async Task<WechatBill> UpdateStatus(BillPaymentsStatus status, long trade_no, string transactionId = "")
         {
             var wechatBill = await this.GetWechatBill(trade_no);
             
             if (wechatBill != null)
             {
                 wechatBill.status = status;
+                if (!string.IsNullOrEmpty(transactionId))
+                {
+                    wechatBill.transactionId = transactionId;
+                }
                 await UpdateNow(wechatBill);
             }
             return wechatBill;

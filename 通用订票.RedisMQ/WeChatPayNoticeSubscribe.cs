@@ -90,7 +90,7 @@ namespace 通用订票.RedisMQ
                             }
 
                             var result = await o_service.PayFinished(order);
-                            await wechatBillService.UpdateStatus(通用订票Order.Entity.OrderStatus.已付款,order.trade_no);
+                            await wechatBillService.UpdateStatus(BillPaymentsStatus.Payed,order.trade_no,notify.TransactionId);
 
                             var app = await s_service.GetAppointmentById(order.objectId);
                             var exhibition = await e_service.GetExhibitionByID(app.objectId);
@@ -142,6 +142,9 @@ namespace 通用订票.RedisMQ
                     else
                     {
                         //支付失败
+                        var message = notify.ErrCode + ":" + notify.ErrCodeDes;
+                        await wechatBillService.UpdateStatus(BillPaymentsStatus.Other, order.trade_no, notify.TransactionId);
+                        _logger.LogError(message);
                     }
                 }
             }

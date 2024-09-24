@@ -81,7 +81,7 @@ namespace 通用订票.Application.System.Services.Service
             var request = new WeChatPayRefundRequest
             {
                 OutRefundNo = refundInfo.refundId.ToString(),
-                TransactionId = entity.tradeNo.ToString(),
+                TransactionId = entity.transactionId,
                 OutTradeNo = entity.paymentId.ToString(),
                 TotalFee = Convert.ToInt32(entity.money * 100),
                 RefundFee = Convert.ToInt32(refundInfo.money * 100),

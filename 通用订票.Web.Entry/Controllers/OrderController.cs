@@ -276,12 +276,18 @@ namespace 通用订票.Web.Entry.Controllers
 
                 if (order.status == OrderStatus.已付款)
                 {
-                    var bill = await billService.GetWechatBill(order.trade_no);
-                    var billRefund = await wechatRefundBillService.GenWechatRefundBill(bill);
-                    if (billRefund == null)
+                    WechatBill bill = null;
+                    WechatBillRefund billRefund = null;
+                    if (order.amount > 0)
                     {
-                        throw new Exception("退款失败，因为已经退款成功或者退款正在进行");
+                        bill = await billService.GetWechatBill(order.trade_no);
+                        billRefund = await wechatRefundBillService.GenWechatRefundBill(bill);
+                        if (billRefund == null)
+                        {
+                            throw new Exception("退款失败，因为已经退款成功或者退款正在进行");
+                        }
                     }
+                    
                     await myOrderService.PreRefundOrder(order);
 
                     var onOrderPrerefuned = new OnOrderPreRefunded()

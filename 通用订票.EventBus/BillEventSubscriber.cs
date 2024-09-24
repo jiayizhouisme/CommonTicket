@@ -20,32 +20,40 @@ namespace 通用订票.EventBus
 {
     public class BillEventSubscriber : IEventSubscriber, ISingleton
     {
-        private readonly IServiceScopeFactory ScopeFactory;
-        private readonly ILogger<StockEventSubscriber> _logger;
-        private readonly IJsonSerializerProvider jsonSerializerProvider;
-        private readonly ICacheOperation _cache;
+        private readonly IServiceProvider _serviceProvider;
         public BillEventSubscriber(
-            IServiceScopeFactory scopeFactory,
-            ILogger<StockEventSubscriber> logger,
-            IJsonSerializerProvider jsonSerializerProvider,
-            ICacheOperation _cache
+            IServiceProvider _serviceProvider
             )
         {
-            _logger = logger;
-            this.ScopeFactory = scopeFactory;
-            this.jsonSerializerProvider = jsonSerializerProvider;
-            this._cache = _cache;
+            this._serviceProvider = _serviceProvider;
         }
 
         [EventSubscribe("OnOrderClosed")]
-        public async Task Bill_OnOrderClosed_Refunded(EventHandlerExecutingContext context)
+        public async Task Bill_OnOrderClosed(EventHandlerExecutingContext context)
         {
             var closedEntity = (OnOrderClosed)context.Source.Payload;
+            if (closedEntity.order.amount > 0)
+            {
+                using (var scope = this._serviceProvider.CreateScope())
+                {
+                    var bill_service = ServiceFactory.GetSaasService<IWechatBillService, WechatBill>(scope.ServiceProvider, closedEntity.tenantId);
+                    await bill_service.UpdateStatus(BillPaymentsStatus.NoPay, closedEntity.order.trade_no);
+                }
+            }
+        }
 
-            var scope = this.ScopeFactory.CreateScope();
-
-            var bill_service = ServiceFactory.GetSaasService<IWechatBillService, WechatBill>(scope.ServiceProvider, closedEntity.tenantId);
-            await bill_service.UpdateStatus(closedEntity.order.status,closedEntity.order.trade_no);
+        [EventSubscribe("OnOrderRefunded")]
+        public async Task Bill_OnOrderRefunded(EventHandlerExecutingContext context)
+        {
+            var closedEntity = (OnOrderRefunded)context.Source.Payload;
+            if (closedEntity.order.amount > 0)
+            {
+                using (var scope = this._serviceProvider.CreateScope())
+                {
+                    var refundBill_service = ServiceFactory.GetSaasService<IWechatRefundBillService, WechatBillRefund>(scope.ServiceProvider, closedEntity.tenantId);
+                    await refundBill_service.UpdateStatus(RefundStatus.已退款, closedEntity.billRefund.tradeNo);
+                }
+            }
         }
     }
 }

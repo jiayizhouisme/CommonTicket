@@ -11,6 +11,6 @@ namespace 通用订票.EventBus.Entity
     public class OnOrderRefunded : BaseEntity
     {
         public Core.Entity.Order order;
-        public ICollection<Ticket> tickets;
+        public WechatBillRefund billRefund;
     }
 }

@@ -113,13 +113,14 @@ namespace 通用订票.EventBus
             try
             {
                 var order = await o_service.RefundOrder(data.order); //退款开始
+                await t_service.DisableTickets(tickets);
                 if (order == null)
                 {
                     throw new Exception("退款失败");
                 }
                 //恢复占用的app库存并且冻结所有可用票据
                 var onOrderRefuned = new OnOrderRefunded()
-                { order = order, tenantId = data.tenantId, userId = data.userId, tickets = tickets };
+                { order = order,billRefund = data.billRefund, tenantId = data.tenantId, userId = data.userId};
                 await eventPublisher.PublishAsync(new OnOrderRefundedEvent(onOrderRefuned));
             }
             catch (Exception ex)
@@ -137,7 +138,6 @@ namespace 通用订票.EventBus
 
         private async Task RecoverOrder(IDefaultOrderServices o_service,Core.Entity.Order order)
         {
-           
             order.status = 通用订票Order.Entity.OrderStatus.已付款;
             await o_service.UpdateNow(order);
         }
