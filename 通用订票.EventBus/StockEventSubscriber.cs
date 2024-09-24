@@ -49,28 +49,7 @@ namespace 通用订票.EventBus
             #endregion
 
             var orderInfo = jsonSerializerProvider.Deserialize<OrderInfo>(data.order.extraInfo);
-
-            try
-            {
-                await _cache.Lock("OrderCloseLock:" + data.order.objectId, data.order.objectId);
-                var stock = await s_service.checkStock(data.order.objectId);
-                stock.sale -= orderInfo.ids.Count();
-                await s_service.SaleStock(stock.id, -orderInfo.ids.Count());
-                if (stock.sale < 0)
-                {
-                    stock.sale = 0;
-                }
-                await s_service.UpdateNow(stock);
-                await s_service.DelStockFromCache(stock.id);
-            }
-            catch
-            {
-            }
-            finally
-            {
-                await _cache.ReleaseLock("OrderCloseLock:" + data.order.objectId, data.order.objectId);
-            }
-
+            await s_service.SaleStockAndUpdate(data.order.objectId, -orderInfo.ids.Count());
         }
     }
 }

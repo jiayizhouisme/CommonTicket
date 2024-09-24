@@ -90,17 +90,7 @@ namespace 通用订票.RedisMQ
                             throw new Exception("订单已支付或不存在");
                         }
                         
-                        var l = _cache.Lock("OrderCloseLock:" + order.objectId, order.objectId).Result;
-                        var saleResult = s_service.SaleStock(order.objectId, -orderInfo.ids.Count()).Result;
-                        var stock = s_service.checkStock(order.objectId).Result;
-                        stock.sale -= orderInfo.ids.Count();
-                        //if (stock.sale < 0)
-                        //{
-                        //    stock.sale = 0;
-                        //}
-                        s_service.UpdateNow(stock).Wait();
-
-                        await s_service.DelStockFromCache(stock.id);
+                        await s_service.SaleStockAndUpdate(order.objectId, -orderInfo.ids.Count());
                         await transaction.CommitAsync();
                     }
                     var onOrderClosed = new OnOrderClosed() { order = order, tenantId = data.tenantId, userId = data.userId };
@@ -114,7 +104,6 @@ namespace 通用订票.RedisMQ
                 finally
                 {
                     await _cache.ReleaseLock("OrderLocker_" + data.trade_no, lockerId.ToString());
-                    await _cache.ReleaseLock("OrderCloseLock:" + order.objectId, order.objectId);
                 }
                 
             }

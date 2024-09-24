@@ -78,10 +78,6 @@ namespace 通用订票.RedisMQ
                 {
                     app = s_service.checkStock(data.appid).Result;
                     app.sale += data.ids.Count;
-                    //if (app.sale > app.amount)
-                    //{
-                    //    app.sale = app.amount;
-                    //}
                     s_service.UpdateNow(app).Wait();
                     await s_service.DelStockFromCache(app.id);
                 }
