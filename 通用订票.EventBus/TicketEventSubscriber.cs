@@ -24,16 +24,13 @@ namespace 通用订票.EventBus
     {
         private readonly IServiceScopeFactory ScopeFactory;
         private readonly ILogger<TicketEventSubscriber> _logger;
-        private readonly IEventPublisher eventPublisher;
         
         public TicketEventSubscriber(
             IServiceScopeFactory scopeFactory,
-            ILogger<TicketEventSubscriber> logger,
-            IEventPublisher eventPublisher)
+            ILogger<TicketEventSubscriber> logger)
         {
             _logger = logger;
             this.ScopeFactory = scopeFactory;
-            this.eventPublisher = eventPublisher;
         }
 
         //[EventSubscribe("OnOrderCreated")]

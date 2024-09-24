@@ -44,7 +44,6 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IQueuePushInfo _queue;
         private readonly IEventPublisher eventPublisher;
         private readonly IJsonSerializerProvider jsonSerializerProvider;
-        private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ITenantGetSetor tenantGetSetor;
         private readonly IWechatPayService wechatPayService;
         private readonly IWechatMerchantConfigService wechatMerchantConfigService;
@@ -60,7 +59,6 @@ namespace 通用订票.Web.Entry.Controllers
             IQueuePushInfo _queue,
             IEventPublisher eventPublisher,
             IJsonSerializerProvider jsonSerializerProvider,
-            IHttpContextAccessor httpContextAccessor,
             ITenantGetSetor tenantGetSetor,
             IWechatPayService wechatPayService,
             IWechatMerchantConfigService wechatMerchantConfigService,
@@ -74,7 +72,6 @@ namespace 通用订票.Web.Entry.Controllers
             this._queue = _queue;
             this.eventPublisher = eventPublisher;
             this.jsonSerializerProvider = jsonSerializerProvider;
-            this.httpContextAccessor = httpContextAccessor;
             this.tenantGetSetor = tenantGetSetor;
             this.wechatMerchantConfigService = wechatMerchantConfigService;
             this.wechatRefundBillService = wechatRefundBillService;
