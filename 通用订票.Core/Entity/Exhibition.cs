@@ -1,4 +1,6 @@
 ﻿using Furion.DatabaseAccessor;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,7 +9,7 @@ using 通用订票.Core.Model;
 
 namespace 通用订票.Core.Entity
 {
-    public class Exhibition :IEntity
+    public class Exhibition :IEntity,IEntityTypeBuilder<Exhibition>
     {
         public Guid id { get; set; }
         public string name{ get;set;}
@@ -26,6 +28,11 @@ namespace 通用订票.Core.Entity
         [NotNull]
         public bool isMultiPart { get; set; }
         public string forbiddenRule { get; set; }
+
+        public void Configure(EntityTypeBuilder<Exhibition> entityBuilder, DbContext dbContext, Type dbContextLocator)
+        {
+            entityBuilder.HasQueryFilter(x => x.isDeleted == false);
+        }
 
         public ForbiddenRule GetForbiddenRule()
         {

@@ -1,7 +1,7 @@
 ﻿using Core.Auth;
 using Core.Auth.Handler;
 using Core.Cache;
-using Core.EntityFrameWork.Config;
+using Core.Config;
 using Core.HttpTenant.HttpTenantContext;
 using Core.HttpTenant.Service;
 using Core.MiddelWares;
@@ -78,7 +78,12 @@ namespace 通用订票.Web.Core
             services.AddSingleton<ICacheOperation, RedisOperationRepository>();
             services.AddSingleton<ISignalRUserService, JwtCacheUserService>();
 
-            services.AddTenantService(TenantConfigTypes.ByUrl);
+            Configration.ConfigInit();
+
+            if (Configration.UseTenant == true)
+            {
+                services.AddTenantService(Configration.tenantConfigType);
+            }
 
             services.AddSingleton<IUniqueCodeGenerater<long>,RedisUniqueCodeGenerator>();
             services.AddSingleton<ITradeNoGenerater<long>, TradeNoGenerater>();
@@ -88,7 +93,7 @@ namespace 通用订票.Web.Core
             services.AddSingleton<ConnectionMultiplexer>(sp =>
             {
                 //获取连接字符串
-                string redisConfiguration = App.Configuration["RedisConfig:ConnectionString"];
+                string redisConfiguration = Configration.redisConnectionString;
                 var configuration = ConfigurationOptions.Parse(redisConfiguration, true);
                 configuration.ResolveDns = true;
                 configuration.DefaultDatabase = 0;
@@ -100,7 +105,7 @@ namespace 通用订票.Web.Core
                 //时间间隔
                 m.SuspendTime = 1000;
                 //redis服务器地址
-                m.ConnectionString = App.Configuration["RedisConfig:ConnectionString"];
+                m.ConnectionString = Configration.redisConnectionString;
                 //对应的订阅者类，需要new一个实例对象，当然你也可以传参，比如日志对象
                 m.ListSubscribe = new List<Type>() {
                     typeof(OrderCloseSubscribe),
@@ -131,14 +136,14 @@ namespace 通用订票.Web.Core
             services.AddResponseCaching();
             services.AddCorsAccessor();
 
-            services.AddSignalR().AddStackExchangeRedis(App.Configuration["RedisConfig:ConnectionString"], options => {
-                options.Configuration.ChannelPrefix = App.Configuration["ServerConfig:CachePrefix"];
+            services.AddSignalR().AddStackExchangeRedis(Configration.redisConnectionString, options => {
+                options.Configuration.ChannelPrefix = Configration.CachePrefix;
             });
            
             services.AddSchedule(options =>
             {
                 options.BuildSqlType = SqlTypes.SqlServer;
-                options.ClusterId = App.Configuration["ServerConfig:ClusterId"];
+                options.ClusterId = Configration.ClusterId;
                 options.AddClusterServer<JobClusterServer>();
                 //options.AddPersistence<DbJobPersistence>();
             });

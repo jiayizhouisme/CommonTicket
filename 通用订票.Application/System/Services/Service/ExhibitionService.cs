@@ -11,7 +11,7 @@ using Core.Services;
 
 namespace 通用订票.Application.System.Services.Service
 {
-    public class ExhibitionService : BaseService<Exhibition, MasterDbContextLocator>,IExhibitionService, ITransient
+    public class ExhibitionService : BaseService<Exhibition, MasterDbContextLocator>, IExhibitionService, ITransient
     {
         private readonly ICacheOperation _cache;
         public ExhibitionService(IRepository<Exhibition, MasterDbContextLocator> _dal, ICacheOperation _cache)
@@ -61,6 +61,43 @@ namespace 通用订票.Application.System.Services.Service
                 throw e;
             }
 
+        }
+
+        public async Task<Exhibition> AddExhibition(Exhibition exhibition)
+        {
+            return await this.AddNow(exhibition);
+        }
+
+        public async Task<Exhibition> UpdateExhibition(Exhibition exhibition)
+        {
+            await this.UpdateNow(exhibition);
+            return exhibition;
+        }
+
+        public async Task<bool> DeleteExhibition(Guid id,bool real)
+        {
+            var entity = await this.GetWithCondition(a => a.id == id);
+            if (real == true)
+            {
+                var _e = entity.FirstOrDefault();
+                if (_e != null)
+                {
+                    await this.Delete(_e);
+                    return true;
+                }
+                return false;
+            }
+            else
+            {
+                var _e = entity.FirstOrDefault();
+                if (_e != null)
+                {
+                    _e.isDeleted = true;
+                    await this.UpdateNow(_e);
+                    return true;
+                }
+                return false;
+            }
         }
     }
 }

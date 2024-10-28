@@ -10,14 +10,31 @@ namespace 通用订票.Web.Entry.Controllers
 {
     public class ExhibitionController : IDynamicApiController
     {
-        private readonly IUserService userService;
         private readonly IExhibitionService _exhibitionService;
-        private readonly IHttpContextAccessor _contextAccessor;
-        public ExhibitionController(IUserService userService, IHttpContextAccessor contextAccessor, IExhibitionService _exhibitionService)
+        public ExhibitionController(IExhibitionService _exhibitionService)
         {
-            this.userService = userService;
-            _contextAccessor = contextAccessor;
             this._exhibitionService = _exhibitionService;
+        }
+
+        [Authorize]
+        [HttpPost(Name = "Add")]
+        public async Task<Exhibition> AddExhibitions(Exhibition exhibition)
+        {
+            return await this._exhibitionService.AddExhibition(exhibition);
+        }
+
+        [Authorize]
+        [HttpPost(Name = "Update")]
+        public async Task<Exhibition> UpdateExhibitions(Exhibition exhibition)
+        {
+            return await this._exhibitionService.UpdateExhibition(exhibition);
+        }
+
+        [Authorize]
+        [HttpGet(Name = "Delete")]
+        public async Task<bool> DeleteExhibitions(Guid id,bool real = false)
+        {
+            return await this._exhibitionService.DeleteExhibition(id, real);
         }
 
         //[Authorize]

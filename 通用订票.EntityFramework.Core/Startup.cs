@@ -1,4 +1,5 @@
-﻿using Core.EntityFrameWork;
+﻿using Core.Config;
+using Core.EntityFrameWork;
 using Furion;
 using Furion.DatabaseAccessor;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +12,7 @@ namespace 通用订票.EntityFramework.Core
         {
             services.AddDatabaseAccessor(options =>
             {
-                var dbType = App.Configuration["ConnectionStrings:DbType"];
+                var dbType = Configration.DbType;
                 if (dbType == "SqlServer")
                 {
                     options.AddDb<MasterDbContext_SQL>();

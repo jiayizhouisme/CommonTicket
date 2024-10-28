@@ -20,6 +20,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Cores\Core.Cache\Core.Cache.csproj" />
+		<ProjectReference Include="..\..\Cores\Core.Config\Core.Config.csproj" />
 		<ProjectReference Include="..\..\Cores\Core.MiddelWares\Core.MiddelWares.csproj" />
 		<ProjectReference Include="..\..\Cores\Core.Queue\Core.Queue.csproj" />
 		<ProjectReference Include="..\..\Cores\Core.SignalR\Core.SignalR.csproj" />
