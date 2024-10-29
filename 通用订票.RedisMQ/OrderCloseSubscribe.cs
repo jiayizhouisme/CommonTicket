@@ -61,13 +61,11 @@ namespace 通用订票.RedisMQ
 
             using (var scope = _serviceProvider.CreateScope())
             {
-                
                 #region 获取services
                 var _orderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultOrderServices>>();
                 var o_service = factory.GetOrderService(_orderProvider);
                 o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenantId);
                 o_service.SetUserContext(data.userId);
-                DbContext dbContext = Db.GetDbContext(scope.ServiceProvider);
                 var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
                 var s_service = factory.GetStockService(_stockProvider);
                 s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, data.tenantId);
@@ -82,24 +80,15 @@ namespace 通用订票.RedisMQ
                     {
                         throw new Exception("订单已支付或不存在");
                     }
-                    using (var transaction = dbContext.Database.BeginTransaction())
+                    
+                    var o = o_service.CancelOrder(order).Result;
+                    if (o == null)
                     {
-                        var o = o_service.CancelOrder(order).Result;
-                        if (o == null)
-                        {
-                            throw new Exception("订单已支付或不存在");
-                        }
-                        
-                        await s_service.SaleStockAndUpdate(order.objectId, -orderInfo.ids.Count());
-                        await transaction.CommitAsync();
+                        throw new Exception("订单已支付或不存在");
                     }
                     var onOrderClosed = new OnOrderClosed() { order = order, tenantId = data.tenantId, userId = data.userId };
                     await eventPublisher.PublishAsync(new OnOrderClosedEvent(onOrderClosed));
 
-                }
-                catch (Exception e1)
-                {
-                    var saleResult = await s_service.SaleStock(order.objectId, orderInfo.ids.Count());
                 }
                 finally
                 {

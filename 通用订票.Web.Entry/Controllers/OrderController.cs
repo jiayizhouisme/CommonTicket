@@ -10,9 +10,11 @@ using Furion.EventBus;
 using Furion.JsonSerialization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ProtoBuf.Meta;
 using StackExchange.Redis;
 using System.Net.Sockets;
+using System.Transactions;
 using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
@@ -48,6 +50,7 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IWechatPayService wechatPayService;
         private readonly IWechatMerchantConfigService wechatMerchantConfigService;
         private readonly IWechatRefundBillService wechatRefundBillService;
+        private readonly IServiceProvider serviceProvider;
         public OrderController(IUserInfoService userinfoService,
             ICacheOperation _cache,
             IHttpContextUser httpContextUser,
@@ -62,7 +65,8 @@ namespace 通用订票.Web.Entry.Controllers
             ITenantGetSetor tenantGetSetor,
             IWechatPayService wechatPayService,
             IWechatMerchantConfigService wechatMerchantConfigService,
-            IWechatRefundBillService wechatRefundBillService)
+            IWechatRefundBillService wechatRefundBillService,
+            IServiceProvider serviceProvider)
         {
             this._cache = _cache;
             this.httpContextUser = httpContextUser;
@@ -81,6 +85,7 @@ namespace 通用订票.Web.Entry.Controllers
             this.ticketService = factory.GetTicketService(_ticketProvider);
             this.myOrderService = factory.GetOrderService(_orderProvider);
             this.wechatPayService = wechatPayService;
+            this.serviceProvider = serviceProvider;
         }
 
 
@@ -264,54 +269,59 @@ namespace 通用订票.Web.Entry.Controllers
             await _cache.Lock("OrderLocker_" + trade_no, lockid);
 
             var order = await myOrderService.GetOrderById(trade_no);
-            try
+            DbContext dbContext = Db.GetDbContext(serviceProvider);
+            using (var transaction = dbContext.Database.BeginTransaction())
             {
-                if (order == null || order.userId.ToString() != httpContextUser.ID)
+                try
                 {
-                    throw new ArgumentException("订单无效");
-                }
-
-                if (order.status == OrderStatus.已付款)
-                {
-                    WechatBill bill = null;
-                    WechatBillRefund billRefund = null;
-                    if (order.amount > 0)
+                    if (order == null || order.userId.ToString() != httpContextUser.ID)
                     {
-                        bill = await billService.GetWechatBill(order.trade_no);
-                        billRefund = await wechatRefundBillService.GenWechatRefundBill(bill);
-                        if (billRefund == null)
-                        {
-                            throw new Exception("退款失败，因为已经退款成功或者退款正在进行");
-                        }
+                        throw new ArgumentException("订单无效");
                     }
-                    
-                    await myOrderService.PreRefundOrder(order);
 
-                    var onOrderPrerefuned = new OnOrderPreRefunded()
+                    if (order.status == OrderStatus.已付款)
                     {
-                        order = order,
-                        billRefund = billRefund,
-                        tenantId = httpContextUser.TenantId,
-                        userId = long.Parse(httpContextUser.ID),
-                        bill = bill
-                    };
-                    await eventPublisher.PublishAsync(new OnOrderPreRefundedEvent(onOrderPrerefuned));
-                    return "订单退款请求成功，请耐心等待退款";
+                        WechatBill bill = null;
+                        WechatBillRefund billRefund = null;
+                        if (order.amount > 0)
+                        {
+                            bill = await billService.GetWechatBill(order.trade_no);
+                            billRefund = await wechatRefundBillService.GenWechatRefundBill(bill);
+                            if (billRefund == null)
+                            {
+                                throw new Exception("退款失败，因为已经退款成功或者退款正在进行");
+                            }
+                        }
+
+                        await myOrderService.PreRefundOrder(order);
+                        var onOrderPreRefuned = new OnOrderPreRefunded()
+                        {
+                            order = order,
+                            billRefund = billRefund,
+                            tenantId = httpContextUser.TenantId,
+                            userId = long.Parse(httpContextUser.ID),
+                            bill = bill
+                        };
+                        await transaction.CommitAsync();
+                        await eventPublisher.PublishAsync(new OnOrderPreRefundedEvent(onOrderPreRefuned));
+                        return "订单退款请求成功，请耐心等待退款";
+                    }
+                    else
+                    {
+                        throw new ArgumentException("订单已不可退款");
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    throw new ArgumentException("订单已不可退款");
+                    await myOrderService.AfterOrderToke(trade_no);
+                    return e.Message;
+                }
+                finally
+                {
+                    await _cache.ReleaseLock("OrderLocker_" + trade_no, lockid);
                 }
             }
-            catch (Exception e)
-            {
-                await myOrderService.AfterOrderToke(trade_no);
-                return e.Message;
-            }
-            finally
-            {
-                await _cache.ReleaseLock("OrderLocker_" + trade_no, lockid);
-            }
+            
         }
 
         [Authorize]
@@ -355,7 +365,6 @@ namespace 通用订票.Web.Entry.Controllers
             string lockerId = Guid.NewGuid().ToString();
             var lo = await _cache.Lock("OrderLocker_" + trade_no, lockerId);
             var order = await myOrderService.GetOrderById(trade_no);
-            var orderInfo = jsonSerializerProvider.Deserialize<OrderInfo>(order.extraInfo);
             try
             {
                 if (order == null || order.userId.ToString() != httpContextUser.ID)
@@ -367,8 +376,6 @@ namespace 通用订票.Web.Entry.Controllers
                 {
                     throw new Exception("目前状态不可关闭订单");
                 }
-                var saleResult = await stockService.SaleStock(order.objectId, -orderInfo.ids.Count());
-            
                 var o = await myOrderService.CancelOrder(order);
 
                 var onOrderClosed = new OnOrderClosed()
@@ -377,7 +384,6 @@ namespace 通用订票.Web.Entry.Controllers
             }
             catch(Exception e)
             {
-                var _ = await stockService.SaleStock(order.objectId, orderInfo.ids.Count());
                 return e.Message;
             }
             finally

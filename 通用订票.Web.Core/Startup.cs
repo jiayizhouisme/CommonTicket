@@ -2,11 +2,10 @@
 using Core.Auth.Handler;
 using Core.Cache;
 using Core.Config;
-using Core.HttpTenant.HttpTenantContext;
-using Core.HttpTenant.Service;
 using Core.MiddelWares;
 using Core.Queue.IQueue;
 using Core.SignalR;
+using Core.TenantConfig;
 using Core.User.Service;
 using Core.Utill.UniqueCode;
 using Essensoft.Paylink.WeChatPay;
@@ -175,8 +174,11 @@ namespace 通用订票.Web.Core
             {
                 app.UseMiddleware<SubSiteMiddleWare>();
             }
-            app.UseMiddleware<HttpContextMiddleware>();
-            //app.UseMiddleware<WebRouteMiddleware>();
+            if (Configration.UseTenant == true)
+            {
+                app.UseMiddleware<HttpContextMiddleware>();
+                //app.UseMiddleware<WebRouteMiddleware>();
+            }
 
             app.UseDefaultFiles();
             StaticFileOptions options = new StaticFileOptions { 

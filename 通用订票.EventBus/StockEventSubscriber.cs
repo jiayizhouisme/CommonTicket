@@ -51,5 +51,27 @@ namespace 通用订票.EventBus
             var orderInfo = jsonSerializerProvider.Deserialize<OrderInfo>(data.order.extraInfo);
             await s_service.SaleStockAndUpdate(data.order.objectId, -orderInfo.ids.Count());
         }
+
+        [EventSubscribe("OnOrderClosed")]
+        public async Task Stock_OnOrderClosed(EventHandlerExecutingContext context)
+        {
+            var todo = context.Source;
+            var data = (OnOrderClosed)todo.Payload;
+
+            #region 获取services
+            using var scope = this.ScopeFactory.CreateScope();
+            var factory = SaaSServiceFactory.GetServiceFactory(data.tenantId);
+            var _stockProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultAppointmentService>>();
+
+            var s_service = factory.GetStockService(_stockProvider);
+
+            s_service = ServiceFactory.GetNamedSaasService<IDefaultAppointmentService, Appointment>(scope.ServiceProvider, s_service, data.tenantId);
+            #endregion
+
+            var orderInfo = jsonSerializerProvider.Deserialize<OrderInfo>(data.order.extraInfo);
+            await s_service.SaleStockAndUpdate(data.order.objectId, -orderInfo.ids.Count());
+            
+            
+        }
     }
 }

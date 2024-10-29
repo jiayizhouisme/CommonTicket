@@ -73,18 +73,13 @@ namespace 通用订票.EventBus
             t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, data.tenantId);
             #endregion
             t_service.SetUserContext(data.userId);
-
-            try
+            if (data.order.amount == 0)
             {
                 var tickets = await t_service.GetTickets(data.order.trade_no);
                 if (tickets.Count > 0)
                 {
                     await t_service.DisableTickets(tickets);
                 }
-            }
-            catch (Exception e)
-            {
-                throw e;
             }
         }
 
@@ -103,19 +98,10 @@ namespace 通用订票.EventBus
             t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, data.tenantId);
             #endregion
             t_service.SetUserContext(data.userId);
-
-            try
+            var tickets = await t_service.GetTickets(data.order.trade_no);
+            if (tickets.Count > 0)
             {
-                var tickets = await t_service.GetTickets(data.order.trade_no);
-                if (tickets.Count > 0)
-                {
-                    await t_service.DisableTickets(tickets);
-                }
-
-            }
-            catch (Exception e)
-            {
-                throw e;
+                await t_service.DisableTickets(tickets);
             }
         }
     }

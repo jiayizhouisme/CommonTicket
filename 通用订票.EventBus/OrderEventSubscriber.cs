@@ -102,11 +102,8 @@ namespace 通用订票.EventBus
                 {
                     await RecoverOrder(o_service, data.order);
                     await refundBillService.UpdateStatus(RefundStatus.退款失败, data.bill.paymentId);
-                    throw e;
-                }
-                finally
-                {
                     await cache.ReleaseLock("OrderLocker_" + data.order.trade_no, lockerId);
+                    throw e;
                 }
             }
 
