@@ -1,4 +1,5 @@
 ﻿using Core.Services;
+using Furion.TimeCrontab;
 using 通用订票.Order.IService;
 using 通用订票Order.Entity;
 
@@ -6,7 +7,8 @@ namespace 通用订票.Application.System.ServiceBases.IService
 {
     public interface IOrderService<T> : IBaseOrderService<T>, IBaseService<T> where T : Core.Entity.Order,new()
     {
-        public Task<T> CreateOrder(string objectId,string name,decimal amount,OrderStatus status = OrderStatus.未付款, string extraInfo = null);
+        public Task<T> CreateOrder(string objectId,string name,decimal amount, string extraInfo = null);
+        public Task<T> CreateOrder(string objectId, string name, decimal amount,OrderStatus os ,string extraInfo = null);
         public Task<T> PayFinished(T order);
         public Task AfterOrderToke(long orderId);
         public Task<Core.Entity.Order> OnCloseException(Core.Entity.Order order);

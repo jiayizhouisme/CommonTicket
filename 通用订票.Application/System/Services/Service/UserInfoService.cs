@@ -39,9 +39,9 @@ namespace 通用订票.Application.System.Services.Service
             return await entity.FirstOrDefaultAsync();
         }
 
-        public async Task<IQueryable<UserInfo>> GetUserInfoByUser()
+        public async Task<ICollection<UserInfo>> GetUserInfoByUser()
         {
-            var entity = this.GetQueryableNt(a => a.userID == userid);
+            var entity = await this.GetWithConditionNt(a => a.userID == userid);
             return entity;
         }
     }

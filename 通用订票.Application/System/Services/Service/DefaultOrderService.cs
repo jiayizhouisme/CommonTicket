@@ -23,9 +23,9 @@ namespace 通用订票.Application.System.Services.Service
             return order;
         }
 
-        public override async Task<Core.Entity.Order> CreateOrder(string objectId, string name, decimal amount, OrderStatus status = OrderStatus.未付款, string extraInfo = null)
+        public override async Task<Core.Entity.Order> CreateOrder(string objectId, string name, decimal amount, string extraInfo = null)
         {
-            var result = await base.CreateOrder(objectId, name, amount, status,extraInfo);
+            var result = await base.CreateOrder(objectId, name, amount,extraInfo);
             var r = await this._dal.InsertNowAsync(result);
             await SetOrderToCache(r.Entity);
             await AfterOrdered(objectId);
@@ -38,8 +38,7 @@ namespace 通用订票.Application.System.Services.Service
             if (order != null)
             {
                 await this.UpdateNow(order);
-                await DelOrderFromCache(Order.trade_no);
-                await DelRecord(order.objectId);
+                await DelOrderFromCache(order.trade_no);
             }
             return order;
         }
@@ -84,7 +83,6 @@ namespace 通用订票.Application.System.Services.Service
             {
                 await this.UpdateNow(Order);
                 await DelOrderFromCache(Order.trade_no);
-                await DelRecord(Order.objectId);
             }
             return result;
         }
@@ -148,13 +146,13 @@ namespace 通用订票.Application.System.Services.Service
 
         public async Task<bool> PreOrder(string objectId)
         {
-            var _lock = await _cache.LockNoWait("PreOrder:" + objectId.ToString() + "User:" + userId, userId.ToString(), 60);
+            var _lock = await _cache.LockNoWait("PreOrder:" + objectId.ToString() + ":User:" + userId, userId.ToString(), 60);
             if (_lock == 0)
             {
                 return false;
             }
 
-            var ret = await _cache.Get<int>("Orderd:" + objectId.ToString() + "User:" + userId);
+            var ret = await _cache.Get<int>("Orderd:" + objectId.ToString() + ":User:" + userId);
             if (ret == 1)
             {                
                 await this.OrderFail(objectId);
@@ -170,7 +168,6 @@ namespace 通用订票.Application.System.Services.Service
 
         public virtual async Task AfterOrdered(string objectId)
         {
-            await RecordOrder(objectId);
             await ReleaseLock(objectId);
         }
 
@@ -182,17 +179,7 @@ namespace 通用订票.Application.System.Services.Service
 
         private async Task ReleaseLock(string objectId)
         {
-            await _cache.ReleaseLock("PreOrder:" + objectId.ToString() + "User:" + userId, userId.ToString());//解锁 
-        }
-
-        private async Task RecordOrder(string objectId)
-        {
-            await _cache.Set("Orderd:" + objectId.ToString() + "User:" + userId, 1, 650);//记录用户购买的订单 防止重复下单
-        }
-
-        private async Task DelRecord(string objectId)
-        {
-            await _cache.Del("Orderd:" + objectId.ToString() + "User:" + userId);//记录用户购买的订单 防止重复下单
+            await _cache.ReleaseLock("PreOrder:" + objectId.ToString() + ":User:" + userId, userId.ToString());//解锁 
         }
     }
 }

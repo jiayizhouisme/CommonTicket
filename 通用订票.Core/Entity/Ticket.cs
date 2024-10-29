@@ -20,7 +20,7 @@ namespace 通用订票.Core.Entity
         /// <summary>
         /// 购票人选择的用户
         /// </summary>
-        public int TUserId { get; set; }
+        public long TUserId { get; set; }
 
         public void Configure(EntityTypeBuilder<Ticket> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {

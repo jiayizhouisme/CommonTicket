@@ -26,7 +26,7 @@ namespace 通用订票.Application.System.Services.IService
         /// <param name="status"></param>
         /// <param name="otaType"></param>
         /// <returns></returns>
-        Task<List<Core.Entity.Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<long> order, int[] uid, string[] exhibitions,TicketStatus status,OTAType otaType = OTAType.Normal);
+        Task<List<Core.Entity.Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<long> order, long[] uid, string[] exhibitions,TicketStatus status,OTAType otaType = OTAType.Normal);
         /// <summary>
         /// 匿名购买
         /// </summary>

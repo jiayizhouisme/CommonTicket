@@ -13,6 +13,6 @@ namespace 通用订票.Application.System.Services.IService
     {
         public Task<UserInfo> GetUserInfoByID(int id);
 
-        public Task<IQueryable<UserInfo>> GetUserInfoByUser();
+        public Task<ICollection<UserInfo>> GetUserInfoByUser();
     }
 }

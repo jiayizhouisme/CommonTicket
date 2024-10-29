@@ -79,21 +79,29 @@ namespace 通用订票.Application.System.ServiceBases.Service
             return order;
         }
 
-        public virtual async Task<T> CreateOrder(string objectId, string name,decimal amount,OrderStatus status, string extraInfo = null)
+        public virtual async Task<T> CreateOrder(string objectId, string name,decimal amount,string extraInfo = null)
         {
-            try
+            OrderStatus os = OrderStatus.未付款;
+            if (amount == 0)
             {
-                var order = await TakeOrder(amount, status,extraInfo);
-                order.objectId = objectId;
-                order.createTime = DateTime.Now;
-                order.name = name;
-                order.extraInfo = extraInfo;
-                return order;
+                os = OrderStatus.已付款;
             }
-            catch
-            {
-                throw;
-            }
+            var order = await TakeOrder(amount, os, extraInfo);
+            order.objectId = objectId;
+            order.createTime = DateTime.Now;
+            order.name = name;
+            order.extraInfo = extraInfo;
+            return order;
+        }
+
+        public async Task<T> CreateOrder(string objectId, string name, decimal amount, OrderStatus os, string extraInfo = null)
+        {
+            var order = await TakeOrder(amount, os, extraInfo);
+            order.objectId = objectId;
+            order.createTime = DateTime.Now;
+            order.name = name;
+            order.extraInfo = extraInfo;
+            return order;
         }
 
         public virtual async Task<T> PayFinished(T order)

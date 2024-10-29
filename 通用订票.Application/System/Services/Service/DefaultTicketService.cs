@@ -48,7 +48,7 @@ namespace 通用订票.Application.System.Services.Service
             DateTime startTime,
             DateTime endTime, 
             OrderBase<long> order,
-            int[] uids,
+            long[] uids,
             string[] exhibitions,
             TicketStatus status = TicketStatus.未激活,
             OTAType otaType = OTAType.Normal)

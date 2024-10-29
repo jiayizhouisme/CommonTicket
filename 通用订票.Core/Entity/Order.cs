@@ -29,7 +29,7 @@ namespace 通用订票.Core.Entity
     public class OrderInfo
     {
         public string appid { get; set; }
-        public int[] ids { get; set; }
+        public long[] ids { get; set; }
     }
 }
 

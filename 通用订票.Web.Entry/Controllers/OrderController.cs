@@ -12,7 +12,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProtoBuf.Meta;
+using SqlSugar;
 using StackExchange.Redis;
+using System.Linq.Expressions;
 using System.Net.Sockets;
 using System.Transactions;
 using 通用订票.Application.System.Factory.Service;
@@ -20,12 +22,14 @@ using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Application.System.Services.Service;
 using 通用订票.Core.Entity;
+using 通用订票.Core.Entity.Specification;
 using 通用订票.EventBus.Entity;
 using 通用订票.EventBus.EventEntity;
 using 通用订票.JobTask;
 using 通用订票.Procedure.Entity;
 using 通用订票.Procedure.Entity.QueueEntity;
 using 通用订票Order.Entity;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace 通用订票.Web.Entry.Controllers
@@ -98,46 +102,37 @@ namespace 通用订票.Web.Entry.Controllers
             string lockierid = httpContextUser.ID;
 
             myOrderService.SetUserContext(userid);
-            //var _lock = await myOrderService.PreOrder(oc.appid);
-            //if (_lock == false)
-            //{
-            //    return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
-            //}
+            userinfoService.SetUserContext(userid);
+
+            var _lock = await myOrderService.PreOrder(oc.appid);
+            if (_lock == false)
+            {
+                return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
+            }
+
+            var userinfos = await userinfoService.GetUserInfoByUser();
             oc.ids = oc.ids.Distinct().ToArray();
             foreach (var item in oc.ids)
             {
-                string key = "UserInfo:" + item + "_User:" + userid.ToString();
-                var cacheRet = await _cache.Get<string>(key);
-                if (cacheRet != null && cacheRet == "0")
+                UserInfoOwnByUserExistSpecification uis = new UserInfoOwnByUserExistSpecification(item, userid);
+                var query = await userinfoService.Exist(uis.ToExpression());
+                if (query == false)
                 {
                     await myOrderService.OrderFail(oc.appid);
                     return new { code = 0, message = "所选择的用户不存在" };
                 }
-                else
-                {
-                    var query = await userinfoService.Exist(a => a.id == item && a.userID == userid);
-                    if (query == false)
-                    {
-                        await _cache.Set(key, "0", 30);
-                        await myOrderService.OrderFail(oc.appid);
-                        return new { code = 0, message = "所选择的用户不存在" };
-                    }
-                }
             }
+            
+            
+            
 
             var saleRet = await stockService.SaleStock(oc.appid, oc.ids.Count);
             if (saleRet == false)
             {
+                await myOrderService.OrderFail(oc.appid);
                 return new { status = 1, message = "库存不足" };
             }
 
-            //ticketService.SetUserContext(userid);
-            //var vaild = await ticketService.Vaild(oc.ids.ToArray(), stock);
-            //if (vaild == false)
-            //{
-            //    await myOrderService.OrderFail(oc.appid);
-            //    return new { status = 1,message = "用户重复" };
-            //}
             var stock = await stockService.checkStock(oc.appid);
             try
             {
@@ -155,21 +150,14 @@ namespace 通用订票.Web.Entry.Controllers
                 }
 
                 string extraInfo = jsonSerializerProvider.Serialize(new OrderInfo { appid = oc.appid, ids = oc.ids.ToArray() });
-                通用订票.Core.Entity.Order order = null;
-                if (exhibition.basicPrice > 0)
-                {
-                    order = await myOrderService.CreateOrder(stock.id, stock.stockName,
-                        exhibition.basicPrice * oc.ids.Count,
-                        OrderStatus.未付款, extraInfo);
-                }
-                else
-                {
-                    order = await myOrderService.CreateOrder(stock.id,
-                        stock.stockName,
-                        exhibition.basicPrice * oc.ids.Count,
-                        OrderStatus.已付款,
-                        extraInfo);
-                }
+
+                var order = await myOrderService.CreateOrder(
+                    stock.id,
+                    stock.stockName,
+                    exhibition.basicPrice * oc.ids.Count,
+                    extraInfo);
+
+                await myOrderService.AfterOrdered(oc.appid);
 
                 var CreateOrder = new OrderCreateQueueEntity(new OrderCreate()
                 {
@@ -186,6 +174,7 @@ namespace 通用订票.Web.Entry.Controllers
             }
             catch(Exception e)
             {
+                await myOrderService.OrderFail(oc.appid);
                 await stockService.SaleStock(stock.id, -oc.ids.Count);
                 throw e;
             }
@@ -264,6 +253,7 @@ namespace 通用订票.Web.Entry.Controllers
         public async Task<string> RefundOrder(long trade_no)
         {
             var userid = httpContextUser.ID;
+
             string lockid = Guid.NewGuid().ToString();
 
             await _cache.Lock("OrderLocker_" + trade_no, lockid);
@@ -379,7 +369,11 @@ namespace 通用订票.Web.Entry.Controllers
                 var o = await myOrderService.CancelOrder(order);
 
                 var onOrderClosed = new OnOrderClosed()
-                { order = order, tenantId = httpContextUser.TenantId, userId = long.Parse(httpContextUser.ID )};          
+                { 
+                    order = order, 
+                    tenantId = httpContextUser.TenantId,
+                    userId = long.Parse(httpContextUser.ID 
+                    )};          
                 await eventPublisher.PublishAsync(new OnOrderClosedEvent(onOrderClosed));
             }
             catch(Exception e)

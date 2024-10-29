@@ -4,6 +4,7 @@ using Furion.DynamicApiController;
 using Microsoft.AspNetCore.Mvc;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
+using 通用订票.Core.Entity.Specification;
 
 namespace 通用订票.Web.Entry.Controllers
 {
@@ -23,14 +24,13 @@ namespace 通用订票.Web.Entry.Controllers
         public async Task<IEnumerable<object>> Get()
         {
             this.userService.SetUserContext(long.Parse(httpContextUser.ID));
-            return (await this.userService.GetUserInfoByUser()).Select(a => new { a.id,a.name,a.idCard,a.phoneNumber}).ToPagedList(1,5).Items;
+            return await this.userService.GetUserInfoByUser();
         }
 
         [NonUnify]
         [HttpPost(Name = "Add")]
         public async Task<UserInfo> Add([FromBody]UserInfo userinfo)
         {
-            this.userService.SetUserContext(long.Parse(httpContextUser.ID));
             return await this.userService.Add(userinfo);
         }
     }

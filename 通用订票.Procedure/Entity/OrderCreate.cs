@@ -9,7 +9,7 @@ namespace 通用订票.Procedure.Entity
         public string appid { get; set; }
         [Required,MinLength(1, ErrorMessage = "需要选择至少1人"),MaxLength(5,ErrorMessage = "人数不可大于5人")]
         [Display(Name = "选择的人")]
-        public ICollection<int> ids { get; set; }
+        public ICollection<long> ids { get; set; }
     }
 
 
