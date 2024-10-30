@@ -99,7 +99,6 @@ namespace 通用订票.Web.Entry.Controllers
         public async Task<object> CreateOrder([FromBody]BaseOrderCreate oc)
         {
             var userid = long.Parse(httpContextUser.ID);
-            string lockierid = httpContextUser.ID;
 
             myOrderService.SetUserContext(userid);
             userinfoService.SetUserContext(userid);
@@ -110,7 +109,14 @@ namespace 通用订票.Web.Entry.Controllers
                 return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
             }
 
-            var userinfos = await userinfoService.GetUserInfoByUser();
+            UserOrdersCollectionSpecification us = new UserOrdersCollectionSpecification(userid, oc.appid);
+            int orderCount = await myOrderService.GetQueryableNt(us.ToExpression()).CountAsync();
+            if (orderCount >= 5)
+            {
+                await myOrderService.OrderFail(oc.appid);
+                return new { code = 0, message = "购票数量达到上线" };
+            }
+
             oc.ids = oc.ids.Distinct().ToArray();
             foreach (var item in oc.ids)
             {
@@ -123,9 +129,6 @@ namespace 通用订票.Web.Entry.Controllers
                 }
             }
             
-            
-            
-
             var saleRet = await stockService.SaleStock(oc.appid, oc.ids.Count);
             if (saleRet == false)
             {
@@ -185,7 +188,6 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpGet(Name = "PayOrder")]
         public async Task<string> PayOrder(long trade_no)
         {
-            var userid = httpContextUser.ID;
             string lockid = Guid.NewGuid().ToString();
 
             await _cache.Lock("OrderLocker_" + trade_no, lockid);
@@ -252,8 +254,6 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpGet(Name = "RefundOrder")]
         public async Task<string> RefundOrder(long trade_no)
         {
-            var userid = httpContextUser.ID;
-
             string lockid = Guid.NewGuid().ToString();
 
             await _cache.Lock("OrderLocker_" + trade_no, lockid);
@@ -353,7 +353,7 @@ namespace 通用订票.Web.Entry.Controllers
         public async Task<dynamic> CloseOrder(long trade_no)
         {
             string lockerId = Guid.NewGuid().ToString();
-            var lo = await _cache.Lock("OrderLocker_" + trade_no, lockerId);
+            await _cache.Lock("OrderLocker_" + trade_no, lockerId);
             var order = await myOrderService.GetOrderById(trade_no);
             try
             {

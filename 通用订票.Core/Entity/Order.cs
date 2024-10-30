@@ -15,6 +15,7 @@ namespace 通用订票.Core.Entity
         public void Configure(EntityTypeBuilder<Order> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
             entityBuilder.HasKey(a => a.trade_no);
+            entityBuilder.HasIndex(a => a.userId);
 
         }
         public OrderInfo GetExtraInfo() {

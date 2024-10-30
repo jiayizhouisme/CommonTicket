@@ -31,6 +31,11 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpPost(Name = "Add")]
         public async Task<UserInfo> Add([FromBody]UserInfo userinfo)
         {
+            int count = userService.GetQueryableNt(a => a.userID == long.Parse(httpContextUser.ID)).Count();
+            if (count >= 5)
+            {
+                return null;
+            }
             return await this.userService.Add(userinfo);
         }
     }

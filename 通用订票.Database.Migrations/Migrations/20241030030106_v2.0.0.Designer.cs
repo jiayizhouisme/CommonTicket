@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace 通用订票.Database.Migrations.Migrations
 {
     [DbContext(typeof(MasterDbContext_SQL))]
-    [Migration("20240910060359_v1.0.1")]
-    partial class v101
+    [Migration("20241030030106_v2.0.0")]
+    partial class v200
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -174,11 +174,11 @@ namespace 通用订票.Database.Migrations.Migrations
 
             modelBuilder.Entity("通用订票.Core.Entity.Order", b =>
                 {
-                    b.Property<long>("trade_no")
+                    b.Property<long>("userId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("trade_no"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("userId"));
 
                     b.Property<decimal>("amount")
                         .HasColumnType("decimal(18,2)");
@@ -203,10 +203,10 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<int>("status")
                         .HasColumnType("int");
 
-                    b.Property<long>("userId")
+                    b.Property<long>("trade_no")
                         .HasColumnType("bigint");
 
-                    b.HasKey("trade_no");
+                    b.HasKey("userId");
 
                     b.ToTable("Order");
                 });
@@ -222,8 +222,8 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<string>("AppointmentId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TUserId")
-                        .HasColumnType("int");
+                    b.Property<long>("TUserId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("cancelCount")
                         .HasColumnType("int");
@@ -337,11 +337,11 @@ namespace 通用订票.Database.Migrations.Migrations
 
             modelBuilder.Entity("通用订票.Core.Entity.WechatBill", b =>
                 {
-                    b.Property<long>("tradeNo")
+                    b.Property<long>("paymentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("tradeNo"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("paymentId"));
 
                     b.Property<string>("Attach")
                         .HasColumnType("nvarchar(max)");
@@ -371,12 +371,14 @@ namespace 通用订票.Database.Migrations.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("sourceId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<int>("status")
                         .HasColumnType("int");
+
+                    b.Property<long>("tradeNo")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("transactionId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("type")
                         .HasColumnType("int");
@@ -384,10 +386,12 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<DateTime?>("updateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("userId")
-                        .HasColumnType("int");
+                    b.Property<long>("userId")
+                        .HasColumnType("bigint");
 
-                    b.HasKey("tradeNo");
+                    b.HasKey("paymentId");
+
+                    b.HasIndex("tradeNo");
 
                     b.ToTable("WechatBill");
                 });
@@ -396,13 +400,11 @@ namespace 通用订票.Database.Migrations.Migrations
                 {
                     b.Property<long>("refundId")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("refundId"));
 
                     b.Property<string>("aftersalesId")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -420,7 +422,6 @@ namespace 通用订票.Database.Migrations.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("sourceId")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 

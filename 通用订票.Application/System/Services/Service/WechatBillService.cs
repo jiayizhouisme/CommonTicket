@@ -104,7 +104,7 @@ namespace 通用订票.Application.System.Services.Service
             return wechatBill;
         }
 
-        public async Task<WechatBill> UpdateStatus(BillPaymentsStatus status, long trade_no, string transactionId = "")
+        public async Task<WechatBill> UpdateStatus(BillPaymentsStatus status, long trade_no, string transactionId = "", string payMsg = "")
         {
             var wechatBill = await this.GetWechatBill(trade_no);
             
@@ -114,6 +114,10 @@ namespace 通用订票.Application.System.Services.Service
                 if (!string.IsNullOrEmpty(transactionId))
                 {
                     wechatBill.transactionId = transactionId;
+                }
+                if (!string.IsNullOrEmpty(payMsg))
+                {
+                    wechatBill.payedMsg = payMsg;
                 }
                 await UpdateNow(wechatBill);
             }

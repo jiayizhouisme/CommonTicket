@@ -34,7 +34,7 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpPost]
         [NonUnify]
         [Route("Unifiedorder")]
-        public async Task<IActionResult> Unifiedorder([FromQuery]long trade_no)
+        public async Task<IActionResult> Unifiedorder()
         {
             try
             {

@@ -46,7 +46,7 @@ namespace 通用订票.Web.Core
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddConsoleFormatter();
-            Array.ForEach(new[] { LogLevel.Error}, logLevel =>
+            Array.ForEach(new[] { LogLevel.Error,LogLevel.Information}, logLevel =>
             {
                 services.AddFileLogging("log/application-{1}-{0:yyyy}-{0:MM}-{0:dd}.log", options =>
                 {

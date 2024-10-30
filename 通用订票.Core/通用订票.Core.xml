@@ -195,6 +195,11 @@
             当前用户是否拥有指定的人员
             </summary>
         </member>
+        <member name="T:通用订票.Core.Entity.Specification.UserOrdersCollectionSpecification">
+            <summary>
+            用户在指定appid下的有效订单(未付款的或者已付款的)
+            </summary>
+        </member>
         <member name="P:通用订票.Core.Entity.Ticket.TUserId">
             <summary>
             购票人选择的用户
