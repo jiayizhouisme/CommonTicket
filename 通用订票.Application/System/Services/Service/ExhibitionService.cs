@@ -29,7 +29,11 @@ namespace 通用订票.Application.System.Services.Service
             }
 
             var result = await GetExhibitionFromDb(id);
-            await SetExhibitionToCache(result);
+            if (result != null)
+            {
+                await SetExhibitionToCache(result);
+            }
+            
             return result;
         }
 

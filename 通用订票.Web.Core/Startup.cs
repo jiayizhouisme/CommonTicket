@@ -81,7 +81,15 @@ namespace 通用订票.Web.Core
 
             if (Configration.UseTenant == true)
             {
-                services.AddTenantService(Configration.tenantConfigType);
+                if (App.HostEnvironment.IsDevelopment() == true)
+                {
+                    services.AddTenantService(TenantConfigTypes.ByDefault);
+                }
+                else
+                {
+                    services.AddTenantService(Configration.tenantConfigType);
+                }
+                
             }
 
             services.AddSingleton<IUniqueCodeGenerater<long>,RedisUniqueCodeGenerator>();
@@ -207,7 +215,7 @@ namespace 通用订票.Web.Core
             app.UseAuthorization();
             
             app.UseInject();
-
+            
             app.UseEndpoints(endpoints =>
             {
                 //endpoints.MapHub<ChatHub>("/hubs/chathub");

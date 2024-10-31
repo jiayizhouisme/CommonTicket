@@ -125,6 +125,10 @@ namespace 通用订票.Web.Entry.Controllers
         public async Task<ICollection<AppointmentEasyModel>> GetAviliableDate([FromQuery] Guid FID)
         {
             var exhibtion = await _exhibitionService.GetExhibitionByID(FID);
+            if (exhibtion == null)
+            {
+                return null;
+            }
             var rule = exhibtion.GetForbiddenRule();
             var dates = await _appointmentService.GetQueryableNt(a => a.objectId == FID)
                 .Select(a => new AppointmentEasyModel { 

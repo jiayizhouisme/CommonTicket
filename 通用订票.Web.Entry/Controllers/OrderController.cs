@@ -110,8 +110,8 @@ namespace 通用订票.Web.Entry.Controllers
             }
 
             UserOrdersCollectionSpecification us = new UserOrdersCollectionSpecification(userid, oc.appid);
-            int orderCount = await myOrderService.GetQueryableNt(us.ToExpression()).CountAsync();
-            if (orderCount >= 5)
+            var orderCount = myOrderService.GetQueryableNt(us.ToExpression()).Select(a => a.userId);
+            if (await orderCount.CountAsync() >= 5)
             {
                 await myOrderService.OrderFail(oc.appid);
                 return new { code = 0, message = "购票数量达到上线" };
