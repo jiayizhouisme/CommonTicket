@@ -12,6 +12,7 @@ namespace 通用订票.Core.Entity.Specification
     /// <summary>
     /// 用户在指定appid下的有效订单(未付款的或者已付款的)
     /// </summary>
+    
     public class UserOrdersCollectionSpecification : Specification<Order>
     {
         private long userId;

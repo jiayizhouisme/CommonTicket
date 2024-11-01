@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace 通用订票.Core.Entity.Specification
 {
     /// <summary>
-    /// 当前用户是否拥有指定的人员
+    /// 当前用户是否拥有指定的游客
     /// </summary>
     public class UserInfoOwnByUserExistSpecification : Specification<UserInfo>
     {
