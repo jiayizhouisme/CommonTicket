@@ -14,6 +14,11 @@ namespace 通用订票.Core.Entity
         public DateTime? createTime { get; set; }
         [Comment("订单项信息")]
         public string extraInfo { get; set; }
+
+        /// <summary>
+        /// 订单过期时间
+        /// </summary>
+        public DateTime expireDate { get; set; }
         public void Configure(EntityTypeBuilder<Order> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
             entityBuilder.HasKey(a => a.trade_no);
