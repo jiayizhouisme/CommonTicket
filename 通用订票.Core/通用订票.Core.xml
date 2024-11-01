@@ -190,6 +190,11 @@
             作业触发器更新时间
             </summary>
         </member>
+        <member name="P:通用订票.Core.Entity.Order.expireDate">
+            <summary>
+            订单过期时间
+            </summary>
+        </member>
         <member name="T:通用订票.Core.Entity.Specification.UserInfoOwnByUserExistSpecification">
             <summary>
             当前用户是否拥有指定的游客

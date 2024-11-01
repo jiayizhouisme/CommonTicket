@@ -23,9 +23,24 @@ namespace 通用订票.Application.System.Services.Service
             return order;
         }
 
-        public override async Task<Core.Entity.Order> CreateOrder(string objectId, string name, decimal amount, string extraInfo = null)
+        public virtual async Task<Core.Entity.Order> CreateOrder(string objectId, string name, int day, decimal amount, string extraInfo = null)
         {
-            var result = await base.CreateOrder(objectId, name, amount,extraInfo);
+            OrderStatus os = OrderStatus.未付款;
+            if (amount == 0)
+            {
+                os = OrderStatus.已付款;
+            }
+            var result = await base.CreateOrder(objectId, name, amount, os,extraInfo);
+            result.expireDate = DateTime.Now.Date.AddDays(day + 1);
+            var r = await this._dal.InsertNowAsync(result);
+            await SetOrderToCache(r.Entity);
+            await AfterOrdered(objectId);
+            return r.Entity;
+        }
+
+        public override async Task<Core.Entity.Order> CreateOrder(string objectId, string name, decimal amount,OrderStatus os, string extraInfo = null)
+        {
+            var result = await base.CreateOrder(objectId, name, amount,os, extraInfo);
             var r = await this._dal.InsertNowAsync(result);
             await SetOrderToCache(r.Entity);
             await AfterOrdered(objectId);

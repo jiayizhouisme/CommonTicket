@@ -162,6 +162,7 @@ namespace 通用订票.Web.Entry.Controllers
                 var order = await myOrderService.CreateOrder(
                     stock.id,
                     stock.stockName,
+                    stock.day,
                     exhibition.basicPrice * oc.ids.Count,
                     extraInfo);
 

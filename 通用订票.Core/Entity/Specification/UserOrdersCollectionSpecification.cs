@@ -24,7 +24,11 @@ namespace 通用订票.Core.Entity.Specification
         }
         public override Expression<Func<Order, bool>> ToExpression()
         {
-            return m => m.userId == userId && m.objectId == appid && (m.status == OrderStatus.未付款 || m.status == OrderStatus.已付款);
+            var now = DateTime.Now;
+            return m => m.userId == userId && 
+            m.objectId == appid && 
+            (m.status == OrderStatus.未付款 || m.status == OrderStatus.已付款) && 
+            now.CompareTo(m.expireDate) <= 0;
         }
     }
 }
