@@ -93,6 +93,11 @@ namespace 通用订票.Web.Entry.Controllers
         }
 
 
+        /// <summary>
+        /// 创建订单
+        /// </summary>
+        /// <param name="oc">订单信息</param>
+        /// <returns></returns>
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpPost(Name = "CreateOrder")]
@@ -183,6 +188,12 @@ namespace 通用订票.Web.Entry.Controllers
             }
         }
 
+        /// <summary>
+        /// 支付订单
+        /// </summary>
+        /// <param name="trade_no">订单编号</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "PayOrder")]
@@ -249,6 +260,12 @@ namespace 通用订票.Web.Entry.Controllers
             return "";   
         }
 
+        /// <summary>
+        /// 订单退款
+        /// </summary>
+        /// <param name="trade_no">订单编号</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "RefundOrder")]
@@ -314,6 +331,12 @@ namespace 通用订票.Web.Entry.Controllers
             
         }
 
+        /// <summary>
+        /// 通知后台订单已支付
+        /// </summary>
+        /// <param name="trade_no">订单编号</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "PaidOrder")]
@@ -347,6 +370,12 @@ namespace 通用订票.Web.Entry.Controllers
             return order;
         }
 
+        /// <summary>
+        /// 关闭订单
+        /// </summary>
+        /// <param name="trade_no">订单编号</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "CloseOrder")]
@@ -389,6 +418,13 @@ namespace 通用订票.Web.Entry.Controllers
             return "关闭成功";
         }
 
+        /// <summary>
+        /// 验票
+        /// </summary>
+        /// <param name="ticket_number">票号</param>
+        /// <param name="count">核销数量</param>
+        /// <param name="exhibition">景区id</param>
+        /// <returns></returns>
         [HttpGet(Name = "CheckTicket")]
         [NonUnify]
         public async Task<TicketVerifyResult> CheckTicket([FromQuery] string ticket_number, [FromQuery] int count = 1, [FromQuery] string exhibition = null)

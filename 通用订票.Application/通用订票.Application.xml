@@ -4,6 +4,31 @@
         <name>通用订票.Application</name>
     </assembly>
     <members>
+        <member name="P:通用订票.Application.System.Models.AppointmentAdd.exhibitionID">
+            <summary>
+            展馆id
+            </summary>
+        </member>
+        <member name="P:通用订票.Application.System.Models.AppointmentAdd.dayStart">
+            <summary>
+            从今天算起，第几天开始
+            </summary>
+        </member>
+        <member name="P:通用订票.Application.System.Models.AppointmentAdd.totalDay">
+            <summary>
+            总天数
+            </summary>
+        </member>
+        <member name="P:通用订票.Application.System.Models.AppointmentAdd.timeStart">
+            <summary>
+            开始时间段比如1:00-2:00
+            </summary>
+        </member>
+        <member name="P:通用订票.Application.System.Models.AppointmentAdd.timeEnd">
+            <summary>
+            结束时间段
+            </summary>
+        </member>
         <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`2.DisableTicket(`0)">
             <summary>
             订单冻结

@@ -30,6 +30,12 @@ namespace 通用订票.Web.Entry.Controllers
             this._appointmentService = factory.GetStockService(_stockProvider);
         }
 
+        /// <summary>
+        /// 添加时间段
+        /// </summary>
+        /// <param name="appointment">时间段模型</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         [HttpPost]
         [HttpPost(Name = "AddAppointments")]
         public async Task AddAppointments(AppointmentAdd appointment)
@@ -55,6 +61,13 @@ namespace 通用订票.Web.Entry.Controllers
             }
         }
 
+        /// <summary>
+        /// 获取时间段列表
+        /// </summary>
+        /// <param name="exhibitionID">景区id</param>
+        /// <param name="pageIndex">分页</param>
+        /// <param name="pageSize">分页</param>
+        /// <returns></returns>
         [TypeFilter(typeof(CacheFilter))]
         [NonUnify]
         [HttpGet(Name = "GetAppointmentsList")]
@@ -80,6 +93,12 @@ namespace 通用订票.Web.Entry.Controllers
             return pl;
         }
 
+        /// <summary>
+        /// 根据day获取往后day个天可预约时间段
+        /// </summary>
+        /// <param name="FID">景区id</param>
+        /// <param name="day">要获取多少天，传入3表示获取今天往后3天的时间段</param>
+        /// <returns></returns>
         [TypeFilter(typeof(CacheFilter))]
         [HttpGet(Name = "Get")]
         [NonUnify]
@@ -102,6 +121,14 @@ namespace 通用订票.Web.Entry.Controllers
             return result;
         }
 
+        /// <summary>
+        /// 根据日期获取那一天可用时间段
+        /// </summary>
+        /// <param name="FID">景区id</param>
+        /// <param name="date">日期</param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
         [TypeFilter(typeof(CacheFilter))]
         [NonUnify]
         [HttpGet(Name = "GetAppointmentByDate")]
@@ -119,6 +146,11 @@ namespace 通用订票.Web.Entry.Controllers
                 .ToPagedListAsync(pageIndex,pageSize);
         }
 
+        /// <summary>
+        /// 获取景区所有可用的日期
+        /// </summary>
+        /// <param name="FID">景区ID</param>
+        /// <returns></returns>
         [HttpGet("GetAviliableDate")]
         [NonUnify]
         [TypeFilter(typeof(CacheFilter))]

@@ -16,6 +16,9 @@ using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
 namespace 通用订票.Web.Entry.Controllers
 {
+    /// <summary>
+    /// 登陆控制器
+    /// </summary>
     public class LoginController : IDynamicApiController
     {
         private readonly IUserService userService;
@@ -28,6 +31,11 @@ namespace 通用订票.Web.Entry.Controllers
             this.tenantGetSetor = tenantGetSetor;
         }
 
+        /// <summary>
+        /// 后台管理员密码登录
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         [HttpPost(Name = "Login")]
         public async Task<IActionResult> Login([FromBody]Login_Web user)
         {
@@ -49,6 +57,11 @@ namespace 通用订票.Web.Entry.Controllers
             return new OkResult();
         }
 
+        /// <summary>
+        /// 用户微信登录
+        /// </summary>
+        /// <param name="openid"></param>
+        /// <returns></returns>
         [HttpGet(Name = "WechatLogin")]
         public async Task<IActionResult> WechatLogin([FromQuery] string openid)
         {

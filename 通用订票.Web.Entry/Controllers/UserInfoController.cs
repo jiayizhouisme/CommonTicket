@@ -8,6 +8,9 @@ using 通用订票.Core.Entity.Specification;
 
 namespace 通用订票.Web.Entry.Controllers
 {
+    /// <summary>
+    /// 游客信息控制器
+    /// </summary>
     public class UserInfoController : IDynamicApiController
     {
         private readonly IUserInfoService userService;
@@ -19,6 +22,10 @@ namespace 通用订票.Web.Entry.Controllers
             this.httpContextUser = httpContextUser;
         }
 
+        /// <summary>
+        /// 获取游客信息
+        /// </summary>
+        /// <returns></returns>
         [NonUnify]
         [HttpGet(Name = "Get")]
         public async Task<IEnumerable<object>> Get()
@@ -27,6 +34,11 @@ namespace 通用订票.Web.Entry.Controllers
             return await this.userService.GetUserInfoByUser();
         }
 
+        /// <summary>
+        /// 添加游客
+        /// </summary>
+        /// <param name="userinfo"></param>
+        /// <returns></returns>
         [NonUnify]
         [HttpPost(Name = "Add")]
         public async Task<UserInfo> Add([FromBody]UserInfo userinfo)
