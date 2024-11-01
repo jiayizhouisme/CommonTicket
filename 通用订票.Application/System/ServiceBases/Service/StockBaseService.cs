@@ -42,10 +42,6 @@ namespace 通用订票.Application.System.ServiceBases.Service
                     
                 }
             }
-            catch (Exception e)
-            {
-
-            }
             finally
             {
                 await _cache.ReleaseLock("StockUpdateLocker" + stockId.ToString(), lockUUid);

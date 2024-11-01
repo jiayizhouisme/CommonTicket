@@ -192,7 +192,7 @@
         </member>
         <member name="T:通用订票.Core.Entity.Specification.UserInfoOwnByUserExistSpecification">
             <summary>
-            当前用户是否拥有指定的人员
+            当前用户是否拥有指定的游客
             </summary>
         </member>
         <member name="T:通用订票.Core.Entity.Specification.UserOrdersCollectionSpecification">
