@@ -30,7 +30,6 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace 通用订票.Web.Entry.Controllers
 {
-    [AllowAnonymous]
     public class HomeController : Controller
     {
         public async Task<IActionResult> Index()
