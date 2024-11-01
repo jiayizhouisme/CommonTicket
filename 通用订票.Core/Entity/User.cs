@@ -7,13 +7,16 @@ using System.Collections.Generic;
 
 namespace 通用订票.Core.Entity
 {
+    [Comment("用户信息")]
     public class User : UserBase,IEntity<MasterDbContextLocator>, IEntitySeedData<User>
     {
         public long id { get; set; }
-
+        [Comment("用户权限等级")]
         public Permissions authLevel { get; set; }
         public bool isDeleted { get; set; }
+        [Comment("创建时间")]
         public DateTime CreateTime { get; set; }
+        [Comment("微信openid")]
         public string openId { get; set; }
         public IEnumerable<User> HasData(DbContext dbContext, Type dbContextLocator)
         {

@@ -10,7 +10,9 @@ namespace 通用订票.Core.Entity
 {
     public class Order : OrderBase<long>,IEntity, IEntityTypeBuilder<Order>
     {
+        [Comment("创建时间")]
         public DateTime? createTime { get; set; }
+        [Comment("订单项信息")]
         public string extraInfo { get; set; }
         public void Configure(EntityTypeBuilder<Order> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
