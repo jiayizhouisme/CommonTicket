@@ -34,47 +34,51 @@
             textBox = new TextBox();
             Search = new Button();
             dataGridView1 = new DataGridView();
-            Column1 = new DataGridViewButtonColumn();
-            Column5 = new DataGridViewTextBoxColumn();
-            Column3 = new DataGridViewTextBoxColumn();
-            Column4 = new DataGridViewTextBoxColumn();
-            Column2 = new DataGridViewTextBoxColumn();
+            姓名 = new DataGridViewTextBoxColumn();
+            身份证 = new DataGridViewTextBoxColumn();
+            电话 = new DataGridViewTextBoxColumn();
+            开始时间 = new DataGridViewTextBoxColumn();
+            结束时间 = new DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
             // Type
             // 
             Type.FormattingEnabled = true;
-            Type.Location = new Point(19, 26);
+            Type.Location = new Point(15, 22);
+            Type.Margin = new Padding(2, 3, 2, 3);
             Type.Name = "Type";
-            Type.Size = new Size(139, 28);
+            Type.Size = new Size(109, 25);
             Type.TabIndex = 0;
             Type.Text = "请选择类型";
             Type.SelectedIndexChanged += Type_SelectedIndexChanged;
             // 
             // dateTimePicker
             // 
-            dateTimePicker.Location = new Point(179, 27);
+            dateTimePicker.Location = new Point(139, 23);
+            dateTimePicker.Margin = new Padding(2, 3, 2, 3);
             dateTimePicker.Name = "dateTimePicker";
-            dateTimePicker.Size = new Size(173, 27);
+            dateTimePicker.Size = new Size(135, 23);
             dateTimePicker.TabIndex = 1;
             dateTimePicker.ValueChanged += dateTimePicker_ValueChanged;
             // 
             // State
             // 
             State.FormattingEnabled = true;
-            State.Location = new Point(376, 27);
+            State.Location = new Point(292, 23);
+            State.Margin = new Padding(2, 3, 2, 3);
             State.Name = "State";
-            State.Size = new Size(151, 28);
+            State.Size = new Size(118, 25);
             State.TabIndex = 2;
             State.Text = "请选择门票状态";
             State.SelectedIndexChanged += State_SelectedIndexChanged;
             // 
             // textBox
             // 
-            textBox.Location = new Point(547, 29);
+            textBox.Location = new Point(425, 25);
+            textBox.Margin = new Padding(2, 3, 2, 3);
             textBox.Name = "textBox";
-            textBox.Size = new Size(125, 27);
+            textBox.Size = new Size(98, 23);
             textBox.TabIndex = 3;
             textBox.Text = "请输入姓名";
             textBox.TextChanged += textBox_TextChanged;
@@ -82,9 +86,10 @@
             // Search
             // 
             Search.BackColor = SystemColors.ActiveCaption;
-            Search.Location = new Point(678, 29);
+            Search.Location = new Point(527, 25);
+            Search.Margin = new Padding(2, 3, 2, 3);
             Search.Name = "Search";
-            Search.Size = new Size(94, 29);
+            Search.Size = new Size(73, 25);
             Search.TabIndex = 4;
             Search.Text = "搜索";
             Search.UseVisualStyleBackColor = false;
@@ -93,61 +98,62 @@
             // dataGridView1
             // 
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Column1, Column5, Column3, Column4, Column2 });
-            dataGridView1.Location = new Point(35, 80);
+            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { 姓名, 身份证, 电话, 开始时间, 结束时间 });
+            dataGridView1.Location = new Point(15, 73);
+            dataGridView1.Margin = new Padding(2, 3, 2, 3);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersWidth = 51;
-            dataGridView1.Size = new Size(663, 337);
+            dataGridView1.Size = new Size(679, 311);
             dataGridView1.TabIndex = 5;
             // 
-            // Column1
+            // 姓名
             // 
-            Column1.HeaderText = "Column1";
-            Column1.MinimumWidth = 6;
-            Column1.Name = "Column1";
-            Column1.Resizable = DataGridViewTriState.True;
-            Column1.SortMode = DataGridViewColumnSortMode.Automatic;
-            Column1.Width = 125;
+            姓名.HeaderText = "姓名";
+            姓名.MinimumWidth = 6;
+            姓名.Name = "姓名";
+            姓名.Resizable = DataGridViewTriState.True;
+            姓名.Width = 125;
             // 
-            // Column5
+            // 身份证
             // 
-            Column5.HeaderText = "Column5";
-            Column5.MinimumWidth = 6;
-            Column5.Name = "Column5";
-            Column5.Width = 125;
+            身份证.HeaderText = "身份证";
+            身份证.MinimumWidth = 6;
+            身份证.Name = "身份证";
+            身份证.Width = 125;
             // 
-            // Column3
+            // 电话
             // 
-            Column3.HeaderText = "Column3";
-            Column3.MinimumWidth = 6;
-            Column3.Name = "Column3";
-            Column3.Width = 125;
+            电话.HeaderText = "电话";
+            电话.MinimumWidth = 6;
+            电话.Name = "电话";
+            电话.Width = 125;
             // 
-            // Column4
+            // 开始时间
             // 
-            Column4.HeaderText = "Column4";
-            Column4.MinimumWidth = 6;
-            Column4.Name = "Column4";
-            Column4.Width = 125;
+            开始时间.HeaderText = "开始时间";
+            开始时间.MinimumWidth = 6;
+            开始时间.Name = "开始时间";
+            开始时间.Width = 125;
             // 
-            // Column2
+            // 结束时间
             // 
-            Column2.HeaderText = "Column2";
-            Column2.MinimumWidth = 6;
-            Column2.Name = "Column2";
-            Column2.Width = 125;
+            结束时间.HeaderText = "结束时间";
+            结束时间.MinimumWidth = 6;
+            结束时间.Name = "结束时间";
+            结束时间.Width = 125;
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(9F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(710, 396);
             Controls.Add(dataGridView1);
             Controls.Add(Search);
             Controls.Add(textBox);
             Controls.Add(State);
             Controls.Add(dateTimePicker);
             Controls.Add(Type);
+            Margin = new Padding(2, 3, 2, 3);
             Name = "Form1";
             Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
@@ -163,10 +169,10 @@
         private TextBox textBox;
         private Button Search;
         private DataGridView dataGridView1;
-        private DataGridViewButtonColumn Column1;
-        private DataGridViewTextBoxColumn Column5;
-        private DataGridViewTextBoxColumn Column3;
-        private DataGridViewTextBoxColumn Column4;
-        private DataGridViewTextBoxColumn Column2;
+        private DataGridViewTextBoxColumn 姓名;
+        private DataGridViewTextBoxColumn 身份证;
+        private DataGridViewTextBoxColumn 电话;
+        private DataGridViewTextBoxColumn 开始时间;
+        private DataGridViewTextBoxColumn 结束时间;
     }
 }
