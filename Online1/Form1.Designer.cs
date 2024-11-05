@@ -45,40 +45,40 @@
             // Type
             // 
             Type.FormattingEnabled = true;
-            Type.Location = new Point(15, 22);
-            Type.Margin = new Padding(2, 3, 2, 3);
+            Type.Location = new Point(19, 26);
+            Type.Margin = new Padding(3, 4, 3, 4);
             Type.Name = "Type";
-            Type.Size = new Size(109, 25);
+            Type.Size = new Size(139, 28);
             Type.TabIndex = 0;
             Type.Text = "请选择类型";
             Type.SelectedIndexChanged += Type_SelectedIndexChanged;
             // 
             // dateTimePicker
             // 
-            dateTimePicker.Location = new Point(139, 23);
-            dateTimePicker.Margin = new Padding(2, 3, 2, 3);
+            dateTimePicker.Location = new Point(179, 27);
+            dateTimePicker.Margin = new Padding(3, 4, 3, 4);
             dateTimePicker.Name = "dateTimePicker";
-            dateTimePicker.Size = new Size(135, 23);
+            dateTimePicker.Size = new Size(172, 27);
             dateTimePicker.TabIndex = 1;
             dateTimePicker.ValueChanged += dateTimePicker_ValueChanged;
             // 
             // State
             // 
             State.FormattingEnabled = true;
-            State.Location = new Point(292, 23);
-            State.Margin = new Padding(2, 3, 2, 3);
+            State.Location = new Point(375, 27);
+            State.Margin = new Padding(3, 4, 3, 4);
             State.Name = "State";
-            State.Size = new Size(118, 25);
+            State.Size = new Size(151, 28);
             State.TabIndex = 2;
             State.Text = "请选择门票状态";
             State.SelectedIndexChanged += State_SelectedIndexChanged;
             // 
             // textBox
             // 
-            textBox.Location = new Point(425, 25);
-            textBox.Margin = new Padding(2, 3, 2, 3);
+            textBox.Location = new Point(546, 29);
+            textBox.Margin = new Padding(3, 4, 3, 4);
             textBox.Name = "textBox";
-            textBox.Size = new Size(98, 23);
+            textBox.Size = new Size(125, 27);
             textBox.TabIndex = 3;
             textBox.Text = "请输入姓名";
             textBox.TextChanged += textBox_TextChanged;
@@ -86,10 +86,10 @@
             // Search
             // 
             Search.BackColor = SystemColors.ActiveCaption;
-            Search.Location = new Point(527, 25);
-            Search.Margin = new Padding(2, 3, 2, 3);
+            Search.Location = new Point(678, 29);
+            Search.Margin = new Padding(3, 4, 3, 4);
             Search.Name = "Search";
-            Search.Size = new Size(73, 25);
+            Search.Size = new Size(94, 29);
             Search.TabIndex = 4;
             Search.Text = "搜索";
             Search.UseVisualStyleBackColor = false;
@@ -99,11 +99,11 @@
             // 
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridView1.Columns.AddRange(new DataGridViewColumn[] { 姓名, 身份证, 电话, 开始时间, 结束时间 });
-            dataGridView1.Location = new Point(15, 73);
-            dataGridView1.Margin = new Padding(2, 3, 2, 3);
+            dataGridView1.Location = new Point(19, 86);
+            dataGridView1.Margin = new Padding(3, 4, 3, 4);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersWidth = 51;
-            dataGridView1.Size = new Size(679, 311);
+            dataGridView1.Size = new Size(873, 366);
             dataGridView1.TabIndex = 5;
             // 
             // 姓名
@@ -144,18 +144,19 @@
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(7F, 17F);
+            AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(710, 396);
+            ClientSize = new Size(913, 466);
             Controls.Add(dataGridView1);
             Controls.Add(Search);
             Controls.Add(textBox);
             Controls.Add(State);
             Controls.Add(dateTimePicker);
             Controls.Add(Type);
-            Margin = new Padding(2, 3, 2, 3);
+            Margin = new Padding(3, 4, 3, 4);
             Name = "Form1";
             Text = "Form1";
+            Load += Type_SelectedIndexChanged;
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
             PerformLayout();

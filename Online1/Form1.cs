@@ -1,18 +1,28 @@
+using Microsoft.Data.SqlClient;
 using System;
 using System.Data;
+using System.Drawing.Text;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.InteropServices;
+using System.Security.AccessControl;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Online1
 {
     public partial class Form1 : Form
     {
+        private SqlConnection connection;
+        private string connectionString = "Data Source=.;Initial Catalog=MyBBSDb;user id=sa;password=Aa123456;TrustServerCertificate=true;Max Pool Size=64";
         public Form1()
         {
+            //封装方法
             InitializeComponent();
+            connection = new SqlConnection(connectionString);//创建数据库连接
+        
 
-            DataGridViewRow row = new DataGridViewRow(); 
+            DataGridViewRow row = new DataGridViewRow();
             int j = dataGridView1.Rows.Add(row);//添加新的一行
-            dataGridView1.Rows[j].Cells[0].Value = "赵谦孙俪";//姓名
+            dataGridView1.Rows[j].Cells[0].Value="赵谦孙俪";//姓名
             dataGridView1.Rows[j].Cells[1].Value = "18252111111"; //手机 
             dataGridView1.Rows[j].Cells[2].Style.Font = new Font(dataGridView1.Font, FontStyle.Bold);//设置字体加粗
 
@@ -21,22 +31,22 @@ namespace Online1
             dataGridView1.Rows[j].Cells[0].Value = "周武正王";
             dataGridView1.Rows[j].Cells[1].Value = "18252111112";
             dataGridView1.Rows[j].Cells[2].Style.Font = new Font(dataGridView1.Font, FontStyle.Bold);//设置字体加粗
+        }    
+       
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Type.Items.Add("马家荡景区门票");
+            Type.Items.Add("穆沟古村景区门票");
+            Type.SelectedIndex = 0;
         }
-
         private void Type_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //获取所有的表名
-            tables = Sql("SELECT TABLE_NAME FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'");
-            //增加门票
-            DataRow dr = Type.NewRow();
-            dr["TABLE_NAME"] = "马家荡景区门票";
-            tables.Rows.InsertAt(dr, 0);
-            //绑定下拉菜单
-            cbxTables.DataSource = tables;
-            cbxTables.DisplayMember = "TABLE_NAME";
-            cbxTables.ValueMember = "TABLE_NAME";
-        }
+            string selectedOption = Type.SelectedItem.ToString();
+          
+            MessageBox.Show("" + selectedOption);
+            }
 
+    
         private void dateTimePicker_ValueChanged(object sender, EventArgs e)
         {
             string selectedDateTime = dateTimePicker.Value.ToString("year-month-day ");
