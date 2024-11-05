@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Reflection.Metadata.Ecma335;
 
 namespace Online1
@@ -13,7 +14,16 @@ namespace Online1
 
         private void Type_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            //获取所有的表名
+            tables = Sql("SELECT TABLE_NAME FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'");
+            //增加门票
+            DataRow dr = Type.NewRow();
+            dr["TABLE_NAME"] = "马家荡景区门票";
+            tables.Rows.InsertAt(dr, 0);
+            //绑定下拉菜单
+            cbxTables.DataSource = tables;
+            cbxTables.DisplayMember = "TABLE_NAME";
+            cbxTables.ValueMember = "TABLE_NAME";
         }
 
         private void dateTimePicker_ValueChanged(object sender, EventArgs e)
@@ -40,10 +50,7 @@ namespace Online1
 
         }
 
-        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
+       
     }
 }
 
