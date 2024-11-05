@@ -9,6 +9,17 @@ namespace Online1
         {
             InitializeComponent();
 
+            DataGridViewRow row = new DataGridViewRow(); 
+            int j = dataGridView1.Rows.Add(row);//添加新的一行
+            dataGridView1.Rows[j].Cells[0].Value = "赵谦孙俪";//姓名
+            dataGridView1.Rows[j].Cells[1].Value = "18252111111"; //手机 
+            dataGridView1.Rows[j].Cells[2].Style.Font = new Font(dataGridView1.Font, FontStyle.Bold);//设置字体加粗
+
+            row = new DataGridViewRow();//添加新的一行
+            j = dataGridView1.Rows.Add(row);//j调用方法后加1
+            dataGridView1.Rows[j].Cells[0].Value = "周武正王";
+            dataGridView1.Rows[j].Cells[1].Value = "18252111112";
+            dataGridView1.Rows[j].Cells[2].Style.Font = new Font(dataGridView1.Font, FontStyle.Bold);//设置字体加粗
         }
 
         private void Type_SelectedIndexChanged(object sender, EventArgs e)
