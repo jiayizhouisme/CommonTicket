@@ -8,6 +8,7 @@ namespace Online1
         public Form1()
         {
             InitializeComponent();
+
         }
 
         private void Type_SelectedIndexChanged(object sender, EventArgs e)
@@ -28,13 +29,18 @@ namespace Online1
 
         private void textBox_TextChanged(object sender, EventArgs e)
         {
-            if(textBox.Text == "")
+            if (textBox.Text == "")
             {
                 MessageBox.Show("«Î ‰»Î–’√˚");
                 return;
             }
         }
         private void Search_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }
