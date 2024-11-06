@@ -74,5 +74,21 @@ namespace 通用订票.Web.Entry.Controllers
                 name = a.name,imgs = a.imgs})
                 .ToPagedListAsync(pageIndex,pageSize);
         }
+
+        /// <summary>
+        /// 获取景区列表
+        /// </summary>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        [Authorize]
+        //[TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [NonUnify]
+        [HttpGet(Name = "GetExhibitionList")]
+        public async Task<object> GetExhibitionList([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        {
+            return await _exhibitionService.GetQueryableNt(a => a.isDeleted == false)
+                .ToPagedListAsync(pageIndex, pageSize);
+        }
     }
 }
