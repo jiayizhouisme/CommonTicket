@@ -68,20 +68,43 @@ namespace Online1
         private void Search_Click(object sender, EventArgs e)
         {
             string name =this.textBox.Text;
-            string sql = "select * from [Order]" ;
+            string sqlOrder = "select * from [Order] " ;
+            string queryTicket = "select * from [Ticket] where objectId = ";
             SqlConnection conn = new SqlConnection("Data Source=192.168.51.109;Initial Catalog=CommonTicket2;user id=admin;password=Aa123456;TrustServerCertificate=true;");
             // SqlDataAdapter sda = new SqlDataAdapter("select * from dbo.Order where userid=" + Type.Text, conn);
-            SqlDataAdapter sda = new SqlDataAdapter(sql, conn);
+            SqlDataAdapter sda = new SqlDataAdapter(sqlOrder, conn);
             
-            DataSet ds = new DataSet();
-            sda.Fill(ds);
-            foreach (DataRow theRow in ds.Tables[0].Rows)
+            DataSet sqlOrderDataSet = new DataSet();
+            sda.Fill(sqlOrderDataSet);
+            //DataRow theRow = ds.Tables[0].Rows[0];
+            //DataRow theRow = ds.Tables[0].Rows[1];
+            //DataRow theRow = ds.Tables[0].Rows[2];
+            //DataRow theRow = ds.Tables[0].Rows[3];
+            //DataRow theRow = ds.Tables[0].Rows[4];
+            //DataRow theRow = ds.Tables[0].Rows[5];
+            //DataRow theRow = ds.Tables[0].Rows[6];
+            for (int i = 0; i < sqlOrderDataSet.Tables[0].Rows.Count ;i++)
             {
+                var theRowOrder_trade_no = sqlOrderDataSet.Tables[0].Rows[i]["trade_no"];
 
+                sda = new SqlDataAdapter(queryTicket + theRowOrder_trade_no, conn);
+                DataSet queryTicketDataSet = new DataSet();
+                sda.Fill(queryTicketDataSet);
+                for(int j = 0;j< queryTicketDataSet.Tables[0].Rows.Count; j++) 
+                {
+                    var theRowTicket_startTime = queryTicketDataSet.Tables[0].Rows[j]["startTime"];
+                    var theRowTicket_endTime = queryTicketDataSet.Tables[0].Rows[j]["endTime"];
+                }
             }
-                
+            
+            //foreach (DataRow theRow in ds.Tables[0].Rows)
+            //{
 
-            dataGridView1.DataSource = ds;
+
+            //}
+
+
+           // dataGridView1.DataSource = ds;
             // dataGridView1.DataBind();
         }
        
