@@ -69,11 +69,18 @@ namespace Online1
         {
             string name =this.textBox.Text;
             string sql = "select * from [Order]" ;
-            SqlConnection conn = new SqlConnection("Data Source = 192.168.51.109; Initial Catalog = CommonTicket2; user id = admin; password = Aa123456; TrustServerCertificate = true; ");
+            SqlConnection conn = new SqlConnection("Data Source=192.168.51.109;Initial Catalog=CommonTicket2;user id=admin;password=Aa123456;TrustServerCertificate=true;");
             // SqlDataAdapter sda = new SqlDataAdapter("select * from dbo.Order where userid=" + Type.Text, conn);
             SqlDataAdapter sda = new SqlDataAdapter(sql, conn);
+            
             DataSet ds = new DataSet();
             sda.Fill(ds);
+            foreach (DataRow theRow in ds.Tables[0].Rows)
+            {
+
+            }
+                
+
             dataGridView1.DataSource = ds;
             // dataGridView1.DataBind();
         }
