@@ -40,7 +40,6 @@
             开始时间 = new DataGridViewTextBoxColumn();
             结束时间 = new DataGridViewTextBoxColumn();
             预约日期 = new DataGridViewTextBoxColumn();
-            参观日期 = new DataGridViewTextBoxColumn();
             状态 = new DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
@@ -68,13 +67,13 @@
             // State
             // 
             State.FormattingEnabled = true;
-            State.Items.AddRange(new object[] { "已关闭", "未使用" });
+            State.Items.AddRange(new object[] { "全部", "已使用", "未使用" });
             State.Location = new Point(375, 27);
             State.Margin = new Padding(3, 4, 3, 4);
             State.Name = "State";
             State.Size = new Size(151, 28);
             State.TabIndex = 2;
-            State.Text = "请选择门票状态";
+            State.Text = "全部";
             State.SelectedIndexChanged += State_SelectedIndexChanged;
             // 
             // textBox
@@ -102,12 +101,12 @@
             // dataGridView1
             // 
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { 姓名, 身份证, 电话, 开始时间, 结束时间, 预约日期, 参观日期, 状态 });
-            dataGridView1.Location = new Point(12, 87);
+            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { 姓名, 身份证, 电话, 开始时间, 结束时间, 预约日期, 状态 });
+            dataGridView1.Location = new Point(12, 77);
             dataGridView1.Margin = new Padding(3, 4, 3, 4);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersWidth = 51;
-            dataGridView1.Size = new Size(882, 366);
+            dataGridView1.Size = new Size(928, 366);
             dataGridView1.TabIndex = 5;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick;
             // 
@@ -154,13 +153,6 @@
             预约日期.Name = "预约日期";
             预约日期.Width = 125;
             // 
-            // 参观日期
-            // 
-            参观日期.HeaderText = "参观日期";
-            参观日期.MinimumWidth = 6;
-            参观日期.Name = "参观日期";
-            参观日期.Width = 125;
-            // 
             // 状态
             // 
             状态.HeaderText = "状态";
@@ -172,7 +164,7 @@
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(913, 466);
+            ClientSize = new Size(955, 466);
             Controls.Add(dataGridView1);
             Controls.Add(Search);
             Controls.Add(textBox);
@@ -196,13 +188,12 @@
         private TextBox textBox;
         private Button Search;
         private DataGridView dataGridView1;
-        private DataGridViewTextBoxColumn 状态;
         private DataGridViewTextBoxColumn 姓名;
         private DataGridViewTextBoxColumn 身份证;
         private DataGridViewTextBoxColumn 电话;
         private DataGridViewTextBoxColumn 开始时间;
         private DataGridViewTextBoxColumn 结束时间;
         private DataGridViewTextBoxColumn 预约日期;
-        private DataGridViewTextBoxColumn 参观日期;
+        private DataGridViewTextBoxColumn 状态;
     }
 }
