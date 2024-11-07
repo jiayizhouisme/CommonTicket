@@ -65,6 +65,8 @@ namespace 通用订票.Application.System.Services.Service
                 ticket.ota = otaType;
                 ticket.usedCount = 0;
                 ticket.totalCount = 1;
+                ticket.QRCode = QRHelper.QRHelper.CreateQRcode("https://ticket.z2ww.com/" +
+                    this.GetTenant() + "/huodong/#/verification?id=" + ticket.ticketNumber);
                 if (exhibitions != null)
                 {
                     ticket.isMultiPart = true;
@@ -101,6 +103,8 @@ namespace 通用订票.Application.System.Services.Service
             ticket.ota = otaType;
             ticket.usedCount = 0;
             ticket.totalCount = number;
+            ticket.QRCode = QRHelper.QRHelper.CreateQRcode("https://ticket.z2ww.com/" +
+                    this.GetTenant() + "/huodong/#/verification?id=" + ticket.ticketNumber);
             if (exhibitions != null)
             {
                 ticket.isMultiPart = true;
@@ -127,6 +131,8 @@ namespace 通用订票.Application.System.Services.Service
                 ticket.ota = otaType;
                 ticket.usedCount = 0;
                 ticket.totalCount = 1;
+                ticket.QRCode = QRHelper.QRHelper.CreateQRcode("https://ticket.z2ww.com/" +
+                    this.GetTenant() + "/huodong/#/verification?id=" + ticket.ticketNumber);
                 if (exhibitions != null)
                 {
                     ticket.isMultiPart = true;

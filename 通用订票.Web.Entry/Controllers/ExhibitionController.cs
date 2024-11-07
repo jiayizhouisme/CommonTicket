@@ -51,7 +51,7 @@ namespace 通用订票.Web.Entry.Controllers
         /// <returns></returns>
         [Authorize]
         [HttpGet(Name = "Delete")]
-        public async Task<bool> DeleteExhibitions(Guid id,bool real = false)
+        public async Task<bool> DeleteExhibitions([FromQuery] Guid id, [FromQuery] bool real = false)
         {
             return await this._exhibitionService.DeleteExhibition(id, real);
         }
@@ -82,13 +82,26 @@ namespace 通用订票.Web.Entry.Controllers
         /// <param name="pageSize"></param>
         /// <returns></returns>
         [Authorize]
-        //[TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [NonUnify]
         [HttpGet(Name = "GetExhibitionList")]
         public async Task<object> GetExhibitionList([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             return await _exhibitionService.GetQueryableNt(a => a.isDeleted == false)
                 .ToPagedListAsync(pageIndex, pageSize);
+        }
+
+        /// <summary>
+        /// 获取景区
+        /// </summary>
+        /// <returns></returns>
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [NonUnify]
+        [HttpGet(Name = "GetExhibitionById")]
+        public async Task<object> GetExhibitionById([FromQuery] Guid id)
+        {
+            return (await _exhibitionService.GetWithConditionNt(a => a.isDeleted == false && a.id == id)).FirstOrDefault();
         }
     }
 }

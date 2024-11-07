@@ -26,6 +26,7 @@ namespace 通用订票.Core.Entity
         public DateTime? verifyTime { get; set; }
         [Comment("是否是联票")]
         public bool isMultiPart { get; set; }
+        public string QRCode { get; set; }
         /// <summary>
         /// 购票人选择的用户
         /// </summary>

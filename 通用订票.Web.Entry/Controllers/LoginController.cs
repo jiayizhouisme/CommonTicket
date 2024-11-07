@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using 通用订票.Application.System.QRHelper;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
 namespace 通用订票.Web.Entry.Controllers

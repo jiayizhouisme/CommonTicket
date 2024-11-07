@@ -29,6 +29,13 @@
             结束时间段
             </summary>
         </member>
+        <member name="M:通用订票.Application.System.QRHelper.QRHelper.CreateQRcode(System.String,System.String)">
+            <summary>
+            生成二维码 返回路径
+            </summary>
+            <param name="link"></param>
+            <returns></returns>
+        </member>
         <member name="M:通用订票.Application.System.ServiceBases.Service.TicketBaseService`2.DisableTicket(`0)">
             <summary>
             订单冻结

@@ -28,7 +28,7 @@ namespace 通用订票.Core.Entity
         [NotNull]
         public bool isMultiPart { get; set; }
         public string forbiddenRule { get; set; }
-
+        public int totalAmount { get; set; }
         public void Configure(EntityTypeBuilder<Exhibition> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
             entityBuilder.HasQueryFilter(x => x.isDeleted == false);

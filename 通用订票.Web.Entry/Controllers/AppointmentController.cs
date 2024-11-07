@@ -61,6 +61,31 @@ namespace 通用订票.Web.Entry.Controllers
             }
         }
 
+
+        /// <summary>
+        /// 获取时间段列表（详情）
+        /// </summary>
+        /// <param name="exhibitionID">景区id</param>
+        /// <param name="pageIndex">分页</param>
+        /// <param name="pageSize">分页</param>
+        /// <returns></returns>
+        [TypeFilter(typeof(CacheFilter))]
+        [NonUnify]
+        [HttpGet(Name = "GetAppointmentsListDetail")]
+        public async Task<object> GetAppointmentsListDetail([FromQuery] Guid exhibitionID)
+        {
+            List<dynamic> result = new List<dynamic>();
+            var before = this._appointmentService.GetQueryableNt(a => a.objectId == exhibitionID);
+            var r = await before.GroupBy(a => a.day).OrderBy(a => a.Key).Select(a => a.Key).ToListAsync();
+            DateTime now = DateTime.Now.Date;
+            foreach (var day in r)
+            {
+                var list = await before.Where(a => a.day == day).ToListAsync();
+                result.Add((new { day, app = list, date = now.AddDays(day).ToShortDateString() }));
+            }
+            return result;
+        }
+
         /// <summary>
         /// 获取时间段列表
         /// </summary>
