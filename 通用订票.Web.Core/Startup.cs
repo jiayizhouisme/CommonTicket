@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ProtoBuf.Meta;
@@ -29,6 +30,7 @@ using Savorboard.CAP.InMemoryMessageQueue;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -189,6 +191,15 @@ namespace 通用订票.Web.Core
             }
 
             app.UseDefaultFiles();
+
+            var staticRoot = Path.Combine(AppContext.BaseDirectory, "uploads"); // 注意这里不要添加 /
+            if (!Directory.Exists(staticRoot)) Directory.CreateDirectory(staticRoot);
+            app.UseFileServer(new FileServerOptions
+            {
+                RequestPath = "/uploads",   // 配置访问地址，需以 / 开头，通常和目录名称一致，也可以不同
+                FileProvider = new PhysicalFileProvider(staticRoot)
+            });
+
             StaticFileOptions options = new StaticFileOptions { 
                 ContentTypeProvider = new FileExtensionContentTypeProvider()
             };
