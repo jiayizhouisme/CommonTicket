@@ -443,6 +443,56 @@ namespace 通用订票.Web.Entry.Controllers
                 await ticketService.TicketEndCheck(ticket.ticket);
             }
 
+            await ticketService.TicketEndCheck(ticket.ticket);
+            
+            return ticket;
+        }
+        /// <summary>
+        /// 消票
+        /// </summary>
+        /// <param name="ticket_number">票号</param>
+        /// <param name="count">核销数量</param>
+        /// <param name="exhibition">景区id</param>
+        /// <returns></returns>
+        [HttpGet(Name = "UseTicket")]
+        [NonUnify]
+        public async Task UseTicket([FromQuery] string ticket_number, [FromQuery] int count = 1, [FromQuery] string exhibition = null)
+        {
+            var ticket = await ticketService.GetTicket(ticket_number);
+            await eventPublisher.PublishAsync("TicketVerifyEvent", new TicketVerifyEventModel
+            {
+                type = ticket.ota,
+                ticketNumber = ticket_number,
+                count = count,
+                tenant_id = tenantGetSetor.Get(),
+                exhibitionId = exhibition
+            });
+        }
+
+        /// <summary>
+        /// 验票并消票
+        /// </summary>
+        /// <param name="ticket_number">票号</param>
+        /// <param name="count">核销数量</param>
+        /// <param name="exhibition">景区id</param>
+        /// <returns></returns>
+        [HttpGet(Name = "CheckTicketAndUse")]
+        [NonUnify]
+        public async Task<TicketVerifyResult> CheckTicketAndUse([FromQuery] string ticket_number, [FromQuery] int count = 1, [FromQuery] string exhibition = null)
+        {
+            var ticket = await ticketService.TicketBeginCheck(ticket_number, count, exhibition);
+            if (ticket.ticket != null)
+            {
+                ticket.order = await myOrderService.GetOrderById(ticket.ticket.objectId);
+            }
+
+            if (ticket.order.status != OrderStatus.已付款)
+            {
+                ticket.code = 0;
+                ticket.message = "订单已不可用";
+                await ticketService.TicketEndCheck(ticket.ticket);
+            }
+
             if (ticket.code == 1)
             {
                 ticket.app = await stockService.GetAppointmentById(ticket.ticket.AppointmentId);
@@ -462,6 +512,8 @@ namespace 通用订票.Web.Entry.Controllers
             }
             return ticket;
         }
+
+
 
         //[Authorize]
         //[TypeFilter(typeof(SaaSAuthorizationFilter))]

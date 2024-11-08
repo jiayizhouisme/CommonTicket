@@ -14,9 +14,11 @@ namespace 通用订票.Web.Entry.Controllers
     public class ExhibitionController : IDynamicApiController
     {
         private readonly IExhibitionService _exhibitionService;
-        public ExhibitionController(IExhibitionService _exhibitionService)
+        private readonly IDefaultAppointmentService _defaultAppointmentService;
+        public ExhibitionController(IExhibitionService _exhibitionService, IDefaultAppointmentService defaultAppointmentService)
         {
             this._exhibitionService = _exhibitionService;
+            _defaultAppointmentService = defaultAppointmentService;
         }
 
         /// <summary>
@@ -40,7 +42,18 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpPost(Name = "Update")]
         public async Task<Exhibition> UpdateExhibitions(Exhibition exhibition)
         {
-            return await this._exhibitionService.UpdateExhibition(exhibition);
+            var ex = await this._exhibitionService.UpdateExhibition(exhibition);
+            var apps = await _defaultAppointmentService.GetWithCondition(a => a.objectId == exhibition.id);
+            foreach (var app in apps)
+            {
+                if (!string.IsNullOrEmpty(ex.name))
+                {
+                    app.stockName = ex.name;
+                }
+                app.amount = ex.totalAmount;
+            }
+            await _defaultAppointmentService.UpdateNow(apps);
+            return ex;
         }
 
         /// <summary>
