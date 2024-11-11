@@ -30,15 +30,74 @@ namespace 通用订票.Web.Entry.Controllers
             this._appointmentService = factory.GetStockService(_stockProvider);
         }
 
+        [HttpGet(Name = "DeleteAppointment")]
+        public async Task DeleteAppointment([FromQuery]Guid id)
+        {
+            var appointment = (await this._appointmentService.GetWithCondition(a => a.id == id.ToString())).FirstOrDefault();
+            if (appointment != null)
+            {
+                await this._appointmentService.DeleteNow(appointment);
+            }
+        }
+
+        [HttpGet(Name = "DeleteByDay")]
+        public async Task DeleteByDay([FromQuery] Guid exid, [FromQuery] int day)
+        {
+            var appointment = (await this._appointmentService.GetWithCondition(a => a.objectId == exid && a.day == day));
+            if (appointment.Count > 0)
+            {
+                await this._appointmentService.DeleteNow(appointment);
+            }
+        }
+
+        [HttpPost]
+        [HttpPost(Name = "UpdateAppointment")]
+        public async Task UpdateAppointment(Appointment appointment)
+        {
+            if (appointment != null)
+            {
+                await this._appointmentService.UpdateNow(appointment);
+            }
+        }
+
         /// <summary>
         /// 添加时间段
         /// </summary>
         /// <param name="appointment">时间段模型</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        [HttpPost]
+        [HttpPost(Name = "AddAppointment")]
+        public async Task AddAppointment(AppointmentAdd appointment)
+        {
+            var exhibition = await _exhibitionService.GetQueryableNt(a => a.id == appointment.exhibitionID).FirstOrDefaultAsync();
+            if (exhibition == null)
+            {
+                throw new Exception("参数错误");
+            }
+            foreach (var spans in appointment.timeSpans)
+            {
+                Appointment ap = new Appointment();
+                ap.id = Guid.NewGuid().ToString();
+                ap.day = appointment.day;
+                ap.createTime = DateTime.Now;
+                ap.startTime = DateTime.Parse(spans.timeStart.ToString());
+                ap.endTime = DateTime.Parse(spans.timeEnd.ToString());
+                ap.amount = exhibition.totalAmount;
+                ap.sale = 0;
+                ap.stockName = exhibition.name;
+                ap.objectId = exhibition.id;
+                await _appointmentService.Add(ap);
+            }
+        }
+
+        /// <summary>
+        /// 批量添加时间段
+        /// </summary>
+        /// <param name="appointment">时间段模型</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         [HttpPost(Name = "AddAppointments")]
-        public async Task AddAppointments(AppointmentAdd appointment)
+        public async Task AddAppointments(AppointmentsAdd appointment)
         {
             var exhibition = await _exhibitionService.GetQueryableNt(a => a.id == appointment.exhibitionID).FirstOrDefaultAsync();
             if (exhibition == null)
@@ -47,17 +106,20 @@ namespace 通用订票.Web.Entry.Controllers
             }
             for (int i = 0;i < appointment.totalDay;i++)
             {
-                Appointment ap = new Appointment();
-                ap.id = Guid.NewGuid().ToString();
-                ap.day = appointment.dayStart + i;
-                ap.createTime = DateTime.Now;
-                ap.startTime = DateTime.Parse(appointment.timeStart.ToString());
-                ap.endTime = DateTime.Parse(appointment.timeEnd.ToString());
-                ap.amount = 10000;
-                ap.sale = 0;
-                ap.stockName = exhibition.name;
-                ap.objectId = exhibition.id;
-                await _appointmentService.Add(ap);
+                foreach (var spans in appointment.timeSpans)
+                {
+                    Appointment ap = new Appointment();
+                    ap.id = Guid.NewGuid().ToString();
+                    ap.day = appointment.dayStart + i;
+                    ap.createTime = DateTime.Now;
+                    ap.startTime = DateTime.Parse(spans.timeStart.ToString());
+                    ap.endTime = DateTime.Parse(spans.timeEnd.ToString());
+                    ap.amount = exhibition.totalAmount;
+                    ap.sale = 0;
+                    ap.stockName = exhibition.name;
+                    ap.objectId = exhibition.id;
+                    await _appointmentService.Add(ap);
+                }
             }
         }
 
@@ -69,19 +131,21 @@ namespace 通用订票.Web.Entry.Controllers
         /// <param name="pageIndex">分页</param>
         /// <param name="pageSize">分页</param>
         /// <returns></returns>
-        [TypeFilter(typeof(CacheFilter))]
         [NonUnify]
         [HttpGet(Name = "GetAppointmentsListDetail")]
         public async Task<object> GetAppointmentsListDetail([FromQuery] Guid exhibitionID)
         {
             List<dynamic> result = new List<dynamic>();
-            var before = this._appointmentService.GetQueryableNt(a => a.objectId == exhibitionID);
-            var r = await before.GroupBy(a => a.day).OrderBy(a => a.Key).Select(a => a.Key).ToListAsync();
+            var before = await this._appointmentService.GetQueryableNt(a => a.objectId == exhibitionID).Select(a =>
+                new { a.amount, a.sale, a.startTime, a.endTime, a.day, a.id })
+                    .OrderBy(a => a.day)
+                    .ThenBy(a => a.startTime).ToListAsync();
+            int r = before.Max(a => a.day);
             DateTime now = DateTime.Now.Date;
-            foreach (var day in r)
+            for(int i = 0;i < r;i++)
             {
-                var list = await before.Where(a => a.day == day).ToListAsync();
-                result.Add((new { day, app = list, date = now.AddDays(day).ToShortDateString() }));
+                var list = before.Where(a => a.day == i).ToList();
+                result.Add((new { day = i, app = list, date = now.AddDays(i).ToShortDateString() }));
             }
             return result;
         }
@@ -233,26 +297,26 @@ namespace 通用订票.Web.Entry.Controllers
             return models;
         }
 
-        [HttpGet(Name = "Test")]
-        public async Task Test()
-        {
-            for (int i = 0; i < 90; i++)
-            {
-                Appointment app = new Appointment();
-                app.id = Guid.NewGuid().ToString();
-                app.stockName = "成人票";
-                app.amount = 10000;
-                app.sale = 0;
-                app.startTime = DateTime.Parse("1999-01-01 00:00:00.0000000");
-                app.endTime = DateTime.Parse("1999-01-01 23:59:59.0000000");
-                app.createTime = DateTime.Now;
-                app.isDeleted = false;
-                app.allday = true;
-                app.objectId = Guid.Parse("eafb3cdf-bf8a-4963-bffe-fb2300e929fa");
-                app.day = i;
-                await this._appointmentService.Add(app);
-            }
-            await this._appointmentService.SaveChangeNow();
-        }
+        //[HttpGet(Name = "Test")]
+        //public async Task Test()
+        //{
+        //    for (int i = 0; i < 90; i++)
+        //    {
+        //        Appointment app = new Appointment();
+        //        app.id = Guid.NewGuid().ToString();
+        //        app.stockName = "成人票";
+        //        app.amount = 10000;
+        //        app.sale = 0;
+        //        app.startTime = DateTime.Parse("1999-01-01 00:00:00.0000000");
+        //        app.endTime = DateTime.Parse("1999-01-01 23:59:59.0000000");
+        //        app.createTime = DateTime.Now;
+        //        app.isDeleted = false;
+        //        app.allday = true;
+        //        app.objectId = Guid.Parse("eafb3cdf-bf8a-4963-bffe-fb2300e929fa");
+        //        app.day = i;
+        //        await this._appointmentService.Add(app);
+        //    }
+        //    await this._appointmentService.SaveChangeNow();
+        //}
     }
 }

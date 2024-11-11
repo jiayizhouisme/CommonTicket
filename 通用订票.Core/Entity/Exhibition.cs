@@ -12,15 +12,21 @@ namespace 通用订票.Core.Entity
     public class Exhibition :IEntity,IEntityTypeBuilder<Exhibition>
     {
         public Guid id { get; set; }
+        [Comment("景区名")]
         public string name{ get;set;}
+        [Comment("景区介绍")]
         public string description { get;set;}
+        [Comment("景区封面")]
         public string imgs { get; set; }
         public int status { get; set; }
         [NotNull]
+        [Comment("景区提前预约天数")]
         public int beforeDays { get; set; }
         [NotNull]
         public bool isDeleted { get; set; }
+        [Comment("创建日期")]
         public DateTime createTime { get; set; }
+        [Comment("价格")]
         public decimal basicPrice { get; set; }
         [NotNull]
         public PassTemplate passType { get; set; }
@@ -28,6 +34,7 @@ namespace 通用订票.Core.Entity
         [NotNull]
         public bool isMultiPart { get; set; }
         public string forbiddenRule { get; set; }
+        [Comment("一天最大预约人数")]
         public int totalAmount { get; set; }
         public void Configure(EntityTypeBuilder<Exhibition> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
