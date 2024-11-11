@@ -41,18 +41,21 @@
             结束时间 = new DataGridViewTextBoxColumn();
             预约日期 = new DataGridViewTextBoxColumn();
             状态 = new DataGridViewTextBoxColumn();
+            Column1 = new DataGridViewTextBoxColumn();
+            checkBox1 = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
             // Type
             // 
             Type.FormattingEnabled = true;
+            Type.Items.AddRange(new object[] { "全部" });
             Type.Location = new Point(19, 26);
             Type.Margin = new Padding(3, 4, 3, 4);
             Type.Name = "Type";
             Type.Size = new Size(139, 28);
             Type.TabIndex = 0;
-            Type.Text = "请选择类型";
+            Type.Text = "全部";
             Type.SelectedIndexChanged += Type_SelectedIndexChanged;
             // 
             // dateTimePicker
@@ -101,12 +104,12 @@
             // dataGridView1
             // 
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { 姓名, 身份证, 电话, 开始时间, 结束时间, 预约日期, 状态 });
-            dataGridView1.Location = new Point(12, 77);
+            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { 姓名, 身份证, 电话, 开始时间, 结束时间, 预约日期, 状态, Column1 });
+            dataGridView1.Location = new Point(19, 77);
             dataGridView1.Margin = new Padding(3, 4, 3, 4);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersWidth = 51;
-            dataGridView1.Size = new Size(928, 366);
+            dataGridView1.Size = new Size(1087, 366);
             dataGridView1.TabIndex = 5;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick;
             // 
@@ -160,11 +163,30 @@
             状态.Name = "状态";
             状态.Width = 125;
             // 
+            // Column1
+            // 
+            Column1.HeaderText = "展馆";
+            Column1.MinimumWidth = 6;
+            Column1.Name = "Column1";
+            Column1.Width = 125;
+            // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Location = new Point(799, 34);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(106, 24);
+            checkBox1.TabIndex = 6;
+            checkBox1.Text = "按时间查询";
+            checkBox1.UseVisualStyleBackColor = true;
+            checkBox1.CheckedChanged += checkBox1_CheckedChanged;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(955, 466);
+            ClientSize = new Size(1130, 466);
+            Controls.Add(checkBox1);
             Controls.Add(dataGridView1);
             Controls.Add(Search);
             Controls.Add(textBox);
@@ -195,5 +217,7 @@
         private DataGridViewTextBoxColumn 结束时间;
         private DataGridViewTextBoxColumn 预约日期;
         private DataGridViewTextBoxColumn 状态;
+        private DataGridViewTextBoxColumn Column1;
+        private CheckBox checkBox1;
     }
 }
