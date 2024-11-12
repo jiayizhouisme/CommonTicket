@@ -39,6 +39,18 @@ namespace Online1
             }
 
         }
+        /// <summary>
+        /// 查询
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <returns></returns>
+        private DataSet Query(string sql) {
+           var sda = new SqlDataAdapter(sql, conn);
+            DataSet queryTableDataSet = new DataSet();
+
+            sda.Fill(queryTableDataSet);
+            return queryTableDataSet;
+        }
 
         private void Type_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -76,38 +88,28 @@ namespace Online1
             string sqlAppointment = "select * from [Appointment] ";
 
             string queryExhibition = "select * from [Exhibition] where name = ";
-            SqlDataAdapter sda = new SqlDataAdapter(sqlOrder, conn);
-            SqlDataAdapter sdb = new SqlDataAdapter(sqlAppointment, conn);
-            SqlDataAdapter sdc = new SqlDataAdapter(sqlTicket, conn);
-            DataSet sqlOrderDataSet = new DataSet();
-            DataSet sqlAppointmentDataSet = new DataSet();
-            DataSet sqlTicketDataSet = new DataSet();
+          
+           
             dataGridView1.Rows.Clear();
-            sda.Fill(sqlOrderDataSet);
-            sdb.Fill(sqlAppointmentDataSet);
-            sda.Fill(sqlTicketDataSet);
+            DataSet orders=Query(sqlOrder);
+          
+           
   
-            for (int i = 0; i < sqlOrderDataSet.Tables[0].Rows.Count; i++)
+            for (int i = 0; i <orders.Tables[0].Rows.Count; i++)
             {
-                var theRowOrder_trade_no = sqlOrderDataSet.Tables[0].Rows[i]["trade_no"];
+                var theRowOrder_trade_no = orders.Tables[0].Rows[i]["trade_no"];
 
-                sda = new SqlDataAdapter(queryTicket + theRowOrder_trade_no, conn);
-                DataSet queryTicketDataSet = new DataSet();
+             DataSet tickets=   Query(queryTicket + theRowOrder_trade_no);
 
-                sda.Fill(queryTicketDataSet);
-
-                for (int j = 0; j < queryTicketDataSet.Tables[0].Rows.Count; j++)
+                for (int j = 0; j < tickets.Tables[0].Rows.Count; j++)
                 {
 
-                    var theRow_UserId = queryTicketDataSet.Tables[0].Rows[j]["TUserId"];
+                    var theRow_UserId = tickets.Tables[0].Rows[j]["TUserId"];
 
-                    sda = new SqlDataAdapter(queryUserInfo + theRow_UserId, conn);
-
-                    DataSet queryUserInfoDataSet = new DataSet();
-                    sda.Fill(queryUserInfoDataSet);
+               DataSet userInfos=    Query(queryUserInfo + theRow_UserId);
 
 
-                    var theRowTicket_stauts = queryTicketDataSet.Tables[0].Rows[j]["stauts"].ToString();
+                    var theRowTicket_stauts = tickets.Tables[0].Rows[j]["stauts"].ToString();
                     if (theRowTicket_stauts == "3")
                     {
                         theRowTicket_stauts = "已使用";
@@ -121,15 +123,11 @@ namespace Online1
                         continue;
                     }
 
-                    var theRowOrder_objectId = "'" + sqlOrderDataSet.Tables[0].Rows[i]["objectId"] + "'";
-                    sda = new SqlDataAdapter(queryAppointment + theRowOrder_objectId, conn);
+                    var theRowOrder_objectId = "'" + orders.Tables[0].Rows[i]["objectId"] + "'";
+                  DataSet appointments=  Query(queryAppointment + theRowOrder_objectId);
 
-                    DataSet queryAppointmentDataSet = new DataSet();
-
-                    sda.Fill(queryAppointmentDataSet);
-
-                    var theRowAppointment_stockname = queryAppointmentDataSet.Tables[0].Rows[0]["stockname"].ToString();
-                    var theRowTicket_startTime = queryTicketDataSet.Tables[0].Rows[j]["startTime"].ToString();
+                    var theRowAppointment_stockname = appointments.Tables[0].Rows[0]["stockname"].ToString();
+                    var theRowTicket_startTime = tickets.Tables[0].Rows[j]["startTime"].ToString();
 
                     if (Type.Text != theRowAppointment_stockname && Type.Text != "全部")
                     {
@@ -144,25 +142,28 @@ namespace Online1
 
                     int Addrow = NewRow();
 
-                    var theRowUserInfo_name = queryUserInfoDataSet.Tables[0].Rows[0]["name"].ToString();
-                    var theRowUserInfo_phoneNumber = queryUserInfoDataSet.Tables[0].Rows[0]["phoneNumber"].ToString();
-                    var theRowUserInfo_idCard = queryUserInfoDataSet.Tables[0].Rows[0]["idCard"].ToString();
+                    var theRowUserInfo_name = userInfos.Tables[0].Rows[0]["name"].ToString();
+                    var theRowUserInfo_phoneNumber =userInfos.Tables[0].Rows[0]["phoneNumber"].ToString();
+                    var theRowUserInfo_idCard = userInfos.Tables[0].Rows[0]["idCard"].ToString();
                     NewCol(Addrow, 0, theRowUserInfo_name);
                     NewCol(Addrow, 1, theRowUserInfo_phoneNumber);
                     NewCol(Addrow, 2, theRowUserInfo_idCard);
 
 
                   
-                    var theRowTicket_endTime = queryTicketDataSet.Tables[0].Rows[j]["endTime"].ToString();
-                    var theRowTicket_createTime = queryTicketDataSet.Tables[0].Rows[j]["createTime"].ToString();
+                    var theRowTicket_endTime = tickets.Tables[0].Rows[j]["endTime"].ToString();
+                    var theRowTicket_createTime = tickets.Tables[0].Rows[j]["createTime"].ToString();
 
                     NewCol(Addrow, 3, theRowTicket_startTime);
                     NewCol(Addrow, 4, theRowTicket_endTime);
                     NewCol(Addrow, 5, theRowTicket_createTime);
                     NewCol(Addrow, 6, theRowTicket_stauts);
 
-                    theRowAppointment_stockname = queryAppointmentDataSet.Tables[0].Rows[0]["stockName"].ToString();
+                    theRowAppointment_stockname = appointments.Tables[0].Rows[0]["stockName"].ToString();
                     NewCol(Addrow, 7, theRowAppointment_stockname);
+
+
+
  
                 }
             }

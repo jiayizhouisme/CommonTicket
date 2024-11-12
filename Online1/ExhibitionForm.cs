@@ -22,7 +22,14 @@ namespace Online1
             InitializeComponent();
 
         }
+        private DataSet Query(string sql)
+        {
+            var sda = new SqlDataAdapter(sql, conn);
+            DataSet queryTableDataSet = new DataSet();
 
+            sda.Fill(queryTableDataSet);
+            return queryTableDataSet;
+        }
 
         private void Insert_Click(object sender, EventArgs e)
         {
@@ -32,34 +39,13 @@ namespace Online1
 
         private void Delete_Click(object sender, EventArgs e)
         {
-            //DataBase db = new DataBase();
-            //SqlConnection conn = db.getConn();
-            //conn.Open();
-            //int rowindex = dataGridView1.CurrentRow.Index;
-            //String value0 = dataGridView1.Rows[rowindex].Cells[0].Value.ToString();
-            //String sql = "delete from test1 where id='" + value0 + "'";
-            //SqlCommand comm = new SqlCommand(sql, conn);
-            //comm.ExecuteNonQuery();
-            //MessageBox.Show("删除成功！");
-            //conn.Close();
-            //
+            
 
         }
 
         private void Update_Click(object sender, EventArgs e)
         {
-            //Database db = new Database();
-            //SqlConnection conn = db.getConn();
-            conn.Open();
-            int rowindex = dataGridView1.CurrentRow.Index;
-            String value0 = dataGridView1.Rows[rowindex].Cells[0].Value.ToString();
-            String value1 = dataGridView1.Rows[rowindex].Cells[1].Value.ToString();
-            String value2 = dataGridView1.Rows[rowindex].Cells[2].Value.ToString();
-            String sql = "update Exhibition set name='" + value1 + "description',='" + value2 + "'beforeDays'" + value0 + "'";
-            SqlCommand comm = new SqlCommand(sql, conn);
-            comm.ExecuteNonQuery();
-            MessageBox.Show("修改成功！");
-            conn.Close();
+           
 
         }
 
@@ -71,17 +57,14 @@ namespace Online1
 
             string queryExhibition = "select * from [Exhibition] ";
 
-
-            var sda = new SqlDataAdapter(queryExhibition, conn);
-
-            DataSet queryExhibitionDataSet = new DataSet();
-            sda.Fill(queryExhibitionDataSet);
-            for (int j = 0; j < queryExhibitionDataSet.Tables[0].Rows.Count; j++)
+            DataSet exhibitions = Query(queryExhibition);
+          
+            for (int j = 0; j < exhibitions.Tables[0].Rows.Count; j++)
             {
                 int Addrow = NewRow();
-                var theRowExhibition_name = queryExhibitionDataSet.Tables[0].Rows[j]["name"].ToString();
-                var theRowExhibition_description = queryExhibitionDataSet.Tables[0].Rows[j]["description"].ToString();
-                var theRowExhibition_beforeDays = queryExhibitionDataSet.Tables[0].Rows[j]["beforeDays"].ToString();
+                var theRowExhibition_name = exhibitions.Tables[0].Rows[j]["name"].ToString();
+                var theRowExhibition_description = exhibitions.Tables[0].Rows[j]["description"].ToString();
+                var theRowExhibition_beforeDays = exhibitions.Tables[0].Rows[j]["beforeDays"].ToString();
                 NewCol(Addrow, 0, theRowExhibition_name);
                 NewCol(Addrow, 1, theRowExhibition_description);
                 NewCol(Addrow, 2, theRowExhibition_beforeDays);

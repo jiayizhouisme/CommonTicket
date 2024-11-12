@@ -13,7 +13,8 @@ namespace Online1
             ApplicationConfiguration.Initialize();
           //  Application.Run(new Form1());
            // Application.Run(new ExhibitionForm());
-            Application.Run(new AddExhibitionForm());
+           // Application.Run(new AddExhibitionForm());
+            Application.Run(new DeleteExhibitionForm());
         }
     }
 }
