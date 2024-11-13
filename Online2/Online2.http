@@ -1,0 +1,6 @@
+@Online2_HostAddress = http://localhost:5085
+
+GET {{Online2_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
