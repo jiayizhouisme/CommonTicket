@@ -15,6 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Cores\Core.EntityFrameWork\Core.EntityFrameWork.csproj" />
+    <ProjectReference Include="..\通用订票.Core\通用订票.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="AddExhibitionForm.cs">
       <SubType>Form</SubType>
     </Compile>

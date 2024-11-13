@@ -76,16 +76,20 @@ namespace Online1
 
         private async void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0)
-            {
-                var name = (Name)bindingSource[e.RowIndex];
-                if (e.ColumnIndex == dataGridView1.Columns["Delete"].Index)
-                {
-                    // 删除操作
-                    DeleteName(name);
-                }
-            }
+            //using TestDbContext ctx = new TestDbContext();
+            //var b = ctx.Exhibitions.Single(b => b.name == "");
+            //ctx.Exhibitions.Remove(b);
+            //await ctx.SaveChangesAsync();
+             
+            //if (e.ColumnIndex == dataGridView1.Columns["name"].Index && e.RowIndex >= 0)
+            //{
+            //    dataGridView1.Rows.RemoveAt(e.RowIndex);
+            //    DataTable dataSource = (DataTable)dataGridView1.DataSource;
+            //    dataSource.Rows[e.RowIndex].Delete();
+            //}
+
         }
+        
                 
             
 
