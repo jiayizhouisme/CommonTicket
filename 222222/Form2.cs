@@ -12,9 +12,13 @@ namespace Online1
 {
     public partial class Form2 : Form
     {
-        public Form2()
+        public Form2(string name,string description,string beforeDays)
         {
             InitializeComponent();
+            Name1.Text= name;    
+            Description1.Text= description;
+            BeforeDays1.Text= beforeDays;    
+
         }
     }
 }

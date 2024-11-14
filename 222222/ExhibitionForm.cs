@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -59,6 +60,7 @@ namespace Online1
 
             string queryExhibition = "select * from [Exhibition] ";
 
+            dataGridView1.Rows.Clear();
             DataSet exhibitions = Query(queryExhibition);
 
             for (int j = 0; j < exhibitions.Tables[0].Rows.Count; j++)
@@ -73,57 +75,43 @@ namespace Online1
             }
         }
 
-
-
-        private async void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private async void UpdatedataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            //using TestDbContext ctx = new TestDbContext();
-            //var b = ctx.Exhibitions.Single(b => b.name == "");
-            //ctx.Exhibitions.Remove(b);
-            //await ctx.SaveChangesAsync();
+            Form2 form2 = new Form2( dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString(),
+                dataGridView1.Rows[e.RowIndex].Cells[1].Value.ToString(),
+                dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString());
 
-            //using (TestDbContext ctx = new TestDbContext())
-            //{
-
-            //    string exhibitionNameToDelete = "name";
-            //    var exhibitionToDelete = ctx.Exhibition.SingleOrDefault(ex => ex.name == exhibitionNameToDelete);
-            //    if (exhibitionToDelete != null)
-            //    {
-            //        ctx.Exhibition.Remove(exhibitionToDelete);
-            //        await ctx.SaveChangesAsync();
-
-            //    }
-
-            //if (e.RowIndex >= 0 && e.ColumnIndex == dataGridView1.Columns["name"].Index)
-            //{
-            //    string exhibitionNameToDelete = dataGridView1.Rows[e.RowIndex].Cells["name"].Value.ToString();
-            //    using (TestDbContext ctx = new TestDbContext())
-            //    {
-            //    var exhibitionToDelete = ctx.Exhibition.SingleOrDefault(ex => ex.name == exhibitionNameToDelete);
-
-            //    }
-
-
-            //if (e.ColumnIndex == dataGridView1.Columns["name"].Index && e.RowIndex >= 0)
-            //{
-            //    dataGridView1.Rows.RemoveAt(e.RowIndex);
-            //    DataTable dataSource = (DataTable)dataGridView1.DataSource;
-            //    dataSource.Rows[e.RowIndex].Delete();
-
-            //
-            //if (e.ColumnIndex == dataGridView1.Columns["name"].Index && e.RowIndex >= 0)
-            //{
-            //   DataTable dataSource = (DataTable)dataGridView1.DataSource;
-            //    if (dataSource != null && dataSource.Rows.Count > e.RowIndex)
-            //    {
-            //        dataSource.Rows[e.RowIndex].Delete();
-
-            //        dataSource.AcceptChanges();
-
-            // }
+            // 显示Form2，可以选择Modeless或Modal方式
+            // form2.Show(); // 非模态窗口，可以同时与Form1交互
+            form2.ShowDialog(); // 模态窗口，必须先关闭Form2才能与Form1交
 
 
         }
+
+        private async void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+          
+            if(e.ColumnIndex == 4)
+            {
+                UpdatedataGridView1_CellContentClick(sender, e);
+                return;
+            }
+            var dr=  dataGridView1.Rows[e.RowIndex].Cells[0].Value;
+            using (TestDbContext ctx = new TestDbContext())
+            {                        
+                var query=  ctx.Exhibition.AsQueryable().Where(ex => ex.name == dr);
+                var exhibitionToDelete = ctx.Exhibition.SingleOrDefault(ex => ex.name == dr);
+                if (exhibitionToDelete != null)
+                {   
+                    ctx.Exhibition.Remove(exhibitionToDelete);
+                    await ctx.SaveChangesAsync();
+
+                }
+
+               
+
+            }
+    }
     
     
         
