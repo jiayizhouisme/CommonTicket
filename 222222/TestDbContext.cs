@@ -10,7 +10,7 @@ namespace Online1
 {
    public  class TestDbContext : DbContext
     {
-        public DbSet<Exhibition> Exhibitions { get; set; }
+        public DbSet<Exhibition> Exhibition { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             string connStr = "Data Source=.;Initial Catalog=CommonTicket2;user id=sa;password=Aa123456;TrustServerCertificate=true";

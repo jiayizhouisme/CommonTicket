@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using 通用订票.Core.Entity;
 
 
 namespace Online1
@@ -34,19 +35,19 @@ namespace Online1
 
         private void Insert_Click(object sender, EventArgs e)
         {
-           
+
 
         }
 
         private void Delete_Click(object sender, EventArgs e)
         {
-            
+
 
         }
 
         private void Update_Click(object sender, EventArgs e)
         {
-           
+
 
         }
 
@@ -59,7 +60,7 @@ namespace Online1
             string queryExhibition = "select * from [Exhibition] ";
 
             DataSet exhibitions = Query(queryExhibition);
-          
+
             for (int j = 0; j < exhibitions.Tables[0].Rows.Count; j++)
             {
                 int Addrow = NewRow();
@@ -80,15 +81,51 @@ namespace Online1
             //var b = ctx.Exhibitions.Single(b => b.name == "");
             //ctx.Exhibitions.Remove(b);
             //await ctx.SaveChangesAsync();
-             
+
+            //using (TestDbContext ctx = new TestDbContext())
+            //{
+
+            //    string exhibitionNameToDelete = "name";
+            //    var exhibitionToDelete = ctx.Exhibition.SingleOrDefault(ex => ex.name == exhibitionNameToDelete);
+            //    if (exhibitionToDelete != null)
+            //    {
+            //        ctx.Exhibition.Remove(exhibitionToDelete);
+            //        await ctx.SaveChangesAsync();
+
+            //    }
+
+            //if (e.RowIndex >= 0 && e.ColumnIndex == dataGridView1.Columns["name"].Index)
+            //{
+            //    string exhibitionNameToDelete = dataGridView1.Rows[e.RowIndex].Cells["name"].Value.ToString();
+            //    using (TestDbContext ctx = new TestDbContext())
+            //    {
+            //    var exhibitionToDelete = ctx.Exhibition.SingleOrDefault(ex => ex.name == exhibitionNameToDelete);
+
+            //    }
+
+
             //if (e.ColumnIndex == dataGridView1.Columns["name"].Index && e.RowIndex >= 0)
             //{
             //    dataGridView1.Rows.RemoveAt(e.RowIndex);
             //    DataTable dataSource = (DataTable)dataGridView1.DataSource;
             //    dataSource.Rows[e.RowIndex].Delete();
-            //}
+
+            //
+            //if (e.ColumnIndex == dataGridView1.Columns["name"].Index && e.RowIndex >= 0)
+            //{
+            //   DataTable dataSource = (DataTable)dataGridView1.DataSource;
+            //    if (dataSource != null && dataSource.Rows.Count > e.RowIndex)
+            //    {
+            //        dataSource.Rows[e.RowIndex].Delete();
+
+            //        dataSource.AcceptChanges();
+
+            // }
+
 
         }
+    
+    
         
                 
             
