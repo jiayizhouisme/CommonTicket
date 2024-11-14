@@ -46,62 +46,69 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(24, 19);
+            label1.Location = new Point(19, 16);
+            label1.Margin = new Padding(2, 0, 2, 0);
             label1.Name = "label1";
-            label1.Size = new Size(39, 20);
+            label1.Size = new Size(32, 17);
             label1.TabIndex = 0;
             label1.Text = "状态";
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(24, 67);
+            label2.Location = new Point(19, 57);
+            label2.Margin = new Padding(2, 0, 2, 0);
             label2.Name = "label2";
-            label2.Size = new Size(39, 20);
+            label2.Size = new Size(32, 17);
             label2.TabIndex = 1;
             label2.Text = "价格";
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(24, 118);
+            label3.Location = new Point(19, 100);
+            label3.Margin = new Padding(2, 0, 2, 0);
             label3.Name = "label3";
-            label3.Size = new Size(39, 20);
+            label3.Size = new Size(32, 17);
             label3.TabIndex = 2;
             label3.Text = "简介";
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(24, 169);
+            label4.Location = new Point(19, 144);
+            label4.Margin = new Padding(2, 0, 2, 0);
             label4.Name = "label4";
-            label4.Size = new Size(69, 20);
+            label4.Size = new Size(56, 17);
             label4.TabIndex = 3;
             label4.Text = "提前天数";
             // 
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(24, 217);
+            label5.Location = new Point(19, 184);
+            label5.Margin = new Padding(2, 0, 2, 0);
             label5.Name = "label5";
-            label5.Size = new Size(69, 20);
+            label5.Size = new Size(56, 17);
             label5.TabIndex = 4;
             label5.Text = "预约人数";
             // 
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(24, 270);
+            label6.Location = new Point(19, 230);
+            label6.Margin = new Padding(2, 0, 2, 0);
             label6.Name = "label6";
-            label6.Size = new Size(69, 20);
+            label6.Size = new Size(56, 17);
             label6.TabIndex = 5;
             label6.Text = "展馆名字";
             // 
             // Submit
             // 
-            Submit.Location = new Point(24, 319);
+            Submit.Location = new Point(19, 271);
+            Submit.Margin = new Padding(2, 3, 2, 3);
             Submit.Name = "Submit";
-            Submit.Size = new Size(94, 29);
+            Submit.Size = new Size(73, 25);
             Submit.TabIndex = 12;
             Submit.Text = "提交";
             Submit.UseVisualStyleBackColor = true;
@@ -109,51 +116,57 @@
             // 
             // Status
             // 
-            Status.Location = new Point(136, 19);
+            Status.Location = new Point(106, 16);
+            Status.Margin = new Padding(2, 3, 2, 3);
             Status.Name = "Status";
-            Status.Size = new Size(125, 27);
+            Status.Size = new Size(98, 23);
             Status.TabIndex = 13;
             // 
             // BasicPrice
             // 
-            BasicPrice.Location = new Point(136, 64);
+            BasicPrice.Location = new Point(106, 54);
+            BasicPrice.Margin = new Padding(2, 3, 2, 3);
             BasicPrice.Name = "BasicPrice";
-            BasicPrice.Size = new Size(125, 27);
+            BasicPrice.Size = new Size(98, 23);
             BasicPrice.TabIndex = 14;
             // 
             // Description
             // 
-            Description.Location = new Point(136, 115);
+            Description.Location = new Point(106, 98);
+            Description.Margin = new Padding(2, 3, 2, 3);
             Description.Name = "Description";
-            Description.Size = new Size(125, 27);
+            Description.Size = new Size(98, 23);
             Description.TabIndex = 15;
             // 
             // BeforeDays
             // 
-            BeforeDays.Location = new Point(136, 172);
+            BeforeDays.Location = new Point(106, 146);
+            BeforeDays.Margin = new Padding(2, 3, 2, 3);
             BeforeDays.Name = "BeforeDays";
-            BeforeDays.Size = new Size(125, 27);
+            BeforeDays.Size = new Size(98, 23);
             BeforeDays.TabIndex = 16;
             // 
             // TotalAmount
             // 
-            TotalAmount.Location = new Point(136, 217);
+            TotalAmount.Location = new Point(106, 184);
+            TotalAmount.Margin = new Padding(2, 3, 2, 3);
             TotalAmount.Name = "TotalAmount";
-            TotalAmount.Size = new Size(125, 27);
+            TotalAmount.Size = new Size(98, 23);
             TotalAmount.TabIndex = 17;
             // 
             // Name
             // 
-            Name.Location = new Point(136, 270);
+            Name.Location = new Point(106, 230);
+            Name.Margin = new Padding(2, 3, 2, 3);
             Name.Name = "Name";
-            Name.Size = new Size(125, 27);
+            Name.Size = new Size(98, 23);
             Name.TabIndex = 18;
             // 
             // DeleteExhibitionForm
             // 
-            AutoScaleDimensions = new SizeF(9F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(379, 450);
+            ClientSize = new Size(262, 306);
             Controls.Add(Name);
             Controls.Add(TotalAmount);
             Controls.Add(BeforeDays);
@@ -167,7 +180,7 @@
             Controls.Add(label3);
             Controls.Add(label2);
             Controls.Add(label1);
-           
+            Margin = new Padding(2, 3, 2, 3);
             Text = "DeleteExhibitionForm";
             ResumeLayout(false);
             PerformLayout();
