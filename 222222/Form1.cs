@@ -99,14 +99,14 @@ namespace Online1
             {
                 var theRowOrder_trade_no = orders.Tables[0].Rows[i]["trade_no"];
 
-             DataSet tickets=   Query(queryTicket + theRowOrder_trade_no);
+             DataSet tickets=  Query(queryTicket + theRowOrder_trade_no);
 
                 for (int j = 0; j < tickets.Tables[0].Rows.Count; j++)
                 {
 
                     var theRow_UserId = tickets.Tables[0].Rows[j]["TUserId"];
 
-               DataSet userInfos=    Query(queryUserInfo + theRow_UserId);
+               DataSet userInfos=  Query(queryUserInfo + theRow_UserId);
 
 
                     var theRowTicket_stauts = tickets.Tables[0].Rows[j]["stauts"].ToString();

@@ -34,12 +34,14 @@
             BeforeDays1 = new TextBox();
             TotalAmount1 = new TextBox();
             Name1 = new TextBox();
+            ID1 = new TextBox();
             Status = new Label();
             BasicPrice = new Label();
             Description = new Label();
             BeforeDays = new Label();
             TotalAmount = new Label();
             Name = new Label();
+            ID = new Label();
             Submit = new Button();
             SuspendLayout();
             // 
@@ -84,6 +86,8 @@
             Name1.Name = "Name1";
             Name1.Size = new Size(125, 27);
             Name1.TabIndex = 6;
+
+          
             // 
             // Status
             // 
@@ -129,6 +133,13 @@
             TotalAmount.Size = new Size(69, 20);
             TotalAmount.TabIndex = 11;
             TotalAmount.Text = "预约人数";
+
+           ID1.AutoSize = true;
+           ID1.Location = new Point(135, 10);
+           ID1.Name = "ID1";
+           ID1.Size = new Size(69, 20);
+           ID1.TabIndex = 11;
+           ID1.Text = "id";
             // 
             // Name
             // 
@@ -138,6 +149,13 @@
             Name.Size = new Size(69, 20);
             Name.TabIndex = 12;
             Name.Text = "展馆名字";
+
+            ID.AutoSize = true;
+            ID.Location = new Point(30, 10);
+            ID.Name = "ID";
+            ID.Size = new Size(69, 20);
+            ID.TabIndex = 12;
+            ID.Text = "id";
             // 
             // Submit
             // 
@@ -147,7 +165,7 @@
             Submit.TabIndex = 13;
             Submit.Text = "提交";
             Submit.UseVisualStyleBackColor = true;
-            Submit.Click += Submit_Click;
+            //Submit.Click += Submit_Click;
             // 
             // AddExhibitionForm
             // 
@@ -156,12 +174,14 @@
             ClientSize = new Size(406, 450);
             Controls.Add(Submit);
             Controls.Add(Name);
+            Controls.Add(ID);
             Controls.Add(TotalAmount);
             Controls.Add(BeforeDays);
             Controls.Add(Description);
             Controls.Add(BasicPrice);
             Controls.Add(Status);
             Controls.Add(Name1);
+            Controls.Add(ID1);
             Controls.Add(TotalAmount1);
             Controls.Add(BeforeDays1);
             Controls.Add(Description1);
@@ -181,12 +201,14 @@
         private TextBox BeforeDays1;
         private TextBox TotalAmount1;
         private TextBox Name1;
+        private TextBox ID1;
         private Label Status;
         private Label BasicPrice;
         private Label Description;
         private Label BeforeDays;
         private Label TotalAmount;
         private Label Name;
+        private Label ID;
         private Button Submit;
     }
 }

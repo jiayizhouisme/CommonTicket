@@ -40,6 +40,7 @@
             BeforeDays = new TextBox();
             TotalAmount = new TextBox();
             Name = new TextBox();
+            ID = new TextBox();
             Submit = new Button();
             SuspendLayout();
             // 
@@ -138,6 +139,11 @@
             Name.Name = "Name";
             Name.Size = new Size(125, 27);
             Name.TabIndex = 11;
+
+            Name.Location = new Point(114, 257);
+            Name.Name = "ID";
+            Name.Size = new Size(125, 27);
+            Name.TabIndex = 11;
             // 
             // Submit
             // 
@@ -187,6 +193,7 @@
         private TextBox BeforeDays;
         private TextBox TotalAmount;
         private TextBox Name;
+        private TextBox ID;
         private Button Submit;
     }
 }

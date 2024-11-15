@@ -23,10 +23,10 @@ namespace Online1
         private void Submit_Click(object sender, EventArgs e)
         {
             var sql = "UPDATE [dbo].[Exhibition] " +
-            "SET [name]='1' AND [description]=2 AND [imgs] IS Null AND [status]=3 AND [isDeleted]=0 AND  CAST([createTime] AS DateTime2)='2024-01-23T14:56:48.5729222' AND CAST([basicPrice] AS Decimal(18, 2))=4.00  AND [passType]=1 AND [isMultiPart]=0 AND [exhibitions] IS Null AND [beforeDays]=5 AND [forbiddenRule] IS Null AND [totalAmount]=6 " +
+            "SET [name]='1' AND [description]=2  AND [status]=3 AND  [beforeDays]=5 AND  [totalAmount]=6 " +
             "WHERE [id]=0";
           
-            var updatesql = string.Format(sql, Guid.NewGuid().ToString(), Name.Text, Description.Text, Status.Text, BasicPrice.Text, BeforeDays.Text, TotalAmount.Text);
+            var updatesql = string.Format(sql, Guid.NewGuid().ToString(),ID.Text, Name.Text, Description.Text, Status.Text, BasicPrice.Text, BeforeDays.Text, TotalAmount.Text);
 
             using (SqlCommand command = new SqlCommand(updatesql, conn))
             {

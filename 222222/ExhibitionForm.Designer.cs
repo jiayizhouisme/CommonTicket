@@ -33,6 +33,7 @@
             Update = new Button();
             dataGridView1 = new DataGridView();
             Select = new Button();
+            IDColumn = new DataGridViewTextBoxColumn();
             Column1 = new DataGridViewTextBoxColumn();
             Column2 = new DataGridViewTextBoxColumn();
             Column3 = new DataGridViewTextBoxColumn();
@@ -49,7 +50,7 @@
             Insert.TabIndex = 0;
             Insert.Text = "增加";
             Insert.UseVisualStyleBackColor = true;
-            Insert.Click += Insert_Click;
+            Insert.Click += AdddataGirdView1_CellContentClick;
             // 
             // Delete
             // 
@@ -59,7 +60,7 @@
             Delete.TabIndex = 1;
             Delete.Text = "删除";
             Delete.UseVisualStyleBackColor = true;
-            Delete.Click += Delete_Click;
+            Delete.Click += DeletedataGridView1_CellContentClick;
             // 
             // Update
             // 
@@ -74,7 +75,7 @@
             // dataGridView1
             // 
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Column1, Column2, Column3, Column4, Column5 });
+            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { IDColumn,Column1, Column2, Column3, Column4, Column5 });
             dataGridView1.Location = new Point(33, 81);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersWidth = 51;
@@ -99,6 +100,13 @@
             Column1.Name = "Column1";
             Column1.Resizable = DataGridViewTriState.True;
             Column1.Width = 125;
+
+            IDColumn.HeaderText = "ID";
+            IDColumn.MinimumWidth = 6;
+            IDColumn.Name = "IDColumn";
+            IDColumn.Resizable = DataGridViewTriState.True;
+            IDColumn.Width = 125;
+
             // 
             // Column2
             // 
@@ -157,6 +165,7 @@
         private Button Update;
         private DataGridView dataGridView1;
         private Button Select;
+        private DataGridViewTextBoxColumn IDColumn;
         private DataGridViewTextBoxColumn Column1;
         private DataGridViewTextBoxColumn Column2;
         private DataGridViewTextBoxColumn Column3;

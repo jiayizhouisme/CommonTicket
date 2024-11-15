@@ -41,6 +41,7 @@
             BeforeDays = new TextBox();
             TotalAmount = new TextBox();
             Name = new TextBox();
+            ID = new TextBox();
             SuspendLayout();
             // 
             // label1
@@ -161,6 +162,16 @@
             Name.Name = "Name";
             Name.Size = new Size(98, 23);
             Name.TabIndex = 18;
+
+            //
+            //ID
+            //
+            Name.Location = new Point(106, 230);
+            Name.Margin = new Padding(2, 3, 2, 3);
+            Name.Name = "ID";
+            Name.Size = new Size(98, 23);
+            Name.TabIndex = 18;
+
             // 
             // DeleteExhibitionForm
             // 
@@ -201,5 +212,6 @@
         private TextBox BeforeDays;
         private TextBox TotalAmount;
         private TextBox Name;
+        private TextBox ID;
     }
 }

@@ -28,18 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
-            Status1 = new TextBox();
+            
+           Status1 = new TextBox();
             BasicPrice1 = new TextBox();
             Description1 = new TextBox();
             BeforeDays1 = new TextBox();
             TotalAmount1 = new TextBox();
             Name1 = new TextBox();
+            ID1 = new TextBox();
             Status = new Label();
             BasicPrice = new Label();
             Description = new Label();
             BeforeDays = new Label();
             TotalAmount = new Label();
             Name = new Label();
+            ID = new Label();
             Submit = new Button();
             SuspendLayout();
             // 
@@ -84,6 +87,12 @@
             Name1.Name = "Name1";
             Name1.Size = new Size(125, 27);
             Name1.TabIndex = 6;
+
+
+            ID1.Location = new Point(135, 0);
+            ID1.Name = "ID1";
+            ID1.Size = new Size(125, 27);
+            ID1.TabIndex = 6;
             // 
             // Status
             // 
@@ -138,6 +147,14 @@
             Name.Size = new Size(69, 20);
             Name.TabIndex = 12;
             Name.Text = "展馆名字";
+
+
+           ID.AutoSize = true;
+           ID.Location = new Point(30, 10);
+           ID.Name = "ID";
+           ID.Size = new Size(69, 20);
+           ID.TabIndex = 12;
+           ID.Text = "id";
             // 
             // Submit
             // 
@@ -155,12 +172,14 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(406, 450);
             Controls.Add(Submit);
+            Controls.Add(ID);
             Controls.Add(Name);
             Controls.Add(TotalAmount);
             Controls.Add(BeforeDays);
             Controls.Add(Description);
             Controls.Add(BasicPrice);
             Controls.Add(Status);
+            Controls.Add(ID1);
             Controls.Add(Name1);
             Controls.Add(TotalAmount1);
             Controls.Add(BeforeDays1);
@@ -168,7 +187,7 @@
             Controls.Add(BasicPrice1);
             Controls.Add(Status1);
 
-            Text = "AddExhibitionForm";
+            Text = "UpdateExhibitionForm";
             ResumeLayout(false);
             PerformLayout();
         }
@@ -181,12 +200,14 @@
         private TextBox BeforeDays1;
         private TextBox TotalAmount1;
         private TextBox Name1;
+        private TextBox ID1;
         private Label Status;
         private Label BasicPrice;
         private Label Description;
         private Label BeforeDays;
         private Label TotalAmount;
         private Label Name;
+        private Label ID;
         private Button Submit;
     }
 }
