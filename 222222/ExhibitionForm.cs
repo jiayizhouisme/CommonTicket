@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -52,86 +53,106 @@ namespace Online1
         }
 
 
+
         private void Select_Click(object sender, EventArgs e)
         {
-            DataTable dt = (DataTable)dataGridView1.DataSource;
-
-
-            string queryExhibition = "select * from [Exhibition] ";
-
-            DataSet exhibitions = Query(queryExhibition);
-
-            for (int j = 0; j < exhibitions.Tables[0].Rows.Count; j++)
+            using (var db = new TestDbContext())
             {
-                int Addrow = NewRow();
-                var theRowExhibition_name = exhibitions.Tables[0].Rows[j]["name"].ToString();
-                var theRowExhibition_description = exhibitions.Tables[0].Rows[j]["description"].ToString();
-                var theRowExhibition_beforeDays = exhibitions.Tables[0].Rows[j]["beforeDays"].ToString();
-                NewCol(Addrow, 0, theRowExhibition_name);
-                NewCol(Addrow, 1, theRowExhibition_description);
-                NewCol(Addrow, 2, theRowExhibition_beforeDays);
+                var exhibitions = db.Exhibition.ToList();
+                dataGridView1.Rows.Clear();
+                foreach (var exhibition in exhibitions)
+                {
+                    int Addrow = dataGridView1.Rows.Add();                  
+                    dataGridView1.Rows[Addrow].Cells[IDColumn.Index].Value = exhibition.id;
+                    dataGridView1.Rows[Addrow].Cells[Column1.Index].Value = exhibition.name;
+                    dataGridView1.Rows[Addrow].Cells[Column2.Index].Value = exhibition.description;
+                    dataGridView1.Rows[Addrow].Cells[Column3.Index].Value = exhibition.beforeDays;
+
+                }
             }
+
+            //DataTable dt = (DataTable)dataGridView1.DataSource;
+
+
+            //string queryExhibition = "select * from [Exhibition] ";
+
+            //dataGridView1.Rows.Clear();
+            //DataSet exhibitions = Query(queryExhibition);
+
+            //for (int j = 0; j < exhibitions.Tables[0].Rows.Count; j++)
+            //{
+            //    int Addrow = NewRow();
+            //    var theRowExhibition_id = exhibitions.Tables[0].Rows[j]["id"].ToString();
+            //    var theRowExhibition_name = exhibitions.Tables[0].Rows[j]["name"].ToString();
+            //    var theRowExhibition_description = exhibitions.Tables[0].Rows[j]["description"].ToString();
+            //    var theRowExhibition_beforeDays = exhibitions.Tables[0].Rows[j]["beforeDays"].ToString();
+
+            //NewCol(Addrow, IDColumn.Index, theRowExhibition_id);
+            //NewCol(Addrow, Column1.Index, theRowExhibition_name);
+            //NewCol(Addrow, Column2.Index, theRowExhibition_description);
+            //NewCol(Addrow, Column3.Index, theRowExhibition_beforeDays);
+        }
+    
+        private  void AdddataGirdView1_CellContentClick(object sender, EventArgs e)
+        {
+            AddExhibitionForm addExhibitionForm = new AddExhibitionForm( );
+            addExhibitionForm.ShowDialog();
+        }
+        private  void DeletedataGridView1_CellContentClick(object sender, EventArgs e)
+        {
+            DeleteExhibitionForm form11 = new DeleteExhibitionForm();
+            form11.ShowDialog(); 
+
+        }
+        private async void UpdatedataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            Form2 form2 = new Form2(dataGridView1.Rows[e.RowIndex].Cells[IDColumn.Index].Value.ToString(),
+                dataGridView1.Rows[e.RowIndex].Cells[Column1.Index].Value.ToString(),
+                dataGridView1.Rows[e.RowIndex].Cells[Column2.Index].Value.ToString(),
+                dataGridView1.Rows[e.RowIndex].Cells[Column3.Index].Value.ToString());
+
+            // 显示Form2，可以选择Modeless或Modal方式
+            // form2.Show(); // 非模态窗口，可以同时与Form1交互
+            form2.ShowDialog(); // 模态窗口，必须先关闭Form2才能与Form1交
+
+
         }
 
 
 
         private async void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            //using TestDbContext ctx = new TestDbContext();
-            //var b = ctx.Exhibitions.Single(b => b.name == "");
-            //ctx.Exhibitions.Remove(b);
-            //await ctx.SaveChangesAsync();
+            if (e.ColumnIndex == Column5.Index)
+            {
+                UpdatedataGridView1_CellContentClick(sender, e);
+                return;
+            }
+            else if (e.ColumnIndex == Column4.Index)
+            {
+                //var dr = dataGridView1.Rows[e.RowIndex].Cells[0].Value;
+                // var id = dataGridView1.Rows[e.RowIndex].Cells[0].Value;
+                object rawIdValue = dataGridView1.Rows[e.RowIndex].Cells[0].Value;
+                Guid? id = null;
+                if (Guid.TryParse(rawIdValue?.ToString(), out Guid parsedGuid))
+                {
+                    id = parsedGuid;
+                }
 
-            //using (TestDbContext ctx = new TestDbContext())
-            //{
+                if (id.HasValue)
+                {
+                    using (TestDbContext ctx = new TestDbContext())
+                    {
 
-            //    string exhibitionNameToDelete = "name";
-            //    var exhibitionToDelete = ctx.Exhibition.SingleOrDefault(ex => ex.name == exhibitionNameToDelete);
-            //    if (exhibitionToDelete != null)
-            //    {
-            //        ctx.Exhibition.Remove(exhibitionToDelete);
-            //        await ctx.SaveChangesAsync();
-
-            //    }
-
-            //if (e.RowIndex >= 0 && e.ColumnIndex == dataGridView1.Columns["name"].Index)
-            //{
-            //    string exhibitionNameToDelete = dataGridView1.Rows[e.RowIndex].Cells["name"].Value.ToString();
-            //    using (TestDbContext ctx = new TestDbContext())
-            //    {
-            //    var exhibitionToDelete = ctx.Exhibition.SingleOrDefault(ex => ex.name == exhibitionNameToDelete);
-
-            //    }
-
-
-            //if (e.ColumnIndex == dataGridView1.Columns["name"].Index && e.RowIndex >= 0)
-            //{
-            //    dataGridView1.Rows.RemoveAt(e.RowIndex);
-            //    DataTable dataSource = (DataTable)dataGridView1.DataSource;
-            //    dataSource.Rows[e.RowIndex].Delete();
-
-            //
-            //if (e.ColumnIndex == dataGridView1.Columns["name"].Index && e.RowIndex >= 0)
-            //{
-            //   DataTable dataSource = (DataTable)dataGridView1.DataSource;
-            //    if (dataSource != null && dataSource.Rows.Count > e.RowIndex)
-            //    {
-            //        dataSource.Rows[e.RowIndex].Delete();
-
-            //        dataSource.AcceptChanges();
-
-            // }
-
-
+                        var exhibitionToDelete = ctx.Exhibition.SingleOrDefault(ex => ex.id == id.Value);
+                        if (exhibitionToDelete != null)
+                        {
+                            ctx.Exhibition.Remove(exhibitionToDelete);
+                            await ctx.SaveChangesAsync();
+                        }
+                    }
+                }
+            }
         }
-    
-    
-        
-                
-            
-
-
-        
         private void NewCol(int row, int col, string value)
         {
             dataGridView1.Rows[row].Cells[col].Value = value;           

@@ -23,8 +23,8 @@ namespace Online1
         private void Submit_Click(object sender, EventArgs e)
         {        
             var sql = "Delete FROM [dbo].[Exhibition]" +
-       " WHERE  [name]='{0}' ";
-            var deletesql = string.Format(sql, Name.Text );
+       " WHERE  [id]='{0}' ";
+            var deletesql = string.Format(sql, ID.Text );
             using (SqlCommand command = new SqlCommand(deletesql, conn))
             {
 

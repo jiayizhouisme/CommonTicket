@@ -20,6 +20,8 @@ namespace Online1
         public AddExhibitionForm()
         {
             InitializeComponent();
+           // Submit.Click += new EventHandler(Submit_Click);
+            Submit.Click += Submit_Click;
         }
         private void Submit_Click(object sender, EventArgs e)
         {
@@ -30,8 +32,8 @@ namespace Online1
             using (SqlCommand command = new SqlCommand(insertsql, conn))
             {
                 conn.Open();
-                 command.ExecuteNonQuery();
-               
+                command.ExecuteNonQuery();
+                conn.Close();
                 }
             }
         }

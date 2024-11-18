@@ -1,3 +1,4 @@
+using _222222;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -17,28 +18,35 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 namespace Online1
 {
     public partial class Form1 : Form
-    {
-        //SqlConnection conn = new SqlConnection("Data Source=192.168.51.109;Initial Catalog=CommonTicket2;user id=admin;password=Aa123456;TrustServerCertificate=true;");
+    {        
         SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=CommonTicket2;user id=sa;password=Aa123456;TrustServerCertificate=true");
         private string? theRowExhibition_name;
 
         public Form1()
         {
-
             InitializeComponent();
-            string sqExhibition = "SELECT * FROM [Exhibition]";
-            SqlDataAdapter sda = new SqlDataAdapter(sqExhibition, conn);
-            DataSet sqExhibitionDataSet = new DataSet();
-
-            sda.Fill(sqExhibitionDataSet);
-
-            for (int i = 0; i < sqExhibitionDataSet.Tables[0].Rows.Count; i++)
+            using (var context = new MyDbContext())
             {
-                var theRowExhibition_name = sqExhibitionDataSet.Tables[0].Rows[i]["name"];
-                Type.Items.Add(theRowExhibition_name);
-            }
+                var exhibitions = context.Exhibitions.ToList();
+                foreach (var exhibition in exhibitions)
+                {
+                    Type.Items.Add(exhibition.name);
+                }
 
+                //string sqExhibition = "SELECT * FROM [Exhibition]";
+                //SqlDataAdapter sda = new SqlDataAdapter(sqExhibition, conn);
+                //DataSet sqExhibitionDataSet = new DataSet();
+                //sda.Fill(sqExhibitionDataSet);
+                //for (int i = 0; i < sqExhibitionDataSet.Tables[0].Rows.Count; i++)
+                //{
+                //    var theRowExhibition_name = sqExhibitionDataSet.Tables[0].Rows[i]["name"];
+                //    Type.Items.Add(theRowExhibition_name);
+                //}
+
+            }
         }
+            
+      
         /// <summary>
         /// 查询
         /// </summary>
@@ -54,13 +62,13 @@ namespace Online1
 
         private void Type_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //if (Type.Items.Cast<object>().All(x => x.ToString() != ""))
+           
 
         }
         private void dateTimePicker_ValueChanged(object sender, EventArgs e)
         {
             string selectedDateTime = dateTimePicker.Value.Date.ToString();
-           //MessageBox.Show("您选择的日期和时间是：" + selectedDateTime);
+          
         }
 
         private void State_SelectedIndexChanged(object sender, EventArgs e)
@@ -99,14 +107,14 @@ namespace Online1
             {
                 var theRowOrder_trade_no = orders.Tables[0].Rows[i]["trade_no"];
 
-             DataSet tickets=   Query(queryTicket + theRowOrder_trade_no);
+             DataSet tickets=  Query(queryTicket + theRowOrder_trade_no);
 
                 for (int j = 0; j < tickets.Tables[0].Rows.Count; j++)
                 {
 
                     var theRow_UserId = tickets.Tables[0].Rows[j]["TUserId"];
 
-               DataSet userInfos=    Query(queryUserInfo + theRow_UserId);
+               DataSet userInfos=  Query(queryUserInfo + theRow_UserId);
 
 
                     var theRowTicket_stauts = tickets.Tables[0].Rows[j]["stauts"].ToString();
@@ -179,9 +187,7 @@ namespace Online1
         {
 
             dataGridView1.Rows[row].Cells[col].Value = value;
-            //dataGridView1.Rows[row].Cells[1].Value = "phoneNumber"; //手机 
-            //dataGridView1.Rows[row].Cells[2].Value = "idCard"; //身份证
-            //dataGridView1.Rows[row].Cells[3].Style.Font = new Font(dataGridView1.Font, FontStyle.Bold);//设置字体加粗
+           
 
         }
         public int NewRow()
