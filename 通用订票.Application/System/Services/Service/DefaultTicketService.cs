@@ -265,8 +265,8 @@ namespace 通用订票.Application.System.Services.Service
         public virtual async Task<bool> Vaild(int[] uids, Appointment appointment)
         {
             DateTime now = DateTime.Now.Date;
-            var startTimeSpan = appointment.startTime.TimeOfDay;
-            var endTimeSpan = appointment.endTime.TimeOfDay;
+            var startTimeSpan = appointment.startTime;
+            var endTimeSpan = appointment.endTime;
             var startTime = now.AddDays(appointment.day).Add(startTimeSpan);
             var endTime = now.AddDays(appointment.day).Add(endTimeSpan);
             foreach (var uid in uids)

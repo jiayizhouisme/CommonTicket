@@ -161,7 +161,7 @@ namespace 通用订票.Web.Entry.Controllers
 
                 var order = await myOrderService.CreateOrder(
                     stock.id,
-                    stock.stockName,
+                    exhibition.name,
                     stock.day,
                     exhibition.basicPrice * oc.ids.Count,
                     extraInfo);
@@ -528,8 +528,8 @@ namespace 通用订票.Web.Entry.Controllers
             var app = await stockService.GetAppointmentById(order.objectId);
             var exhibition = await exhibitionService.GetExhibitionByID(app.objectId);
 
-            var startTime = order.createTime.Value.AddDays(app.day).Date.Add(app.startTime.TimeOfDay);
-            var endTime = order.createTime.Value.AddDays(app.day).Date.Add(app.endTime.TimeOfDay);
+            var startTime = order.createTime.Value.AddDays(app.day).Date.Add(app.startTime);
+            var endTime = order.createTime.Value.AddDays(app.day).Date.Add(app.endTime);
 
             if (exhibition.isMultiPart == true)
             {

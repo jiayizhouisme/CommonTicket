@@ -69,12 +69,14 @@ namespace 通用订票.Application.System.Services.Service
 
         public async Task<Exhibition> AddExhibition(Exhibition exhibition)
         {
+            exhibition.createTime = DateTime.Now;
             return await this.AddNow(exhibition);
         }
 
         public async Task<Exhibition> UpdateExhibition(Exhibition exhibition)
         {
             await this.UpdateNow(exhibition);
+            await this._cache.Del("exhibition:" + exhibition.id);
             return exhibition;
         }
 

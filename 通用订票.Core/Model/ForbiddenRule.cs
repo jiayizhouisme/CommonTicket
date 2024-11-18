@@ -8,9 +8,10 @@ namespace 通用订票.Core.Model
 {
     public class ForbiddenRule
     {
-        private int[] Weeks { get; set; }
-        private int[] Months { get; set; }
-        private int[] Days { get; set; }
+        public int[] Weeks { get; set; }
+        public int[] Months { get; set; }
+        public int[] Days { get; set; }
+        public DateTime[] dates { get; set; }
 
         public bool IsDateVaild(DateTime date)
         {
@@ -34,6 +35,14 @@ namespace 通用订票.Core.Model
             foreach (int Day in Days)
             {
                 if (date.Day == Day)
+                {
+                    return false;
+                }
+            }
+
+            foreach (var _date in dates)
+            {
+                if (_date.Date.CompareTo(date.Date) == 0)
                 {
                     return false;
                 }

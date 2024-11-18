@@ -8,8 +8,8 @@ namespace 通用订票.Core.Entity
     public class Appointment : 通用订票.Core.BaseEntity.Stock, IEntityTypeBuilder<Appointment> ,IEntity
     {
         public int day { get; set; }
-        public DateTime startTime { get; set; }
-        public DateTime endTime { get; set; }
+        public TimeSpan startTime { get; set; }
+        public TimeSpan endTime { get; set; }
         public string description { get; set; }
         public string brief { get; set; }
         public Guid objectId { get; set; }

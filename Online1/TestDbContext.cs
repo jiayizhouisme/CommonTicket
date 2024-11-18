@@ -14,7 +14,7 @@ namespace Online1
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             string connStr = "Data Source=.;Initial Catalog=CommonTicket2;user id=sa;password=Aa123456;TrustServerCertificate=true";
-           optionsBuilder.UseSqlServer(connStr);
+           //optionsBuilder.UseSqlServer(connStr);
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

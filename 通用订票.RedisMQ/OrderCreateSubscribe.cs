@@ -92,8 +92,8 @@ namespace 通用订票.RedisMQ
 
                 if (data.order.amount == 0)
                 {
-                    var startTime = data.order.createTime.Value.AddDays(app.day).Date.Add(app.startTime.TimeOfDay);
-                    var endTime = data.order.createTime.Value.AddDays(app.day).Date.Add(app.endTime.TimeOfDay);
+                    var startTime = data.order.createTime.Value.AddDays(app.day).Date.Add(app.startTime);
+                    var endTime = data.order.createTime.Value.AddDays(app.day).Date.Add(app.endTime);
 
                     var e_service = ServiceFactory.GetSaasService<IExhibitionService,Exhibition>(scope.ServiceProvider,data.tenantId);
                     var exhibition = await e_service.GetExhibitionByID(app.objectId);
