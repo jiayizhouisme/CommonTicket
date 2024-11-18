@@ -62,7 +62,7 @@ namespace 通用订票.Application.System.Services.Service
         {
             var datenow = DateTime.Now;
             var timenow = DateTime.Parse(datenow.ToShortTimeString());
-            var stockLimTime = DateTime.Parse(stock.endTime.ToShortTimeString());
+            var stockLimTime = DateTime.Parse(stock.endTime.ToString());
 
             if (stock.day == 0 && timenow.CompareTo(stockLimTime) > 0)
             {

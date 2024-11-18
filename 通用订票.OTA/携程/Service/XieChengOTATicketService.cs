@@ -44,8 +44,8 @@ namespace 通用订票.OTA.携程.Service
 
         public async Task<Ticket> CreateTicket(Exhibition exhibition, Appointment stock, XieChengOrder xiechengOrder, Core.Entity.Order order)
         {
-            var startTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.startTime.TimeOfDay);
-            var endTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.endTime.TimeOfDay);
+            var startTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.startTime);
+            var endTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.endTime);
             order.objectId = stock.id;
             Ticket ticket = null;
             if (exhibition.isMultiPart == false)
@@ -82,8 +82,8 @@ namespace 通用订票.OTA.携程.Service
 
         public async Task<List<Ticket>> CreateTicket(Exhibition exhibition,Appointment stock, XieChengOrder xiechengOrder, Core.Entity.Order order, string[] passids)
         {
-            var startTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.startTime.TimeOfDay);
-            var endTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.endTime.TimeOfDay);
+            var startTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.startTime);
+            var endTime = order.createTime.Value.AddDays(stock.day).Date.Add(stock.endTime);
             order.objectId = stock.id;
             List<Ticket>? tickets = null;
             if (exhibition.isMultiPart == false)

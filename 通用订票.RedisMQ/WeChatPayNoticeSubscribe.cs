@@ -95,8 +95,8 @@ namespace 通用订票.RedisMQ
                             var app = await s_service.GetAppointmentById(order.objectId);
                             var exhibition = await e_service.GetExhibitionByID(app.objectId);
 
-                            var startTime = order.createTime.Value.AddDays(app.day).Date.Add(app.startTime.TimeOfDay);
-                            var endTime = order.createTime.Value.AddDays(app.day).Date.Add(app.endTime.TimeOfDay);
+                            var startTime = order.createTime.Value.AddDays(app.day).Date.Add(app.startTime);
+                            var endTime = order.createTime.Value.AddDays(app.day).Date.Add(app.endTime);
 
                             if (exhibition.isMultiPart == true)
                             {
