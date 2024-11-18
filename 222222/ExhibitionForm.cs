@@ -23,7 +23,7 @@ namespace Online1
         public ExhibitionForm()
         {
             InitializeComponent();
- 
+
         }
         private DataSet Query(string sql)
         {
@@ -53,32 +53,46 @@ namespace Online1
         }
 
 
+
         private void Select_Click(object sender, EventArgs e)
         {
-            //  using TestDbContext db = new TestDbContext();
-
-            DataTable dt = (DataTable)dataGridView1.DataSource;
-
-
-            string queryExhibition = "select * from [Exhibition] ";
-
-            dataGridView1.Rows.Clear();
-            DataSet exhibitions = Query(queryExhibition);
-
-            for (int j = 0; j < exhibitions.Tables[0].Rows.Count; j++)
+            using (var db = new TestDbContext())
             {
-                int Addrow = NewRow();
-                var theRowExhibition_id = exhibitions.Tables[0].Rows[j]["id"].ToString();
-                var theRowExhibition_name = exhibitions.Tables[0].Rows[j]["name"].ToString();
-                var theRowExhibition_description = exhibitions.Tables[0].Rows[j]["description"].ToString();
-                var theRowExhibition_beforeDays = exhibitions.Tables[0].Rows[j]["beforeDays"].ToString();
+                var exhibitions = db.Exhibition.ToList();
+                dataGridView1.Rows.Clear();
+                foreach (var exhibition in exhibitions)
+                {
+                    int Addrow = dataGridView1.Rows.Add();                  
+                    dataGridView1.Rows[Addrow].Cells[IDColumn.Index].Value = exhibition.id;
+                    dataGridView1.Rows[Addrow].Cells[Column1.Index].Value = exhibition.name;
+                    dataGridView1.Rows[Addrow].Cells[Column2.Index].Value = exhibition.description;
+                    dataGridView1.Rows[Addrow].Cells[Column3.Index].Value = exhibition.beforeDays;
 
-                NewCol(Addrow, IDColumn.Index, theRowExhibition_id);
-                NewCol(Addrow, Column1.Index, theRowExhibition_name);
-                NewCol(Addrow, Column2.Index, theRowExhibition_description);
-                NewCol(Addrow, Column3.Index, theRowExhibition_beforeDays);
+                }
             }
+
+            //DataTable dt = (DataTable)dataGridView1.DataSource;
+
+
+            //string queryExhibition = "select * from [Exhibition] ";
+
+            //dataGridView1.Rows.Clear();
+            //DataSet exhibitions = Query(queryExhibition);
+
+            //for (int j = 0; j < exhibitions.Tables[0].Rows.Count; j++)
+            //{
+            //    int Addrow = NewRow();
+            //    var theRowExhibition_id = exhibitions.Tables[0].Rows[j]["id"].ToString();
+            //    var theRowExhibition_name = exhibitions.Tables[0].Rows[j]["name"].ToString();
+            //    var theRowExhibition_description = exhibitions.Tables[0].Rows[j]["description"].ToString();
+            //    var theRowExhibition_beforeDays = exhibitions.Tables[0].Rows[j]["beforeDays"].ToString();
+
+            //NewCol(Addrow, IDColumn.Index, theRowExhibition_id);
+            //NewCol(Addrow, Column1.Index, theRowExhibition_name);
+            //NewCol(Addrow, Column2.Index, theRowExhibition_description);
+            //NewCol(Addrow, Column3.Index, theRowExhibition_beforeDays);
         }
+    
         private  void AdddataGirdView1_CellContentClick(object sender, EventArgs e)
         {
             AddExhibitionForm addExhibitionForm = new AddExhibitionForm( );
