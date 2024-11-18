@@ -1,3 +1,4 @@
+using _222222;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -24,17 +25,28 @@ namespace Online1
         public Form1()
         {
             InitializeComponent();
-            string sqExhibition = "SELECT * FROM [Exhibition]";
-            SqlDataAdapter sda = new SqlDataAdapter(sqExhibition, conn);
-            DataSet sqExhibitionDataSet = new DataSet();
-            sda.Fill(sqExhibitionDataSet);
-            for (int i = 0; i < sqExhibitionDataSet.Tables[0].Rows.Count; i++)
+            using (var context = new MyDbContext())
             {
-                var theRowExhibition_name = sqExhibitionDataSet.Tables[0].Rows[i]["name"];
-                Type.Items.Add(theRowExhibition_name);
-            }
+                var exhibitions = context.Exhibitions.ToList();
+                foreach (var exhibition in exhibitions)
+                {
+                    Type.Items.Add(exhibition.name);
+                }
 
+                //string sqExhibition = "SELECT * FROM [Exhibition]";
+                //SqlDataAdapter sda = new SqlDataAdapter(sqExhibition, conn);
+                //DataSet sqExhibitionDataSet = new DataSet();
+                //sda.Fill(sqExhibitionDataSet);
+                //for (int i = 0; i < sqExhibitionDataSet.Tables[0].Rows.Count; i++)
+                //{
+                //    var theRowExhibition_name = sqExhibitionDataSet.Tables[0].Rows[i]["name"];
+                //    Type.Items.Add(theRowExhibition_name);
+                //}
+
+            }
         }
+            
+      
         /// <summary>
         /// ≤È—Ø
         /// </summary>
