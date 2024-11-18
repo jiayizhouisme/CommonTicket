@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using _222222;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,24 +22,43 @@ namespace Online1
         }
 
         private void Submit_Click(object sender, EventArgs e)
-        {        
-            var sql = "Delete FROM [dbo].[Exhibition]" +
-       " WHERE  [id]='{0}' ";
-            var deletesql = string.Format(sql, ID.Text );
-            using (SqlCommand command = new SqlCommand(deletesql, conn))
+        {
+            using (var context = new MyDbContext())
             {
-
-                conn.Open();
-                command.ExecuteNonQuery();
-
-
+                Guid exhibitionId;
+                if (Guid.TryParse(ID.Text, out exhibitionId))
+                {
+                    var exhibition = context.Exhibitions.Find(exhibitionId);
+                    if (exhibition != null)
+                    {
+                        context.Exhibitions.Remove(exhibition);
+                        context.SaveChanges();
+                    }
+                }
             }
-            
         }
     }
 }
-//var sql = "Delete FROM [dbo].[Exhibition]" +
-//" WHERE [id]=0 AND [name]='1' AND [description]=2 AND [imgs] IS Null AND [status]= CONVERT(uniqueidentifier, 3) AND [isDeleted]=0 AND  CAST([createTime] AS DateTime2)='2024-01-23T14:56:48.5729222' AND CAST([basicPrice] AS Decimal(18, 2))=4.00  AND [passType]=1 AND [isMultiPart]=0 AND [exhibitions] IS Null AND [beforeDays]= CONVERT(uniqueidentifier, 5) AND [forbiddenRule] IS Null AND [totalAmount] = CONVERT(uniqueidentifier, 6)";
+
+//            var sql = "Delete FROM [dbo].[Exhibition]" +
+//       " WHERE  [id]='{0}' ";
+//            var deletesql = string.Format(sql, ID.Text);
+//            using (SqlCommand command = new SqlCommand(deletesql, conn))
+//            {
+
+//                conn.Open();
+//                command.ExecuteNonQuery();
+//            }
+//        }
+//    }
+//}
+
+
+
+
+
+
+
 
 
 

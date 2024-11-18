@@ -11,6 +11,8 @@ using System.Windows.Forms;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using _222222;
+using 通用订票.Core.Entity;
 
 namespace Online1
 {
@@ -20,11 +22,12 @@ namespace Online1
         public AddExhibitionForm()
         {
             InitializeComponent();
-           // Submit.Click += new EventHandler(Submit_Click);
+            // Submit.Click += new EventHandler(Submit_Click);
             Submit.Click += Submit_Click;
         }
         private void Submit_Click(object sender, EventArgs e)
         {
+
             var sql = "INSERT [dbo].[Exhibition] ([id], [name], [description], [imgs], [status], [isDeleted], [createTime], [basicPrice], [passType], [isMultiPart], [exhibitions], [beforeDays], [forbiddenRule], [totalAmount])" +
             " VALUES (N'{0}', N'{1}', N'{2}', NULL, {3}, 0, CAST(N'2024-01-23T14:56:48.5729222' AS DateTime2), CAST({4} AS Decimal(18, 2)), 1, 0, NULL, {5}, NULL, {6})";
             var insertsql = string.Format(sql, Guid.NewGuid().ToString(), Name1.Text, Description1.Text, Status1.Text, BasicPrice1.Text, BeforeDays1.Text, TotalAmount1.Text);
@@ -34,10 +37,11 @@ namespace Online1
                 conn.Open();
                 command.ExecuteNonQuery();
                 conn.Close();
-                }
             }
         }
+        }
     }
+
 
           
     

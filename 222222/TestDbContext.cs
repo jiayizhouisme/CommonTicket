@@ -13,7 +13,7 @@ namespace Online1
         public DbSet<Exhibition> Exhibition { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string connStr = "Data Source=.;Initial Catalog=CommonTicket2;user id=sa;password=Aa123456;TrustServerCertificate=true";
+            string connStr = "Data Source=.;Initial Catalog=CommonTicket1;user id=sa;password=Aa123456;TrustServerCertificate=true";
            optionsBuilder.UseSqlServer(connStr);
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
