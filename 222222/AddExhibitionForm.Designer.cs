@@ -51,6 +51,7 @@
             Status1.Name = "Status1";
             Status1.Size = new Size(125, 27);
             Status1.TabIndex = 1;
+            Status1.Text = "0";
             // 
             // BasicPrice1
             // 
@@ -58,6 +59,8 @@
             BasicPrice1.Name = "BasicPrice1";
             BasicPrice1.Size = new Size(125, 27);
             BasicPrice1.TabIndex = 2;
+            BasicPrice1.Text = "0";
+
             // 
             // Description1
             // 
@@ -72,6 +75,7 @@
             BeforeDays1.Name = "BeforeDays1";
             BeforeDays1.Size = new Size(125, 27);
             BeforeDays1.TabIndex = 4;
+            BeforeDays1.Text = "0";
             // 
             // TotalAmount1
             // 
@@ -79,6 +83,7 @@
             TotalAmount1.Name = "TotalAmount1";
             TotalAmount1.Size = new Size(125, 27);
             TotalAmount1.TabIndex = 5;
+            TotalAmount1.Text = "0";
             // 
             // Name1
             // 

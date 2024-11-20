@@ -27,24 +27,54 @@ namespace Online1
         }
         private void Submit_Click(object sender, EventArgs e)
         {
-
-            var sql = "INSERT [dbo].[Exhibition] ([id], [name], [description], [imgs], [status], [isDeleted], [createTime], [basicPrice], [passType], [isMultiPart], [exhibitions], [beforeDays], [forbiddenRule], [totalAmount])" +
-            " VALUES (N'{0}', N'{1}', N'{2}', NULL, {3}, 0, CAST(N'2024-01-23T14:56:48.5729222' AS DateTime2), CAST({4} AS Decimal(18, 2)), 1, 0, NULL, {5}, NULL, {6})";
-            var insertsql = string.Format(sql, Guid.NewGuid().ToString(), Name1.Text, Description1.Text, Status1.Text, BasicPrice1.Text, BeforeDays1.Text, TotalAmount1.Text);
-
-            using (SqlCommand command = new SqlCommand(insertsql, conn))
+          
+            using (var context = new MyDbContext())
             {
-                conn.Open();
-                command.ExecuteNonQuery();
-                conn.Close();
+
+                var exhibition = new Exhibition
+                {
+
+                    id = Guid.NewGuid(),
+                    name = Name1.Text,
+                    description = Description1.Text,
+                    status = int.Parse(Status1.Text),
+                    createTime = DateTime.Parse("2024-01-23T14:56:48.5729222"),
+                    basicPrice = decimal.Parse(BasicPrice1.Text),
+                    passType = (PassTemplate)1,//
+                    isMultiPart = false,
+                    beforeDays = int.Parse(BeforeDays1.Text),
+                    totalAmount = int.Parse(TotalAmount1.Text)//
+                };
+               
+                try
+                {
+
+                    context.Exhibitions.Add(exhibition);
+                    context.SaveChanges();             
+
+                    MessageBox.Show("添加成功");
+                    
+                }
+
+                catch (Exception ex)
+                {
+                    MessageBox.Show("添加失败");
+                    
+                }
+                
+                   
             }
         }
-        }
     }
+}
 
 
-          
-    
+
+
+
+
+
+
 
 
 

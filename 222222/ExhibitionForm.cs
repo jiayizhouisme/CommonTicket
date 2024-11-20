@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using _222222;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json.Linq;
 using System;
@@ -56,9 +57,9 @@ namespace Online1
 
         private void Select_Click(object sender, EventArgs e)
         {
-            using (var db = new TestDbContext())
+            using (var db = new MyDbContext())
             {
-                var exhibitions = db.Exhibition.ToList();
+                var exhibitions = db.Exhibitions.ToList();
                 dataGridView1.Rows.Clear();
                 foreach (var exhibition in exhibitions)
                 {
@@ -140,13 +141,13 @@ namespace Online1
 
                 if (id.HasValue)
                 {
-                    using (TestDbContext ctx = new TestDbContext())
+                    using (MyDbContext ctx = new MyDbContext())
                     {
 
-                        var exhibitionToDelete = ctx.Exhibition.SingleOrDefault(ex => ex.id == id.Value);
+                        var exhibitionToDelete = ctx.Exhibitions.SingleOrDefault(ex => ex.id == id.Value);
                         if (exhibitionToDelete != null)
                         {
-                            ctx.Exhibition.Remove(exhibitionToDelete);
+                            ctx.Exhibitions.Remove(exhibitionToDelete);
                             await ctx.SaveChangesAsync();
                         }
                     }
