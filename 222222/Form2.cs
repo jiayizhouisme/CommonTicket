@@ -22,7 +22,7 @@ namespace Online1
             InitializeComponent();
             ID1.Text = id;
             Name1.Text = name;
-            oldname = name;//更新数据库之前的值
+            oldname = name;
             Description1.Text = description;
             BeforeDays1.Text = beforeDays;
             Submit.Click += Submit_Click;

@@ -39,6 +39,7 @@
             Column3 = new DataGridViewTextBoxColumn();
             Column4 = new DataGridViewButtonColumn();
             Column5 = new DataGridViewButtonColumn();
+            预约 = new DataGridViewButtonColumn();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
@@ -75,11 +76,11 @@
             // dataGridView1
             // 
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { IDColumn,Column1, Column2, Column3, Column4, Column5 });
+            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { IDColumn, Column1, Column2, Column3, Column4, Column5, 预约 });
             dataGridView1.Location = new Point(33, 81);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersWidth = 51;
-            dataGridView1.Size = new Size(677, 357);
+            dataGridView1.Size = new Size(930, 357);
             dataGridView1.TabIndex = 3;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick;
             // 
@@ -93,6 +94,14 @@
             Select.UseVisualStyleBackColor = true;
             Select.Click += Select_Click;
             // 
+            // IDColumn
+            // 
+            IDColumn.HeaderText = "ID";
+            IDColumn.MinimumWidth = 6;
+            IDColumn.Name = "IDColumn";
+            IDColumn.Resizable = DataGridViewTriState.True;
+            IDColumn.Width = 125;
+            // 
             // Column1
             // 
             Column1.HeaderText = "名称";
@@ -100,13 +109,6 @@
             Column1.Name = "Column1";
             Column1.Resizable = DataGridViewTriState.True;
             Column1.Width = 125;
-
-            IDColumn.HeaderText = "ID";
-            IDColumn.MinimumWidth = 6;
-            IDColumn.Name = "IDColumn";
-            IDColumn.Resizable = DataGridViewTriState.True;
-            IDColumn.Width = 125;
-
             // 
             // Column2
             // 
@@ -142,11 +144,21 @@
             Column5.UseColumnTextForButtonValue = true;
             Column5.Width = 125;
             // 
+            // 预约
+            // 
+            预约.HeaderText = "预约设置";
+            预约.MinimumWidth = 6;
+            预约.Name = "预约";
+            预约.Text = "预约";
+            预约.ToolTipText = "预约";
+            预约.UseColumnTextForButtonValue = true;
+            预约.Width = 125;
+            // 
             // ExhibitionForm
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(799, 450);
+            ClientSize = new Size(1002, 450);
             Controls.Add(Select);
             Controls.Add(dataGridView1);
             Controls.Add(Update);
@@ -171,5 +183,6 @@
         private DataGridViewTextBoxColumn Column3;
         private DataGridViewButtonColumn Column4;
         private DataGridViewButtonColumn Column5;
+        private DataGridViewButtonColumn 预约;
     }
 }

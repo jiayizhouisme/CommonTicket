@@ -1,5 +1,6 @@
 ﻿using _222222;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json.Linq;
 using System;
@@ -60,6 +61,7 @@ namespace Online1
             using (var db = new MyDbContext())
             {
                 var exhibitions = db.Exhibitions.ToList();
+               
                 dataGridView1.Rows.Clear();
                 foreach (var exhibition in exhibitions)
                 {
@@ -72,26 +74,7 @@ namespace Online1
                 }
             }
 
-            //DataTable dt = (DataTable)dataGridView1.DataSource;
-
-
-            //string queryExhibition = "select * from [Exhibition] ";
-
-            //dataGridView1.Rows.Clear();
-            //DataSet exhibitions = Query(queryExhibition);
-
-            //for (int j = 0; j < exhibitions.Tables[0].Rows.Count; j++)
-            //{
-            //    int Addrow = NewRow();
-            //    var theRowExhibition_id = exhibitions.Tables[0].Rows[j]["id"].ToString();
-            //    var theRowExhibition_name = exhibitions.Tables[0].Rows[j]["name"].ToString();
-            //    var theRowExhibition_description = exhibitions.Tables[0].Rows[j]["description"].ToString();
-            //    var theRowExhibition_beforeDays = exhibitions.Tables[0].Rows[j]["beforeDays"].ToString();
-
-            //NewCol(Addrow, IDColumn.Index, theRowExhibition_id);
-            //NewCol(Addrow, Column1.Index, theRowExhibition_name);
-            //NewCol(Addrow, Column2.Index, theRowExhibition_description);
-            //NewCol(Addrow, Column3.Index, theRowExhibition_beforeDays);
+           
         }
     
         private  void AdddataGirdView1_CellContentClick(object sender, EventArgs e)
@@ -111,14 +94,21 @@ namespace Online1
                 dataGridView1.Rows[e.RowIndex].Cells[Column1.Index].Value.ToString(),
                 dataGridView1.Rows[e.RowIndex].Cells[Column2.Index].Value.ToString(),
                 dataGridView1.Rows[e.RowIndex].Cells[Column3.Index].Value.ToString());
-
-            // 显示Form2，可以选择Modeless或Modal方式
-            // form2.Show(); // 非模态窗口，可以同时与Form1交互
-            form2.ShowDialog(); // 模态窗口，必须先关闭Form2才能与Form1交
-
+          
+            form2.ShowDialog(); 
 
         }
+        private void AppointmentGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {           
+                //Guid id = (Guid)Rows[e.RowIndex].Cells["ID"]; 
+                //int day = (int)Rows[e.RowIndex].Cells["Day"]; 
+                //TimeSpan startTime = (TimeSpan)Rows[e.RowIndex].Cells["StartTime"]; 
+                //TimeSpan endTime = (TimeSpan)Rows[e.RowIndex].Cells["EndTime"];            
+                //AppointmentForm appointmentForm = new AppointmentForm(id, day, startTime, endTime);
 
+                //appointmentForm.ShowDialog();
+            }
+        
 
 
         private async void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -130,8 +120,6 @@ namespace Online1
             }
             else if (e.ColumnIndex == Column4.Index)
             {
-                //var dr = dataGridView1.Rows[e.RowIndex].Cells[0].Value;
-                // var id = dataGridView1.Rows[e.RowIndex].Cells[0].Value;
                 object rawIdValue = dataGridView1.Rows[e.RowIndex].Cells[0].Value;
                 Guid? id = null;
                 if (Guid.TryParse(rawIdValue?.ToString(), out Guid parsedGuid))

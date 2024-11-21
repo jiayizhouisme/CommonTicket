@@ -40,18 +40,7 @@ namespace Online1
     }
 }
 
-//            var sql = "Delete FROM [dbo].[Exhibition]" +
-//       " WHERE  [id]='{0}' ";
-//            var deletesql = string.Format(sql, ID.Text);
-//            using (SqlCommand command = new SqlCommand(deletesql, conn))
-//            {
 
-//                conn.Open();
-//                command.ExecuteNonQuery();
-//            }
-//        }
-//    }
-//}
 
 
 
