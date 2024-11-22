@@ -1,6 +1,6 @@
 ﻿namespace Online1
 {
-    partial class DeleteAppointmentForm
+    partial class DeleteExhibitionForm
     {
         /// <summary>
         /// Required designer variable.

@@ -34,13 +34,8 @@ namespace Online1
                 {
                     Type.Items.Add(exhibition.name);
                 }
-
-               
-
             }
         }
-
-
         /// <summary>
         /// ≤È—Ø
         /// </summary>
@@ -56,22 +51,16 @@ namespace Online1
 
         private void Type_SelectedIndexChanged(object sender, EventArgs e)
         {
-
-
         }
         private void dateTimePicker_ValueChanged(object sender, EventArgs e)
         {
             string selectedDateTime = dateTimePicker.Value.Date.ToString();
-
         }
-
         private void State_SelectedIndexChanged(object sender, EventArgs e)
         {
         }
-
         private void textBox_TextChanged(object sender, EventArgs e)
         {
-
         }
         private void Search_Click(object sender, EventArgs e)
         {

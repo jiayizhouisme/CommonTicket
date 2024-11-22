@@ -62,6 +62,7 @@ namespace Online1
             {
                 var exhibitions = db.Exhibitions.ToList();
                
+
                 dataGridView1.Rows.Clear();
                 foreach (var exhibition in exhibitions)
                 {
@@ -94,21 +95,12 @@ namespace Online1
                 dataGridView1.Rows[e.RowIndex].Cells[Column1.Index].Value.ToString(),
                 dataGridView1.Rows[e.RowIndex].Cells[Column2.Index].Value.ToString(),
                 dataGridView1.Rows[e.RowIndex].Cells[Column3.Index].Value.ToString());
-          
-            form2.ShowDialog(); 
+
+            form2.ShowDialog();
 
         }
-        private void AppointmentGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {           
-                //Guid id = (Guid)Rows[e.RowIndex].Cells["ID"]; 
-                //int day = (int)Rows[e.RowIndex].Cells["Day"]; 
-                //TimeSpan startTime = (TimeSpan)Rows[e.RowIndex].Cells["StartTime"]; 
-                //TimeSpan endTime = (TimeSpan)Rows[e.RowIndex].Cells["EndTime"];            
-                //AppointmentForm appointmentForm = new AppointmentForm(id, day, startTime, endTime);
 
-                //appointmentForm.ShowDialog();
-            }
-        
+
 
 
         private async void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -139,6 +131,18 @@ namespace Online1
                             await ctx.SaveChangesAsync();
                         }
                     }
+                }
+            }
+            else if ((e.ColumnIndex == Column6.Index))
+            {
+                DataGridView gridView = sender as DataGridView;
+                if (e.RowIndex >= 0 && e.RowIndex < gridView.Rows.Count)
+                {
+                    Guid Id = Guid.Parse(gridView.Rows[e.RowIndex].Cells[IDColumn.Index].Value.ToString());
+
+                    AppointmentForm appointmentForm = new AppointmentForm(Id);
+                    appointmentForm.ShowDialog();
+               
                 }
             }
         }

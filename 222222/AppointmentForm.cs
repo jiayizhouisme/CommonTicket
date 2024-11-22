@@ -14,27 +14,54 @@ namespace _222222
     public partial class AppointmentForm : Form
     {
         SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=CommonTicket2;user id=sa;password=Aa123456;TrustServerCertificate=true");
-        public AppointmentForm(Guid id,int day,TimeSpan startTime,TimeSpan endTime)
+
+        public AppointmentForm()
+        {
+        }
+
+        public AppointmentForm(Guid id)
         {
             InitializeComponent();
-            ID.Text =id.ToString();
-            Day.Text = day.ToString();
-            StartTime.Text = startTime.ToString();
-            EndTime.Text = endTime.ToString();
-            Submit.Click += Submit_Click;
-            //dateTimePicker1.Format = DateTimePickerFormat.Time;
-            //dateTimePicker1.ShowUpDown = true;
-            //dateTimePicker2.Format = DateTimePickerFormat.Time;
-            //dateTimePicker2.ShowUpDown = true;
+            ID.Text = id.ToString();                   
         }
 
         private void Submit_Click(object sender, EventArgs e)
         {
-            
-            using (var ctx = new MyDbContext())
+            object rawIdValue = ID.Text;
+            Guid? id = null;
+            if (Guid.TryParse(rawIdValue?.ToString(), out Guid parsedGuid))
             {
-               
+                id = parsedGuid;
             }
+            if (id.HasValue)
+            {
+                using (var ctx = new MyDbContext())
+                {                  
+                    var appointment =  ctx.Appointments.FirstOrDefault(a => a.Id ==id.Value);
+                    if (appointment != null)
+                    {
+                        if (int.TryParse(Day.Text, out int day))
+                        {
+                            appointment.Day = day;
+                        }
+                        if (DateTime.TryParse(StartTime.Text, out DateTime startTime) &&
+                    DateTime.TryParse(EndTime.Text, out DateTime endTime))
+                        {
+                            appointment.StartTime = startTime;
+                            appointment.EndTime = endTime;
+                            try
+                            {
+                                ctx.SaveChanges();
+                                MessageBox.Show("添加时间成功");
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("添加时间失败: ");
+                            }
+                        }
+                    }
+                }
             }
+        }
     }
 }
