@@ -61,12 +61,12 @@ namespace Online1
             using (var db = new MyDbContext())
             {
                 var exhibitions = db.Exhibitions.ToList();
-               
+
 
                 dataGridView1.Rows.Clear();
                 foreach (var exhibition in exhibitions)
                 {
-                    int Addrow = dataGridView1.Rows.Add();                  
+                    int Addrow = dataGridView1.Rows.Add();
                     dataGridView1.Rows[Addrow].Cells[IDColumn.Index].Value = exhibition.id;
                     dataGridView1.Rows[Addrow].Cells[Column1.Index].Value = exhibition.name;
                     dataGridView1.Rows[Addrow].Cells[Column2.Index].Value = exhibition.description;
@@ -75,18 +75,18 @@ namespace Online1
                 }
             }
 
-           
+
         }
-    
-        private  void AdddataGirdView1_CellContentClick(object sender, EventArgs e)
+
+        private void AdddataGirdView1_CellContentClick(object sender, EventArgs e)
         {
-            AddExhibitionForm addExhibitionForm = new AddExhibitionForm( );
+            AddExhibitionForm addExhibitionForm = new AddExhibitionForm();
             addExhibitionForm.ShowDialog();
         }
-        private  void DeletedataGridView1_CellContentClick(object sender, EventArgs e)
+        private void DeletedataGridView1_CellContentClick(object sender, EventArgs e)
         {
             DeleteExhibitionForm form11 = new DeleteExhibitionForm();
-            form11.ShowDialog(); 
+            form11.ShowDialog();
 
         }
         private async void UpdatedataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -99,7 +99,7 @@ namespace Online1
             form2.ShowDialog();
 
         }
-
+      
 
 
 
@@ -135,15 +135,15 @@ namespace Online1
             }
             else if ((e.ColumnIndex == Column6.Index))
             {
-                DataGridView gridView = sender as DataGridView;
-                if (e.RowIndex >= 0 && e.RowIndex < gridView.Rows.Count)
-                {
-                    Guid Id = Guid.Parse(gridView.Rows[e.RowIndex].Cells[IDColumn.Index].Value.ToString());
-
-                    AppointmentForm appointmentForm = new AppointmentForm(Id);
-                    appointmentForm.ShowDialog();
-               
-                }
+                MainAppointmentForm mainForm = new MainAppointmentForm();
+                mainForm.ShowDialog(); 
+               //    DataGridView gridView = sender as DataGridView;
+               //    if (e.RowIndex >= 0 && e.RowIndex < gridView.Rows.Count)
+               //    {
+               //        Guid Id = Guid.Parse(gridView.Rows[e.RowIndex].Cells[IDColumn.Index].Value.ToString());
+               //        AppointmentForm appointmentForm = new AppointmentForm(Id);
+                //        appointmentForm.ShowDialog();           
+                 //    }
             }
         }
         private void NewCol(int row, int col, string value)

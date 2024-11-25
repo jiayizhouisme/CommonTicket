@@ -36,6 +36,7 @@
             Column4 = new DataGridViewButtonColumn();
             Column5 = new DataGridViewButtonColumn();
             Submit = new Button();
+            Add = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
@@ -110,11 +111,21 @@
             Submit.UseVisualStyleBackColor = true;
             Submit.Click += Submit_Click;
             // 
+            // Add
+            // 
+            Add.Location = new Point(132, 24);
+            Add.Name = "Add";
+            Add.Size = new Size(94, 29);
+            Add.TabIndex = 6;
+            Add.Text = "增加";
+            Add.UseVisualStyleBackColor = true;
+            // 
             // MainAppointmentForm
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(895, 450);
+            Controls.Add(Add);
             Controls.Add(Submit);
             Controls.Add(dataGridView1);
             Name = "MainAppointmentForm";
@@ -132,5 +143,6 @@
         private DataGridViewTextBoxColumn Column3;
         private DataGridViewButtonColumn Column4;
         private DataGridViewButtonColumn Column5;
+        private Button Add;
     }
 }

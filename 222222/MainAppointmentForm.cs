@@ -1,4 +1,5 @@
 ﻿using _222222;
+using _222222.Model;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -25,24 +26,21 @@ namespace Online1
         public MainAppointmentForm()
         {
             InitializeComponent();
-
         }
         private DataSet Query(string sql)
         {
             var sda = new SqlDataAdapter(sql, conn);
             DataSet queryTableDataSet = new DataSet();
-
             sda.Fill(queryTableDataSet);
             return queryTableDataSet;
         }
-
         private void Submit_Click(object sender, EventArgs e)
         {
             using (var db = new MyDbContext())
             {
                 var appointments = db.Appointments.ToList();
                 var sortedAppointments = appointments.OrderBy(appointment => appointment.Day).ToList();
-                dataGridView1.Rows.Clear();
+                dataGridView1.Rows.Clear(); 
                 foreach (var appointment in sortedAppointments)
                 {
                     int Addrow = dataGridView1.Rows.Add();
@@ -53,21 +51,34 @@ namespace Online1
                 }
             }
         }
+        private void AdddataGirdView1_CellContentClick(object sender, EventArgs e)
+        {
+            AddAppointmentForm addAppointmentForm = new AddAppointmentForm();
+            addAppointmentForm.ShowDialog();
+        }
+        private void UpdateGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            object cellValue = dataGridView1.Rows[e.RowIndex].Cells[IDColumn.Index].Value;
+            if (cellValue != null && Guid.TryParse(cellValue.ToString(), out Guid id))
+            {
 
-        
+                AppointmentForm appointmentForm = new AppointmentForm(id);
+                appointmentForm.ShowDialog();
+            }
+
+        }
         private void DeletedataGridView1_CellContentClick(object sender, EventArgs e)
         {
-            DeleteExhibitionForm form11 = new DeleteExhibitionForm();
-            form11.ShowDialog();
+            
 
         }
         private async void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            //if (e.ColumnIndex == Column4.Index)
-            //{
-            // UpdatedataGridView1_CellContentClick(sender, e);
-            // return;
-            //}
+            if (e.ColumnIndex == Column4.Index)
+            {
+                UpdateGridView1_CellContentClick(sender, e);
+                return;
+            }
             if (e.ColumnIndex == Column5.Index)
             {
                 object rawIdValue = dataGridView1.Rows[e.RowIndex].Cells[0].Value;
@@ -89,7 +100,7 @@ namespace Online1
                     }
                 }
             }
-            else if ((e.ColumnIndex == Column3.Index))
+            else if ((e.ColumnIndex == Column4.Index))
             {
                 DataGridView gridView = sender as DataGridView;
                 if (e.RowIndex >= 0 && e.RowIndex < gridView.Rows.Count)
@@ -107,11 +118,8 @@ namespace Online1
         public int NewRow()
         {
             DataGridViewRow row = new DataGridViewRow();
-            int j = dataGridView1.Rows.Add(row);//添加新的一行
+            int j = dataGridView1.Rows.Add(row);
             return j;
-        }
-
-        
-        
+        }     
     }
 }

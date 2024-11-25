@@ -21,8 +21,7 @@ namespace Online1
         SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=CommonTicket2;user id=sa;password=Aa123456;TrustServerCertificate=true");
         public AddExhibitionForm()
         {
-            InitializeComponent();
-            // Submit.Click += new EventHandler(Submit_Click);
+            InitializeComponent();         
             Submit.Click += Submit_Click;
         }
         private void Submit_Click(object sender, EventArgs e)
@@ -30,7 +29,6 @@ namespace Online1
           
             using (var context = new MyDbContext())
             {
-
                 var exhibition = new Exhibition
                 {
 
@@ -44,8 +42,7 @@ namespace Online1
                     isMultiPart = false,
                     beforeDays = int.Parse(BeforeDays1.Text),
                     totalAmount = int.Parse(TotalAmount1.Text)//
-                };
-               
+                };               
                 try
                 {
 
@@ -60,8 +57,7 @@ namespace Online1
                 {
                     MessageBox.Show("添加失败");
                     
-                }
-                
+                }             
                    
             }
         }

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace _222222
 {
@@ -22,17 +23,19 @@ namespace _222222
         public AppointmentForm(Guid id)
         {
             InitializeComponent();
-            ID.Text = id.ToString();                   
+            textBox1.Text = id.ToString();
+         
         }
 
         private void Submit_Click(object sender, EventArgs e)
         {
-            object rawIdValue = ID.Text;
+            object rawIdValue = textBox1.Text;
             Guid? id = null;
             if (Guid.TryParse(rawIdValue?.ToString(), out Guid parsedGuid))
             {
                 id = parsedGuid;
             }
+
             if (id.HasValue)
             {
                 using (var ctx = new MyDbContext())
@@ -44,13 +47,16 @@ namespace _222222
                         {
                             appointment.Day = day;
                         }
-                        if (DateTime.TryParse(StartTime.Text, out DateTime startTime) &&
-                    DateTime.TryParse(EndTime.Text, out DateTime endTime))
+                        if (dateTimePicker1.Value != DateTime.MinValue && dateTimePicker2.Value != DateTime.MinValue)
                         {
-                            appointment.StartTime = startTime;
-                            appointment.EndTime = endTime;
-                            try
-                            {
+                            appointment.StartTime = dateTimePicker2.Value;
+                            appointment.EndTime = dateTimePicker1.Value;
+                        }
+
+
+                      
+                        try
+                        {
                                 ctx.SaveChanges();
                                 MessageBox.Show("添加时间成功");
                             }
@@ -64,4 +70,3 @@ namespace _222222
             }
         }
     }
-}
