@@ -1,6 +1,6 @@
 ﻿namespace _222222
 {
-    partial class AppointmentForm
+    partial class UpdateAppointmentForm
     {
         /// <summary>
         /// Required designer variable.

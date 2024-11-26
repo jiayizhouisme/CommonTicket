@@ -14,10 +14,10 @@ namespace Online1
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
             //  Application.Run(new Form1());
-            //Application.Run(new MainAppointmentForm());
+         // Application.Run(new MainAppointmentForm());
             //Application.Run(new AppointmentForm());
              Application.Run(new ExhibitionForm());
-           // Application.Run(new AddAppointmentForm());
+          // Application.Run(new AddAppointmentForm());
             // Application.Run(new AddExhibitionForm());
             // Application.Run(new DeleteExhibitionForm());
         }

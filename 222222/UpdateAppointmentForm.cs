@@ -12,19 +12,20 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace _222222
 {
-    public partial class AppointmentForm : Form
+    public partial class UpdateAppointmentForm : Form
     {
         SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=CommonTicket2;user id=sa;password=Aa123456;TrustServerCertificate=true");
 
-        public AppointmentForm()
+        public UpdateAppointmentForm()
         {
+            InitializeComponent();
         }
 
-        public AppointmentForm(Guid id)
+        public UpdateAppointmentForm(Guid id)
         {
             InitializeComponent();
             textBox1.Text = id.ToString();
-         
+           
         }
 
         private void Submit_Click(object sender, EventArgs e)

@@ -133,9 +133,12 @@ namespace Online1
                     }
                 }
             }
+
             else if ((e.ColumnIndex == Column6.Index))
             {
-                MainAppointmentForm mainForm = new MainAppointmentForm();
+                Guid Id = Guid.Parse(dataGridView1.Rows[e.RowIndex].Cells[IDColumn.Index].Value.ToString());
+              
+                MainAppointmentForm mainForm = new MainAppointmentForm(Id);
                 mainForm.ShowDialog(); 
                //    DataGridView gridView = sender as DataGridView;
                //    if (e.RowIndex >= 0 && e.RowIndex < gridView.Rows.Count)

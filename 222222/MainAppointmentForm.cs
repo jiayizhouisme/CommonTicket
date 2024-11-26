@@ -23,10 +23,21 @@ namespace Online1
     public partial class MainAppointmentForm : Form
     {
         SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=CommonTicket1;user id=sa;password=Aa123456;TrustServerCertificate=true");
+        private Guid id;
+
         public MainAppointmentForm()
         {
             InitializeComponent();
+           
+        
         }
+
+        public MainAppointmentForm(Guid id)//构造函数
+        {
+            this.id = id;
+            InitializeComponent();
+        }
+
         private DataSet Query(string sql)
         {
             var sda = new SqlDataAdapter(sql, conn);
@@ -35,7 +46,7 @@ namespace Online1
             return queryTableDataSet;
         }
         private void Submit_Click(object sender, EventArgs e)
-        {
+        {     
             using (var db = new MyDbContext())
             {
                 var appointments = db.Appointments.ToList();
@@ -45,16 +56,17 @@ namespace Online1
                 {
                     int Addrow = dataGridView1.Rows.Add();
                     dataGridView1.Rows[Addrow].Cells[IDColumn.Index].Value =appointment.Id;
-                    dataGridView1.Rows[Addrow].Cells[Column1.Index].Value = appointment.Day;
+                     dataGridView1.Rows[Addrow].Cells[Column1.Index].Value = appointment.Day;  
                     dataGridView1.Rows[Addrow].Cells[Column2.Index].Value = appointment.StartTime; 
                     dataGridView1.Rows[Addrow].Cells[Column3.Index].Value = appointment.EndTime;
+                    dataGridView1.Rows[Addrow].Cells[Column6.Index].Value = appointment.ObjectId;
                 }
             }
         }
         private void AdddataGirdView1_CellContentClick(object sender, EventArgs e)
         {
-            AddAppointmentForm addAppointmentForm = new AddAppointmentForm();
-            addAppointmentForm.ShowDialog();
+            AddAppointmentForm addappointmentForm = new AddAppointmentForm(this.id);
+            addappointmentForm.ShowDialog();
         }
         private void UpdateGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -62,7 +74,7 @@ namespace Online1
             if (cellValue != null && Guid.TryParse(cellValue.ToString(), out Guid id))
             {
 
-                AppointmentForm appointmentForm = new AppointmentForm(id);
+                UpdateAppointmentForm appointmentForm = new UpdateAppointmentForm(id);
                 appointmentForm.ShowDialog();
             }
 
@@ -106,7 +118,7 @@ namespace Online1
                 if (e.RowIndex >= 0 && e.RowIndex < gridView.Rows.Count)
                 {
                     Guid Id = Guid.Parse(gridView.Rows[e.RowIndex].Cells[IDColumn.Index].Value.ToString());
-                    AppointmentForm appointmentForm = new AppointmentForm(Id);
+                    UpdateAppointmentForm appointmentForm = new UpdateAppointmentForm(Id);
                     appointmentForm.ShowDialog();
                 }
             }

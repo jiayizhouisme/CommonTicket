@@ -29,27 +29,48 @@
         private void InitializeComponent()
         {
             dataGridView1 = new DataGridView();
+            Submit = new Button();
+            Add = new Button();
             IDColumn = new DataGridViewTextBoxColumn();
+            Column6 = new DataGridViewTextBoxColumn();
             Column1 = new DataGridViewTextBoxColumn();
             Column2 = new DataGridViewTextBoxColumn();
             Column3 = new DataGridViewTextBoxColumn();
             Column4 = new DataGridViewButtonColumn();
             Column5 = new DataGridViewButtonColumn();
-            Submit = new Button();
-            Add = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
             // dataGridView1
             // 
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { IDColumn, Column1, Column2, Column3, Column4, Column5 });
+            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { IDColumn, Column6, Column1, Column2, Column3, Column4, Column5 });
             dataGridView1.Location = new Point(21, 81);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersWidth = 51;
-            dataGridView1.Size = new Size(830, 357);
+            dataGridView1.Size = new Size(941, 357);
             dataGridView1.TabIndex = 3;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick;
+            // 
+            // Submit
+            // 
+            Submit.Location = new Point(21, 24);
+            Submit.Name = "Submit";
+            Submit.Size = new Size(94, 29);
+            Submit.TabIndex = 5;
+            Submit.Text = "查询";
+            Submit.UseVisualStyleBackColor = true;
+            Submit.Click += Submit_Click;
+            // 
+            // Add
+            // 
+            Add.Location = new Point(132, 24);
+            Add.Name = "Add";
+            Add.Size = new Size(94, 29);
+            Add.TabIndex = 6;
+            Add.Text = "增加";
+            Add.UseVisualStyleBackColor = true;
+            Add.Click += AdddataGirdView1_CellContentClick;
             // 
             // IDColumn
             // 
@@ -58,6 +79,13 @@
             IDColumn.Name = "IDColumn";
             IDColumn.Resizable = DataGridViewTriState.True;
             IDColumn.Width = 125;
+            // 
+            // Column6
+            // 
+            Column6.HeaderText = "ObjectId";
+            Column6.MinimumWidth = 6;
+            Column6.Name = "Column6";
+            Column6.Width = 125;
             // 
             // Column1
             // 
@@ -101,30 +129,11 @@
             Column5.UseColumnTextForButtonValue = true;
             Column5.Width = 125;
             // 
-            // Submit
-            // 
-            Submit.Location = new Point(21, 24);
-            Submit.Name = "Submit";
-            Submit.Size = new Size(94, 29);
-            Submit.TabIndex = 5;
-            Submit.Text = "查询";
-            Submit.UseVisualStyleBackColor = true;
-            Submit.Click += Submit_Click;
-            // 
-            // Add
-            // 
-            Add.Location = new Point(132, 24);
-            Add.Name = "Add";
-            Add.Size = new Size(94, 29);
-            Add.TabIndex = 6;
-            Add.Text = "增加";
-            Add.UseVisualStyleBackColor = true;
-            // 
             // MainAppointmentForm
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(895, 450);
+            ClientSize = new Size(1119, 450);
             Controls.Add(Add);
             Controls.Add(Submit);
             Controls.Add(dataGridView1);
@@ -137,12 +146,13 @@
         #endregion
         private DataGridView dataGridView1;
         private Button Submit;
+        private Button Add;
         private DataGridViewTextBoxColumn IDColumn;
+        private DataGridViewTextBoxColumn Column6;
         private DataGridViewTextBoxColumn Column1;
         private DataGridViewTextBoxColumn Column2;
         private DataGridViewTextBoxColumn Column3;
         private DataGridViewButtonColumn Column4;
         private DataGridViewButtonColumn Column5;
-        private Button Add;
     }
 }
