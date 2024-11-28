@@ -20,9 +20,7 @@ namespace _222222
             InitializeComponent();                   
             textBox3.Text = objectId.ToString();           
             this.Submit.Click += new EventHandler(Submit_Click);
-
         }
-
         private void Submit_Click(object sender, EventArgs e)
         {
             Guid? parsedId = null; 

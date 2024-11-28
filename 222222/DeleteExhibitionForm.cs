@@ -20,7 +20,6 @@ namespace Online1
         {
             InitializeComponent();
         }
-
         private void Submit_Click(object sender, EventArgs e)
         {
             using (var context = new MyDbContext())

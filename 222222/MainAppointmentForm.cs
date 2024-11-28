@@ -27,9 +27,7 @@ namespace Online1
 
         public MainAppointmentForm()
         {
-            InitializeComponent();
-           
-        
+            InitializeComponent();    
         }
 
         public MainAppointmentForm(Guid id)//构造函数
@@ -37,20 +35,12 @@ namespace Online1
             this.id = id;
             InitializeComponent();
         }
-
-        private DataSet Query(string sql)
-        {
-            var sda = new SqlDataAdapter(sql, conn);
-            DataSet queryTableDataSet = new DataSet();
-            sda.Fill(queryTableDataSet);
-            return queryTableDataSet;
-        }
         private void Submit_Click(object sender, EventArgs e)
         {     
             using (var db = new MyDbContext())
             {
                 var appointments = db.Appointments.ToList();
-                var sortedAppointments = appointments.OrderBy(appointment => appointment.Day).ToList();
+                var sortedAppointments = appointments.Where(a =>a.ObjectId == id).OrderBy(appointment => appointment.Day).ToList();
                 dataGridView1.Rows.Clear(); 
                 foreach (var appointment in sortedAppointments)
                 {
@@ -73,16 +63,12 @@ namespace Online1
             object cellValue = dataGridView1.Rows[e.RowIndex].Cells[IDColumn.Index].Value;
             if (cellValue != null && Guid.TryParse(cellValue.ToString(), out Guid id))
             {
-
                 UpdateAppointmentForm appointmentForm = new UpdateAppointmentForm(id);
                 appointmentForm.ShowDialog();
             }
-
         }
         private void DeletedataGridView1_CellContentClick(object sender, EventArgs e)
-        {
-            
-
+        {           
         }
         private async void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {

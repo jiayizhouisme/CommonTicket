@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace _222222.Model
+namespace VisitForm1._222222.Model
 {
     public class UserInfo
     {
@@ -12,7 +12,7 @@ namespace _222222.Model
         public string Name { get; set; }
         public string PhoneNumber { get; set; }
         public string IdCard { get; set; }
-        public Model.Appointment Appointment { get; set; }
+        public Appointment Appointment { get; set; }
         public ICollection<Appointment> Appointments { get; set; }
     }
 }

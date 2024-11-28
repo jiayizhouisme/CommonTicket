@@ -25,32 +25,27 @@ namespace Online1
             Submit.Click += Submit_Click;
         }
         private void Submit_Click(object sender, EventArgs e)
-        {
-          
+        {          
             using (var context = new MyDbContext())
             {
                 var exhibition = new Exhibition
                 {
-
                     id = Guid.NewGuid(),
                     name = Name1.Text,
                     description = Description1.Text,
                     status = int.Parse(Status1.Text),
                     createTime = DateTime.Parse("2024-01-23T14:56:48.5729222"),
                     basicPrice = decimal.Parse(BasicPrice1.Text),
-                    passType = (PassTemplate)1,//
+                    passType = (PassTemplate)1,
                     isMultiPart = false,
                     beforeDays = int.Parse(BeforeDays1.Text),
-                    totalAmount = int.Parse(TotalAmount1.Text)//
+                    totalAmount = int.Parse(TotalAmount1.Text)
                 };               
                 try
                 {
-
                     context.Exhibitions.Add(exhibition);
                     context.SaveChanges();             
-
-                    MessageBox.Show("添加成功");
-                    
+                    MessageBox.Show("添加成功");                   
                 }
 
                 catch (Exception ex)

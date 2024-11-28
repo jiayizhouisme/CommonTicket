@@ -39,7 +39,6 @@ namespace Online1
             {
                 using (var ctx = new MyDbContext())
                 {                 
-
                     var exhibition = ctx.Exhibitions.FirstOrDefault(e => e.id == id.Value);
                     if (exhibition != null)
                     {
