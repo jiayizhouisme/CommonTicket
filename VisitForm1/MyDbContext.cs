@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VisitForm1._222222;
 using VisitForm1._222222.Model;
 
 
@@ -12,6 +13,7 @@ namespace _222222
     public  class MyDbContext : DbContext
     {
         public DbSet<Order> Orders { get; set; }
+        public DbSet<Users> Users { get; set; }
         public DbSet<Appointment> Appointments{ get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<UserInfo> UserInfos { get; set; }

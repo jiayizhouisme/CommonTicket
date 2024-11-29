@@ -1,5 +1,6 @@
 using _222222;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -22,43 +23,28 @@ namespace VisitForm1
         {
             string UserName = textBox1.Text;
             string PassWord = textBox2.Text;
-            string hashedPassword = HashPassword(textBox2.Text);
             if (textBox1.Text == "" || textBox2.Text == "")
             {
                 MessageBox.Show("用户名和密码不能为空");
                 return;
             }
-            else
+        
+            using (var context = new MyDbContext())
             {
-                if (textBox1.Text == "admin")
-                {
-                    if (textBox2.Text == "123456")
-                    {
-                        MessageBox.Show(this, "恭喜你，成功登录");
-                        ExhibitionForm exhibitionForm = new ExhibitionForm();
-                        exhibitionForm.Show();
-                    }
-                    else
-                    {
-                        MessageBox.Show(this, "密码不正确，请重新输入！");
-                    }
+                string hashedPassword = HashPassword(textBox2.Text);
+
+               
+                var user = context.Users .FirstOrDefaultAsync(u => u.username == UserName && u.password == hashedPassword);
+
+                if (user != null)
+                {                  
+                    MessageBox.Show(this, "恭喜你，成功登录");
+                    ExhibitionForm exhibitionForm = new ExhibitionForm();
+                    exhibitionForm.Show();
                 }
                 else
-                {
-                    MessageBox.Show(this, "用户名不正确，请重新输入！");
-                }
-
-            }
-
-            string connectionString = ("Data Source=.;Initial Catalog=CommonTicket1;user id=sa;password=Aa123456;TrustServerCertificate=true");
-            string sql = "select CommonTicket1  from User where userName=@username and userPwd=@password ";
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
-                {
-                    cmd.Parameters.AddWithValue("@username", textBox1.Text);
-                    cmd.Parameters.AddWithValue("@password", hashedPassword);
-                    conn.Open();
+                {                  
+                    MessageBox.Show(this, "用户名或密码不正确，请重新输入！");
                 }
             }
         }

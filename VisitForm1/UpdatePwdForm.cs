@@ -1,4 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using _222222;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,31 +16,24 @@ namespace VisitForm1
 {
     public partial class UpdatePwdForm : Form
     {
-        private static string HashPassword(string password)
+        private static readonly string connectionString = "Data Source=.;Initial Catalog=CommonTicket1;User Id=sa;Password=Aa123456;TrustServerCertificate=true";
+        private readonly MyDbContext _context;
+        public UpdatePwdForm()
         {
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    builder.Append(bytes[i].ToString("x2"));
-                }
-                return builder.ToString();
-            }
+            InitializeComponent();
+            _context = new MyDbContext();
         }
-        private static string connectionString = "Data Source=.;Initial Catalog=CommonTicket1;User Id=sa;Password=Aa123456;TrustServerCertificate=true";
+       
         private static bool SimulatePasswordUpdate(string NewPwd2)
         {
             bool updateSuccess = false;
             string hashedPassword = HashPassword(NewPwd2);
-
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 try
                 {
                     connection.Open();
-                    string updateQuery = "UPDATE User SET Password = @NewPwd WHERE UserId = @UserId";
+                    string updateQuery = "UPDATE Users SET Password = @NewPwd WHERE UserId = @UserId";
 
                     using (SqlCommand command = new SqlCommand(updateQuery, connection))
                     {
@@ -52,20 +47,16 @@ namespace VisitForm1
                 {
 
                     Console.WriteLine("更新密码时发生错误: ");
+
                 }
             }
-
             return true;
-        }
-
-
-        public UpdatePwdForm()
-        {
-            InitializeComponent();
         }
 
         private void Submit_Click(object sender, EventArgs e)
         {
+            string UserId =textBox3.Text;
+            string OldPwd =textBox4.Text;
             string NewPwd = textBox1.Text;
             string NewPwd2 = textBox2.Text;
             string hashedPassword = HashPassword(textBox2.Text);
@@ -90,8 +81,25 @@ namespace VisitForm1
             }
 
         }
+        
 
-
-       
+        private static string HashPassword(string password)
+    {
+        using (SHA256 sha256Hash = SHA256.Create())
+        {
+            byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                builder.Append(bytes[i].ToString("x2"));
+            }
+            return builder.ToString();
         }
     }
+    
+
+
+}
+    }
+
+
