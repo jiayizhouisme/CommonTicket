@@ -39,8 +39,8 @@ namespace VisitForm1
                 if (user != null)
                 {                  
                     MessageBox.Show(this, "¹§Ï²Äã£¬³É¹¦µÇÂ¼");
-                    ExhibitionForm exhibitionForm = new ExhibitionForm();
-                    exhibitionForm.Show();
+                    ExhibitionForm1 exhibitionForm1 = new ExhibitionForm1();
+                    exhibitionForm1.Show();
                 }
                 else
                 {                  

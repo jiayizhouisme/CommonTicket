@@ -37,7 +37,7 @@ namespace VisitForm1
             }
         }
 
-        private void Login_Click(object sender, EventArgs e)
+        private async void Login_Click(object sender, EventArgs e)
         {
             string userName = textBox1.Text;
             string password = textBox2.Text;
@@ -62,7 +62,7 @@ namespace VisitForm1
                 textBox3.Clear();
                 return;
             }
-            var existingUser =  _context.Users.FirstOrDefaultAsync(u => u.username == userName && u.password == hashedPassword);
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.username == userName && u.password == hashedPassword);
 
             if (existingUser == null)
             {
@@ -73,8 +73,8 @@ namespace VisitForm1
                 };
                 try
                 {
-                    _context.Users.AddAsync(newUser);
-                    _context.SaveChangesAsync();
+                    await _context.Users.AddAsync(newUser);
+                    await _context.SaveChangesAsync();
                     MessageBox.Show("注册成功！");
                     this.Close();
                 }

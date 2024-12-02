@@ -16,7 +16,7 @@ namespace _222222
         public DbSet<Users> Users { get; set; }
         public DbSet<Appointment> Appointments{ get; set; }
         public DbSet<Ticket> Tickets { get; set; }
-        public DbSet<UserInfo> UserInfos { get; set; }
+        public DbSet<UserInfos> UserInfos { get; set; }
         public DbSet<Model.Exhibition> Exhibitions { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
