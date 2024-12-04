@@ -8,46 +8,61 @@ namespace VisitForm1
 {
     public partial class LogonForm : Form
     {
+        private MyDbContext _context;
+        private int _currentUserId;
 
+
+        public LogonForm(MyDbContext context, int currentUserId):this()
+        {
+           
+            _context = context;
+            _currentUserId = currentUserId;
+        }
         public LogonForm()
         {
             InitializeComponent();
-    }
+            _context = new MyDbContext();
+        }
+
 
         private void Register_Click(object sender, EventArgs e)
         {
             RegisterForm registerForm = new RegisterForm();
             registerForm.ShowDialog();
         }
-        private void Logon_Click(object sender, EventArgs e)
+
+        private async void Logon_Click(object sender, EventArgs e)
         {
             string UserName = textBox1.Text;
             string PassWord = textBox2.Text;
-            if (textBox1.Text == "" || textBox2.Text == "")
+            if (string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(PassWord))
             {
                 MessageBox.Show("用户名和密码不能为空");
                 return;
             }
-        
-            using (var context = new MyDbContext())
+            string hashedPassword = HashPassword(PassWord);
+
+
+           
+            using (_context = new MyDbContext())
             {
-                string hashedPassword = HashPassword(textBox2.Text);
-
-               
-                var user = context.Users .FirstOrDefaultAsync(u => u.username == UserName && u.password == hashedPassword);
-
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.username == UserName && u.password == hashedPassword);
+              
                 if (user != null)
-                {                  
-                    MessageBox.Show(this, "恭喜你，成功登录");
+                {
+                    LogInInfo.username = UserName;
+                    LogInInfo.id=user.id;
+                    MessageBox.Show(this, "成功登录！");
                     ExhibitionForm1 exhibitionForm1 = new ExhibitionForm1();
                     exhibitionForm1.Show();
                 }
                 else
-                {                  
+                {
                     MessageBox.Show(this, "用户名或密码不正确，请重新输入！");
                 }
             }
         }
+    
         private string HashPassword(string password)
         {
             using (SHA256 sha256Hash = SHA256.Create())
@@ -64,7 +79,7 @@ namespace VisitForm1
 
         private void Updatepassword_Click(object sender, EventArgs e)
         {
-            UpdatePwdForm updatePwdForm = new UpdatePwdForm();
+            UpdatePwdForm updatePwdForm = new UpdatePwdForm(_currentUserId, _context);
             updatePwdForm.ShowDialog();
         }
     }

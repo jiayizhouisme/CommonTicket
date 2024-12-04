@@ -71,7 +71,7 @@ namespace Online1
                     var query = context.Orders
                         .Include(order => order.Tickets)
                         .ThenInclude(ticket => ticket.UserInfo)
-                        .ThenInclude(userinfo => userinfo.Appointment)
+                
                         .SelectMany(order => order.Tickets)
                         .Where(ticket =>
                             (state == "全部" || (ticket.Status == "3" && state == "已使用") || (ticket.Status == "1" && state == "未使用") || ticket.Status == state) &&

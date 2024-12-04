@@ -41,6 +41,7 @@ namespace VisitForm1
         {
             string userName = textBox1.Text;
             string password = textBox2.Text;
+            string password2 = textBox3.Text;
             string hashedPassword = HashPassword(password);
 
             if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))

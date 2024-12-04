@@ -92,6 +92,7 @@
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(187, 27);
             textBox1.TabIndex = 5;
+            textBox1.Text = "身份证";
             // 
             // textBox2
             // 
@@ -139,7 +140,7 @@
             Controls.Add(Name);
             Controls.Add(label2);
             Controls.Add(label1);
-         
+          
             Text = "EditUserInfoForm";
             ResumeLayout(false);
             PerformLayout();

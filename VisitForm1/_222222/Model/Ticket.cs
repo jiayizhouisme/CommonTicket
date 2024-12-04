@@ -18,7 +18,7 @@ namespace VisitForm1._222222.Model
         public DateTime CreateTime { get; set; }
 
         public UserInfos UserInfo { get; set; }
-        public ICollection<UserInfos> UserInfos { get; set; }
+        
         public string UserInfoId { get; set; }
         public Appointment Appointment { get; set; }
     }

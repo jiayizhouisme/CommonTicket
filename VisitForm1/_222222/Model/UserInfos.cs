@@ -8,12 +8,12 @@ namespace VisitForm1._222222.Model
 {
     public class UserInfos
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
+        public int UserId { get; set; }
         public string Name { get; set; }
         public string PhoneNumber { get; set; }
         public string IdCard { get; set; }
        
-        public Appointment Appointment { get; set; }
-        public ICollection<Appointment> Appointments { get; set; }
+       
     }
 }

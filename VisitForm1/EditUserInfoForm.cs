@@ -22,10 +22,7 @@ namespace VisitForm1
 
         private void Submit_Click(object sender, EventArgs e)
         {
-            //using (var context = new MyDbContext())
-            //{
-           ////////Form2
-            //}
+            
 
             }
     }

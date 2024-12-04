@@ -18,7 +18,7 @@ namespace _222222.Model
         public DateTime CreateTime { get; set; }
        
         public UserInfo UserInfo { get; set; }
-        public ICollection<UserInfo> UserInfos { get; set; }
+       
         public String UserInfoId { get; set; }
         public Appointment Appointment { get; set; }
     }

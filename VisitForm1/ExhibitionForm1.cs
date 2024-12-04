@@ -42,8 +42,8 @@ namespace VisitForm1
         {
             if ((e.ColumnIndex == Column2.Index))
             {
-                MainAppointmentForm mainForm = new MainAppointmentForm();
-                mainForm.ShowDialog();
+                Reserve reserve = new Reserve();
+                reserve.ShowDialog();
             }
         }
     

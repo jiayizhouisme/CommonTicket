@@ -16,66 +16,79 @@ namespace VisitForm1
 {
     public partial class UpdatePwdForm : Form
     {
-        private static readonly string connectionString = "Data Source=.;Initial Catalog=CommonTicket1;User Id=sa;Password=Aa123456;TrustServerCertificate=true";
-        private readonly MyDbContext _context;
-        public UpdatePwdForm()
+        private readonly int _currentUserId;
+        private  MyDbContext _context;
+        public UpdatePwdForm(int currentUserId, MyDbContext context)
         {
             InitializeComponent();
-            _context = new MyDbContext();
+            _currentUserId = currentUserId;
+            _context = context;
         }
-        private int? ValidateOldPassword(string username, string oldPwd)
+        private bool ValidateOldPassword(string username, string oldPwd)
         {
             var user = _context.Users.FirstOrDefault(u => u.username == username && u.password == HashPassword(oldPwd));
-            return user != null ? user.id : (int?)null;
-        }
-        private bool ValidateOldPassword(int userId, string OldPwd)
-        {
-            var user = _context.Users.FirstOrDefault(u => u.id == userId && u.password == HashPassword(OldPwd));
             return user != null;
         }
-        private bool UpdatePassword(int userId, string NewPwd)
+        private bool UpdatePassword(string username, string newPwd)
         {
-            var user = _context.Users.FirstOrDefault(u => u.id == userId);
-            if (user != null)
+            using (var db = new MyDbContext())
             {
-                user.password = HashPassword(NewPwd);
-                int result = _context.SaveChanges();
-                return result > 0;
+                var user = db.Users.FirstOrDefault(u => u.username == username);
+                if (user != null)
+                {
+                    user.password = HashPassword(newPwd);
+                    int result = db.SaveChanges();
+                    return result > 0;
+                }
+                return false;
             }
-            return false;
         }
+
         private void Submit_Click(object sender, EventArgs e)
         {
-            string UserId = textBox3.Text;
+
             string OldPwd = textBox4.Text;
             string NewPwd = textBox1.Text;
             string NewPwd2 = textBox2.Text;
-            string hashedPassword = HashPassword(textBox2.Text);
+
+            if (NewPwd == OldPwd)
+            {
+                MessageBox.Show("新旧密码不能相同，请重新输入");
+                return;
+            }
             if (!string.IsNullOrEmpty(NewPwd) && NewPwd == NewPwd2)
             {
-                int? userId = ValidateOldPassword(UserId, OldPwd);
-                if (userId.HasValue)
+                using ( _context = new MyDbContext())
                 {
-                    bool updateSuccess = UpdatePassword(userId.Value, NewPwd);
-                    if (updateSuccess)
+                    bool isValid = ValidateOldPassword(LogInInfo.username, OldPwd);
+                    if (isValid)
                     {
-                        MessageBox.Show("密码修改成功！");
-                        this.Close();
+                        bool updateSuccess = UpdatePassword(LogInInfo.username, NewPwd);
+                        if (updateSuccess)
+                        {
+
+                            MessageBox.Show("密码修改成功！");
+                            this.Close();
+
+                        }
+                        else
+                        {
+                            MessageBox.Show("密码修改失败，请重试");
+                        }
                     }
                     else
                     {
-                        MessageBox.Show("密码修改失败，请重试");
+                        MessageBox.Show("用户ID无效，请重试");
                     }
-                }
-                else
-                {
-                    MessageBox.Show("用户名或旧密码错误，请重试");
                 }
             }
             else
             {
-                MessageBox.Show("新密码两次输入不一致，请重新输入");
+                MessageBox.Show("用户名或旧密码错误，请重试");
             }
+
+            
+        
         }
         private static string HashPassword(string password)
     {

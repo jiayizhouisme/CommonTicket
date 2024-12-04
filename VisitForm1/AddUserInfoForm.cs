@@ -30,6 +30,7 @@ namespace VisitForm1
                     Name = textBox2.Text,
                     IdCard = textBox3.Text,
                     PhoneNumber = textBox4.Text,
+                    UserId =LogInInfo.id,
                 };
                 try
                 {

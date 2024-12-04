@@ -12,7 +12,6 @@ namespace _222222.Model
         public string Name { get; set; }
         public string PhoneNumber { get; set; }
         public string IdCard { get; set; }
-        public Model.Appointment Appointment { get; set; }
-        public ICollection<Appointment> Appointments { get; set; }
+       
     }
 }

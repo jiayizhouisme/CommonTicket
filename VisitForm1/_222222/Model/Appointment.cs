@@ -13,6 +13,7 @@ namespace VisitForm1._222222.Model
         public int? Day { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
+        public DateTime CreateTime { get; set; }
         public string StockName { get; set; }
     }
 }
