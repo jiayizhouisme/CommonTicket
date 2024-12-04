@@ -14,10 +14,12 @@ namespace VisitForm1
 {
     public partial class ExhibitionForm1 : Form
     {
+        Guid[] ExhibitionId;
         SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=CommonTicket1;user id=sa;password=Aa123456;TrustServerCertificate=true");
         public ExhibitionForm1()
         {
             InitializeComponent();
+
         }
 
         private void Select_Click(object sender, EventArgs e)
@@ -25,10 +27,13 @@ namespace VisitForm1
             using (var db = new MyDbContext())
             {
                 var exhibitions = db.Exhibitions.ToList();
+                ExhibitionId = new Guid[exhibitions.Count];
+                int a=0; 
                 dataGridView1.Rows.Clear();
                 foreach (var exhibition in exhibitions)
                 {
                     int Addrow = dataGridView1.Rows.Add();
+                    ExhibitionId[a++] = exhibition.id;
                     dataGridView1.Rows[Addrow].Cells[Column1.Index].Value = exhibition.name;
                     dataGridView1.Rows[Addrow].Cells[Column3.Index].Value = exhibition.basicPrice;
                 }
@@ -42,7 +47,8 @@ namespace VisitForm1
         {
             if ((e.ColumnIndex == Column2.Index))
             {
-                Reserve reserve = new Reserve();
+
+                Reserve reserve = new Reserve(ExhibitionId[e.RowIndex]);
                 reserve.ShowDialog();
             }
         }

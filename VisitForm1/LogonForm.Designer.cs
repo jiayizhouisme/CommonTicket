@@ -36,6 +36,7 @@
             Logon = new Button();
             Updatepassword = new Button();
             label1 = new Label();
+            checkBox1 = new CheckBox();
             SuspendLayout();
             // 
             // UserName
@@ -74,7 +75,7 @@
             // 
             // Register
             // 
-            Register.Location = new Point(189, 279);
+            Register.Location = new Point(189, 305);
             Register.Name = "Register";
             Register.Size = new Size(94, 29);
             Register.TabIndex = 4;
@@ -84,7 +85,7 @@
             // 
             // Logon
             // 
-            Logon.Location = new Point(340, 279);
+            Logon.Location = new Point(340, 305);
             Logon.Name = "Logon";
             Logon.Size = new Size(94, 29);
             Logon.TabIndex = 5;
@@ -94,7 +95,7 @@
             // 
             // Updatepassword
             // 
-            Updatepassword.Location = new Point(493, 279);
+            Updatepassword.Location = new Point(496, 305);
             Updatepassword.Name = "Updatepassword";
             Updatepassword.Size = new Size(94, 29);
             Updatepassword.TabIndex = 9;
@@ -111,11 +112,23 @@
             label1.Text = "信息管理系统";
             label1.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Location = new Point(189, 248);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(91, 24);
+            checkBox1.TabIndex = 11;
+            checkBox1.Text = "记住密码";
+            checkBox1.UseVisualStyleBackColor = true;
+            checkBox1.CheckedChanged += checkBox1_CheckedChanged;
+            // 
             // LogonForm
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(checkBox1);
             Controls.Add(label1);
             Controls.Add(Updatepassword);
             Controls.Add(Logon);
@@ -140,5 +153,6 @@
         private Button Logon;
         private Button Updatepassword;
         private Label label1;
+        private CheckBox checkBox1;
     }
 }

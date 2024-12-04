@@ -10,11 +10,11 @@ namespace VisitForm1
     {
         private MyDbContext _context;
         private int _currentUserId;
+      
 
-
-        public LogonForm(MyDbContext context, int currentUserId):this()
+        public LogonForm(MyDbContext context, int currentUserId) : this()
         {
-           
+
             _context = context;
             _currentUserId = currentUserId;
         }
@@ -22,15 +22,15 @@ namespace VisitForm1
         {
             InitializeComponent();
             _context = new MyDbContext();
+          
         }
-
+       
 
         private void Register_Click(object sender, EventArgs e)
         {
             RegisterForm registerForm = new RegisterForm();
             registerForm.ShowDialog();
         }
-
         private async void Logon_Click(object sender, EventArgs e)
         {
             string UserName = textBox1.Text;
@@ -41,17 +41,13 @@ namespace VisitForm1
                 return;
             }
             string hashedPassword = HashPassword(PassWord);
-
-
-           
             using (_context = new MyDbContext())
             {
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.username == UserName && u.password == hashedPassword);
-              
                 if (user != null)
                 {
                     LogInInfo.username = UserName;
-                    LogInInfo.id=user.id;
+                    LogInInfo.id = user.id;
                     MessageBox.Show(this, "³É¹¦µÇÂ¼£¡");
                     ExhibitionForm1 exhibitionForm1 = new ExhibitionForm1();
                     exhibitionForm1.Show();
@@ -62,7 +58,6 @@ namespace VisitForm1
                 }
             }
         }
-    
         private string HashPassword(string password)
         {
             using (SHA256 sha256Hash = SHA256.Create())
@@ -76,11 +71,15 @@ namespace VisitForm1
                 return builder.ToString();
             }
         }
-
         private void Updatepassword_Click(object sender, EventArgs e)
         {
             UpdatePwdForm updatePwdForm = new UpdatePwdForm(_currentUserId, _context);
             updatePwdForm.ShowDialog();
+        }
+      
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+           
         }
     }
 }

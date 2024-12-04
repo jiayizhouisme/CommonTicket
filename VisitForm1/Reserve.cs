@@ -1,4 +1,5 @@
 ﻿using _222222;
+using _222222.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,12 +15,34 @@ namespace VisitForm1
 {
     public partial class Reserve : Form
     {
-        public Reserve()
+        private const int MaxTourists = 5;
+        private int _currentTouristCount = 1;
+        private int _addedTouristCount = 0;
+
+        public Reserve(Guid exhibitionid)
         {
+
             InitializeComponent();
+            VisitorCount.Value = _currentTouristCount;
+            VisitorCount.ValueChanged += VisitorCount_ValueChanged;
+            UpdateLabelText();
+            using (var db = new MyDbContext())
+            {
+               
+              var day=  DateTime.Parse(SelectDate.Text).Subtract(DateTime.Now).TotalDays;
+                var appointments = db.Appointments.AsQueryable().Where(a => a.ObjectId== exhibitionid&&a.Day ==day).ToArray();
+               
+       
+                for (int a = 0;a<=appointments.Length ;a++) 
+                {
+                    Label label = new Label();
+                 //   label.Text = "时间 8:00-11:00           余票 5000          ￥0.00";
+                }
+            }
+
         }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+            private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBox1.Checked)
             {
@@ -48,23 +71,22 @@ namespace VisitForm1
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == Column1.Index)
+            if (e.ColumnIndex == Column4.Index)
             {
                 EditUserInfoForm editUserInfoForm = new EditUserInfoForm();
                 editUserInfoForm.ShowDialog();
             }
         }
-
         private void Submit_Click(object sender, EventArgs e)
         {
             DateTime selectedDate = SelectDate.Value;
             DateTime? startTime = null;
             DateTime? endTime = null;
             String selectedTime = "";
-           
             if (checkBox1.Checked)
             {
-                selectedTime= "8:00-11:00";
+
+                selectedTime = "8:00-11:00";
                 startTime = selectedDate.Date.AddHours(8);
                 endTime = selectedDate.Date.AddHours(11);
             }
@@ -85,34 +107,86 @@ namespace VisitForm1
                 MessageBox.Show("请选择一个时间段。");
                 return;
             }
+
             using (var context = new MyDbContext())
             {
+                if (_addedTouristCount != _currentTouristCount)
+                {
+                    MessageBox.Show("新增游客的数量必须等于选择游客的数量。");
+                    return;
+                }
                 try
-                {                   
-                  Appointment appointment = new Appointment
-                  {
-                      CreateTime = selectedDate,
-                      StartTime = startTime.Value,
-                      EndTime = endTime.Value
+                {
+                    Appointment appointment = new Appointment
+                    {
+                        CreateTime = selectedDate,
+                        StartTime = startTime.Value,
+                        EndTime = endTime.Value
 
-                  };
+                    };
                     context.Appointments.Add(appointment);
                     context.SaveChanges();
                     MessageBox.Show("预约成功！");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("预约失败！" );
+                    MessageBox.Show("预约失败！");
                 }
+
             }
-        
-    }
-            
+
+        }
 
         private void AddCount_Click(object sender, EventArgs e)
         {
             AddUserInfoForm addUserInfoForm = new AddUserInfoForm();
+           
             addUserInfoForm.ShowDialog();
+        }
+       
+        private void SetInitialTouristCount(int count)
+        {
+            _currentTouristCount = count;
+            VisitorCount.Value = count;
+            UpdateLabelText();
+        }
+        private void VisitorCount_ValueChanged(object sender, EventArgs e)
+        {
+            _currentTouristCount = (int)VisitorCount.Value;
+            UpdateLabelText();
+        }
+
+        private void UpdateLabelText()
+        {
+
+            if (_currentTouristCount < MaxTourists)
+            {
+                lblNeedMoreTourists.Text = $"！需增加{_currentTouristCount}位游客";
+            }
+            else
+            {
+                lblNeedMoreTourists.Text = $"!当前游客数已达到最大限制";
+            }
+        }
+
+        private void Select_Click(object sender, EventArgs e)
+        {
+            using (var db = new MyDbContext())
+            {
+                var userInfos = db.UserInfos.AsQueryable().Where(a=>a.UserId ==LogInInfo.id) .ToList();
+               
+                dataGridView1.Rows.Clear();
+                foreach (var userInfo in userInfos)
+                {
+                    int Addrow = dataGridView1.Rows.Add();
+                    dataGridView1.Rows[Addrow].Cells[Column1.Index].Value = userInfo.Name;
+                   // dataGridView1.Columns[Column2.Index].ValueType = typeof(Int64);
+                     dataGridView1.Rows[Addrow].Cells[Column2.Index].Value = userInfo.IdCard.ToString();
+                    dataGridView1.Rows[Addrow].Cells[Column3.Index].Value = userInfo.PhoneNumber;
+
+                }
+            }
         }
     }
 }
+   

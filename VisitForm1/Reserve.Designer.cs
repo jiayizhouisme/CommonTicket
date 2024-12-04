@@ -42,9 +42,14 @@
             label4 = new Label();
             AddCount = new Button();
             dataGridView1 = new DataGridView();
-            Column1 = new DataGridViewButtonColumn();
+            Column1 = new DataGridViewTextBoxColumn();
+            Column2 = new DataGridViewTextBoxColumn();
+            Column3 = new DataGridViewTextBoxColumn();
+            Column4 = new DataGridViewButtonColumn();
             Submit = new Button();
             label5 = new Label();
+            lblNeedMoreTourists = new Label();
+            Select = new Button();
             ((System.ComponentModel.ISupportInitialize)VisitorCount).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
@@ -146,6 +151,8 @@
             VisitorCount.Name = "VisitorCount";
             VisitorCount.Size = new Size(339, 27);
             VisitorCount.TabIndex = 11;
+            VisitorCount.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            VisitorCount.ValueChanged += VisitorCount_ValueChanged;
             // 
             // label4
             // 
@@ -158,7 +165,7 @@
             // 
             // AddCount
             // 
-            AddCount.Location = new Point(257, 362);
+            AddCount.Location = new Point(324, 362);
             AddCount.Name = "AddCount";
             AddCount.Size = new Size(94, 29);
             AddCount.TabIndex = 13;
@@ -169,23 +176,41 @@
             // dataGridView1
             // 
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Column1 });
+            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Column1, Column2, Column3, Column4 });
             dataGridView1.Location = new Point(12, 408);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersWidth = 51;
-            dataGridView1.Size = new Size(339, 134);
+            dataGridView1.Size = new Size(569, 134);
             dataGridView1.TabIndex = 14;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick;
             // 
             // Column1
             // 
-            Column1.HeaderText = "编辑";
+            Column1.HeaderText = "姓名";
             Column1.MinimumWidth = 6;
             Column1.Name = "Column1";
-            Column1.Text = "编辑";
-            Column1.ToolTipText = "编辑";
-            Column1.UseColumnTextForButtonValue = true;
             Column1.Width = 125;
+            // 
+            // Column2
+            // 
+            Column2.HeaderText = "身份证";
+            Column2.MinimumWidth = 6;
+            Column2.Name = "Column2";
+            Column2.Width = 125;
+            // 
+            // Column3
+            // 
+            Column3.HeaderText = "手机号";
+            Column3.MinimumWidth = 6;
+            Column3.Name = "Column3";
+            Column3.Width = 125;
+            // 
+            // Column4
+            // 
+            Column4.HeaderText = "编辑";
+            Column4.MinimumWidth = 6;
+            Column4.Name = "Column4";
+            Column4.Width = 125;
             // 
             // Submit
             // 
@@ -206,11 +231,32 @@
             label5.TabIndex = 16;
             label5.Text = "总价    ￥ 0.00";
             // 
+            // lblNeedMoreTourists
+            // 
+            lblNeedMoreTourists.AutoSize = true;
+            lblNeedMoreTourists.Location = new Point(97, 366);
+            lblNeedMoreTourists.Name = "lblNeedMoreTourists";
+            lblNeedMoreTourists.Size = new Size(122, 20);
+            lblNeedMoreTourists.TabIndex = 17;
+            lblNeedMoreTourists.Text = "  ！需增加位游客";
+            // 
+            // Select
+            // 
+            Select.Location = new Point(487, 366);
+            Select.Name = "Select";
+            Select.Size = new Size(94, 29);
+            Select.TabIndex = 18;
+            Select.Text = "查询";
+            Select.UseVisualStyleBackColor = true;
+            Select.Click += Select_Click;
+            // 
             // Reserve
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 602);
+            Controls.Add(Select);
+            Controls.Add(lblNeedMoreTourists);
             Controls.Add(label5);
             Controls.Add(Submit);
             Controls.Add(dataGridView1);
@@ -251,8 +297,13 @@
         private Label label4;
         private Button AddCount;
         private DataGridView dataGridView1;
-        private DataGridViewButtonColumn Column1;
         private Button Submit;
         private Label label5;
+        private Label lblNeedMoreTourists;
+        private DataGridViewTextBoxColumn Column1;
+        private DataGridViewTextBoxColumn Column2;
+        private DataGridViewTextBoxColumn Column3;
+        private DataGridViewButtonColumn Column4;
+        private Button Select;
     }
 }
