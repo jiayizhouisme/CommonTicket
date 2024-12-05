@@ -16,17 +16,23 @@ namespace VisitForm1
     public partial class ExhibitionForm : Form
     {
 
-        SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=CommonTicket1;user id=sa;password=Aa123456;TrustServerCertificate=true");
+        private MyDbContext dbContext;
         public ExhibitionForm()
         {
             InitializeComponent();
+            dbContext = new MyDbContext(); 
+            LoadData(); 
+        }
+        private void ExhibitionForm_Load(object sender, EventArgs e)
+        {
+            LoadData();
         }
 
-        private void Select_Click(object sender, EventArgs e)
+        private void LoadData()
         {
-            using (var db = new MyDbContext())
+            using (dbContext)
             {
-                var exhibitions = db.Exhibitions.ToList();
+                var exhibitions = dbContext.Exhibitions.ToList();
                 dataGridView1.Rows.Clear();
                 foreach (var exhibition in exhibitions)
                 {

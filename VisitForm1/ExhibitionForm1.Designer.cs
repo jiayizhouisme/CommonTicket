@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             dataGridView1 = new DataGridView();
-            Select = new Button();
+            //Select = new Button();
             Column1 = new DataGridViewTextBoxColumn();
             Column3 = new DataGridViewTextBoxColumn();
             Column2 = new DataGridViewButtonColumn();
@@ -49,13 +49,13 @@
             // 
             // Select
             // 
-            Select.Location = new Point(51, 37);
-            Select.Name = "Select";
-            Select.Size = new Size(94, 29);
-            Select.TabIndex = 1;
-            Select.Text = "查询";
-            Select.UseVisualStyleBackColor = true;
-            Select.Click += Select_Click;
+            //Select.Location = new Point(51, 37);
+            //Select.Name = "Select";
+            //Select.Size = new Size(94, 29);
+            //Select.TabIndex = 1;
+            //Select.Text = "查询";
+            //Select.UseVisualStyleBackColor = true;
+            //Select.Click += Select_Click;
             // 
             // Column1
             // 
@@ -88,7 +88,7 @@
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(Select);
+          //  Controls.Add(Select);
             Controls.Add(dataGridView1);
             Name = "ExhibitionForm1";
             Text = "ExhibitionForm1";
@@ -99,7 +99,7 @@
         #endregion
 
         private DataGridView dataGridView1;
-        private Button Select;
+       // private Button Select;
         private DataGridViewTextBoxColumn Column1;
         private DataGridViewTextBoxColumn Column3;
         private DataGridViewButtonColumn Column2;

@@ -18,31 +18,39 @@ namespace VisitForm1
         private const int MaxTourists = 5;
         private int _currentTouristCount = 1;
         private int _addedTouristCount = 0;
-
-        public Reserve(Guid exhibitionid)
+        private Guid _exhibitionId;
+        public Reserve(Guid exhibitionid) : this()
         {
-
-            InitializeComponent();
+            _exhibitionId = exhibitionid;
             VisitorCount.Value = _currentTouristCount;
-            VisitorCount.ValueChanged += VisitorCount_ValueChanged;
+            //  VisitorCount.ValueChanged += VisitorCount_ValueChanged;
             UpdateLabelText();
+            LoadUserInfo();
             using (var db = new MyDbContext())
             {
-               
-              var day=  DateTime.Parse(SelectDate.Text).Subtract(DateTime.Now).TotalDays;
-                var appointments = db.Appointments.AsQueryable().Where(a => a.ObjectId== exhibitionid&&a.Day ==day).ToArray();
-               
-       
-                for (int a = 0;a<=appointments.Length ;a++) 
+                var day = SelectDate.Value.Date.Subtract(DateTime.Now.Date).TotalDays;
+
+                var appointments = db.Appointments.AsQueryable().Where(a => a.ObjectId == exhibitionid && a.Day == day).ToArray();
+                var exhibitions = db.Exhibitions.AsQueryable().Where(i => i.id == exhibitionid).FirstOrDefault();
+                for (int a = 0; a < appointments.Length; a++)
                 {
                     Label label = new Label();
-                 //   label.Text = "时间 8:00-11:00           余票 5000          ￥0.00";
-                }
-            }
+                    label.AutoSize = true;
 
+                    label.Location = new Point(12, a * 35 + 147);
+                    label.Text = string.Format("时间{0} 余票{1} ￥{2:F2}",
+                        appointments[a].StartTime.ToShortTimeString() + " " + appointments[a].EndTime.ToShortTimeString(), appointments[a].amount, exhibitions.basicPrice);
+                    this.Controls.Add(label);
+                }
+
+            }
+        }
+        public Reserve()
+        {
+            InitializeComponent();
         }
 
-            private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBox1.Checked)
             {
@@ -50,7 +58,6 @@ namespace VisitForm1
                 checkBox3.Checked = false;
             }
         }
-
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBox2.Checked)
@@ -59,7 +66,6 @@ namespace VisitForm1
                 checkBox3.Checked = false;
             }
         }
-
         private void checkBox3_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBox3.Checked)
@@ -136,14 +142,13 @@ namespace VisitForm1
             }
 
         }
-
         private void AddCount_Click(object sender, EventArgs e)
         {
             AddUserInfoForm addUserInfoForm = new AddUserInfoForm();
-           
+
             addUserInfoForm.ShowDialog();
         }
-       
+
         private void SetInitialTouristCount(int count)
         {
             _currentTouristCount = count;
@@ -169,24 +174,53 @@ namespace VisitForm1
             }
         }
 
-        private void Select_Click(object sender, EventArgs e)
+        private void LoadUserInfo()
         {
             using (var db = new MyDbContext())
             {
-                var userInfos = db.UserInfos.AsQueryable().Where(a=>a.UserId ==LogInInfo.id) .ToList();
-               
+                var userInfos = db.UserInfos.AsQueryable().Where(a => a.UserId == LogInInfo.id).ToList();
+
                 dataGridView1.Rows.Clear();
                 foreach (var userInfo in userInfos)
                 {
                     int Addrow = dataGridView1.Rows.Add();
                     dataGridView1.Rows[Addrow].Cells[Column1.Index].Value = userInfo.Name;
-                   // dataGridView1.Columns[Column2.Index].ValueType = typeof(Int64);
-                     dataGridView1.Rows[Addrow].Cells[Column2.Index].Value = userInfo.IdCard.ToString();
+                    dataGridView1.Rows[Addrow].Cells[Column2.Index].Value = userInfo.IdCard.ToString();
                     dataGridView1.Rows[Addrow].Cells[Column3.Index].Value = userInfo.PhoneNumber;
 
                 }
             }
         }
+        private HashSet<Guid> addedAppointmentIds = new HashSet<Guid>();
+        private void SelectDate_ValueChanged(object sender, EventArgs e)
+        {
+            addedAppointmentIds.Clear();
+            using (var db = new MyDbContext())
+            {
+                var day = SelectDate.Value.Date.Subtract(DateTime.Now.Date).TotalDays;
+
+                var appointments = db.Appointments.AsQueryable().Where(a => a.ObjectId == _exhibitionId && a.Day == day).ToArray();
+                var exhibitions = db.Exhibitions.AsQueryable().Where(i => i.id == _exhibitionId).FirstOrDefault();
+                if (exhibitions == null)
+                return;
+               
+                    for (int a = 0; a < appointments.Length; a++)
+                    {
+                    var appointment = appointments[a];
+                    Guid appointmentId = appointment.Id;
+                    Label label = new Label();
+                        label.AutoSize = true;
+                        label.Location = new Point(12, a * 35 + 147);
+                        label.Text = string.Format("时间{0} 余票{1} ￥{2:F2}",
+                        appointments[a].StartTime.ToShortTimeString() + " " + appointments[a].EndTime.ToShortTimeString(), appointments[a].amount, exhibitions.basicPrice);
+
+                        this.Controls.Add(label);
+                        addedAppointmentIds.Add(appointmentId);
+                    }
+
+                }
+            }
+        }
     }
-}
+
    

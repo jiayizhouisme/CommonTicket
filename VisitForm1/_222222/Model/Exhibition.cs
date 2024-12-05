@@ -19,11 +19,11 @@ namespace _222222.Model
         
         public bool isDeleted { get; set; }
         [Comment("创建日期")]
-        public DateTime createTime { get; set; }
+        public DateTime CreateTime { get; set; }
         [Comment("价格")]
         public decimal basicPrice { get; set; }
-       
-       // public passTemplate passType { get; set; }
+        public int totalAmount { get; set; }
+        // public passTemplate passType { get; set; }
         public string exhibitions { get; set; }
         
         public bool isMultiPart { get; set; }

@@ -15,14 +15,20 @@ namespace VisitForm1
     public partial class ExhibitionForm1 : Form
     {
         Guid[] ExhibitionId;
-        SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=CommonTicket1;user id=sa;password=Aa123456;TrustServerCertificate=true");
+        
+         SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=CommonTicket1;user id=sa;password=Aa123456;TrustServerCertificate=true");
         public ExhibitionForm1()
         {
             InitializeComponent();
 
+         LoadData(); 
+        }
+        private void ExhibitionForm_Load(object sender, EventArgs e)
+        {
+            LoadData();
         }
 
-        private void Select_Click(object sender, EventArgs e)
+        private void LoadData()
         {
             using (var db = new MyDbContext())
             {

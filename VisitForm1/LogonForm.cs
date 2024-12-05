@@ -1,31 +1,70 @@
 using _222222;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Configuration;
 using System.Security.Cryptography;
 using System.Text;
+using VisitForm1.Properties;
+using System.Configuration;
 
 namespace VisitForm1
 {
     public partial class LogonForm : Form
     {
+
         private MyDbContext _context;
         private int _currentUserId;
-      
+        private string _rememberedUsername;
 
         public LogonForm(MyDbContext context, int currentUserId) : this()
         {
 
             _context = context;
             _currentUserId = currentUserId;
+            LoadSettings();
+          
+
         }
         public LogonForm()
         {
             InitializeComponent();
             _context = new MyDbContext();
-          
-        }
-       
 
+        }
+        private void LoadSettings()
+        {
+            string rememberUserName = ConfigurationManager.AppSettings["RememberUserName"];
+            bool shouldRemember = bool.TryParse(rememberUserName, out bool result) && result;
+            if (shouldRemember)
+            {
+                _rememberedUsername = ConfigurationManager.AppSettings["RememberedUsername"];
+                checkBox1.Checked = true;
+                textBox1.Text = _rememberedUsername;
+            }
+            else
+            {
+                checkBox1.Checked = false;
+                _rememberedUsername = null;
+            }
+        }
+
+        private void SaveSettings(string hashedPassword, bool rememberedUserName)
+        {
+            ConfigurationManager.AppSettings["HashedPassword"] = hashedPassword;
+            ConfigurationManager.AppSettings["RememberUserName"] = rememberedUserName.ToString();
+            if (rememberedUserName)
+            {
+                ConfigurationManager.AppSettings["RememberedUsername"] = _rememberedUsername ?? string.Empty;
+            }
+            else
+            {
+                ConfigurationManager.AppSettings.Remove("RememberedUsername");
+            }
+            ConfigurationManager.RefreshSection("appSettings");
+        }
+   
+
+       
         private void Register_Click(object sender, EventArgs e)
         {
             RegisterForm registerForm = new RegisterForm();
@@ -51,6 +90,7 @@ namespace VisitForm1
                     MessageBox.Show(this, "³É¹¦µÇÂ¼£¡");
                     ExhibitionForm1 exhibitionForm1 = new ExhibitionForm1();
                     exhibitionForm1.Show();
+                    SaveSettings(hashedPassword, checkBox1.Checked);
                 }
                 else
                 {
@@ -76,10 +116,15 @@ namespace VisitForm1
             UpdatePwdForm updatePwdForm = new UpdatePwdForm(_currentUserId, _context);
             updatePwdForm.ShowDialog();
         }
-      
+
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
+            _rememberedUsername = checkBox1.Checked ? textBox1.Text : null;
            
         }
+        }
     }
-}
+
+    
+
+

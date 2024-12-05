@@ -31,9 +31,6 @@
             label1 = new Label();
             SelectDate = new DateTimePicker();
             label2 = new Label();
-            SelectTime1 = new Label();
-            SelectTime3 = new Label();
-            SelectTime2 = new Label();
             checkBox1 = new CheckBox();
             checkBox2 = new CheckBox();
             checkBox3 = new CheckBox();
@@ -49,7 +46,6 @@
             Submit = new Button();
             label5 = new Label();
             lblNeedMoreTourists = new Label();
-            Select = new Button();
             ((System.ComponentModel.ISupportInitialize)VisitorCount).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
@@ -69,6 +65,7 @@
             SelectDate.Name = "SelectDate";
             SelectDate.Size = new Size(339, 27);
             SelectDate.TabIndex = 1;
+            SelectDate.ValueChanged += SelectDate_ValueChanged;
             // 
             // label2
             // 
@@ -78,30 +75,6 @@
             label2.Size = new Size(69, 20);
             label2.TabIndex = 2;
             label2.Text = "选择时间";
-            // 
-            // SelectTime1
-            // 
-            SelectTime1.Location = new Point(12, 147);
-            SelectTime1.Name = "SelectTime1";
-            SelectTime1.Size = new Size(339, 25);
-            SelectTime1.TabIndex = 3;
-            SelectTime1.Text = "时间 8:00-11:00           余票 5000          ￥0.00";
-            // 
-            // SelectTime3
-            // 
-            SelectTime3.Location = new Point(12, 222);
-            SelectTime3.Name = "SelectTime3";
-            SelectTime3.Size = new Size(339, 25);
-            SelectTime3.TabIndex = 5;
-            SelectTime3.Text = "时间 15:00-18:00         余票 5000         ￥0.00";
-            // 
-            // SelectTime2
-            // 
-            SelectTime2.Location = new Point(12, 185);
-            SelectTime2.Name = "SelectTime2";
-            SelectTime2.Size = new Size(339, 25);
-            SelectTime2.TabIndex = 6;
-            SelectTime2.Text = "时间 11:00-15:00         余票 5000         ￥0.00";
             // 
             // checkBox1
             // 
@@ -165,7 +138,7 @@
             // 
             // AddCount
             // 
-            AddCount.Location = new Point(324, 362);
+            AddCount.Location = new Point(487, 366);
             AddCount.Name = "AddCount";
             AddCount.Size = new Size(94, 29);
             AddCount.TabIndex = 13;
@@ -234,28 +207,17 @@
             // lblNeedMoreTourists
             // 
             lblNeedMoreTourists.AutoSize = true;
-            lblNeedMoreTourists.Location = new Point(97, 366);
+            lblNeedMoreTourists.Location = new Point(229, 366);
             lblNeedMoreTourists.Name = "lblNeedMoreTourists";
             lblNeedMoreTourists.Size = new Size(122, 20);
             lblNeedMoreTourists.TabIndex = 17;
             lblNeedMoreTourists.Text = "  ！需增加位游客";
-            // 
-            // Select
-            // 
-            Select.Location = new Point(487, 366);
-            Select.Name = "Select";
-            Select.Size = new Size(94, 29);
-            Select.TabIndex = 18;
-            Select.Text = "查询";
-            Select.UseVisualStyleBackColor = true;
-            Select.Click += Select_Click;
             // 
             // Reserve
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 602);
-            Controls.Add(Select);
             Controls.Add(lblNeedMoreTourists);
             Controls.Add(label5);
             Controls.Add(Submit);
@@ -267,9 +229,6 @@
             Controls.Add(checkBox3);
             Controls.Add(checkBox2);
             Controls.Add(checkBox1);
-            Controls.Add(SelectTime2);
-            Controls.Add(SelectTime3);
-            Controls.Add(SelectTime1);
             Controls.Add(label2);
             Controls.Add(SelectDate);
             Controls.Add(label1);
@@ -286,9 +245,6 @@
         private Label label1;
         private DateTimePicker SelectDate;
         private Label label2;
-        private Label SelectTime1;
-        private Label SelectTime3;
-        private Label SelectTime2;
         private CheckBox checkBox1;
         private CheckBox checkBox2;
         private CheckBox checkBox3;
@@ -304,6 +260,6 @@
         private DataGridViewTextBoxColumn Column2;
         private DataGridViewTextBoxColumn Column3;
         private DataGridViewButtonColumn Column4;
-        private Button Select;
+      //  private Button Select;
     }
 }

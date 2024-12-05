@@ -34,7 +34,7 @@
             description = new DataGridViewTextBoxColumn();
             beforeDays = new DataGridViewTextBoxColumn();
             Column5 = new DataGridViewButtonColumn();
-            Select = new Button();
+           // Select = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
@@ -88,20 +88,20 @@
             // 
             // Select
             // 
-            Select.Location = new Point(53, 12);
-            Select.Name = "Select";
-            Select.Size = new Size(94, 29);
-            Select.TabIndex = 1;
-            Select.Text = "查询";
-            Select.UseVisualStyleBackColor = true;
-            Select.Click += Select_Click;
+            //Select.Location = new Point(53, 12);
+            //Select.Name = "Select";
+            //Select.Size = new Size(94, 29);
+            //Select.TabIndex = 1;
+            //Select.Text = "查询";
+            //Select.UseVisualStyleBackColor = true;
+            //Select.Click += Select_Click;
             // 
             // ExhibitionForm
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(Select);
+           // Controls.Add(Select);
             Controls.Add(dataGridView1);
           
             Text = "ExhibitionForm";
@@ -112,7 +112,7 @@
         #endregion
 
         private DataGridView dataGridView1;
-        private Button Select;
+       // private Button Select;
         private DataGridViewTextBoxColumn ID;
         private DataGridViewTextBoxColumn Name;
         private DataGridViewTextBoxColumn description;
