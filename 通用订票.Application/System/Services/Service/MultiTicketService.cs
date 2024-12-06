@@ -107,7 +107,7 @@ namespace 通用订票.Application.System.Services.Service
             
         }
 
-        public async Task<MultiTicketVerifyResult> ConfirmCheckMultiTicket(string ticket_number, string exhibition)
+        public async Task<MultiTicketVerifyResult> ConfirmCheckMultiTicket(string ticket_number, string exhibition,int usecount = 1)
         {
             MultiTicketVerifyResult tr = new MultiTicketVerifyResult();
             var mticket = await GetTicketFromCache(ticket_number, exhibition);
@@ -119,12 +119,12 @@ namespace 通用订票.Application.System.Services.Service
                 mticket = t.Where(a => a.exhibitionId == Guid.Parse(exhibition)).FirstOrDefault();
             }
 
-            if ((mticket.totalCount - mticket.cancelCount - mticket.usedCount) <= 0)
+            if ((mticket.totalCount - mticket.cancelCount - mticket.usedCount - usecount) < 0)
             {
                 tr.code = 0;
                 return tr;
             }
-            mticket.usedCount++;
+            mticket.usedCount += usecount;
             await this.UpdateNow(mticket);
             await DelTicketFromCache(ticket_number,exhibition);
             var used = await this.GetQueryableNt(a => a.ticketNumber == ticket_number).MinAsync(a => a.usedCount);

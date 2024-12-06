@@ -14,6 +14,6 @@ namespace 通用订票.Application.System.Services.IService
         Task<ICollection<MultiTicket>> GenerateTicket(string ticket_number,string[] exhibitions,int totalCount);
         Task<MultiTicketCancelResult> CancelTicket(string ticket_number, int cancelCount);
         Task<TicketVerifyResult> CheckMultiTicket(string ticket_number, string exhibition);
-        Task<MultiTicketVerifyResult> ConfirmCheckMultiTicket(string ticket_number, string exhibition);
+        Task<MultiTicketVerifyResult> ConfirmCheckMultiTicket(string ticket_number, string exhibition, int usecount = 1);
     }
 }

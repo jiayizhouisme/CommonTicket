@@ -1,6 +1,8 @@
 ﻿using Core.Auth;
 using Furion.DatabaseAccessor;
 using Furion.DynamicApiController;
+using Furion.RemoteRequest.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
@@ -50,5 +52,7 @@ namespace 通用订票.Web.Entry.Controllers
             }
             return await this.userService.Add(userinfo);
         }
+
+
     }
 }
