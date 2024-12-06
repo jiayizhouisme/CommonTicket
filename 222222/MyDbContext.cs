@@ -18,7 +18,7 @@ namespace _222222
         public DbSet<Exhibition> Exhibitions { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string connStr = "Data Source=.;Initial Catalog=Test;user id=sa;password=Aa123456;TrustServerCertificate=true";
+            string connStr = "Data Source=.;Initial Catalog=CommonTicket1;user id=sa;password=Aa123456;TrustServerCertificate=true";
             optionsBuilder.UseSqlServer(connStr);
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

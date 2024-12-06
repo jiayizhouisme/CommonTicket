@@ -8,7 +8,11 @@ namespace _222222.Model
 {
     public class Appointment
     {
-        public int Id { get; set; }
-        public string StockName { get; set; }
+        public Guid Id { get; set; }
+        public Guid ObjectId { get; set; }
+        public int? Day { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public string StockName {  get; set; }
     }
 }

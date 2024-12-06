@@ -28,8 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            
-           Status1 = new TextBox();
+            Status1 = new TextBox();
             BasicPrice1 = new TextBox();
             Description1 = new TextBox();
             BeforeDays1 = new TextBox();
@@ -87,12 +86,14 @@
             Name1.Name = "Name1";
             Name1.Size = new Size(125, 27);
             Name1.TabIndex = 6;
-
-
+            // 
+            // ID1
+            // 
             ID1.Location = new Point(135, 0);
             ID1.Name = "ID1";
             ID1.Size = new Size(125, 27);
             ID1.TabIndex = 6;
+            ID1.Text = "id";
             // 
             // Status
             // 
@@ -147,14 +148,15 @@
             Name.Size = new Size(69, 20);
             Name.TabIndex = 12;
             Name.Text = "展馆名字";
-
-
-           ID.AutoSize = true;
-           ID.Location = new Point(30, 10);
-           ID.Name = "ID";
-           ID.Size = new Size(69, 20);
-           ID.TabIndex = 12;
-           ID.Text = "id";
+            // 
+            // ID
+            // 
+            ID.AutoSize = true;
+            ID.Location = new Point(30, 10);
+            ID.Name = "ID";
+            ID.Size = new Size(23, 20);
+            ID.TabIndex = 12;
+            ID.Text = "id";
             // 
             // Submit
             // 
@@ -164,9 +166,8 @@
             Submit.TabIndex = 13;
             Submit.Text = "提交";
             Submit.UseVisualStyleBackColor = true;
-            //Submit.Click += Submit_Click;
             // 
-            // AddExhibitionForm
+            // Form2
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -186,7 +187,7 @@
             Controls.Add(Description1);
             Controls.Add(BasicPrice1);
             Controls.Add(Status1);
-
+           
             Text = "UpdateExhibitionForm";
             ResumeLayout(false);
             PerformLayout();

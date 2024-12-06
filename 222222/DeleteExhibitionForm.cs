@@ -15,12 +15,11 @@ namespace Online1
 {
     public partial class DeleteExhibitionForm : Form
     {
-        SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=CommonTicket2;user id=sa;password=Aa123456;TrustServerCertificate=true");
+        SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=CommonTicket1;user id=sa;password=Aa123456;TrustServerCertificate=true");
         public DeleteExhibitionForm()
         {
             InitializeComponent();
         }
-
         private void Submit_Click(object sender, EventArgs e)
         {
             using (var context = new MyDbContext())
@@ -40,18 +39,7 @@ namespace Online1
     }
 }
 
-//            var sql = "Delete FROM [dbo].[Exhibition]" +
-//       " WHERE  [id]='{0}' ";
-//            var deletesql = string.Format(sql, ID.Text);
-//            using (SqlCommand command = new SqlCommand(deletesql, conn))
-//            {
 
-//                conn.Open();
-//                command.ExecuteNonQuery();
-//            }
-//        }
-//    }
-//}
 
 
 

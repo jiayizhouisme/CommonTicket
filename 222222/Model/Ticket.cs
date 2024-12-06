@@ -16,8 +16,9 @@ namespace _222222.Model
         public DateTime StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public DateTime CreateTime { get; set; }
-        // 导航属性
+       
         public UserInfo UserInfo { get; set; }
+       
         public String UserInfoId { get; set; }
         public Appointment Appointment { get; set; }
     }

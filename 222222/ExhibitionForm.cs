@@ -1,4 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using _222222;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json.Linq;
 using System;
@@ -23,86 +25,41 @@ namespace Online1
         public ExhibitionForm()
         {
             InitializeComponent();
-
         }
-        private DataSet Query(string sql)
-        {
-            var sda = new SqlDataAdapter(sql, conn);
-            DataSet queryTableDataSet = new DataSet();
-
-            sda.Fill(queryTableDataSet);
-            return queryTableDataSet;
-        }
-
         private void Insert_Click(object sender, EventArgs e)
         {
-
-
         }
-
         private void Delete_Click(object sender, EventArgs e)
         {
-
-
         }
-
         private void Update_Click(object sender, EventArgs e)
         {
-
-
         }
-
-
-
         private void Select_Click(object sender, EventArgs e)
         {
-            using (var db = new TestDbContext())
+            using (var db = new MyDbContext())
             {
-                var exhibitions = db.Exhibition.ToList();
+                var exhibitions = db.Exhibitions.ToList();
                 dataGridView1.Rows.Clear();
                 foreach (var exhibition in exhibitions)
                 {
-                    int Addrow = dataGridView1.Rows.Add();                  
+                    int Addrow = dataGridView1.Rows.Add();
                     dataGridView1.Rows[Addrow].Cells[IDColumn.Index].Value = exhibition.id;
                     dataGridView1.Rows[Addrow].Cells[Column1.Index].Value = exhibition.name;
                     dataGridView1.Rows[Addrow].Cells[Column2.Index].Value = exhibition.description;
                     dataGridView1.Rows[Addrow].Cells[Column3.Index].Value = exhibition.beforeDays;
-
                 }
             }
-
-            //DataTable dt = (DataTable)dataGridView1.DataSource;
-
-
-            //string queryExhibition = "select * from [Exhibition] ";
-
-            //dataGridView1.Rows.Clear();
-            //DataSet exhibitions = Query(queryExhibition);
-
-            //for (int j = 0; j < exhibitions.Tables[0].Rows.Count; j++)
-            //{
-            //    int Addrow = NewRow();
-            //    var theRowExhibition_id = exhibitions.Tables[0].Rows[j]["id"].ToString();
-            //    var theRowExhibition_name = exhibitions.Tables[0].Rows[j]["name"].ToString();
-            //    var theRowExhibition_description = exhibitions.Tables[0].Rows[j]["description"].ToString();
-            //    var theRowExhibition_beforeDays = exhibitions.Tables[0].Rows[j]["beforeDays"].ToString();
-
-            //NewCol(Addrow, IDColumn.Index, theRowExhibition_id);
-            //NewCol(Addrow, Column1.Index, theRowExhibition_name);
-            //NewCol(Addrow, Column2.Index, theRowExhibition_description);
-            //NewCol(Addrow, Column3.Index, theRowExhibition_beforeDays);
         }
-    
-        private  void AdddataGirdView1_CellContentClick(object sender, EventArgs e)
+        private void AdddataGirdView1_CellContentClick(object sender, EventArgs e)
         {
-            AddExhibitionForm addExhibitionForm = new AddExhibitionForm( );
+            AddExhibitionForm addExhibitionForm = new AddExhibitionForm();
             addExhibitionForm.ShowDialog();
         }
-        private  void DeletedataGridView1_CellContentClick(object sender, EventArgs e)
+        private void DeletedataGridView1_CellContentClick(object sender, EventArgs e)
         {
             DeleteExhibitionForm form11 = new DeleteExhibitionForm();
-            form11.ShowDialog(); 
-
+            form11.ShowDialog();
         }
         private async void UpdatedataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -110,16 +67,8 @@ namespace Online1
                 dataGridView1.Rows[e.RowIndex].Cells[Column1.Index].Value.ToString(),
                 dataGridView1.Rows[e.RowIndex].Cells[Column2.Index].Value.ToString(),
                 dataGridView1.Rows[e.RowIndex].Cells[Column3.Index].Value.ToString());
-
-            // 显示Form2，可以选择Modeless或Modal方式
-            // form2.Show(); // 非模态窗口，可以同时与Form1交互
-            form2.ShowDialog(); // 模态窗口，必须先关闭Form2才能与Form1交
-
-
+            form2.ShowDialog();
         }
-
-
-
         private async void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == Column5.Index)
@@ -129,28 +78,32 @@ namespace Online1
             }
             else if (e.ColumnIndex == Column4.Index)
             {
-                //var dr = dataGridView1.Rows[e.RowIndex].Cells[0].Value;
-                // var id = dataGridView1.Rows[e.RowIndex].Cells[0].Value;
                 object rawIdValue = dataGridView1.Rows[e.RowIndex].Cells[0].Value;
                 Guid? id = null;
                 if (Guid.TryParse(rawIdValue?.ToString(), out Guid parsedGuid))
                 {
                     id = parsedGuid;
                 }
-
                 if (id.HasValue)
                 {
-                    using (TestDbContext ctx = new TestDbContext())
+                    using (MyDbContext ctx = new MyDbContext())
                     {
 
-                        var exhibitionToDelete = ctx.Exhibition.SingleOrDefault(ex => ex.id == id.Value);
+                        var exhibitionToDelete = ctx.Exhibitions.SingleOrDefault(ex => ex.id == id.Value);
                         if (exhibitionToDelete != null)
                         {
-                            ctx.Exhibition.Remove(exhibitionToDelete);
+                            ctx.Exhibitions.Remove(exhibitionToDelete);
                             await ctx.SaveChangesAsync();
                         }
                     }
                 }
+            }
+
+            else if ((e.ColumnIndex == Column6.Index))
+            {
+                Guid Id = Guid.Parse(dataGridView1.Rows[e.RowIndex].Cells[IDColumn.Index].Value.ToString());            
+                MainAppointmentForm mainForm = new MainAppointmentForm(Id);
+                mainForm.ShowDialog();             
             }
         }
         private void NewCol(int row, int col, string value)
@@ -160,7 +113,7 @@ namespace Online1
         public int NewRow()
         {
             DataGridViewRow row = new DataGridViewRow();
-            int j = dataGridView1.Rows.Add(row);//添加新的一行
+            int j = dataGridView1.Rows.Add(row);
             return j;
         }
     }
