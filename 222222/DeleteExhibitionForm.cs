@@ -15,7 +15,7 @@ namespace Online1
 {
     public partial class DeleteExhibitionForm : Form
     {
-        SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=CommonTicket2;user id=sa;password=Aa123456;TrustServerCertificate=true");
+        SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=CommonTicket1;user id=sa;password=Aa123456;TrustServerCertificate=true");
         public DeleteExhibitionForm()
         {
             InitializeComponent();

@@ -13,19 +13,23 @@ using VisitForm1._222222.Model;
 
 namespace VisitForm1
 {
+    
     public partial class Reserve : Form
     {
         private const int MaxTourists = 5;
         private int _currentTouristCount = 1;
         private int _addedTouristCount = 0;
         private Guid _exhibitionId;
+        //  private Control label;
+        private List<Label> labels = new List<Label>();
         public Reserve(Guid exhibitionid) : this()
         {
             _exhibitionId = exhibitionid;
             VisitorCount.Value = _currentTouristCount;
-            //  VisitorCount.ValueChanged += VisitorCount_ValueChanged;
             UpdateLabelText();
             LoadUserInfo();
+            SelectDate.ValueChanged += SelectDate_ValueChanged;
+            ClearLabels();
             using (var db = new MyDbContext())
             {
                 var day = SelectDate.Value.Date.Subtract(DateTime.Now.Date).TotalDays;
@@ -34,20 +38,25 @@ namespace VisitForm1
                 var exhibitions = db.Exhibitions.AsQueryable().Where(i => i.id == exhibitionid).FirstOrDefault();
                 for (int a = 0; a < appointments.Length; a++)
                 {
-                    Label label = new Label();
-                    label.AutoSize = true;
 
+                    Label label = new Label();
+                    //this.label = label;
+                    label.AutoSize = true;
                     label.Location = new Point(12, a * 35 + 147);
                     label.Text = string.Format("时间{0} 余票{1} ￥{2:F2}",
-                        appointments[a].StartTime.ToShortTimeString() + " " + appointments[a].EndTime.ToShortTimeString(), appointments[a].amount, exhibitions.basicPrice);
+                    appointments[a].StartTime.ToShortTimeString() + " " + appointments[a].EndTime.ToShortTimeString(), appointments[a].amount, exhibitions.basicPrice);
                     this.Controls.Add(label);
-                }
+                    labels.Add(label);
 
+                }
+              
             }
+
         }
         public Reserve()
         {
             InitializeComponent();
+            SelectDate.ValueChanged += SelectDate_ValueChanged;
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
@@ -74,7 +83,14 @@ namespace VisitForm1
                 checkBox2.Checked = false;
             }
         }
-
+        private void DeletedataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == Column5.Index)
+            {
+                DeleteUseInfoForm deleteUseInfoForm = new DeleteUseInfoForm();
+                deleteUseInfoForm.ShowDialog();
+            }
+        }
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == Column4.Index)
@@ -187,40 +203,46 @@ namespace VisitForm1
                     dataGridView1.Rows[Addrow].Cells[Column1.Index].Value = userInfo.Name;
                     dataGridView1.Rows[Addrow].Cells[Column2.Index].Value = userInfo.IdCard.ToString();
                     dataGridView1.Rows[Addrow].Cells[Column3.Index].Value = userInfo.PhoneNumber;
-
                 }
             }
         }
-        private HashSet<Guid> addedAppointmentIds = new HashSet<Guid>();
-        private void SelectDate_ValueChanged(object sender, EventArgs e)
+        private void ClearLabels()
         {
-            addedAppointmentIds.Clear();
+            foreach (var label in labels)
+            {
+                this.Controls.Remove(label);
+            }
+            labels.Clear();
+        }
+        private void SelectDate_ValueChanged(object sender, EventArgs e)
+        {       
+            ClearLabels();
             using (var db = new MyDbContext())
             {
                 var day = SelectDate.Value.Date.Subtract(DateTime.Now.Date).TotalDays;
-
                 var appointments = db.Appointments.AsQueryable().Where(a => a.ObjectId == _exhibitionId && a.Day == day).ToArray();
                 var exhibitions = db.Exhibitions.AsQueryable().Where(i => i.id == _exhibitionId).FirstOrDefault();
-                if (exhibitions == null)
-                return;
-               
+                if (exhibitions != null)
+                {
                     for (int a = 0; a < appointments.Length; a++)
                     {
-                    var appointment = appointments[a];
-                    Guid appointmentId = appointment.Id;
-                    Label label = new Label();
+                        var appointment = appointments[a];
+                        Guid appointmentId = appointment.Id;
+                        Label label = new Label();
                         label.AutoSize = true;
                         label.Location = new Point(12, a * 35 + 147);
                         label.Text = string.Format("时间{0} 余票{1} ￥{2:F2}",
                         appointments[a].StartTime.ToShortTimeString() + " " + appointments[a].EndTime.ToShortTimeString(), appointments[a].amount, exhibitions.basicPrice);
-
                         this.Controls.Add(label);
-                        addedAppointmentIds.Add(appointmentId);
+                        labels.Add(label);
+                        // this.Controls.Remove(this.label);
                     }
-
                 }
             }
         }
+           
+        }
     }
+
 
    

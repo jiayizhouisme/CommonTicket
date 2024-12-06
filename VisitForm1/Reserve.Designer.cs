@@ -43,6 +43,8 @@
             Column2 = new DataGridViewTextBoxColumn();
             Column3 = new DataGridViewTextBoxColumn();
             Column4 = new DataGridViewButtonColumn();
+            Column5 = new DataGridViewButtonColumn();
+            Column6 = new DataGridViewCheckBoxColumn();
             Submit = new Button();
             label5 = new Label();
             lblNeedMoreTourists = new Label();
@@ -79,7 +81,7 @@
             // checkBox1
             // 
             checkBox1.AutoSize = true;
-            checkBox1.Location = new Point(357, 146);
+            checkBox1.Location = new Point(357, 138);
             checkBox1.Name = "checkBox1";
             checkBox1.Size = new Size(61, 24);
             checkBox1.TabIndex = 7;
@@ -149,11 +151,11 @@
             // dataGridView1
             // 
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Column1, Column2, Column3, Column4 });
+            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Column1, Column2, Column3, Column4, Column5, Column6 });
             dataGridView1.Location = new Point(12, 408);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersWidth = 51;
-            dataGridView1.Size = new Size(569, 134);
+            dataGridView1.Size = new Size(809, 134);
             dataGridView1.TabIndex = 14;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick;
             // 
@@ -184,6 +186,21 @@
             Column4.MinimumWidth = 6;
             Column4.Name = "Column4";
             Column4.Width = 125;
+            // 
+            // Column5
+            // 
+            Column5.HeaderText = "删除";
+            Column5.MinimumWidth = 6;
+            Column5.Name = "Column5";
+            Column5.Width = 125;
+            
+            // 
+            // Column6
+            // 
+            Column6.HeaderText = "选择";
+            Column6.MinimumWidth = 6;
+            Column6.Name = "Column6";
+            Column6.Width = 125;
             // 
             // Submit
             // 
@@ -217,7 +234,8 @@
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 602);
+            ClientSize = new Size(959, 602);
+            Controls.Add(checkBox1);
             Controls.Add(lblNeedMoreTourists);
             Controls.Add(label5);
             Controls.Add(Submit);
@@ -228,7 +246,6 @@
             Controls.Add(label3);
             Controls.Add(checkBox3);
             Controls.Add(checkBox2);
-            Controls.Add(checkBox1);
             Controls.Add(label2);
             Controls.Add(SelectDate);
             Controls.Add(label1);
@@ -260,6 +277,8 @@
         private DataGridViewTextBoxColumn Column2;
         private DataGridViewTextBoxColumn Column3;
         private DataGridViewButtonColumn Column4;
-      //  private Button Select;
+        private DataGridViewButtonColumn Column5;
+        private DataGridViewCheckBoxColumn Column6;
+        //  private Button Select;
     }
 }
