@@ -40,6 +40,7 @@ namespace 设备物联.Web.Entry.Controllers
             {
                 await file.CopyToAsync(stream);
             }
+            
 
             // 返回文件名（这里可以自由返回更多信息）
             return new { filePath = "/uploads/" + fileName };

@@ -228,18 +228,22 @@ namespace 通用订票.Web.Entry.Controllers
         //[TypeFilter(typeof(CacheFilter))]
         [NonUnify]
         [HttpGet(Name = "GetAppointmentByDate")]
-        public async Task<object> GetAppointmentByDate([FromQuery]Guid FID, [FromQuery] DateTime date, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 20)
+        public async Task<object> GetAppointmentByDate([FromQuery]Guid FID, [FromQuery] DateTime date)
         {
+            var exhibition = await _exhibitionService.GetExhibitionByID(FID);
+
             DateTime now = DateTime.Now;
-            return await (await this._appointmentService.GetAppointmentsByDate(FID, date))
-                .Select(a => new { 
+            return (await this._appointmentService.GetAppointmentsByDate(FID, date))
+                .Select(a => new
+                {
                     a.day,
                     a.startTime,
                     a.endTime,
                     a.id,
-                    a.sale
-                })
-                .ToPagedListAsync(pageIndex,pageSize);
+                    a.sale,
+                    amount = a.amount - a.sale,
+                    exhibition.basicPrice
+                });
         }
 
         /// <summary>
@@ -286,7 +290,8 @@ namespace 通用订票.Web.Entry.Controllers
                     price = exhibtion.basicPrice,
                     date = firstMonth.AddDays(i),
                     salesLeft = 0,
-                    available = false
+                    available = false,
+                    closeReason = CloseReason.已结束
                 };
             }
 
@@ -304,7 +309,7 @@ namespace 通用订票.Web.Entry.Controllers
                 if (models[i].salesLeft <= 0)
                 {
                     models[i].available = false;
-                    models[i].closeReason = CloseReason.票已售空;
+                    models[i].closeReason = CloseReason.已约完;
                 }
                 i++;
             }
@@ -315,7 +320,8 @@ namespace 通用订票.Web.Entry.Controllers
                     price = exhibtion.basicPrice,
                     date = lastMonth.AddDays(j),
                     salesLeft = 0,
-                    available = false
+                    available = false,
+                    closeReason = CloseReason.未开放
                 };
             }
             if (rule == null)
@@ -327,7 +333,7 @@ namespace 通用订票.Web.Entry.Controllers
             {
                 if (rule.IsDateVaild(models[i].date) == false)
                 {
-                    models[i].closeReason = CloseReason.展馆关闭;
+                    models[i].closeReason = CloseReason.未开放;
                     models[i].available = false;
                 }
             }

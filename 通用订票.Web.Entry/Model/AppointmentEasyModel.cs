@@ -11,7 +11,8 @@
 
     public enum CloseReason
     {
-        展馆关闭,
-        票已售空
+        未开放,
+        已约完,
+        已结束
     }
 }

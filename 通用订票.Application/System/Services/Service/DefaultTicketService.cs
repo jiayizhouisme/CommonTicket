@@ -202,7 +202,7 @@ namespace 通用订票.Application.System.Services.Service
             result.shouldUpdate = false;
             if (ticket.isMultiPart == true)
             {
-                var r = await multiTicketService.ConfirmCheckMultiTicket(ticket.ticketNumber, exhibitionId);
+                var r = await multiTicketService.ConfirmCheckMultiTicket(ticket.ticketNumber, exhibitionId,1);
                 if (r.code == 1)
                 {
                     ticket.stauts = TicketStatus.部分使用;

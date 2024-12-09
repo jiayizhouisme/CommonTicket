@@ -224,7 +224,7 @@ namespace 通用订票.Web.Entry.Controllers
                     if (result == null || string.IsNullOrEmpty(result.parameters))
                     {
                         var config = await wechatMerchantConfigService.GetConfig();
-                        var openid = httpContextUser.GetUserInfoFromToken("openid").FirstOrDefault();
+                        var openid = httpContextUser.OpenId;
                         if (config != null && !string.IsNullOrEmpty(openid))
                         {
                             result = await wechatPayService.PubPay(result, config, openid);
@@ -512,8 +512,6 @@ namespace 通用订票.Web.Entry.Controllers
             }
             return ticket;
         }
-
-
 
         //[Authorize]
         //[TypeFilter(typeof(SaaSAuthorizationFilter))]

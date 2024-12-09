@@ -1,7 +1,10 @@
 ﻿using Core.Auth;
+using Core.Cache;
 using Core.HttpTenant;
 using Core.MiddelWares;
 using Core.User.Entity;
+using Core.Utill.Tools;
+using DotNetCore.CAP.Dashboard;
 using Furion.DataEncryption;
 using Furion.DynamicApiController;
 using Furion.FriendlyException;
@@ -15,6 +18,7 @@ using System.ComponentModel.DataAnnotations;
 using 通用订票.Application.System.QRHelper;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
+using 通用订票.Web.Entry.Model;
 namespace 通用订票.Web.Entry.Controllers
 {
     /// <summary>
@@ -25,11 +29,16 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IUserService userService;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ITenantGetSetor tenantGetSetor;
-        public LoginController(IUserService userService, IHttpContextAccessor contextAccessor, ITenantGetSetor tenantGetSetor)
+        private readonly IHttpContextUser httpContextUser;
+        private readonly ICacheOperation _Cache;
+        public LoginController(IUserService userService, IHttpContextAccessor contextAccessor,
+            ITenantGetSetor tenantGetSetor, IHttpContextUser httpContextUser,ICacheOperation _Cache)
         {
             this.userService = userService;
             _contextAccessor = contextAccessor;
             this.tenantGetSetor = tenantGetSetor;
+            this.httpContextUser = httpContextUser;
+            this._Cache = _Cache;
         }
 
         /// <summary>
@@ -78,8 +87,32 @@ namespace 通用订票.Web.Entry.Controllers
             }
             catch
             {
-                return new BadRequestResult();
+                return new UnauthorizedResult();
             }
+        }
+
+        [Route("UserInfo")]
+        [HttpGet]
+        [NonUnify]
+        public async Task<WUser> UserInfo()
+        {
+            if (string.IsNullOrEmpty(httpContextUser.OpenId))
+            {
+                return new WUser() {code = 0,message = "用户验证失败" };
+            }
+            WUser result = await _Cache.Get<WUser>(httpContextUser.OpenId);
+            if (result == null)
+            {
+                result = await "http://umplatform.z2ww.com/api/WechatUser/GetWechatUser".SetQueries(new { openid = httpContextUser.OpenId }).GetAsAsync<WUser>();
+                if (result == null)
+                {
+                    result = new WUser() { code = 0 };
+                }
+                result.code = 1;
+                result.message = "用户验证成功";
+                await _Cache.Set(httpContextUser.OpenId, result,500);
+            }
+            return result;
         }
 
         [HttpGet(Name = "Logout")]
@@ -91,9 +124,19 @@ namespace 通用订票.Web.Entry.Controllers
         }
 
         [HttpGet]
+        [Route("GetSignture")]
+        public async Task<object> GetSignture([FromQuery]string url)
+        {
+            var tenant_id = tenantGetSetor.Get();
+            return await "http://umplatform.z2ww.com/api/WechatUser/GetSignture".SetQueries(new { url = url, state = "state", project = tenant_id }).GetAsAsync<dynamic>();
+        }
+
+        [HttpGet]
         public async Task<User> Test()
         {
             return await userService.RegisteNewUser(new User { username = "test",password = "123"});
         }
     }
+
+
 }
