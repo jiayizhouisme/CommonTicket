@@ -31,9 +31,6 @@
             label1 = new Label();
             SelectDate = new DateTimePicker();
             label2 = new Label();
-            checkBox1 = new CheckBox();
-            checkBox2 = new CheckBox();
-            checkBox3 = new CheckBox();
             label3 = new Label();
             VisitorCount = new NumericUpDown();
             label4 = new Label();
@@ -48,6 +45,10 @@
             Submit = new Button();
             label5 = new Label();
             lblNeedMoreTourists = new Label();
+            checkBox3 = new CheckBox();
+            checkBox2 = new CheckBox();
+            checkBox1 = new CheckBox();
+            groupBox1 = new GroupBox();
             ((System.ComponentModel.ISupportInitialize)VisitorCount).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
@@ -77,39 +78,6 @@
             label2.Size = new Size(69, 20);
             label2.TabIndex = 2;
             label2.Text = "选择时间";
-            // 
-            // checkBox1
-            // 
-            checkBox1.AutoSize = true;
-            checkBox1.Location = new Point(357, 138);
-            checkBox1.Name = "checkBox1";
-            checkBox1.Size = new Size(61, 24);
-            checkBox1.TabIndex = 7;
-            checkBox1.Text = "选择";
-            checkBox1.UseVisualStyleBackColor = true;
-            checkBox1.CheckedChanged += checkBox1_CheckedChanged;
-            // 
-            // checkBox2
-            // 
-            checkBox2.AutoSize = true;
-            checkBox2.Location = new Point(357, 184);
-            checkBox2.Name = "checkBox2";
-            checkBox2.Size = new Size(61, 24);
-            checkBox2.TabIndex = 8;
-            checkBox2.Text = "选择";
-            checkBox2.UseVisualStyleBackColor = true;
-            checkBox2.CheckedChanged += checkBox2_CheckedChanged;
-            // 
-            // checkBox3
-            // 
-            checkBox3.AutoSize = true;
-            checkBox3.Location = new Point(357, 221);
-            checkBox3.Name = "checkBox3";
-            checkBox3.Size = new Size(61, 24);
-            checkBox3.TabIndex = 9;
-            checkBox3.Text = "选择";
-            checkBox3.UseVisualStyleBackColor = true;
-            checkBox3.CheckedChanged += checkBox3_CheckedChanged;
             // 
             // label3
             // 
@@ -193,7 +161,6 @@
             Column5.MinimumWidth = 6;
             Column5.Name = "Column5";
             Column5.Width = 125;
-            
             // 
             // Column6
             // 
@@ -230,12 +197,57 @@
             lblNeedMoreTourists.TabIndex = 17;
             lblNeedMoreTourists.Text = "  ！需增加位游客";
             // 
+            // checkBox3
+            // 
+            checkBox3.AutoSize = true;
+            checkBox3.Location = new Point(487, 190);
+            checkBox3.Name = "checkBox3";
+            checkBox3.Size = new Size(61, 24);
+            checkBox3.TabIndex = 9;
+            checkBox3.Text = "选择";
+            checkBox3.UseVisualStyleBackColor = true;
+            checkBox3.CheckedChanged += checkBox3_CheckedChanged;
+            // 
+            // checkBox2
+            // 
+            checkBox2.AutoSize = true;
+            checkBox2.Location = new Point(487, 147);
+            checkBox2.Name = "checkBox2";
+            checkBox2.Size = new Size(61, 24);
+            checkBox2.TabIndex = 8;
+            checkBox2.Text = "选择";
+            checkBox2.UseVisualStyleBackColor = true;
+            checkBox2.CheckedChanged += checkBox2_CheckedChanged;
+            // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Location = new Point(487, 232);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(61, 24);
+            checkBox1.TabIndex = 7;
+            checkBox1.Text = "选择";
+            checkBox1.UseVisualStyleBackColor = true;
+            checkBox1.CheckedChanged += checkBox1_CheckedChanged;
+            // 
+            // groupBox1
+            // 
+            groupBox1.Location = new Point(653, 129);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new Size(250, 125);
+            groupBox1.TabIndex = 18;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "groupBox1";
+            // 
             // Reserve
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(959, 602);
+            Controls.Add(groupBox1);
+            Controls.Add(checkBox2);
             Controls.Add(checkBox1);
+            Controls.Add(checkBox3);
             Controls.Add(lblNeedMoreTourists);
             Controls.Add(label5);
             Controls.Add(Submit);
@@ -244,8 +256,6 @@
             Controls.Add(label4);
             Controls.Add(VisitorCount);
             Controls.Add(label3);
-            Controls.Add(checkBox3);
-            Controls.Add(checkBox2);
             Controls.Add(label2);
             Controls.Add(SelectDate);
             Controls.Add(label1);
@@ -262,9 +272,6 @@
         private Label label1;
         private DateTimePicker SelectDate;
         private Label label2;
-        private CheckBox checkBox1;
-        private CheckBox checkBox2;
-        private CheckBox checkBox3;
         private Label label3;
         private NumericUpDown VisitorCount;
         private Label label4;
@@ -279,6 +286,10 @@
         private DataGridViewButtonColumn Column4;
         private DataGridViewButtonColumn Column5;
         private DataGridViewCheckBoxColumn Column6;
+        private CheckBox checkBox3;
+        private CheckBox checkBox2;
+        private CheckBox checkBox1;
+        private GroupBox groupBox1;
         //  private Button Select;
     }
 }

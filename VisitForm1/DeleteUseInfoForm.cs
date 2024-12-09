@@ -15,17 +15,50 @@ namespace VisitForm1
 {
     public partial class DeleteUseInfoForm : Form
     {
+        private long _userId;       
+        public DeleteUseInfoForm(long userId) : this()
+        {
+            _userId = userId;
+            InitializeComponent();
+           // this.Delete.Click += new EventHandler(Delete_Click);
+        }
         public DeleteUseInfoForm()
         {
             InitializeComponent();
-            this.Delete.Click += new EventHandler(Delete_Click);
         }
 
-        private void Delete_Click(object sender, EventArgs e)
+        public void ExecuteDelete()
         {
+            DeleteUserInfo();
+        }
+        private void DeleteUserInfo()
+        {
+            using (var context = new MyDbContext())
+            {
+                var userInfo = context.UserInfos.FirstOrDefault(u => u.UserId == LogInInfo.id);
 
+                if (userInfo == null)
+                {
+                    MessageBox.Show("未找到对应的用户信息");
+                    return;
+                }
+
+                try
+                {
+                    context.UserInfos.Remove(userInfo);
+                    context.SaveChanges();
+                    MessageBox.Show("删除成功");
+                    this.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("删除失败: " + ex.Message);
+                }
+            }
         }
     }
 }
-           
+
+
+
 

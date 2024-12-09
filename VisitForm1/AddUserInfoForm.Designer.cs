@@ -37,7 +37,7 @@
             textBox2 = new TextBox();
             textBox3 = new TextBox();
             textBox4 = new TextBox();
-            Submit = new Button();
+            Submitt = new Button();
             SuspendLayout();
             // 
             // label1
@@ -115,22 +115,22 @@
             textBox4.Size = new Size(231, 27);
             textBox4.TabIndex = 8;
             // 
-            // Submit
+            // Submitt
             // 
-            Submit.Location = new Point(235, 295);
-            Submit.Name = "Submit";
-            Submit.Size = new Size(94, 29);
-            Submit.TabIndex = 9;
-            Submit.Text = "提交";
-            Submit.UseVisualStyleBackColor = true;
-            Submit.Click += Submit_Click;
+            Submitt.Location = new Point(235, 295);
+            Submitt.Name = "Submitt";
+            Submitt.Size = new Size(94, 29);
+            Submitt.TabIndex = 9;
+            Submitt.Text = "提交";
+            Submitt.UseVisualStyleBackColor = true;
+            Submitt.Click += Submitt_Click;
             // 
             // AddUserInfoForm
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(Submit);
+            Controls.Add(Submitt);
             Controls.Add(textBox4);
             Controls.Add(textBox3);
             Controls.Add(textBox2);
@@ -140,7 +140,7 @@
             Controls.Add(Name);
             Controls.Add(TypeCard);
             Controls.Add(label1);
-          
+           
             Text = "AddUserForm";
             ResumeLayout(false);
             PerformLayout();
@@ -157,6 +157,6 @@
         private TextBox textBox2;
         private TextBox textBox3;
         private TextBox textBox4;
-        private Button Submit;
+        private Button Submitt;
     }
 }

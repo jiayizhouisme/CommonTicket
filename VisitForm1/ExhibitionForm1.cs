@@ -53,13 +53,11 @@ namespace VisitForm1
         {
             if ((e.ColumnIndex == Column2.Index))
             {
-
                 Reserve reserve = new Reserve(ExhibitionId[e.RowIndex]);
                 reserve.ShowDialog();
             }
         }
     
-
 private void NewCol(int row, int col, string value)
 {
     dataGridView1.Rows[row].Cells[col].Value = value;
