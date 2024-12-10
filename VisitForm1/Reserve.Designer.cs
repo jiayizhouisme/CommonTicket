@@ -36,19 +36,16 @@
             label4 = new Label();
             AddCount = new Button();
             dataGridView1 = new DataGridView();
+            Submit = new Button();
+            label5 = new Label();
+            lblNeedMoreTourists = new Label();
             Column1 = new DataGridViewTextBoxColumn();
+            IDColumn = new DataGridViewTextBoxColumn();
             Column2 = new DataGridViewTextBoxColumn();
             Column3 = new DataGridViewTextBoxColumn();
             Column4 = new DataGridViewButtonColumn();
             Column5 = new DataGridViewButtonColumn();
             Column6 = new DataGridViewCheckBoxColumn();
-            Submit = new Button();
-            label5 = new Label();
-            lblNeedMoreTourists = new Label();
-            checkBox3 = new CheckBox();
-            checkBox2 = new CheckBox();
-            checkBox1 = new CheckBox();
-            groupBox1 = new GroupBox();
             ((System.ComponentModel.ISupportInitialize)VisitorCount).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
@@ -119,7 +116,7 @@
             // dataGridView1
             // 
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Column1, Column2, Column3, Column4, Column5, Column6 });
+            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Column1, IDColumn, Column2, Column3, Column4, Column5, Column6 });
             dataGridView1.Location = new Point(12, 408);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersWidth = 51;
@@ -127,12 +124,48 @@
             dataGridView1.TabIndex = 14;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick;
             // 
+            // Submit
+            // 
+            Submit.Location = new Point(257, 561);
+            Submit.Name = "Submit";
+            Submit.Size = new Size(94, 29);
+            Submit.TabIndex = 15;
+            Submit.Text = "提交订单";
+            Submit.UseVisualStyleBackColor = true;
+            Submit.Click += Submit_Click;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(12, 570);
+            label5.Name = "label5";
+            label5.Size = new Size(105, 20);
+            label5.TabIndex = 16;
+            label5.Text = "总价    ￥ 0.00";
+            // 
+            // lblNeedMoreTourists
+            // 
+            lblNeedMoreTourists.AutoSize = true;
+            lblNeedMoreTourists.Location = new Point(229, 366);
+            lblNeedMoreTourists.Name = "lblNeedMoreTourists";
+            lblNeedMoreTourists.Size = new Size(122, 20);
+            lblNeedMoreTourists.TabIndex = 17;
+            lblNeedMoreTourists.Text = "  ！需增加位游客";
+            // 
             // Column1
             // 
             Column1.HeaderText = "姓名";
             Column1.MinimumWidth = 6;
             Column1.Name = "Column1";
             Column1.Width = 125;
+            // 
+            // IDColumn
+            // 
+            IDColumn.HeaderText = "Id";
+            IDColumn.MinimumWidth = 6;
+            IDColumn.Name = "IDColumn";
+            IDColumn.Visible = false;
+            IDColumn.Width = 125;
             // 
             // Column2
             // 
@@ -169,85 +202,11 @@
             Column6.Name = "Column6";
             Column6.Width = 125;
             // 
-            // Submit
-            // 
-            Submit.Location = new Point(257, 561);
-            Submit.Name = "Submit";
-            Submit.Size = new Size(94, 29);
-            Submit.TabIndex = 15;
-            Submit.Text = "提交订单";
-            Submit.UseVisualStyleBackColor = true;
-            Submit.Click += Submit_Click;
-            // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Location = new Point(12, 570);
-            label5.Name = "label5";
-            label5.Size = new Size(105, 20);
-            label5.TabIndex = 16;
-            label5.Text = "总价    ￥ 0.00";
-            // 
-            // lblNeedMoreTourists
-            // 
-            lblNeedMoreTourists.AutoSize = true;
-            lblNeedMoreTourists.Location = new Point(229, 366);
-            lblNeedMoreTourists.Name = "lblNeedMoreTourists";
-            lblNeedMoreTourists.Size = new Size(122, 20);
-            lblNeedMoreTourists.TabIndex = 17;
-            lblNeedMoreTourists.Text = "  ！需增加位游客";
-            // 
-            // checkBox3
-            // 
-            checkBox3.AutoSize = true;
-            checkBox3.Location = new Point(487, 190);
-            checkBox3.Name = "checkBox3";
-            checkBox3.Size = new Size(61, 24);
-            checkBox3.TabIndex = 9;
-            checkBox3.Text = "选择";
-            checkBox3.UseVisualStyleBackColor = true;
-            checkBox3.CheckedChanged += checkBox3_CheckedChanged;
-            // 
-            // checkBox2
-            // 
-            checkBox2.AutoSize = true;
-            checkBox2.Location = new Point(487, 147);
-            checkBox2.Name = "checkBox2";
-            checkBox2.Size = new Size(61, 24);
-            checkBox2.TabIndex = 8;
-            checkBox2.Text = "选择";
-            checkBox2.UseVisualStyleBackColor = true;
-            checkBox2.CheckedChanged += checkBox2_CheckedChanged;
-            // 
-            // checkBox1
-            // 
-            checkBox1.AutoSize = true;
-            checkBox1.Location = new Point(487, 232);
-            checkBox1.Name = "checkBox1";
-            checkBox1.Size = new Size(61, 24);
-            checkBox1.TabIndex = 7;
-            checkBox1.Text = "选择";
-            checkBox1.UseVisualStyleBackColor = true;
-            checkBox1.CheckedChanged += checkBox1_CheckedChanged;
-            // 
-            // groupBox1
-            // 
-            groupBox1.Location = new Point(653, 129);
-            groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(250, 125);
-            groupBox1.TabIndex = 18;
-            groupBox1.TabStop = false;
-            groupBox1.Text = "groupBox1";
-            // 
             // Reserve
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(959, 602);
-            Controls.Add(groupBox1);
-            Controls.Add(checkBox2);
-            Controls.Add(checkBox1);
-            Controls.Add(checkBox3);
             Controls.Add(lblNeedMoreTourists);
             Controls.Add(label5);
             Controls.Add(Submit);
@@ -281,15 +240,12 @@
         private Label label5;
         private Label lblNeedMoreTourists;
         private DataGridViewTextBoxColumn Column1;
+        private DataGridViewTextBoxColumn IDColumn;
         private DataGridViewTextBoxColumn Column2;
         private DataGridViewTextBoxColumn Column3;
         private DataGridViewButtonColumn Column4;
         private DataGridViewButtonColumn Column5;
         private DataGridViewCheckBoxColumn Column6;
-        private CheckBox checkBox3;
-        private CheckBox checkBox2;
-        private CheckBox checkBox1;
-        private GroupBox groupBox1;
         //  private Button Select;
     }
 }
