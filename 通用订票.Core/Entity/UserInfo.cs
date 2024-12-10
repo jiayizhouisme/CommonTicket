@@ -1,7 +1,9 @@
 ﻿using Furion.DatabaseAccessor;
+using Furion.DataValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace 通用订票.Core.Entity
 {
@@ -12,8 +14,10 @@ namespace 通用订票.Core.Entity
         [Comment("姓名")]
         public string name { get; set; }
         [Comment("手机号")]
+        [DataValidation(ValidationTypes.PhoneNumber, ErrorMessage = "手机号格式错误")]
         public string phoneNumber { get; set; }
         [Comment("身份证")]
+        [DataValidation(ValidationTypes.IDCard, ErrorMessage = "身份证格式错误")]
         public string idCard { get; set; }
         [Comment("创建时间")]
         public DateTime createTime { get; set; }

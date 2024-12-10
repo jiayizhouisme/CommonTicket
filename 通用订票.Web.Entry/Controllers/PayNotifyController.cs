@@ -10,7 +10,7 @@ using 通用订票.Procedure.Entity.QueueEntity;
 
 namespace 通用订票.Web.Entry.Controllers
 {
-    [Route("payNotify")]
+    [Route("api/payNotify")]
     public class PayNotifyController : IDynamicApiController
     {
         private readonly IHttpContextAccessor _contextAccessor;
