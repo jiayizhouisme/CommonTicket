@@ -20,7 +20,7 @@ namespace VisitForm1
         {
             _userId = userId;
             InitializeComponent();
-           // this.Delete.Click += new EventHandler(Delete_Click);
+          
         }
         public DeleteUseInfoForm()
         {

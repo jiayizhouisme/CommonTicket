@@ -11,7 +11,9 @@ namespace VisitForm1._222222.Model
     {
         public int Id { get; set; }
         public string TradeNo { get; set; }
+        public string UserId {  get; set; }
         public int ObjectId { get; set; }
+        public int Status {  get; set; }
 
         public ICollection<Ticket> Tickets { get; set; }
     }

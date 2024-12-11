@@ -36,9 +36,6 @@
             label4 = new Label();
             AddCount = new Button();
             dataGridView1 = new DataGridView();
-            Submit = new Button();
-            label5 = new Label();
-            lblNeedMoreTourists = new Label();
             Column1 = new DataGridViewTextBoxColumn();
             IDColumn = new DataGridViewTextBoxColumn();
             Column2 = new DataGridViewTextBoxColumn();
@@ -46,6 +43,10 @@
             Column4 = new DataGridViewButtonColumn();
             Column5 = new DataGridViewButtonColumn();
             Column6 = new DataGridViewCheckBoxColumn();
+            Submit = new Button();
+            label5 = new Label();
+            lblNeedMoreTourists = new Label();
+            menuStrip1 = new MenuStrip();
             ((System.ComponentModel.ISupportInitialize)VisitorCount).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
@@ -124,34 +125,6 @@
             dataGridView1.TabIndex = 14;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick;
             // 
-            // Submit
-            // 
-            Submit.Location = new Point(257, 561);
-            Submit.Name = "Submit";
-            Submit.Size = new Size(94, 29);
-            Submit.TabIndex = 15;
-            Submit.Text = "提交订单";
-            Submit.UseVisualStyleBackColor = true;
-            Submit.Click += Submit_Click;
-            // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Location = new Point(12, 570);
-            label5.Name = "label5";
-            label5.Size = new Size(105, 20);
-            label5.TabIndex = 16;
-            label5.Text = "总价    ￥ 0.00";
-            // 
-            // lblNeedMoreTourists
-            // 
-            lblNeedMoreTourists.AutoSize = true;
-            lblNeedMoreTourists.Location = new Point(229, 366);
-            lblNeedMoreTourists.Name = "lblNeedMoreTourists";
-            lblNeedMoreTourists.Size = new Size(122, 20);
-            lblNeedMoreTourists.TabIndex = 17;
-            lblNeedMoreTourists.Text = "  ！需增加位游客";
-            // 
             // Column1
             // 
             Column1.HeaderText = "姓名";
@@ -202,6 +175,43 @@
             Column6.Name = "Column6";
             Column6.Width = 125;
             // 
+            // Submit
+            // 
+            Submit.Location = new Point(257, 561);
+            Submit.Name = "Submit";
+            Submit.Size = new Size(94, 29);
+            Submit.TabIndex = 15;
+            Submit.Text = "提交订单";
+            Submit.UseVisualStyleBackColor = true;
+            Submit.Click += Submit_Click;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(12, 570);
+            label5.Name = "label5";
+            label5.Size = new Size(105, 20);
+            label5.TabIndex = 16;
+            label5.Text = "总价    ￥ 0.00";
+            // 
+            // lblNeedMoreTourists
+            // 
+            lblNeedMoreTourists.AutoSize = true;
+            lblNeedMoreTourists.Location = new Point(229, 366);
+            lblNeedMoreTourists.Name = "lblNeedMoreTourists";
+            lblNeedMoreTourists.Size = new Size(122, 20);
+            lblNeedMoreTourists.TabIndex = 17;
+            lblNeedMoreTourists.Text = "  ！需增加位游客";
+            // 
+            // menuStrip1
+            // 
+            menuStrip1.ImageScalingSize = new Size(20, 20);
+            menuStrip1.Location = new Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new Size(959, 24);
+            menuStrip1.TabIndex = 18;
+            menuStrip1.Text = "menuStrip1";
+            // 
             // Reserve
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
@@ -218,6 +228,8 @@
             Controls.Add(label2);
             Controls.Add(SelectDate);
             Controls.Add(label1);
+            Controls.Add(menuStrip1);
+            MainMenuStrip = menuStrip1;
             Name = "Reserve";
             Text = "在线预约";
             ((System.ComponentModel.ISupportInitialize)VisitorCount).EndInit();
@@ -246,6 +258,7 @@
         private DataGridViewButtonColumn Column4;
         private DataGridViewButtonColumn Column5;
         private DataGridViewCheckBoxColumn Column6;
+        private MenuStrip menuStrip1;
         //  private Button Select;
     }
 }

@@ -23,11 +23,13 @@ namespace VisitForm1
         private Guid _exhibitionId;
         //  private Control label;
         private Appointment _selectedAppointment;
+        private Dictionary<int, int> appointmentTicketCounts = new Dictionary<int, int>();//
         private List<Label> labels = new List<Label>();
         private List<GroupBox> groups = new List<GroupBox>();
         private List<CheckBox> checkboxes = new List<CheckBox>();        
         public Reserve(Guid exhibitionId) : this()
         {
+           
             _exhibitionId = exhibitionId;
             VisitorCount.Value = _currentTouristCount;
             UpdateLabelText();
@@ -38,6 +40,7 @@ namespace VisitForm1
             ClearGroupBoxs();
             LoadAppointments();
         }
+       
         private void LoadAppointments()
         {
             ClearGroupBoxs();
@@ -60,6 +63,8 @@ namespace VisitForm1
                     checkBox.Tag = appointments[b];
                     checkBox.CheckedChanged += CheckBox_CheckedChanged;
                     Label label = new Label();
+                   
+                
                     label.AutoSize = true;
                     label.Location = new Point(0, 10);
                     label.Text = string.Format("时间{0} 余票{1} ￥{2:F2}",
@@ -74,21 +79,14 @@ namespace VisitForm1
                 }
             }
         }
+        
         public Reserve()
         {
             InitializeComponent();
             SelectDate.ValueChanged += SelectDate_ValueChanged;
         }
 
-        //private void CheckBox_CheckedChanged(object sender, EventArgs e)
-        //{
-
-        //    //if (checkBox1.Checked)
-        //    //{
-        //    //    checkBox2.Checked = false;
-        //    //    checkBox3.Checked = false;
-        //    //}
-        //}
+       
         private void CheckBox_CheckedChanged(object sender, EventArgs e)
         {
 
@@ -112,15 +110,8 @@ namespace VisitForm1
         }
 }
 
-    
-        private void checkBox3_CheckedChanged(object sender, EventArgs e)
-        {
-            //if (checkBox3.Checked)
-            //{
-            //    checkBox1.Checked = false;
-            //    checkBox2.Checked = false;
-            //}
-        }
+
+
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0)
@@ -133,7 +124,8 @@ namespace VisitForm1
             else if (e.ColumnIndex == Column5.Index)
             {
 
-                DataGridViewCell idCell = dataGridView1.Rows[e.RowIndex].Cells["IDColumn"];               
+                DataGridViewCell idCell = dataGridView1.Rows[e.RowIndex].Cells["IDColumn"];
+
                 if (idCell.Value != null)
                 {
                     long userIdToDelete = (long)idCell.Value;
@@ -149,11 +141,43 @@ namespace VisitForm1
                     {
                         MessageBox.Show("已取消删除操作");
                     }
-
-                    }
+                    //if (e.ColumnIndex == Column6.Index && e.RowIndex >= 0)//
+                    //{
+                    //    DataGridViewCheckBoxCell checkBoxCell = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex] as DataGridViewCheckBoxCell;
+                    //    bool isSelected = (bool)checkBoxCell.Value;
+                    //    checkBoxCell.Value = !isSelected;                
+                    //    int selectedTourists = dataGridView1.Rows
+                    //        .Cast<DataGridViewRow>()
+                    //        .Count(row => (bool)row.Cells[Column6.Index].Value && !row.IsNewRow);                 
+                    //    UpdateRemainingTickets(selectedTourists);
+                    //}
                 }
             }
-        
+        }
+        //private void UpdateRemainingTickets(int selectedTourists)
+        //{        
+        //    foreach (var checkbox in checkboxes)
+        //    {
+        //        if (checkbox.Checked)
+        //        {
+        //            Appointment appointment = checkbox.Tag as Appointment;
+        //            if (appointment != null && appointmentTicketCounts.ContainsKey(appointment.Id))
+        //            {
+        //                int remainingTickets = appointmentTicketCounts[appointment.Id] - selectedTourists;                    
+        //                Label labelToUpdate = labels.FirstOrDefault(lbl => lbl.Text.Contains(appointment.StartTime.ToShortTimeString()));
+        //                if (labelToUpdate != null)
+        //                {
+        //                    labelToUpdate.Text = string.Format("时间: {0} - {1} 余票: {2}",
+        //                        appointment.StartTime.ToShortTimeString(), appointment.EndTime.ToShortTimeString(),
+        //                        remainingTickets > 0 ? remainingTickets.ToString() : "0");                          
+        //                    appointmentTicketCounts[appointment.Id] = remainingTickets;
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+
+
         private void Submit_Click(object sender, EventArgs e)
         {
             DateTime selectedDate = SelectDate.Value;
@@ -162,13 +186,13 @@ namespace VisitForm1
             String selectedTime = "";
             int selectedTouristCount = 0;
             bool isTimeSlotSelected = false;
-           
+            CheckBox selectedCheckBox = null;
             foreach (var cb in checkboxes) 
             {
                 if (cb.Checked)
                 {
-                  this. checkBox = cb;
-                    
+                    //this. checkBox = cb;
+                    selectedCheckBox = cb;
                     isTimeSlotSelected = true;
                     break;
                 }
@@ -185,26 +209,19 @@ namespace VisitForm1
                     selectedTouristCount++;
                 }
             }
-            //if (checkBox1.Checked)
+           
+            //using (var context = new MyDbContext())
             //{
-            //    selectedTime = "8:00-11:00";
-            //    startTime = selectedDate.Date.AddHours(8);
-            //    endTime = selectedDate.Date.AddHours(11);
-            //}         
-            //else
-            //{
-            //    MessageBox.Show("请选择一个时间段。");
-            //    return;
-            //}
-
-            using (var context = new MyDbContext())
-            {
-                List<Appointment> appointmentsToAdd = new List<Appointment>();
+            //    List<Appointment> appointmentsToAdd = new List<Appointment>();
                 if (selectedTouristCount != VisitorCount.Value)
                 {
                     MessageBox.Show("新增游客的数量必须等于选择游客的数量。");
                     return;
                 }
+            using (var context = new MyDbContext())
+            {
+                List<Appointment> appointmentsToAdd = new List<Appointment>();
+                List<Order> ordersToAdd = new List<Order>();
                 foreach (DataGridViewRow row in dataGridView1.Rows)
                 {
 
@@ -221,13 +238,23 @@ namespace VisitForm1
                             EndTime = ((Appointment)this.checkBox.Tag).EndTime,
                         };
                         appointmentsToAdd.Add(appointment);
+                        Order order = new Order
+                        {
+                            //Id = Guid.Empty, 
+                            //UserId = userId.ToString(),
+                            //AppointmentId = appointment.Id, 
+                            //OrderDate = DateTime.Now, 
+                        };
+                        ordersToAdd.Add(order);
                     }
                 }
+                
                 try
                 {
                     context.Appointments.AddRange(appointmentsToAdd);
                     context.SaveChanges();
                     MessageBox.Show($"成功预约了 {appointmentsToAdd.Count} 个游客。");
+                    this.Close();
                         }
                         catch (Exception ex)
                         {
@@ -242,9 +269,10 @@ namespace VisitForm1
 
         private void AddCount_Click(object sender, EventArgs e)
         {
+
             AddUserInfoForm addUserInfoForm = new AddUserInfoForm();
             addUserInfoForm.ShowDialog();
-            //  LoadUserInfo();
+
         }
 
         private void SetInitialTouristCount(int count)
@@ -290,20 +318,7 @@ namespace VisitForm1
                 }
             }
         }
-        //private void ClearLabels()
-        //{
-        //    checkboxes.Clear();
-        //    labels.Clear();
-        //}
-        //private void ClearGroupBoxs()
-        //{
-        //    foreach (var groupBox in groups)
-        //    {
-        //        this.Controls.Remove(groupBox);
-        //        groupBox.Controls.Clear();
-        //    }
-        //    groups.Clear();
-        //}
+      
         private void ClearGroupBoxs()
         {
             foreach (var groupBox in groups)
@@ -316,49 +331,8 @@ namespace VisitForm1
             checkboxes.Clear();
         }
         private void SelectDate_ValueChanged(object sender, EventArgs e)
-        {
-            //ClearLabels();
-            //ClearGroupBoxs();
-            LoadAppointments();
-            //    using (var db = new MyDbContext())
-            //    {
-            //        var day = SelectDate.Value.Date.Subtract(DateTime.Now.Date).TotalDays;
-            //        var appointments = db.Appointments.AsQueryable().Where(a => a.ObjectId == _exhibitionId && a.Day == day).ToArray();
-            //        var exhibitions = db.Exhibitions.AsQueryable().Where(i => i.id == _exhibitionId).FirstOrDefault();
-            //        if (exhibitions != null)
-            //        {
-
-            //            for (int b = 0; b < appointments.Length; b++)
-            //            {
-            //                GroupBox groupBox = new GroupBox();
-
-            //                groupBox.Location = new Point(12, b * 35 + 147);
-            //                groupBox.Size = new Size(600,40);
-            //                groupBox.Text = "";
-            //                CheckBox checkBox = new CheckBox();
-            //                checkBox.AutoSize = true;
-            //                checkBox.Location = new Point(430,10);
-            //                checkBox.Text = "选择";
-
-            //                Label label = new Label();
-            //                label.AutoSize = true;
-            //                label.Location = new Point(0, 10);
-            //                label.Text = string.Format("时间{0} 余票{1} ￥{2:F2}",
-            //                appointments[b].StartTime.ToShortTimeString() + " " + appointments[b].EndTime.ToShortTimeString(), appointments[b].amount, exhibitions.basicPrice);
-
-            //                groupBox.Controls.Add(label);
-            //                labels.Add(label);
-            //                checkboxes.Add(checkBox);
-            //                groupBox.Controls.Add(checkBox);
-            //                groups.Add(groupBox);
-            //                this.Controls.Add(groupBox);
-
-            //            }
-
-            //        }
-
-            //    }
-            //}
+        {          
+            LoadAppointments();      
 
         }
     }

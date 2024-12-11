@@ -15,9 +15,8 @@ using VisitForm1._222222.Model;
 namespace VisitForm1
 {
     public partial class AddUserInfoForm : Form
-    {
-       
-    public AddUserInfoForm()
+    {      
+        public AddUserInfoForm()
         {
             InitializeComponent();         
         }
@@ -45,8 +44,7 @@ namespace VisitForm1
                 {
                     context.UserInfos.Add(userInfo);
                     context.SaveChanges();               
-                    MessageBox.Show("添加成功");
-                   
+                    MessageBox.Show("添加成功");                  
                     this.Close();
                 }              
                 catch (Exception ex)
