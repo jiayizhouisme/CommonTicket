@@ -13,11 +13,12 @@ namespace VisitForm1
             ApplicationConfiguration.Initialize();
           
             Application.Run(new LogonForm());
+          //  Application.Run(new MyOrderForm());
             // Application.Run(new ExhibitionForm1());
             //Application.Run(new RegisterForm());
-           // Application.Run(new AddUserInfoForm());
-         //  Application.Run(new Reserve());
-           //Application.Run(new UpdatePwdForm());
+            // Application.Run(new AddUserInfoForm());
+            //  Application.Run(new Reserve());
+            //Application.Run(new UpdatePwdForm());
         }
     }
 }

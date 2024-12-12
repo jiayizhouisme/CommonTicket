@@ -16,5 +16,6 @@ namespace VisitForm1._222222.Model
         public int Status {  get; set; }
 
         public ICollection<Ticket> Tickets { get; set; }
+        public virtual Appointment Appointment { get; set; }
     }
 }
