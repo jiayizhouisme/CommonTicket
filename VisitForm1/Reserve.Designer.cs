@@ -232,6 +232,7 @@
             MainMenuStrip = menuStrip1;
             Name = "Reserve";
             Text = "在线预约";
+            Load += Reserve_Load;
             ((System.ComponentModel.ISupportInitialize)VisitorCount).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
