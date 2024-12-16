@@ -31,6 +31,7 @@ namespace _222222
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(this.GetType().Assembly);
+           
         }
         
     }

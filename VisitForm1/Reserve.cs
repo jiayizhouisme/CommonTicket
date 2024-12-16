@@ -205,7 +205,8 @@ namespace VisitForm1
                     MessageBox.Show("余票不足");
                     return;
                 }
-                var existingOrder = context.Orders.Any(o => o.AppointmentId == selectedAppointment.Id.ToString() );
+                long UserId = GetCurrentUserId(); 
+                var existingOrder = context.Orders.Any(o => o.AppointmentId == selectedAppointment.Id && o.UserId == currentUserId);
                 if (existingOrder)//
                 {
                     MessageBox.Show("该用户已预约");
@@ -237,8 +238,8 @@ namespace VisitForm1
                         {
                             TradeNo = GenerateTradeNo(),
                             Status = 0,
-                            UserId = userId.ToString(),
-                            AppointmentId = selectedAppointment.Id.ToString(),
+                            UserId = userId,
+                            AppointmentId = selectedAppointment.Id,
                         };
                         ordersToAdd.Add(order);//
                     }
@@ -252,7 +253,15 @@ namespace VisitForm1
                     context.SaveChanges();
                     //  MessageBox.Show($"成功预约了 {appointmentsToAdd.Count} 个游客");
                     MessageBox.Show($"成功预约了 {selectedTouristCount} 个游客");
-                    this.Close();
+                    // this.Close();
+                    DialogResult confirmResult = MessageBox.Show("成功预约门票，去使用？", "确认", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                    if (confirmResult == DialogResult.Yes)
+                    {
+                        
+                        MyOrderForm myOrderForm = new MyOrderForm();
+                        myOrderForm.Show();
+                        this.Close(); 
+                    }
                 }
                 catch (Exception ex)
                 {

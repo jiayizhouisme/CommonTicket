@@ -12,8 +12,8 @@ namespace VisitForm1
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
           
-          //  Application.Run(new LogonForm());
-            Application.Run(new MyOrderForm());
+          // Application.Run(new LogonForm());
+            Application.Run(new MyOrderForm(Guid.Parse("500EF993-829C-4A41-9AA2-75057784A1E5")));//Exhibitionid
             // Application.Run(new ExhibitionForm1());
             //Application.Run(new RegisterForm());
             // Application.Run(new AddUserInfoForm());
