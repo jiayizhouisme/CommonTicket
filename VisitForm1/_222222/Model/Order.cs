@@ -12,6 +12,7 @@ namespace VisitForm1._222222.Model
     {
         public int Id { get; set; }
         public string? Name { get; set; }
+        public DateTime?CreateTime { get; set; }
 
         public string? TradeNo { get; set; }
         public long ?UserId {  get; set; }

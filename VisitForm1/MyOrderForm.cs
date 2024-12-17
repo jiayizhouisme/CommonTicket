@@ -112,14 +112,14 @@ namespace VisitForm1
                         Location = new Point(6, 140), 
                         AutoSize = true
                     };
-                    useButton.Click += (sender, e) => HandleUseButtonClick(order);
+                    useButton.Click += (sender, e) => UseButtonClick(order);
                     System.Windows.Forms.Button refundButton = new System.Windows.Forms.Button
                     {
                         Text = "去退款",
                         Location = new Point(useButton.Right + 10, 140),
                         AutoSize = true
                     };
-                    refundButton.Click += (sender, e) => HandleRefundButtonClick(order);
+                    refundButton.Click += (sender, e) => RefundButtonClick(order);
 
                     groupBox.Controls.Add(orderIdLabel);
                     groupBox.Controls.Add(stockNameLabel);
@@ -169,12 +169,13 @@ namespace VisitForm1
         {
             lblPageNumber.Text = $"{_currentPage} / {_totalPages}";
         }
-        private void HandleUseButtonClick(Order order)
-        {
-          
+        private void UseButtonClick(Order order)
+        {           
+            UseOrderForm useOrderForm = new UseOrderForm(order);
+            useOrderForm.Show();
         }
 
-        private void HandleRefundButtonClick(Order order)
+        private void RefundButtonClick(Order order)
         {
                                                                          
         }
