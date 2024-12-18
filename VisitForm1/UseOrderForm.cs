@@ -39,7 +39,7 @@ namespace VisitForm1
                 totalPriceLabel.AutoSize = true;
                 totalPriceLabel.Location = new Point(6, 20);
                 totalPriceLabel.Width = 300;
-                totalPriceLabel.Text = $" 状态:{_order.Status} 总价:￥{_order.PayedAmount:F2}";
+                totalPriceLabel.Text = $" 状态:{_order.Status} ￥{_order.PayedAmount:F2}";
 
                 Label stockNameLabel = new Label();
                 stockNameLabel.AutoSize = true;
@@ -68,7 +68,7 @@ namespace VisitForm1
                 refundButton.AutoSize = true;
                 refundButton.Location = new Point(totalPriceLabel.Right + 10, totalPriceLabel.Top);
                 refundButton.Click += RefundButton_Click;
-
+    
                 int qrCodeSize = 80; 
                 int qrCodeAndTextHeight = qrCodeSize + 20; 
                 int leftTextWidth = 200;
@@ -82,19 +82,19 @@ namespace VisitForm1
                 };
 
                 int qrCodeTop = Math.Max(scanInstructions.Top + (scanInstructions.Height - qrCodeSize) / 2, timeLabel.Bottom + 10);
-                Bitmap qrCodeImage = GenerateQrCodeImage(_order.Id.ToString(), qrCodeSize);
+                // Bitmap qrCodeImage = GenerateQrCodeImage(_order.Id.ToString(), qrCodeSize);
 
-                qrCodeLabel = new Label
+                PictureBox qrCodePictureBox = new PictureBox
                 {
                     Size = new Size(qrCodeSize, qrCodeSize),
-                    Location = new Point(scanInstructions.Right + 10, qrCodeTop), 
-                    Image = qrCodeImage,
-                    TextAlign = ContentAlignment.MiddleCenter,
+                    Location = new Point(scanInstructions.Right + 10, qrCodeTop),
+                    SizeMode = PictureBoxSizeMode.Zoom, 
                     Cursor = Cursors.Hand,
                     BorderStyle = BorderStyle.FixedSingle,
                     BackColor = Color.White
                 };
-                qrCodeLabel.Click += QrCodeLabel_Click;
+                qrCodePictureBox.Image = GenerateQrCodeImage(_order.Id.ToString(), qrCodeSize);
+                qrCodePictureBox.Click += QrCodeLabel_Click;
 
                 groupBox.Controls.Add(totalPriceLabel);
                 groupBox.Controls.Add(stockNameLabel);
@@ -105,6 +105,7 @@ namespace VisitForm1
                
                 groupBox.Controls.Add(scanInstructions);
                 groupBox.Controls.Add(qrCodeLabel);
+                groupBox.Controls.Add(qrCodePictureBox);
                 this.Controls.Add(groupBox);
                 groups.Add(groupBox);
             }
@@ -114,7 +115,7 @@ namespace VisitForm1
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
             QRCodeData qrCodeData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
             QRCode qrCode = new QRCode(qrCodeData);
-            return qrCode.GetGraphic(size, Color.Black, Color.White, true);     
+            return qrCode.GetGraphic(size, Color.Black, Color.White, false);
         }
         private void QrCodeLabel_Click(object sender, EventArgs e)
         {
@@ -140,21 +141,24 @@ namespace VisitForm1
                     Location = new Point(10, identityLabel.Bottom + 10), 
                     Text = $"用户姓名: {_order.Name}",
                     AutoSize = true
-                };           
-                Label qrCodeFullLabel = new Label
-                {
-                    Location = new Point(10, 70), 
-                    Size = new Size(200, 200),
-                    Image = GenerateQrCodeImage(_order.Id.ToString(), 200),
-                    TextAlign = ContentAlignment.MiddleCenter
                 };
+                PictureBox qrCodePictureBox = new PictureBox
+                {
+                    Location = new Point(10, 70),
+                    Size = new Size(200, 200),
+                    SizeMode = PictureBoxSizeMode.Zoom,
+                    Cursor = Cursors.Hand,
+                    BorderStyle = BorderStyle.FixedSingle,
+                    BackColor = Color.White
+                };
+                qrCodePictureBox.Image = GenerateQrCodeImage(_order.Id.ToString(), 200);             
                 StringBuilder ticketInfo = new StringBuilder();
                 ticketInfo.AppendLine($"票数: {_order.Amount ?? 0}");   
                 ticketInfo.AppendLine($"入园时间: {_order.CreateTime?.ToString()}");
 
                 Label ticketInfoLabel = new Label
-                {
-                    Location = new Point(220, 10), 
+                { 
+                    Location = new Point(10, qrCodePictureBox.Bottom + 20),
                     Text = ticketInfo.ToString(),
                     AutoSize = false,
                     Size = new Size(250, 250),                 
@@ -162,7 +166,7 @@ namespace VisitForm1
                 };
                 qrCodeForm.Controls.Add(identityLabel);
                 qrCodeForm.Controls.Add(userLabel);
-                qrCodeForm.Controls.Add(qrCodeFullLabel);
+                qrCodeForm.Controls.Add(qrCodePictureBox);
                 qrCodeForm.Controls.Add(ticketInfoLabel);
             }
             qrCodeForm.ShowDialog();

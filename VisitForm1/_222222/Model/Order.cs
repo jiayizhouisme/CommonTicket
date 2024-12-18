@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace VisitForm1._222222.Model
 {
+  
     public class Order
     {
         public int Id { get; set; }
@@ -20,10 +21,13 @@ namespace VisitForm1._222222.Model
         public decimal ?PayedAmount { get; set; }
         public string? ObjectId { get; set; }
         public int ?Status {  get; set; }
+      
         [ForeignKey("Appointment")]
         public Guid ?AppointmentId {  get; set; }
         public ICollection<Ticket> Tickets { get; set; }
        
         public virtual Appointment Appointment { get; set; }
+        
     }
+
 }

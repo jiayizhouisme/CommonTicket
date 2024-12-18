@@ -90,6 +90,7 @@
             tabPage4.TabIndex = 3;
             tabPage4.Text = "未使用";
             tabPage4.UseVisualStyleBackColor = true;
+            tabPage4.Click += tabPage4_Click;
             // 
             // tabPage5
             // 
