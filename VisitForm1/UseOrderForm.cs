@@ -20,24 +20,16 @@ namespace VisitForm1
         private Form qrCodeForm;
         private Label qrCodeLabel;
         private Label scanInstructions;
-        //  private Guid _exhibitionId;
         private List<GroupBox> groups = new List<GroupBox>();
         public UseOrderForm(Order order) : this()
         {
-            // _exhibitionId = exhibitionId;
             _order = order;
             LoadOrderDetails();
         }
         private void LoadOrderDetails()
         {
-            // groups.Clear();
-            // this.Controls.Clear();
             using (var db = new MyDbContext())
             {
-                //var orders = db.Orders.Include(o => o.Appointment).Where(o => o.Appointment.ObjectId == _exhibitionId).ToList();
-                //for (int a = 0; a < orders.Count; a++)
-                //{
-              //  var order = orders[a];
                 GroupBox groupBox = new GroupBox();
                 groupBox.Size = new Size(627, 450);
                 groupBox.Location = new Point(6, 18);
@@ -74,49 +66,55 @@ namespace VisitForm1
                 Button refundButton = new Button();
                 refundButton.Text = "退款";
                 refundButton.AutoSize = true;
-                refundButton.Location = new Point(totalPriceLabel.Right + 10, totalPriceLabel.Top); 
+                refundButton.Location = new Point(totalPriceLabel.Right + 10, totalPriceLabel.Top);
                 refundButton.Click += RefundButton_Click;
 
-                int qrCodeSize = 100;
-                Bitmap qrCodeImage = GenerateQrCodeImage(_order.Id.ToString(), qrCodeSize * 2);
-                qrCodeLabel = new Label
-                {
-                    Size = new Size(qrCodeSize, qrCodeSize),
-                    Location = new Point(6, timeLabel.Bottom + 10), 
-                    Image = qrCodeImage,
-                    TextAlign = ContentAlignment.MiddleCenter,
-                    Cursor = Cursors.Hand,
-                    BorderStyle = BorderStyle.FixedSingle
-                };
-                qrCodeLabel.Click += QrCodeLabel_Click;
-              
-                int estimatedScanInstructionsHeight = 20;
+                int qrCodeSize = 80; 
+                int qrCodeAndTextHeight = qrCodeSize + 20; 
+                int leftTextWidth = 200;
+
                 scanInstructions = new Label
                 {
                     AutoSize = true,
-                    Location = new Point(qrCodeLabel.Right + 10, qrCodeLabel.Top + (qrCodeLabel.Height - estimatedScanInstructionsHeight) / 2),
-                    Text = "请携带证件或凭证码扫码入园"
+                    Text = "请携带证件或凭证码扫码入园",
+                    Width = leftTextWidth,
+                    Location = new Point(6, timeLabel.Bottom + 10)
                 };
+
+                int qrCodeTop = Math.Max(scanInstructions.Top + (scanInstructions.Height - qrCodeSize) / 2, timeLabel.Bottom + 10);
+                Bitmap qrCodeImage = GenerateQrCodeImage(_order.Id.ToString(), qrCodeSize);
+
+                qrCodeLabel = new Label
+                {
+                    Size = new Size(qrCodeSize, qrCodeSize),
+                    Location = new Point(scanInstructions.Right + 10, qrCodeTop), 
+                    Image = qrCodeImage,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Cursor = Cursors.Hand,
+                    BorderStyle = BorderStyle.FixedSingle,
+                    BackColor = Color.White
+                };
+                qrCodeLabel.Click += QrCodeLabel_Click;
+
                 groupBox.Controls.Add(totalPriceLabel);
                 groupBox.Controls.Add(stockNameLabel);
                 groupBox.Controls.Add(InfoLabel);
                 groupBox.Controls.Add(orderIdLabel);
                 groupBox.Controls.Add(timeLabel);
                 groupBox.Controls.Add(refundButton);
-                groupBox.Controls.Add(qrCodeLabel);
+               
                 groupBox.Controls.Add(scanInstructions);
-
+                groupBox.Controls.Add(qrCodeLabel);
                 this.Controls.Add(groupBox);
                 groups.Add(groupBox);
             }
         }
-        private Bitmap GenerateQrCodeImage(string text, int size)
+        private Bitmap GenerateQrCodeImage(string text, int size)//二维码                                
         {
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
             QRCodeData qrCodeData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
             QRCode qrCode = new QRCode(qrCodeData);
-            //return qrCode.GetGraphic(size / 2, Color.Black, Color.White, false);
-            return qrCode.GetGraphic(size / 2);
+            return qrCode.GetGraphic(size, Color.Black, Color.White, true);     
         }
         private void QrCodeLabel_Click(object sender, EventArgs e)
         {
@@ -129,25 +127,25 @@ namespace VisitForm1
                 qrCodeForm = new Form
                 {
                     StartPosition = FormStartPosition.CenterScreen,
-                    Size = new Size(450, 350)
+                    Size = new Size(500, 400)
                 };
                 Label identityLabel = new Label
                 {
-                    Location = new Point(10, 5), 
-                    Text = "身份信息:",
+                    Location = new Point(10, 10), 
+                    Text = "身份信息",
                     AutoSize = true
                 };
                 Label userLabel = new Label
                 {
-                    Location = new Point(10, 10),
+                    Location = new Point(10, identityLabel.Bottom + 10), 
                     Text = $"用户姓名: {_order.Name}",
                     AutoSize = true
                 };           
                 Label qrCodeFullLabel = new Label
                 {
-                    Location = new Point(10, 40),
+                    Location = new Point(10, 70), 
                     Size = new Size(200, 200),
-                    Image = GenerateQrCodeImage(_order.Id.ToString(), 200 * 2), 
+                    Image = GenerateQrCodeImage(_order.Id.ToString(), 200),
                     TextAlign = ContentAlignment.MiddleCenter
                 };
                 StringBuilder ticketInfo = new StringBuilder();
@@ -156,12 +154,13 @@ namespace VisitForm1
 
                 Label ticketInfoLabel = new Label
                 {
-                    Location = new Point(10, 250),
+                    Location = new Point(220, 10), 
                     Text = ticketInfo.ToString(),
-                    AutoSize = true,
-                    Size = new Size(qrCodeForm.ClientSize.Width - 20, 50),
+                    AutoSize = false,
+                    Size = new Size(250, 250),                 
                     ForeColor = Color.Gray
                 };
+                qrCodeForm.Controls.Add(identityLabel);
                 qrCodeForm.Controls.Add(userLabel);
                 qrCodeForm.Controls.Add(qrCodeFullLabel);
                 qrCodeForm.Controls.Add(ticketInfoLabel);
