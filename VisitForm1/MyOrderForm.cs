@@ -14,240 +14,181 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace VisitForm1
 {
+
+    
     public partial class MyOrderForm : Form
     {
+        private class OrderPageState
+        {
+            public int CurrentPage { get; set; }
+            public int TotalPages { get; set; }
+            public Label PageNumberLabel { get; set; }
+        }
         private const int RefundedStatus = 3;
         private Guid _exhibitionId;
         private TabControl tabControl;
-        private System.Windows.Forms.Button btnPrevious;
-        private System.Windows.Forms.Button btnNext;
+        //private System.Windows.Forms.Button btnPrevious;
+        //private System.Windows.Forms.Button btnNext;
         private List<GroupBox> groups = new List<GroupBox>();
-        private int _currentPage = 1;
-        private int _totalPages;
-        private Label lblPageNumber;
+        //private int _currentPage ;
+        //private int _totalPages;
+        //private Label lblPageNumber;
+        private Dictionary<TabPage, OrderPageState> tabPageStates = new Dictionary<TabPage, OrderPageState>();
+
 
         public MyOrderForm(Guid exhibitionId) : this()
-        {
-            
+        {          
             _exhibitionId = exhibitionId;
             InitializePagingControls();
-            LoadAppointments();
-            LoadUnusedAppointments();
-            UpdatePageNumberLabel(); 
-        }    
+            //LoadAppointments();
+            //LoadUnusedAppointments();
+            //UpdatePageNumberLabel(); 
+            LoadTabPageOrders(tabPage1);
+            LoadTabPageOrders(tabPage4);
+        }
         private void InitializePagingControls()
         {
-            btnPrevious = new System.Windows.Forms.Button();
-            btnPrevious.Text = "<";
-            btnPrevious.AutoSize = false;
-            btnPrevious.Location = new Point(3, 450);
-            btnPrevious.Click += btnPrevious_Click;
-
-            btnNext = new System.Windows.Forms.Button();
-            btnNext.Text = ">";
-            btnNext.AutoSize = false;
-            btnNext.Location = new Point(221, 450);
-            btnNext.Click += btnNext_Click;
-
-            lblPageNumber = new Label();
-            lblPageNumber.AutoSize = true;
-            lblPageNumber.Location = new Point(130, 450);
-            lblPageNumber.TextAlign = ContentAlignment.MiddleCenter;
-
-            tabPage1.Controls.Add(btnPrevious);
-            tabPage1.Controls.Add(btnNext);
-            tabPage1.Controls.Add(lblPageNumber);
-
-            tabPage4.Controls.Add(btnPrevious);
-            tabPage4.Controls.Add(btnNext);
-            tabPage4.Controls.Add(lblPageNumber);
+            AddPagingControls(tabPage1);
+            AddPagingControls(tabPage4);
+          
         }
-        private void LoadAppointments()
+        private void AddPagingControls(TabPage tabPage)
         {
-            var groupBoxesToRemove = tabPage1.Controls.OfType<GroupBox>().ToList();
+            var btnPrevious = new System.Windows.Forms.Button { Text = "<", AutoSize = false, Location = new Point(3, 450) };
+            var btnNext = new System.Windows.Forms.Button { Text = ">", AutoSize = false, Location = new Point(221, 450) };
+            var lblPageNumber = new Label { AutoSize = true, Location = new Point(130, 450), TextAlign = ContentAlignment.MiddleCenter };
+
+            btnPrevious.Click += (sender, e) => btnPrevious_Click(sender, e, tabPage);
+            btnNext.Click += (sender, e) => btnNext_Click(sender, e, tabPage);
+
+            tabPage.Controls.Add(btnPrevious);
+            tabPage.Controls.Add(btnNext);
+            tabPage.Controls.Add(lblPageNumber);
+
+            tabPageStates[tabPage] = new OrderPageState
+            {
+                CurrentPage = 1,
+                PageNumberLabel = lblPageNumber
+            };
+        }
+        private void LoadTabPageOrders(TabPage tabPage)
+        {
+            var state = tabPageStates[tabPage];
+            Func<Order, bool> shouldDisplayOrder = order => true; 
+            LoadOrders(tabPage, shouldDisplayOrder);
+            state.PageNumberLabel.Text = $"{state.CurrentPage} / {state.TotalPages}";
+        }     
+        private void LoadOrders(TabPage tabPage, Func<Order, bool> shouldDisplayOrder)
+        {
+            var state = tabPageStates[tabPage];
+            var groupBoxesToRemove = tabPage.Controls.OfType<GroupBox>()
+                .Where(gb => gb.Tag?.ToString() == tabPage.Name).ToList();
+            groupBoxesToRemove.ForEach(gb => tabPage.Controls.Remove(gb));
+            groupBoxesToRemove.ForEach(gb => gb.Dispose());
             foreach (var groupBox in groupBoxesToRemove)
             {
-                tabPage1.Controls.Remove(groupBox);
+                tabPage.Controls.Remove(groupBox);
             }
-            groups.Clear();
+
             using (var db = new MyDbContext())
             {
                 var orders = db.Orders.Include(o => o.Appointment)
-                                      .Where(o => o.Appointment.ObjectId == _exhibitionId && o.Status != RefundedStatus)
-                                      .ToList();
+                    .Where(o => o.Appointment.ObjectId == _exhibitionId && o.Status != RefundedStatus)
+                    .ToList();
+
+                if (shouldDisplayOrder != null)
+                {
+                    orders = orders.Where(shouldDisplayOrder).ToList();
+                }
 
                 int maxOrdersPerPage = 2;
-                _totalPages = (int)Math.Ceiling(orders.Count / (double)maxOrdersPerPage);
-                _currentPage = Math.Min(_currentPage, _totalPages);
-                int startIndex = (_currentPage - 1) * maxOrdersPerPage;
+                state.TotalPages = (int)Math.Ceiling(orders.Count / (double)maxOrdersPerPage);
+                state.CurrentPage = Math.Min(state.CurrentPage, state.TotalPages);
+
+                int startIndex = (state.CurrentPage - 1) * maxOrdersPerPage;
                 int endIndex = Math.Min(startIndex + maxOrdersPerPage, orders.Count);
-
-                int verticalSpacing = 30;
-                for (int b = startIndex; b < endIndex; b++)
+                int yPosition = 6;//
+                for (int i = startIndex; i < endIndex; i++)
                 {
-                    var order = orders[b];
-                    GroupBox groupBox = new GroupBox();
-                    groupBox.Size = new Size(627, 180);
-                    int yPosition = 17 + (b - startIndex) * (groupBox.Height + verticalSpacing);
-                    groupBox.Location = new Point(6, yPosition);
-                    groupBox.Text = "";
-
-
-                    Label orderIdLabel = new Label
-                    {
-                        AutoSize = true,
-                        Location = new Point(6, 20),
-                        Text = $"订单号: {order.Id} 状态: {order.Status}"
-                    };
-                    Label stockNameLabel = new Label
-                    {
-                        AutoSize = true,
-                        Location = new Point(6, 50),
-                        Text = $"门票名称 {order.Appointment?.StockName}"
-                    };
-                    Label amountLabel = new Label
-                    {
-                        AutoSize = true,
-                        Location = new Point(6, 80),
-                        Text = $"票数: {order.Amount}"
-                    };
-                    Label totalPriceLabel = new Label
-                    {
-                        AutoSize = true,
-                        Location = new Point(6, 110),
-                        Text = $"总价: ￥{order.PayedAmount:F2}"
-                    };
-
-                    if (order.Status != RefundedStatus)
-                    {
-                        System.Windows.Forms.Button useButton = new System.Windows.Forms.Button
-                        {
-                            Text = "去使用",
-                            Location = new Point(6, 140),
-                            AutoSize = true
-                        };
-                        useButton.Click += (sender, e) => UseButtonClick(order);
-
-                        System.Windows.Forms.Button refundButton = new System.Windows.Forms.Button
-                        {
-                            Text = "去退票",
-                            Location = new Point(useButton.Right + 10, 140),
-                            AutoSize = true
-                        };
-                        refundButton.Click += (sender, e) => RefundButtonClick(order);
-                        groupBox.Controls.Add(useButton);
-                        groupBox.Controls.Add(refundButton);
-                    }
-                    groupBox.Controls.Add(orderIdLabel);
-                    groupBox.Controls.Add(stockNameLabel);
-                    groupBox.Controls.Add(amountLabel);
-                    groupBox.Controls.Add(totalPriceLabel);
-
-                    tabPage1.Controls.Add(groupBox);
-                    groups.Add(groupBox);
+                    var order = orders[i];
+                    var groupBox = CreateGroupBoxForOrder(order);
+                    groupBox.Tag = tabPage.Name;
+                    groupBox.Location = new Point(6, yPosition);//
+                    tabPage.Controls.Add(groupBox);
+                    yPosition += groupBox.Height + 30;//
                 }
-               
+                state.PageNumberLabel.Text = $"{state.CurrentPage} / {state.TotalPages}";             
                 if (orders.Count == 0)
                 {
                     MessageBox.Show("没有找到相关订单", "信息", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-
-                lblPageNumber.Text = $"{_currentPage} / {_totalPages}";
-            }      
-    }    
-        private void LoadUnusedAppointments()//未使用
+            }
+        }
+        private GroupBox CreateGroupBoxForOrder(Order order)
         {
-            var groupBoxesToRemove = tabPage4.Controls.OfType<GroupBox>().ToList();
-            foreach (var groupBox in groupBoxesToRemove)
+            GroupBox groupBox = new GroupBox
+            {          
+                Size = new Size(627, 180),
+              //  Location = new Point(6, 17 + groups.Count * (180 + 30)), 
+                Text = ""
+            };
+            Label orderIdLabel = new Label
             {
-                tabPage4.Controls.Remove(groupBox);
-            }
-            groups.Clear(); 
-            using (var db = new MyDbContext())
+                AutoSize = true,
+                Location = new Point(6, 20),
+                Text = $"订单号: {order.Id} 状态: {order.Status}"
+            };
+            Label stockNameLabel = new Label
             {
-                var orders = db.Orders.Include(o => o.Appointment)
-                                      .Where(o => o.Appointment.ObjectId == _exhibitionId && o.Status != RefundedStatus)
-                                      .ToList();
-
-                int maxOrdersPerPage = 2;
-                _totalPages = (int)Math.Ceiling(orders.Count / (double)maxOrdersPerPage);
-                int startIndex = (_currentPage - 1) * maxOrdersPerPage;
-                int endIndex = Math.Min(startIndex + maxOrdersPerPage, orders.Count);
-
-                int verticalSpacing = 30;
-                for (int b = startIndex; b < endIndex; b++)
+                AutoSize = true,
+                Location = new Point(6, 50),
+                Text = $"门票名称 {order.Appointment?.StockName}"
+            };
+            Label amountLabel = new Label
+            {
+                AutoSize = true,
+                Location = new Point(6, 80),
+                Text = $"票数: {order.Amount}"
+            };
+            Label totalPriceLabel = new Label
+            {
+                AutoSize = true,
+                Location = new Point(6, 110),
+                Text = $"总价: ￥{order.PayedAmount:F2}"
+            };
+            if (order.Status != RefundedStatus)
+            {
+                System.Windows.Forms.Button useButton = new System.Windows.Forms.Button
                 {
-                    var order = orders[b];
-                    GroupBox groupBox = new GroupBox();
-                    groupBox.Size = new Size(627, 180);
-                    int yPosition = 17 + (b - startIndex) * (groupBox.Height + verticalSpacing);
-                    groupBox.Location = new Point(6, yPosition);
-                    groupBox.Text = "";
+                    Text = "去使用",
+                    Location = new Point(6, 140),
+                    AutoSize = true
+                };
+                useButton.Click += (sender, e) => UseButtonClick(order);
 
-             
-                    Label orderIdLabel = new Label
-                    {
-                        AutoSize = true,
-                        Location = new Point(6, 20),
-                        Text = $"订单号: {order.Id} 状态: {order.Status}"
-                    };
-                    Label stockNameLabel = new Label
-                    {
-                        AutoSize = true,
-                        Location = new Point(6, 50),
-                        Text = $"门票名称 {order.Appointment?.StockName}"
-                    };
-                    Label amountLabel = new Label
-                    {
-                        AutoSize = true,
-                        Location = new Point(6, 80),
-                        Text = $"票数: {order.Amount}"
-                    };
-                    Label totalPriceLabel = new Label
-                    {
-                        AutoSize = true,
-                        Location = new Point(6, 110),
-                        Text = $"总价: ￥{order.PayedAmount:F2}"
-                    };
-
-                    if (order.Status != RefundedStatus)
-                    {
-                        System.Windows.Forms.Button useButton = new System.Windows.Forms.Button
-                        {
-                            Text = "去使用",
-                            Location = new Point(6, 140),
-                            AutoSize = true
-                        };
-                        useButton.Click += (sender, e) => UseButtonClick(order);
-
-                        System.Windows.Forms.Button refundButton = new System.Windows.Forms.Button
-                        {
-                            Text = "去退票",
-                            Location = new Point(useButton.Right + 10, 140),
-                            AutoSize = true
-                        };
-                        refundButton.Click += (sender, e) => RefundButtonClick(order);
-
-                        groupBox.Controls.Add(useButton);
-                        groupBox.Controls.Add(refundButton);
-                    }
-
-                    groupBox.Controls.Add(orderIdLabel);
-                    groupBox.Controls.Add(stockNameLabel);
-                    groupBox.Controls.Add(amountLabel);
-                    groupBox.Controls.Add(totalPriceLabel);
-
-                    tabPage4.Controls.Add(groupBox);
-                    groups.Add(groupBox);
-                }
-
-                if (orders.Count == 0)
+                System.Windows.Forms.Button refundButton = new System.Windows.Forms.Button
                 {
-                    MessageBox.Show("没有找到相关订单", "信息", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-
-                lblPageNumber.Text = $"{_currentPage} / {_totalPages}"; 
+                    Text = "去退票",
+                    Location = new Point(useButton.Right + 10, 140),
+                    AutoSize = true
+                };
+                refundButton.Click += (sender, e) => RefundButtonClick(order);
+                groupBox.Controls.Add(useButton);
+                groupBox.Controls.Add(refundButton);
             }
+            groupBox.Controls.Add(orderIdLabel);
+            groupBox.Controls.Add(stockNameLabel);
+            groupBox.Controls.Add(amountLabel);
+            groupBox.Controls.Add(totalPriceLabel);
+            return groupBox;
+        }
+        private void LoadAllOrders(TabPage tabPage)
+        {
+            LoadOrders(tabPage, order => true);
+        }
+        private void LoadUnusedAppointments(TabPage tabPage)
+        {
+            LoadOrders(tabPage, order => order.Status != RefundedStatus);
         }
         public MyOrderForm()
         {
@@ -256,30 +197,34 @@ namespace VisitForm1
         private void tabPage1_Click(object sender, EventArgs e)
         {
         }
-        private void btnPrevious_Click(object sender, EventArgs e)
+      
+        private void btnPrevious_Click(object sender, EventArgs e, TabPage tabPage)
         {
-            if (_currentPage > 1)
+            var state = tabPageStates[tabPage];
+            if (state.CurrentPage > 1)
             {
-                _currentPage--;
-                LoadAppointments();
-                LoadUnusedAppointments();
-                UpdatePageNumberLabel();
+                state.CurrentPage--;
+                LoadTabPageOrders(tabPage);
             }
         }
-        private void btnNext_Click(object sender, EventArgs e)
+        private void btnNext_Click(object sender, EventArgs e, TabPage tabPage)
         {
-            if (_currentPage < _totalPages)
+            var state = tabPageStates[tabPage];
+            if (state.CurrentPage < state.TotalPages)
             {
-                _currentPage++;
-                LoadAppointments();
-                LoadUnusedAppointments();
-                UpdatePageNumberLabel();
+                state.CurrentPage++;
+                LoadTabPageOrders(tabPage);
             }
         }
-        private void UpdatePageNumberLabel()
+        private void UpdatePageNumberLabel(TabPage tabPage)
         {
-            lblPageNumber.Text = $"{_currentPage} / {_totalPages}";
+            var state = tabPageStates[tabPage];
+            state.PageNumberLabel.Text = $"{state.CurrentPage} / {state.TotalPages}";
         }
+        //private void UpdatePageNumberLabel()
+        //{
+        //    lblPageNumber.Text = $"{_currentPage} / {_totalPages}";
+        //}
         private void UseButtonClick(Order order)
         {
             UseOrderForm useOrderForm = new UseOrderForm(order);
@@ -307,7 +252,6 @@ namespace VisitForm1
                                     break;
                                 }
                             }
-
                             if (groupBoxToRemove != null)
                             {
                                 groupBox.Controls.OfType<System.Windows.Forms.Button>().ToList().ForEach(btn => groupBox.Controls.Remove(btn));
@@ -323,10 +267,10 @@ namespace VisitForm1
                             groups.Remove(groupBoxToRemove);
                             groupBoxToRemove.Dispose();
                         }
-
-                        LoadAppointments();
-                        LoadUnusedAppointments();
-
+                        LoadTabPageOrders(tabPage1);
+                        LoadTabPageOrders(tabPage4);
+                        //LoadAllOrders();
+                        //LoadUnusedAppointments();              
                         MessageBox.Show("退票成功！", "信息", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
@@ -338,13 +282,11 @@ namespace VisitForm1
             catch (Exception ex)
             {
                 MessageBox.Show($"退票失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-           
+            }          
         }         
         private void tabPage4_Click(object sender, EventArgs e)
         {
-            LoadUnusedAppointments();
-        }
-        
+           // LoadUnusedAppointments();
+        }        
     }
 }

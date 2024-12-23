@@ -38,7 +38,7 @@ namespace VisitForm1
             LoadAppointments();
             //ClearLabels();
             ClearGroupBoxs();
-            
+
         }
       
         private void LoadAppointments()
@@ -86,8 +86,6 @@ namespace VisitForm1
                 }
             }
         }
-        //}
-
         public Reserve()
         {
             InitializeComponent();
@@ -108,7 +106,6 @@ namespace VisitForm1
                 }
                 _selectedAppointment = checkBox.Tag as Appointment;
             }
-
             else
             {
                 _selectedAppointment = null;
@@ -121,13 +118,11 @@ namespace VisitForm1
             if (e.ColumnIndex == Column4.Index)
             {
                 EditUserInfoForm editUserInfoForm = new EditUserInfoForm();
-                editUserInfoForm.ShowDialog();
+                editUserInfoForm.ShowDialog(); 
             }
             else if (e.ColumnIndex == Column5.Index)
             {
-
                 DataGridViewCell idCell = dataGridView1.Rows[e.RowIndex].Cells["IDColumn"];
-
                 if (idCell.Value != null)
                 {
                     long userIdToDelete = (long)idCell.Value;
@@ -143,28 +138,22 @@ namespace VisitForm1
                     {
                         MessageBox.Show("已取消删除操作");
                     }
-
                 }
             }
         }
         private void Submit_Click(object sender, EventArgs e)
         {
             DateTime selectedDate = SelectDate.Value.Date;
-            // DateTime selectedDate = SelectDate.Value;
             DateTime? startTime = null;
             DateTime? endTime = null;
-            // String selectedTime = "";
             int selectedTouristCount = 0;
-           // bool isTimeSlotSelected = false;
             CheckBox selectedCheckBox = null;
             foreach (var cb in checkboxes)
             {
                 if (cb.Checked)
                 {
-                   // this.checkBox = cb;
-                     selectedCheckBox = cb;
-                   // isTimeSlotSelected = true;
-                    break;
+                    selectedCheckBox = cb;
+                    break;                
                 }
             }
             if (selectedCheckBox == null)
@@ -176,7 +165,7 @@ namespace VisitForm1
             Appointment selectedAppointment = selectedCheckBox.Tag as Appointment;
             if (selectedAppointment == null)
             {
-                MessageBox.Show("您的预约选择无效");
+                MessageBox.Show("您的预约选择无效或余票不足");
                 return;
             }
             //if (selectedAppointment.StartTime < DateTime.Now)
@@ -187,12 +176,13 @@ namespace VisitForm1
             long currentUserId = GetCurrentUserId();
             using (var context = new MyDbContext())
             {
-                var appointmentToUpdate = context.Appointments.FirstOrDefault(a => a.Id == selectedAppointment.Id );
+                var appointmentToUpdate = context.Appointments.FirstOrDefault(a => a.Id == selectedAppointment.Id);
                 if (appointmentToUpdate == null || appointmentToUpdate.amount <= 0)
                 {
                     MessageBox.Show("您的预约信息无效或余票不足");
                     return;
                 }
+
                 foreach (DataGridViewRow row in dataGridView1.Rows)
                 {
                     if (row.Cells["Column6"].Value is bool && (bool)row.Cells["Column6"].Value)
@@ -205,7 +195,7 @@ namespace VisitForm1
                     MessageBox.Show("余票不足");
                     return;
                 }
-                long UserId = GetCurrentUserId(); 
+                // long UserId = GetCurrentUserId(); 
                 var existingOrder = context.Orders.Any(o => o.AppointmentId == selectedAppointment.Id && o.UserId == currentUserId);
                 if (existingOrder)//
                 {
@@ -218,63 +208,90 @@ namespace VisitForm1
                     return;
                 }
                 // appointmentToUpdate.amount -= selectedTouristCount;//
-
-              //  List<Appointment> appointmentsToAdd = new List<Appointment>();
-                List<Order> ordersToAdd = new List<Order>();
-                foreach (DataGridViewRow row in dataGridView1.Rows)
-                {
-                    if (row.Cells["Column6"].Value is bool && (bool)row.Cells["Column6"].Value)
-                    {
-                        long userId = Convert.ToInt64(row.Cells["IDColumn"].Value);
-                        //Appointment appointment = new Appointment
-                        //{
-                        //    Id = Guid.NewGuid(),
-                        //    CreateTime = selectedDate,
-                        //    StartTime = ((Appointment)this.checkBox.Tag).StartTime,
-                        //    EndTime = ((Appointment)this.checkBox.Tag).EndTime,
-                        //};
-                        //appointmentsToAdd.Add(appointment);
-                        Order order = new Order
-                        {
-                            TradeNo = GenerateTradeNo(),
-                            Status = 0,
-                            UserId = userId,
-                            AppointmentId = selectedAppointment.Id,
-                        };
-                        ordersToAdd.Add(order);//
-                    }
-                }
-                appointmentToUpdate.amount -= selectedTouristCount;
-                
+                //  List<Appointment> appointmentsToAdd = new List<Appointment>();
+                context.Database.BeginTransaction();//
                 try
                 {
-                    //   context.Appointments.AddRange(appointmentsToAdd);
-                    context.Orders.AddRange(ordersToAdd);//
-                    context.SaveChanges();
-                    //  MessageBox.Show($"成功预约了 {appointmentsToAdd.Count} 个游客");
-                    MessageBox.Show($"成功预约了 {selectedTouristCount} 个游客");
-                    // this.Close();
-                    DialogResult confirmResult = MessageBox.Show("成功预约门票，去使用？", "确认", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-                    if (confirmResult == DialogResult.Yes)
+                    Order order = new Order
                     {
-                        
-                        MyOrderForm myOrderForm = new MyOrderForm();
-                        myOrderForm.Show();
-                        this.Close(); 
+                        TradeNo = GenerateTradeNo(),
+                        Status = 0,
+                        UserId = currentUserId,
+                        AppointmentId = selectedAppointment.Id,
+                        CreateTime = DateTime.Now,                      
+                    };
+                    context.Orders.Add(order);
+                    List<Order> ordersToAdd = new List<Order>();
+                    List<Ticket> ticketsToAdd = new List<Ticket>();//
+                    foreach (DataGridViewRow row in dataGridView1.Rows)
+                    {
+                        if (row.Cells["Column6"].Value is bool && (bool)row.Cells["Column6"].Value)
+                        {
+                            long userId = Convert.ToInt64(row.Cells["IDColumn"].Value);
+                            //Appointment appointment = new Appointment
+                            //{
+                            //    Id = Guid.NewGuid(),
+                            //    CreateTime = selectedDate,
+                            //    StartTime = ((Appointment)this.checkBox.Tag).StartTime,
+                            //    EndTime = ((Appointment)this.checkBox.Tag).EndTime,
+                            //};
+                            //appointmentsToAdd.Add(appointment);
+                            //Order order = new Order
+                            //{
+                            //    TradeNo = GenerateTradeNo(),
+                            //    Status = 0,
+                            //    UserId = userId,
+                            //    AppointmentId = selectedAppointment.Id,
+                            //    CreateTime = DateTime.Now
+                            //};
+                            //ordersToAdd.Add(order);//
+                            context.Orders.Add(order);
+                            Ticket ticket = new Ticket
+                            {
+
+                                OrderId = order.Id,
+                                TUserId = (int)userId,
+                                Status = "未使用",
+                                StartTime = selectedAppointment.StartTime,
+                                EndTime = selectedAppointment.EndTime,
+                                CreateTime = DateTime.Now,
+
+                            };
+                            ticketsToAdd.Add(ticket);
+                            order.Tickets.Add(ticket);                           
+                        }
+                    }
+                    appointmentToUpdate.amount -= selectedTouristCount;
+                    //try
+                    //{
+                    //    //context.Appointments.AddRange(appointmentsToAdd);
+                    //    context.Orders.AddRange(ordersToAdd);
+                    //    context.Tickets.AddRange(ticketsToAdd);
+                        context.SaveChanges();
+                        context.Database.CommitTransaction();//                                                            
+                        MessageBox.Show($"成功预约了 {selectedTouristCount} 个游客");
+                        // this.Close();
+                        DialogResult confirmResult = MessageBox.Show("成功预约门票，去使用？", "确认", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                        if (confirmResult == DialogResult.Yes)
+                        {
+                            MyOrderForm myOrderForm = new MyOrderForm();
+                            myOrderForm.ShowDialog();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Database.RollbackTransaction();//
+
+                        MessageBox.Show("预约失败！" + ex.Message);
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("预约失败！");
-                }
-            }
         }
+        
         private long GetCurrentUserId()
         {
-
             return LogInInfo.id;
         }
-        private string GenerateTradeNo()//订单号
+        private string GenerateTradeNo()
         {
             return Guid.NewGuid().ToString().Substring(0, 8).ToUpper();
         }
@@ -322,7 +339,6 @@ namespace VisitForm1
                 }
             }
         }
-
         private void ClearGroupBoxs()
         {
             foreach (var groupBox in groups)
@@ -337,12 +353,10 @@ namespace VisitForm1
         private void SelectDate_ValueChanged(object sender, EventArgs e)
         {
             LoadAppointments();
-
         }
 
         private void Reserve_Load(object sender, EventArgs e)
         {
-
         }
     }
 }

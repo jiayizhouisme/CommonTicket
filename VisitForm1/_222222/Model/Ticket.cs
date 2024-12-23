@@ -21,5 +21,6 @@ namespace VisitForm1._222222.Model
         
         public string UserInfoId { get; set; }
         public Appointment Appointment { get; set; }
+     
     }
 }

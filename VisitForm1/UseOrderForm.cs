@@ -83,7 +83,6 @@ namespace VisitForm1
 
                 int qrCodeTop = Math.Max(scanInstructions.Top + (scanInstructions.Height - qrCodeSize) / 2, timeLabel.Bottom + 10);
                 // Bitmap qrCodeImage = GenerateQrCodeImage(_order.Id.ToString(), qrCodeSize);
-
                 PictureBox qrCodePictureBox = new PictureBox
                 {
                     Size = new Size(qrCodeSize, qrCodeSize),
