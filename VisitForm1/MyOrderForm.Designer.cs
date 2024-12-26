@@ -101,6 +101,7 @@
             tabControl1.SelectedIndex = 0;
             tabControl1.Size = new Size(708, 535);
             tabControl1.TabIndex = 0;
+            tabControl1.Selected += tabControl1_Selected;
             // 
             // MyOrderForm
             // 

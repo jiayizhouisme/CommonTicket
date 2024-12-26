@@ -8,7 +8,17 @@ using System.Threading.Tasks;
 
 namespace VisitForm1._222222.Model
 {
-  
+
+    public enum OrderStatus
+    {
+        未付款 = 0,
+        已付款 = 1,
+        已关闭 = 2,
+        已退款 = 3,
+        一部分退款 = 4,
+        支付中 = 5,
+        退款中 = 6
+    }
     public class Order
     {
         public int Id { get; set; }
@@ -20,12 +30,12 @@ namespace VisitForm1._222222.Model
         public decimal? Amount { get; set; }
         public decimal ?PayedAmount { get; set; }
         public string? ObjectId { get; set; }
-        public int ?Status {  get; set; }
-      
+        public OrderStatus? Status {  get; set; }
+        public TicketStatus UseStatus { get; set; }
         [ForeignKey("Appointment")]
         public Guid ?AppointmentId {  get; set; }
-        public ICollection<Ticket> Tickets { get; set; }
-       
+         public ICollection<Ticket> Tickets { get; set; }
+      
         public virtual Appointment Appointment { get; set; }
 
         

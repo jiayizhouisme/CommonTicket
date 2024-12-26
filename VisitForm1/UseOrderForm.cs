@@ -21,6 +21,8 @@ namespace VisitForm1
         private Label qrCodeLabel;
         private Label scanInstructions;
         private List<GroupBox> groups = new List<GroupBox>();
+
+       
         public UseOrderForm(Order order) : this()
         {
             _order = order;
@@ -67,7 +69,7 @@ namespace VisitForm1
                 refundButton.Text = "退款";
                 refundButton.AutoSize = true;
                 refundButton.Location = new Point(totalPriceLabel.Right + 10, totalPriceLabel.Top);
-                refundButton.Click += RefundButton_Click;
+                refundButton.Click += RefundButton1_Click;
     
                 int qrCodeSize = 80; 
                 int qrCodeAndTextHeight = qrCodeSize + 20; 
@@ -170,16 +172,19 @@ namespace VisitForm1
             }
             qrCodeForm.ShowDialog();
         }
-        private void RefundButton_Click(object sender, EventArgs e)
+        private void RefundButton1_Click(object sender, EventArgs e)
         {
             DialogResult result = MessageBox.Show("是否确认退款吗？", "确认退款", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result == DialogResult.Yes)
             {
+              
                 MessageBox.Show("退款成功！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
            
             }
         }
-        public UseOrderForm()
+      
+    
+    public UseOrderForm()
             {
                 InitializeComponent();
             }
