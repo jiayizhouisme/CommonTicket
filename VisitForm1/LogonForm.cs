@@ -9,9 +9,9 @@ using System.Configuration;
 
 namespace VisitForm1
 {
+
         public partial class LogonForm : Form
         {
-
             private MyDbContext _context;
             private int _currentUserId;
             private string _rememberedUsername;
@@ -63,10 +63,7 @@ namespace VisitForm1
                 ConfigurationManager.AppSettings["RememberUserName"] = "False"; 
                 }
                 ConfigurationManager.RefreshSection("appSettings");
-            }
-   
-
-       
+            } 
             private void Register_Click(object sender, EventArgs e)
             {
                 RegisterForm registerForm = new RegisterForm();
@@ -82,8 +79,7 @@ namespace VisitForm1
                     return;
                 }
                 string hashedPassword = HashPassword(PassWord);
-                  using (_context = new MyDbContext())
-           
+                  using (_context = new MyDbContext())           
                 {
                     var user = await _context.Users.FirstOrDefaultAsync(u => u.username == UserName && u.password == hashedPassword);
                 if (user != null)
@@ -93,10 +89,8 @@ namespace VisitForm1
                     MessageBox.Show(this, "成功登录！");
                     ExhibitionForm1 exhibitionForm1 = new ExhibitionForm1();
                     exhibitionForm1.Show();
-
                     SaveSettings(hashedPassword, UserName);
-                }
-               
+                }          
                     else
                     {
                         MessageBox.Show(this, "用户名或密码不正确，请重新输入！");
@@ -124,8 +118,7 @@ namespace VisitForm1
 
             private void checkBox1_CheckedChanged(object sender, EventArgs e)
             {
-                _rememberedUsername = checkBox1.Checked ? textBox1.Text : null;
-           
+                _rememberedUsername = checkBox1.Checked ? textBox1.Text : null;          
             }
             }   
         }
