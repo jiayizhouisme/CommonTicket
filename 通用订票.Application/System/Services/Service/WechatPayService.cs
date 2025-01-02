@@ -22,9 +22,14 @@ namespace 通用订票.Application.System.Services.Service
         {
             this._client = _client;
         }
-        public async Task<WechatBill> PubPay(WechatBill entity,WechatMerchantConfig config,string openid)
+        public async Task<WeChatPayDictionary> PubPay(WechatBill entity,WechatMerchantConfig config,string openid)
         {
-            WeChatPayOptions _wechatpay = config.Adapt<WeChatPayOptions>();
+            WeChatPayOptions _wechatpay = new WeChatPayOptions();
+            _wechatpay.APIKey = config.apiKey;
+            _wechatpay.MchId = config.mchId;
+            _wechatpay.AppId = config.appid;
+            _wechatpay.RsaPublicKey = config.rsaPublicKey;
+            _wechatpay.Certificate = config.certificate;
 
             var billattach = JsonConvert.DeserializeObject<WechatBillAttach>(entity.Attach);
 
@@ -40,7 +45,7 @@ namespace 通用订票.Application.System.Services.Service
             {
                 Body = entity.payTitle.Length > 50 ? entity.payTitle[..50] : entity.payTitle,
                 OutTradeNo = entity.paymentId.ToString(),
-                TotalFee = Convert.ToInt32(entity.money * 100),
+                TotalFee = Convert.ToInt32(entity.money),
                 SpBillCreateIp = entity.ip,
                 NotifyUrl = weChatPayUrl,
                 TradeType = tradeType,
@@ -60,7 +65,7 @@ namespace 通用订票.Application.System.Services.Service
                 // 将参数(parameter)给 公众号前端 让他在微信内H5调起支付(https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=7_7&index=6)
                 parameter.Add("paymentId", entity.tradeNo);
                 entity.parameters = parameter.ToJson();
-                return entity;
+                return parameter;
             }
             else
             {
@@ -87,8 +92,8 @@ namespace 通用订票.Application.System.Services.Service
                 OutRefundNo = refundInfo.refundId.ToString(),
                 TransactionId = entity.transactionId,
                 OutTradeNo = entity.paymentId.ToString(),
-                TotalFee = Convert.ToInt32(entity.money * 100),
-                RefundFee = Convert.ToInt32(refundInfo.money * 100),
+                TotalFee = Convert.ToInt32(entity.money),
+                RefundFee = Convert.ToInt32(refundInfo.money),
                 NotifyUrl = weChatRefundUrl
             };
             var response = await _client.ExecuteAsync(request, _wechatpay);

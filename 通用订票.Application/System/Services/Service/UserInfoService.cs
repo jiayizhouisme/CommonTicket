@@ -7,6 +7,7 @@ using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
 using Core.Services;
 using Core.Utill.UniqueCode;
+using Core.Auth;
 
 namespace 通用订票.Application.System.Services.Service
 {
@@ -31,6 +32,12 @@ namespace 通用订票.Application.System.Services.Service
             user.userID = userid;
             user.id = await idGenerater.Generate("UserInfo");
             return await this.AddNow(user);
+        }
+
+        public async Task Update(UserInfo userinfo)
+        {
+            userinfo.userID = userid;
+            await this.UpdateNow(userinfo);
         }
 
         public async Task<UserInfo> GetUserInfoByID(int id)

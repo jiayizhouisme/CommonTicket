@@ -1,15 +1,19 @@
 ﻿using Core.Auth;
+using Core.MiddelWares;
 using Furion.DatabaseAccessor;
 using Furion.DynamicApiController;
 using Furion.RemoteRequest.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
 using 通用订票.Core.Entity.Specification;
+using 通用订票.Web.Entry.Model;
 
 namespace 通用订票.Web.Entry.Controllers
 {
+    [Route("api/userinfo")]
     /// <summary>
     /// 游客信息控制器
     /// </summary>
@@ -29,7 +33,10 @@ namespace 通用订票.Web.Entry.Controllers
         /// </summary>
         /// <returns></returns>
         [NonUnify]
-        [HttpGet(Name = "Get")]
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [HttpGet]
+        [Route("Get")]
         public async Task<IEnumerable<object>> Get()
         {
             this.userService.SetUserContext(long.Parse(httpContextUser.ID));
@@ -42,17 +49,65 @@ namespace 通用订票.Web.Entry.Controllers
         /// <param name="userinfo"></param>
         /// <returns></returns>
         [NonUnify]
-        [HttpPost(Name = "Add")]
-        public async Task<UserInfo> Add([FromBody]UserInfo userinfo)
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [HttpPost]
+        [Route("Add")]
+        public async Task<SimpleRet> Add([FromBody]UserInfo userinfo)
         {
-            int count = userService.GetQueryableNt(a => a.userID == long.Parse(httpContextUser.ID)).Count();
-            if (count >= 5)
+            long id = long.Parse(httpContextUser.ID);
+            int count = userService.GetQueryableNt(a => a.userID == id).Count();
+            if (count >= 50000)
             {
-                return null;
+                return SimpleRet.AddFailed();
             }
-            return await this.userService.Add(userinfo);
+            this.userService.SetUserContext(id);
+            return SimpleRet.AddSuccessed(await this.userService.Add(userinfo));
         }
 
+        /// <summary>
+        /// 编辑游客
+        /// </summary>
+        /// <param name="userinfo"></param>
+        /// <returns></returns>
+        [NonUnify]
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [HttpPost]
+        [Route("Update")]
+        public async Task<SimpleRet> Update([FromBody] UserInfo userinfo)
+        {
+            var entity = (await this.userService.GetWithConditionNt(a => a.id == userinfo.id)).FirstOrDefault();
+            long id = long.Parse(httpContextUser.ID);
+            if (entity !=null && entity.userID != id)
+            {
+                return SimpleRet.UpdateFailed();
+            }
+            this.userService.SetUserContext(id);
+            await this.userService.Update(userinfo);
+            return SimpleRet.UpdateSuccessed(userinfo);
+        }
+
+        /// <summary>
+        /// 删除游客
+        /// </summary>
+        /// <param name="userinfo"></param>
+        /// <returns></returns>
+        [NonUnify]
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [HttpGet]
+        [Route("Delete")]
+        public async Task<SimpleRet> Delete([FromQuery] long id)
+        {
+            var entity = (await this.userService.GetWithCondition(a => a.id == id)).FirstOrDefault();
+            if (entity == null || entity.userID != long.Parse(httpContextUser.ID))
+            {
+                return SimpleRet.DeleteFailed();
+            }
+            await this.userService.DeleteNow(entity);
+            return SimpleRet.DeleteSuccessed();
+        }
 
     }
 }

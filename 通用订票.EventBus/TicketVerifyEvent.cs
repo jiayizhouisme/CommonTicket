@@ -53,6 +53,7 @@ namespace 通用订票.JobTask
                     await service.TicketEndCheck(_ticket);
                 }
             }
+
         }
     }
 }

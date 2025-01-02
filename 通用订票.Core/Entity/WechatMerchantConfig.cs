@@ -20,6 +20,6 @@ namespace 通用订票.Core.Entity
         public string apiv3Key { get; set; }
         [NotNull]
         public string certificate { get; set; }
-        public string RsaPublicKey { get; set; }
+        public string rsaPublicKey { get; set; }
     }
 }

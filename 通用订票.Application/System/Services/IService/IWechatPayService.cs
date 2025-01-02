@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Essensoft.Paylink.WeChatPay;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ namespace 通用订票.Application.System.Services.IService
         /// </summary>
         /// <param name="entity">实体数据</param>
         /// <returns></returns>
-        Task<WechatBill> PubPay(WechatBill entity, WechatMerchantConfig config, string openid);
+        Task<WeChatPayDictionary> PubPay(WechatBill entity, WechatMerchantConfig config, string openid);
 
 
         /// <summary>

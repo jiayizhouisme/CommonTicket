@@ -22,6 +22,7 @@ using Furion.DependencyInjection;
 using ProtoBuf.Serializers;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using 通用订票.Application.System.Factory.Service;
+using Furion.Logging;
 
 namespace 通用订票.RedisMQ
 {
@@ -46,6 +47,7 @@ namespace 通用订票.RedisMQ
         [Subscribe("WeChatPayNotice")]
         public async Task WeChatPayNotice(string msg)
         {
+            Log.Information("回调时间处理开始");
             using (var scope = _serviceProvider.CreateScope())
             {
                 var notify = jsonSerializerProvider.Deserialize<WeChatPayUnifiedOrderNotify>(msg);
@@ -133,6 +135,7 @@ namespace 通用订票.RedisMQ
                         catch (Exception e)
                         {
                             await o_service.AfterOrderToke(billattach.trade_no);
+                            throw e;
                         }
                         finally
                         {

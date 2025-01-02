@@ -31,6 +31,7 @@ namespace 通用订票.Application.System.Services.Service
                 os = OrderStatus.已付款;
             }
             var result = await base.CreateOrder(objectId, name, amount, os,extraInfo);
+            result.ticketStatus = Base.Entity.TicketStatus.未使用;
             result.expireDate = DateTime.Now.Date.AddDays(day + 1);
             var r = await this._dal.InsertNowAsync(result);
             await SetOrderToCache(r.Entity);
