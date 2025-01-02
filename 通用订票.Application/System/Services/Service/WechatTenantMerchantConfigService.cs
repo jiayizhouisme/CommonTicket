@@ -1,5 +1,6 @@
 ﻿using Core.Cache;
 using Core.HttpTenant;
+using Core.HttpTenant.HttpTenantContext;
 using Core.Services;
 using Furion.DatabaseAccessor;
 using System;
@@ -21,17 +22,19 @@ namespace 通用订票.Application.System.Services.Service
     {
         private readonly ICacheOperation _cache;
         private readonly ITenantGetSetor tenantGetSetor;
+        private readonly IGetTenantInHttpContext getTenantInHttpContext;
         
         public WechatTenantMerchantConfigService(IRepository<WechatMerchantConfig, MasterDbContextLocator> _dal
-            , ICacheOperation _cache, ITenantGetSetor tenantGetSetor)
+            , ICacheOperation _cache, ITenantGetSetor tenantGetSetor, IGetTenantInHttpContext getTenantInHttpContext)
         {
             this._dal = _dal;
             this._cache = _cache;
             this.tenantGetSetor = tenantGetSetor;
+            this.getTenantInHttpContext= getTenantInHttpContext;
         }
         public async Task ConfigMerchantInfo(WechatMerchantConfig config)
         {
-            var tenant = tenantGetSetor.Get();
+            var tenant = (await getTenantInHttpContext.Get(tenantGetSetor.Get())).Name;
             if (tenant == null)
             {
                 tenant = this.GetTenant();

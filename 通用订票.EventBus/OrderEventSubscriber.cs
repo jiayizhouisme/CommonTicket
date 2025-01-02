@@ -17,6 +17,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using 通用订票.Application.System.Factory.Service;
+using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Core.Entity;
 using 通用订票.EventBus.Entity;
@@ -103,7 +104,7 @@ namespace 通用订票.EventBus
                     await RecoverOrder(o_service, data.order);
                     await refundBillService.UpdateStatus(RefundStatus.退款失败, data.bill.paymentId);
                     await cache.ReleaseLock("OrderLocker_" + data.order.trade_no, lockerId);
-                    throw e;
+                    return;
                 }
             }
 
@@ -130,8 +131,31 @@ namespace 通用订票.EventBus
                 await cache.ReleaseLock("OrderLocker_" + data.order.trade_no, lockerId);
             }
         }
-           
 
+        [EventSubscribe("TicketVerifyEvent")]
+        public async Task verify(EventHandlerExecutingContext context)
+        {
+            var data = (TicketVerifyEventModel)context.Source.Payload;
+            #region
+            using var scope = this.ScopeFactory.CreateScope();
+            var factory = SaaSServiceFactory.GetServiceFactory(data.tenant_id);
+            DbContext dbContext = Db.GetDbContext(scope.ServiceProvider);
+            var _orderProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultOrderServices>>();
+            var o_service = factory.GetOrderService(_orderProvider);
+            o_service = ServiceFactory.GetNamedSaasService<IDefaultOrderServices, Core.Entity.Order>(scope.ServiceProvider, o_service, data.tenant_id);
+            var _ticketProvider = scope.ServiceProvider.GetService<INamedServiceProvider<IDefaultTicketService>>();
+            var t_service = factory.GetTicketService(_ticketProvider);
+            t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, data.tenant_id);
+            #endregion
+            var ticket = await t_service.GetTicket(data.ticketNumber);
+
+            string lockerId = Guid.NewGuid().ToString();
+            await cache.Lock("OrderLocker_" + ticket.objectId, lockerId);
+            var order = await o_service.GetOrderById(ticket.objectId);
+            order.ticketStatus = Base.Entity.TicketStatus.已使用;
+            await o_service.UpdateNow(order);
+            await cache.ReleaseLock("OrderLocker_" + ticket.objectId,lockerId);
+        }
         private async Task RecoverOrder(IDefaultOrderServices o_service,Core.Entity.Order order)
         {
             order.status = 通用订票Order.Entity.OrderStatus.已付款;

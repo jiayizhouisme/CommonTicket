@@ -3,6 +3,7 @@ using Core.Cache;
 using Core.HttpTenant;
 using Core.MiddelWares;
 using Core.Queue.IQueue;
+using Essensoft.Paylink.WeChatPay;
 using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Furion.DynamicApiController;
@@ -28,6 +29,7 @@ using 通用订票.EventBus.EventEntity;
 using 通用订票.JobTask;
 using 通用订票.Procedure.Entity;
 using 通用订票.Procedure.Entity.QueueEntity;
+using 通用订票.Web.Entry.Model;
 using 通用订票Order.Entity;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -98,6 +100,7 @@ namespace 通用订票.Web.Entry.Controllers
         /// </summary>
         /// <param name="oc">订单信息</param>
         /// <returns></returns>
+        [NonUnify]
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpPost(Name = "CreateOrder")]
@@ -111,7 +114,7 @@ namespace 通用订票.Web.Entry.Controllers
             var _lock = await myOrderService.PreOrder(oc.appid);
             if (_lock == false)
             {
-                return new { code = 0, message = "您的订单正在处理中,请稍后再试" };
+                return new { status = 0, message = "您的订单正在处理中,请稍后再试" };
             }
 
             UserOrdersCollectionSpecification us = new UserOrdersCollectionSpecification(userid, oc.appid);
@@ -119,7 +122,7 @@ namespace 通用订票.Web.Entry.Controllers
             if (await orderCount.CountAsync() >= 5)
             {
                 await myOrderService.OrderFail(oc.appid);
-                return new { code = 0, message = "购票数量达到上线" };
+                return new { status = 0, message = "购票数量达到上线" };
             }
 
             oc.ids = oc.ids.Distinct().ToArray();
@@ -130,7 +133,7 @@ namespace 通用订票.Web.Entry.Controllers
                 if (query == false)
                 {
                     await myOrderService.OrderFail(oc.appid);
-                    return new { code = 0, message = "所选择的用户不存在" };
+                    return new { status = 0, message = "所选择的用户不存在" };
                 }
             }
             
@@ -179,12 +182,17 @@ namespace 通用订票.Web.Entry.Controllers
                 });
                 await _queue.PushMessage(CreateOrder);
 
-                return new { status = 1, message = "下单请求成功，请等待下单结果", data = order };
+                return new { status = 1, message = "下单请求成功，请等待下单结果", data = new { order.name,isFree = order.amount == 0 ? true:false,order.trade_no } };
             }
             catch(Exception e)
             {
                 await myOrderService.OrderFail(oc.appid);
                 await stockService.SaleStock(stock.id, -oc.ids.Count);
+                return new
+                {
+                    status = 0,
+                    message = e.Message
+                };
                 throw e;
             }
         }
@@ -196,9 +204,10 @@ namespace 通用订票.Web.Entry.Controllers
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         [Authorize]
+        [NonUnify]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "PayOrder")]
-        public async Task<string> PayOrder(long trade_no)
+        public async Task<WeChatPayDictionary> PayOrder([FromQuery]long trade_no)
         {
             string lockid = Guid.NewGuid().ToString();
 
@@ -211,7 +220,7 @@ namespace 通用订票.Web.Entry.Controllers
                 {
                     throw new ArgumentException("订单无效");
                 }
-
+                WeChatPayDictionary wc = null;
                 if (order.status == OrderStatus.未付款)
                 {
                     var Attach = new WechatBillAttach
@@ -219,7 +228,7 @@ namespace 通用订票.Web.Entry.Controllers
                         tenant_id = httpContextUser.TenantId,
                         trade_no = trade_no
                     };
-
+                    
                     var result = await billService.GenWechatBill(order, Attach, long.Parse(httpContextUser.ID));
                     if (result == null || string.IsNullOrEmpty(result.parameters))
                     {
@@ -227,8 +236,8 @@ namespace 通用订票.Web.Entry.Controllers
                         var openid = httpContextUser.OpenId;
                         if (config != null && !string.IsNullOrEmpty(openid))
                         {
-                            result = await wechatPayService.PubPay(result, config, openid);
-                            if (result != null && !string.IsNullOrEmpty(result.parameters))
+                            wc = await wechatPayService.PubPay(result, config, openid);
+                            if (wc != null && !string.IsNullOrEmpty(result.parameters))
                             {
                                 await billService.UpdateNow(result);
                             }
@@ -237,11 +246,11 @@ namespace 通用订票.Web.Entry.Controllers
                         {
                             throw new ArgumentException("参数错误");
                         }
-                        return result.parameters;
+                        return wc;
                     }
                     else
                     {
-                        return result.parameters;
+                        return wc;
                     }
                 }
                 else
@@ -252,13 +261,12 @@ namespace 通用订票.Web.Entry.Controllers
             catch (Exception e)
             {
                 await myOrderService.AfterOrderToke(trade_no);
-                return e.Message;
             }
             finally
             {
                 await _cache.ReleaseLock("OrderLocker_" + trade_no, lockid);
             }
-            return "";   
+            return null;   
         }
 
         /// <summary>
@@ -270,7 +278,7 @@ namespace 通用订票.Web.Entry.Controllers
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "RefundOrder")]
-        public async Task<string> RefundOrder(long trade_no)
+        public async Task<string> RefundOrder([FromQuery]long trade_no)
         {
             string lockid = Guid.NewGuid().ToString();
 
@@ -341,7 +349,7 @@ namespace 通用订票.Web.Entry.Controllers
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "PaidOrder")]
-        public async Task<通用订票.Core.Entity.Order> PaidOrder(long trade_no)
+        public async Task<通用订票.Core.Entity.Order> PaidOrder([FromQuery] long trade_no)
         {
             string lockid = Guid.NewGuid().ToString();
 
@@ -380,7 +388,7 @@ namespace 通用订票.Web.Entry.Controllers
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "CloseOrder")]
-        public async Task<dynamic> CloseOrder(long trade_no)
+        public async Task<dynamic> CloseOrder([FromQuery] long trade_no)
         {
             string lockerId = Guid.NewGuid().ToString();
             await _cache.Lock("OrderLocker_" + trade_no, lockerId);
@@ -512,7 +520,18 @@ namespace 通用订票.Web.Entry.Controllers
             }
             return ticket;
         }
+        [HttpGet(Name = "GetOrderByStatus")]
+        public async Task<List<通用订票.Core.Entity.Order>> GetOrderByStatus([FromQuery] UserOrderQueryEnum status)
+        {
+            var userId = long.Parse(httpContextUser.ID);
+            var orderList = this.myOrderService.GetQueryableNt(a => a.userId == userId).OrderByDescending(a => a.createTime);
+            if (status == UserOrderQueryEnum.全部)
+            {
+                return await orderList.ToListAsync();
+            }
 
+            return null;
+        }
         //[Authorize]
         //[TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "Test")]

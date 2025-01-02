@@ -139,7 +139,7 @@ namespace 通用订票.RedisMQ
                         count = data.ids.Count,
                         realTenantId = data.tenantId
                     });
-                    await _queue.PushMessageDelay(CreateOrder, DateTime.Now.AddSeconds(60));
+                    await _queue.PushMessageDelay(CreateOrder, DateTime.Now.AddSeconds(600));
                 }
             }
            

@@ -59,10 +59,10 @@ namespace 通用订票.Web.Entry.Controllers
             int count = userService.GetQueryableNt(a => a.userID == id).Count();
             if (count >= 50000)
             {
-                return new SimpleRet { code = 0,message = "游客数量超出限制"};
+                return SimpleRet.AddFailed();
             }
             this.userService.SetUserContext(id);
-            return new SimpleRet() { code = 1,message = "添加成功",data = await this.userService.Add(userinfo) };
+            return SimpleRet.AddSuccessed(await this.userService.Add(userinfo));
         }
 
         /// <summary>
@@ -81,11 +81,11 @@ namespace 通用订票.Web.Entry.Controllers
             long id = long.Parse(httpContextUser.ID);
             if (entity !=null && entity.userID != id)
             {
-                return new SimpleRet() { code = 0, message = "更新失败" };
+                return SimpleRet.UpdateFailed();
             }
             this.userService.SetUserContext(id);
             await this.userService.Update(userinfo);
-            return new SimpleRet() { code = 1, message = "更新成功", data = userinfo };
+            return SimpleRet.UpdateSuccessed(userinfo);
         }
 
         /// <summary>
@@ -103,10 +103,10 @@ namespace 通用订票.Web.Entry.Controllers
             var entity = (await this.userService.GetWithCondition(a => a.id == id)).FirstOrDefault();
             if (entity == null || entity.userID != long.Parse(httpContextUser.ID))
             {
-                return new SimpleRet() { code = 0, message = "删除失败", data = null };
+                return SimpleRet.DeleteFailed();
             }
             await this.userService.DeleteNow(entity);
-            return new SimpleRet() { code = 1, message = "删除成功" ,data = null};
+            return SimpleRet.DeleteSuccessed();
         }
 
     }
