@@ -15,15 +15,12 @@ using VisitForm1._222222.Model;
 namespace VisitForm1
 {
     public partial class AddUserInfoForm : Form
-    {
-  
+    {      
         public AddUserInfoForm()
         {
-            InitializeComponent();
-           
+            InitializeComponent();         
         }
-
-        private void Submit_Click(object sender, EventArgs e)
+        private void Submitt_Click(object sender, EventArgs e)
         {
             using (var context = new MyDbContext())
             {
@@ -46,16 +43,13 @@ namespace VisitForm1
                 try
                 {
                     context.UserInfos.Add(userInfo);
-                    context.SaveChanges();
-                    MessageBox.Show("添加成功");
-                  
-                }
-                
-
+                    context.SaveChanges();               
+                    MessageBox.Show("添加成功");                  
+                    this.Close();
+                }              
                 catch (Exception ex)
                 {
                     MessageBox.Show("添加失败");
-
                 }
                
                 }

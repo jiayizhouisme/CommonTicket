@@ -30,17 +30,21 @@ namespace VisitForm1
             }
             private void LoadSettings()
             {
-                string rememberUserName = ConfigurationManager.AppSettings["RememberUserName"];
-                bool shouldRemember = bool.TryParse(rememberUserName, out bool result) && result;
-                if (shouldRemember)
+            // string rememberUserName = ConfigurationManager.AppSettings["RememberUserName"];
+            bool shouldRemember = bool.TryParse(ConfigurationManager.AppSettings["RememberUserName"], out bool result) && result;
+            // bool shouldRemember = bool.TryParse(rememberUserName, out bool result) && result;
+            if (shouldRemember)
                 {
                     _rememberedUsername = ConfigurationManager.AppSettings["RememberedUsername"];
                  
                     textBox1.Text = _rememberedUsername;
-                }
-               
-                {
                 _rememberedHashedPassword = ConfigurationManager.AppSettings["HashedPassword"];
+                checkBox1.Checked = true;
+            }
+               else
+                {
+                checkBox1.Checked = false;
+                // _rememberedHashedPassword = ConfigurationManager.AppSettings["HashedPassword"];
             }
             }
 
@@ -55,6 +59,8 @@ namespace VisitForm1
                 else
                 {
                     ConfigurationManager.AppSettings.Remove("RememberedUsername");
+                ConfigurationManager.AppSettings.Remove("HashedPassword");
+                ConfigurationManager.AppSettings["RememberUserName"] = "False"; 
                 }
                 ConfigurationManager.RefreshSection("appSettings");
             }

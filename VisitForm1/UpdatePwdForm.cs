@@ -66,10 +66,8 @@ namespace VisitForm1
                         bool updateSuccess = UpdatePassword(LogInInfo.username, NewPwd);
                         if (updateSuccess)
                         {
-
                             MessageBox.Show("密码修改成功！");
                             this.Close();
-
                         }
                         else
                         {
@@ -85,9 +83,7 @@ namespace VisitForm1
             else
             {
                 MessageBox.Show("用户名或旧密码错误，请重试");
-            }
-
-            
+            }         
         
         }
         private static string HashPassword(string password)
