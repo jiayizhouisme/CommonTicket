@@ -14,6 +14,7 @@ namespace 通用订票.Core.Entity
         public DateTime? createTime { get; set; }
         [Comment("时间段id")]
         public string AppointmentId { get; set; }
+        public Guid exhibitionId { get; set; }
         [Comment("服务商类型")]
         public OTAType ota { get; set; }
         [Comment("票总数")]

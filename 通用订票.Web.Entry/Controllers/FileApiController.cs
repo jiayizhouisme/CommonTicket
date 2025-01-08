@@ -1,9 +1,12 @@
-﻿using Core.User.Entity;
+﻿using Core.Auth;
+using Core.MiddelWares;
+using Core.User.Entity;
 using Furion;
 using Furion.DynamicApiController;
 using Furion.LinqBuilder;
 using Furion.RemoteRequest.Extensions;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -17,6 +20,8 @@ namespace 设备物联.Web.Entry.Controllers
     public class FileApiController : IDynamicApiController
     {
         [HttpPost(Name = "UploadFile")]
+        [Authorize]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [RequestSizeLimit(100_000_000)]
         [NonUnify]
         //[Authorize]
@@ -48,6 +53,8 @@ namespace 设备物联.Web.Entry.Controllers
 
         [HttpPost(Name = "UploadFiles")]
         [RequestSizeLimit(100_000_000)]
+        [Authorize]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [NonUnify]
         //[Authorize]
         public async Task<object> UploadFilesAsync(List<IFormFile> files)    // 可改为 IFormFileCollection files
@@ -83,6 +90,8 @@ namespace 设备物联.Web.Entry.Controllers
         }
 
         [HttpPost("DownloadImgsByUrls")]
+        [Authorize]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         //[Authorize]
         public async Task<string[]> DownloadImgsByUrls([FromBody]string[] urls)
         {

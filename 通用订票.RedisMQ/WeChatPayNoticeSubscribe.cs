@@ -100,15 +100,15 @@ namespace 通用订票.RedisMQ
 
                             var startTime = order.createTime.Value.AddDays(app.day).Date.Add(app.startTime);
                             var endTime = order.createTime.Value.AddDays(app.day).Date.Add(app.endTime);
-
                             if (exhibition.isMultiPart == true)
                             {
                                 await _queue.PushMessage(new TicketCreateQueueEntity(new TicketCreate()
                                 {
                                     startTime = startTime,
                                     endTime = endTime,
-                                    exhibitions = exhibition.exhibitions.Split(' '),
+                                    exhibitions = exhibition.exhibitions.Split(','),
                                     order = order,
+                                    exhibitionId = exhibition.id,
                                     //realTenantId = httpContextUser.RealTenantId,
                                     status = Base.Entity.TicketStatus.未使用,
                                     tenantId = billattach.tenant_id,
@@ -125,6 +125,7 @@ namespace 通用订票.RedisMQ
                                     endTime = endTime,
                                     exhibitions = null,
                                     order = order,
+                                    exhibitionId = exhibition.id,
                                     //realTenantId = httpContextUser.RealTenantId,
                                     status = Base.Entity.TicketStatus.未使用,
                                     tenantId = billattach.tenant_id,

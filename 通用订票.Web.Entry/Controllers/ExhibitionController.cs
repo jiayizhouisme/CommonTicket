@@ -1,4 +1,5 @@
-﻿using Core.MiddelWares;
+﻿using Core.Auth;
+using Core.MiddelWares;
 using Furion.DatabaseAccessor;
 using Furion.DynamicApiController;
 using Microsoft.AspNetCore.Authorization;
@@ -31,6 +32,8 @@ namespace 通用订票.Web.Entry.Controllers
         /// <param name="exhibition"></param>
         /// <returns></returns>
         [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [HttpPost(Name = "ConfigRule")]
         public async Task ConfigRule(ExhibitionRuleAddModel rule)
         {
@@ -45,6 +48,8 @@ namespace 通用订票.Web.Entry.Controllers
         /// <param name="exhibition"></param>
         /// <returns></returns>
         [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [HttpPost(Name = "Add")]
         public async Task<Exhibition> AddExhibitions(Exhibition exhibition)
         {
@@ -57,6 +62,8 @@ namespace 通用订票.Web.Entry.Controllers
         /// <param name="exhibition"></param>
         /// <returns></returns>
         [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [HttpPost(Name = "Update")]
         public async Task<Exhibition> UpdateExhibitions(Exhibition exhibition)
         {
@@ -85,6 +92,8 @@ namespace 通用订票.Web.Entry.Controllers
         /// <param name="real"></param>
         /// <returns></returns>
         [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [HttpGet(Name = "Delete")]
         public async Task<bool> DeleteExhibitions([FromQuery] Guid id, [FromQuery] bool real = false)
         {
@@ -105,7 +114,7 @@ namespace 通用订票.Web.Entry.Controllers
         public async Task<object> GetExhibitions([FromQuery]int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             return await _exhibitionService.GetQueryableNt(a => a.isDeleted == false).OrderByDescending(a => a.createTime)
-                .Select(a => new  {id = a.id,description = a.description,basicPrice = a.basicPrice,beforeDays = a.beforeDays,
+                .Select(a => new  {id = a.id,basicPrice = a.basicPrice,beforeDays = a.beforeDays,
                 name = a.name,imgs = a.imgs})
                 .ToPagedListAsync(pageIndex,pageSize);
         }

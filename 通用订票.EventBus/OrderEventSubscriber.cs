@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
+using 通用订票.Base.Entity;
 using 通用订票.Core.Entity;
 using 通用订票.EventBus.Entity;
 using 通用订票.EventBus.EventEntity;
@@ -152,7 +153,18 @@ namespace 通用订票.EventBus
             string lockerId = Guid.NewGuid().ToString();
             await cache.Lock("OrderLocker_" + ticket.objectId, lockerId);
             var order = await o_service.GetOrderById(ticket.objectId);
-            order.ticketStatus = Base.Entity.TicketStatus.已使用;
+
+            var tickets = await t_service.GetTickets(ticket.objectId);
+            order.ticketStatus = TicketStatus.已使用;
+            foreach (var _ticket in tickets)
+            {
+                if (_ticket.stauts == TicketStatus.未使用 || _ticket.stauts == TicketStatus.部分使用)
+                {
+                    order.ticketStatus = TicketStatus.部分使用;
+                    continue;
+                }
+            }
+
             await o_service.UpdateNow(order);
             await cache.ReleaseLock("OrderLocker_" + ticket.objectId,lockerId);
         }

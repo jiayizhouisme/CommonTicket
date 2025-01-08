@@ -14,6 +14,7 @@ namespace 通用订票.Procedure.Entity
         public string tenantId { get; set; }
         public TicketStatus status { get; set; }
         public string[] exhibitions { get; set; }
+        public Guid exhibitionId { get; set; }
     }
 
 }

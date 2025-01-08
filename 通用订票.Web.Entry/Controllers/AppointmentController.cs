@@ -32,6 +32,9 @@ namespace 通用订票.Web.Entry.Controllers
             this._appointmentService = factory.GetStockService(_stockProvider);
         }
 
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [HttpGet(Name = "DeleteAppointment")]
         public async Task DeleteAppointment([FromQuery]Guid id)
         {
@@ -42,6 +45,9 @@ namespace 通用订票.Web.Entry.Controllers
             }
         }
 
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [HttpGet(Name = "DeleteByDay")]
         public async Task DeleteByDay([FromQuery] Guid exid, [FromQuery] int day)
         {
@@ -52,6 +58,9 @@ namespace 通用订票.Web.Entry.Controllers
             }
         }
 
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [HttpPost]
         [HttpPost(Name = "UpdateAppointment")]
         public async Task UpdateAppointment(AppointmentUpdateModel appointment)
@@ -71,6 +80,9 @@ namespace 通用订票.Web.Entry.Controllers
         /// <param name="appointment">时间段模型</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [HttpPost(Name = "AddAppointment")]
         public async Task AddAppointment(AppointmentAdd appointment)
         {
@@ -100,6 +112,9 @@ namespace 通用订票.Web.Entry.Controllers
         /// <param name="appointment">时间段模型</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [HttpPost(Name = "AddAppointments")]
         public async Task AddAppointments(AppointmentsAdd appointment)
         {

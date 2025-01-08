@@ -103,7 +103,8 @@ namespace 通用订票.RedisMQ
                         {
                             startTime = startTime,
                             endTime = endTime,
-                            exhibitions = exhibition.exhibitions.Split(' '),
+                            exhibitions = exhibition.exhibitions.Split(','),
+                            exhibitionId = exhibition.id,
                             order = data.order,
                             status = Base.Entity.TicketStatus.未使用,
                             tenantId = data.tenantId,
@@ -120,6 +121,7 @@ namespace 通用订票.RedisMQ
                             exhibitions = null,
                             order = data.order,
                             //realTenantId = httpContextUser.RealTenantId,
+                            exhibitionId = exhibition.id,
                             status = Base.Entity.TicketStatus.未使用,
                             tenantId = data.tenantId,
                             uid = data.order.GetExtraInfo().ids,

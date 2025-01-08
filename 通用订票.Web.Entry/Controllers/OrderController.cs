@@ -24,6 +24,7 @@ using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
 using 通用订票.Application.System.Services.Service;
+using 通用订票.Base.Entity;
 using 通用订票.Core.Entity;
 using 通用订票.Core.Entity.Specification;
 using 通用订票.EventBus.Entity;
@@ -110,7 +111,7 @@ namespace 通用订票.Web.Entry.Controllers
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [EnableRateLimiting("order_create_rate_policy")]
         [HttpPost(Name = "CreateOrder")]
-        public async Task<object> CreateOrder([FromBody]BaseOrderCreate oc)
+        public async Task<object> CreateOrder([FromBody] BaseOrderCreate oc)
         {
             var userid = long.Parse(httpContextUser.ID);
 
@@ -142,7 +143,7 @@ namespace 通用订票.Web.Entry.Controllers
                     return new { status = 0, message = "所选择的用户不存在" };
                 }
             }
-            
+
             var saleRet = await stockService.SaleStock(oc.appid, oc.ids.Count);
             if (saleRet == false)
             {
@@ -155,13 +156,13 @@ namespace 通用订票.Web.Entry.Controllers
             {
                 var exhibition = await exhibitionService.GetExhibitionByID(stock.objectId);
                 var rule = exhibition.GetForbiddenRule();
-                
+
                 if (rule != null && rule.IsDateVaild(DateTime.Now.AddDays(stock.day)) == false)
                 {
                     throw new Exception("选择的日期不可用");
                 }
 
-                if(stock.day - exhibition.beforeDays < 0)
+                if (stock.day - exhibition.beforeDays < 0)
                 {
                     throw new Exception("选择日期不正确");
                 }
@@ -189,9 +190,9 @@ namespace 通用订票.Web.Entry.Controllers
                 });
                 await _queue.PushMessage(CreateOrder);
 
-                return new { status = 1, message = "下单请求成功，请等待下单结果", data = new { order.name,isFree = order.amount == 0 ? true:false,order.trade_no } };
+                return new { status = 1, message = "下单请求成功，请等待下单结果", data = new { order.name, isFree = order.amount == 0 ? true : false, order.trade_no } };
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 await myOrderService.OrderFail(oc.appid);
                 await stockService.SaleStock(stock.id, -oc.ids.Count);
@@ -214,7 +215,7 @@ namespace 通用订票.Web.Entry.Controllers
         [NonUnify]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "PayOrder")]
-        public async Task<WeChatPayDictionary> PayOrder([FromQuery]long trade_no)
+        public async Task<WeChatPayDictionary> PayOrder([FromQuery] long trade_no)
         {
             string lockid = Guid.NewGuid().ToString();
 
@@ -235,7 +236,7 @@ namespace 通用订票.Web.Entry.Controllers
                         tenant_id = httpContextUser.TenantId,
                         trade_no = trade_no
                     };
-                    
+
                     var result = await billService.GenWechatBill(order, Attach, long.Parse(httpContextUser.ID));
                     if (result == null || string.IsNullOrEmpty(result.parameters))
                     {
@@ -274,7 +275,7 @@ namespace 通用订票.Web.Entry.Controllers
             {
                 await _cache.ReleaseLock("OrderLocker_" + trade_no, lockid);
             }
-            return null;   
+            return null;
         }
 
         /// <summary>
@@ -287,7 +288,7 @@ namespace 通用订票.Web.Entry.Controllers
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [HttpGet(Name = "RefundOrder")]
         [NonUnify]
-        public async Task<dynamic> RefundOrder([FromQuery]long trade_no)
+        public async Task<dynamic> RefundOrder([FromQuery] long trade_no)
         {
             string lockid = Guid.NewGuid().ToString();
 
@@ -329,7 +330,7 @@ namespace 通用订票.Web.Entry.Controllers
                         };
                         await transaction.CommitAsync();
                         await eventPublisher.PublishAsync(new OnOrderPreRefundedEvent(onOrderPreRefuned));
-                        return new {code = 1,message = "订单退款请求成功，请耐心等待退款",amount = order.amount, time = DateTime.Now,trade_no };
+                        return new { code = 1, message = "订单退款请求成功，请耐心等待退款", amount = order.amount, time = DateTime.Now, trade_no };
                     }
                     else
                     {
@@ -340,14 +341,14 @@ namespace 通用订票.Web.Entry.Controllers
                 {
                     await myOrderService.AfterOrderToke(trade_no);
                     Log.Error(e.Message);
-                    return new { code = 0,message = "退款失败遇到错误"};
+                    return new { code = 0, message = "退款失败遇到错误" };
                 }
                 finally
                 {
                     await _cache.ReleaseLock("OrderLocker_" + trade_no, lockid);
                 }
             }
-            
+
         }
 
         /// <summary>
@@ -419,17 +420,17 @@ namespace 通用订票.Web.Entry.Controllers
                 var o = await myOrderService.CancelOrder(order);
 
                 var onOrderClosed = new OnOrderClosed()
-                { 
-                    order = order, 
+                {
+                    order = order,
                     tenantId = httpContextUser.TenantId,
-                    userId = long.Parse(httpContextUser.ID 
-                    )};          
+                    userId = long.Parse(httpContextUser.ID
+                    ) };
                 await eventPublisher.PublishAsync(new OnOrderClosedEvent(onOrderClosed));
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw e;
-                return new {code = 0,message = e.Message };
+                return new { code = 0, message = e.Message };
             }
             finally
             {
@@ -451,7 +452,7 @@ namespace 通用订票.Web.Entry.Controllers
         [NonUnify]
         public async Task<TicketVerifyResult> CheckTicket([FromQuery] string ticket_number, [FromQuery] int count = 1, [FromQuery] string exhibition = null)
         {
-            var ticket = await ticketService.TicketBeginCheck(ticket_number, count,exhibition);
+            var ticket = await ticketService.TicketBeginCheck(ticket_number, count, exhibition);
             if (ticket.ticket != null)
             {
                 ticket.order = await myOrderService.GetOrderById(ticket.ticket.objectId);
@@ -465,7 +466,7 @@ namespace 通用订票.Web.Entry.Controllers
             }
 
             await ticketService.TicketEndCheck(ticket.ticket);
-            
+
             return ticket;
         }
         /// <summary>
@@ -486,7 +487,8 @@ namespace 通用订票.Web.Entry.Controllers
                 ticketNumber = ticket_number,
                 count = count,
                 tenant_id = tenantGetSetor.Get(),
-                exhibitionId = exhibition
+                exhibitionId = exhibition,
+                status = ticket.stauts
             });
         }
 
@@ -507,11 +509,20 @@ namespace 通用订票.Web.Entry.Controllers
                 ticket.order = await myOrderService.GetOrderById(ticket.ticket.objectId);
             }
 
-            if (ticket.order.status != OrderStatus.已付款)
+            if (ticket.code == 0)
+            {
+                ticket.code = 0;
+                ticket.message = "参数错误";
+                await ticketService.TicketEndCheck(ticket.ticket);
+                return ticket;
+            }
+
+            if (ticket.order == null || ticket.order.status != OrderStatus.已付款)
             {
                 ticket.code = 0;
                 ticket.message = "订单已不可用";
                 await ticketService.TicketEndCheck(ticket.ticket);
+                return ticket;
             }
 
             if (ticket.code == 1)
@@ -524,7 +535,8 @@ namespace 通用订票.Web.Entry.Controllers
                     ticketNumber = ticket_number,
                     count = count,
                     tenant_id = tenantGetSetor.Get(),
-                    exhibitionId = exhibition
+                    exhibitionId = exhibition,
+                    status = ticket.ticket.stauts
                 });
             }
             else
@@ -533,7 +545,7 @@ namespace 通用订票.Web.Entry.Controllers
             }
             return ticket;
         }
-        
+
         [HttpGet(Name = "GetOrdersByStatus")]
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
@@ -547,17 +559,17 @@ namespace 通用订票.Web.Entry.Controllers
                 return await orderList.Select(a =>
                 new UserOrderQueryModel(a))
                 .ToListAsync(); ;
-            }else if (status == UserOrderQueryEnum.待付款)
+            } else if (status == UserOrderQueryEnum.待付款)
             {
                 orderList = orderList.Where(a => a.status == OrderStatus.未付款);
             }
             else if (status == UserOrderQueryEnum.未使用)
             {
-                orderList = orderList.Where(a => a.status == OrderStatus.已付款 && a.ticketStatus == Base.Entity.TicketStatus.未使用);
+                orderList = orderList.Where(a => a.status == OrderStatus.已付款 && a.ticketStatus == TicketStatus.未使用);
             }
             else if (status == UserOrderQueryEnum.已使用)
             {
-                orderList = orderList.Where(a => a.status == OrderStatus.已付款 && a.ticketStatus == Base.Entity.TicketStatus.已使用);
+                orderList = orderList.Where(a => a.status == OrderStatus.已付款 && (a.ticketStatus == TicketStatus.已使用 || a.ticketStatus == TicketStatus.部分使用));
             }
             else if (status == UserOrderQueryEnum.已退款)
             {
@@ -567,11 +579,12 @@ namespace 通用订票.Web.Entry.Controllers
             return await orderList.Select(a =>
                 new UserOrderQueryModel(a)).ToListAsync();
         }
+        
         [HttpGet(Name = "GetOrderDetail")]
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [NonUnify]
-        public async Task<UserOrderDetailQueryModel> GetOrderDetail([FromQuery]long trade_no)
+        public async Task<UserOrderDetailQueryModel> GetOrderDetail([FromQuery] long trade_no)
         {
             var order = await myOrderService.GetOrderById(trade_no);
             var tickets = await ticketService.GetTickets(order.trade_no);
@@ -580,7 +593,7 @@ namespace 通用订票.Web.Entry.Controllers
             foreach (var ticket in tickets)
             {
                 var username = (await userinfoService.GetUserInfoByID(ticket.TUserId)).name;
-                
+
                 if (ticket.isMultiPart)
                 {
                     var list = await multiTicketService.GetQueryableNt(a => a.ticketNumber == ticket.ticketNumber).
@@ -609,6 +622,7 @@ namespace 通用订票.Web.Entry.Controllers
                         name = username,
                         startTime = ticket.startTime,
                         ticketNumber = ticket.ticketNumber,
+                        qrCode = ticket.QRCode,
                         totalCount = ticket.totalCount - ticket.usedCount,
                         mtickets = new List<MultiTicketQueryModel>()
                     }
@@ -618,51 +632,19 @@ namespace 通用订票.Web.Entry.Controllers
             return model;
         }
 
-        //[Authorize]
-        //[TypeFilter(typeof(SaaSAuthorizationFilter))]
-        [HttpGet(Name = "Test")]
-        public async Task<string> Test(long trade_no)
+        [HttpGet(Name = "GetOrders")]
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
+        [NonUnify]
+        public async Task<dynamic> GetOrders([FromQuery] Guid exhibitionId, [FromQuery] DateTime date,
+            [FromQuery] UserOrderQueryEnum status, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            var order = await PaidOrder(trade_no);
-            if (order == null)
-            {
-                return "生成票务失败";
-            }
-            var app = await stockService.GetAppointmentById(order.objectId);
-            var exhibition = await exhibitionService.GetExhibitionByID(app.objectId);
+            var order_query = myOrderService.GetQueryableNt(a => a != null)
+                .OrderByDescending(a => a.createTime).ToPagedListAsync(pageIndex,pageSize);
 
-            var startTime = order.createTime.Value.AddDays(app.day).Date.Add(app.startTime);
-            var endTime = order.createTime.Value.AddDays(app.day).Date.Add(app.endTime);
 
-            if (exhibition.isMultiPart == true)
-            {
-                await _queue.PushMessage(new TicketCreateQueueEntity(new TicketCreate()
-                {
-                    startTime = startTime,
-                    endTime = endTime,
-                    exhibitions = exhibition.exhibitions.Split(' '),
-                    order = order,
-                    status = Base.Entity.TicketStatus.未使用,
-                    tenantId = httpContextUser.TenantId,
-                    uid = order.GetExtraInfo().ids,
-                    userid = order.userId
-                }));
-            }
-            else
-            {
-                await _queue.PushMessage(new TicketCreateQueueEntity(new TicketCreate()
-                {
-                    startTime = startTime,
-                    endTime = endTime,
-                    exhibitions = null,
-                    order = order,
-                    status = Base.Entity.TicketStatus.未使用,
-                    tenantId = httpContextUser.TenantId,
-                    uid = order.GetExtraInfo().ids,
-                    userid = order.userId
-                }));
-            }
-            return "生成票务成功";
+            return null;
         }
     }
 }

@@ -55,11 +55,11 @@ namespace 通用订票.RedisMQ
                 {
                     if (order.status == 通用订票Order.Entity.OrderStatus.已付款)
                     {
-                        await t_service.GenarateTickets(data.startTime, data.endTime, data.order, data.uid.ToArray(), data.exhibitions,TicketStatus.未使用);
+                        await t_service.GenarateTickets(data.exhibitionId,data.startTime, data.endTime, data.order, data.uid.ToArray(), data.exhibitions,TicketStatus.未使用);
                     }
                     else
                     {
-                        await t_service.GenarateTickets(data.startTime, data.endTime, data.order, data.uid.ToArray(), data.exhibitions, TicketStatus.未激活);
+                        await t_service.GenarateTickets(data.exhibitionId,data.startTime, data.endTime, data.order, data.uid.ToArray(), data.exhibitions, TicketStatus.未激活);
                     }
                 }
             }

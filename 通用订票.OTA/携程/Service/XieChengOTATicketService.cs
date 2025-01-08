@@ -50,24 +50,28 @@ namespace 通用订票.OTA.携程.Service
             Ticket ticket = null;
             if (exhibition.isMultiPart == false)
             {
-                ticket = await _ticketServices.GenarateTicket(startTime,
-                endTime,
-                order,
-                xiechengOrder.quantity,
-                TicketStatus.未使用,
-                null,
-                OTAType.XieCheng);//一张票多次
+                ticket = await _ticketServices.GenarateTicket(
+                    exhibition.id,
+                    startTime,
+                    endTime,
+                    order,
+                    xiechengOrder.quantity,
+                    TicketStatus.未使用,
+                    null,
+                    OTAType.XieCheng);//一张票多次
 
             }
             else
             {
-                ticket = await _ticketServices.GenarateTicket(startTime,
-                endTime,
-                order,
-                xiechengOrder.quantity,
-                TicketStatus.未使用,
-                exhibition.exhibitions.Split(' '),
-                OTAType.XieCheng);//一张票多次
+                ticket = await _ticketServices.GenarateTicket(
+                    exhibition.id,
+                    startTime,
+                    endTime,
+                    order,
+                    xiechengOrder.quantity,
+                    TicketStatus.未使用,
+                    exhibition.exhibitions.Split(' '),
+                    OTAType.XieCheng);//一张票多次
             }
             
             XieChengTicket xieChengTicket = new XieChengTicket();
@@ -88,7 +92,8 @@ namespace 通用订票.OTA.携程.Service
             List<Ticket>? tickets = null;
             if (exhibition.isMultiPart == false)
             {
-                tickets = await _ticketServices.GenarateTickets(startTime,
+                tickets = await _ticketServices.GenarateTickets(
+                    exhibition.id,startTime,
                     endTime,
                     order,
                     xiechengOrder.quantity,
@@ -98,7 +103,9 @@ namespace 通用订票.OTA.携程.Service
             }
             else
             {
-                tickets = await _ticketServices.GenarateTickets(startTime,
+                tickets = await _ticketServices.GenarateTickets(
+                    exhibition.id,
+                    startTime,
                     endTime,
                     order,
                     xiechengOrder.quantity,

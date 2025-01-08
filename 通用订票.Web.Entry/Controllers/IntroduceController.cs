@@ -1,5 +1,8 @@
-﻿using Furion.DatabaseAccessor;
+﻿using Core.Auth;
+using Core.MiddelWares;
+using Furion.DatabaseAccessor;
 using Furion.DynamicApiController;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using 通用订票.Core.Entity;
 
@@ -30,18 +33,28 @@ namespace 通用订票.Web.Entry.Controllers
             return await temp.ToPagedListAsync(pageIndex,pageSize);
         }
 
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [HttpPost(Name = "Add")]
         public async Task<Introduce> Add(Introduce introduce)
         {
             
             return (await _repository.InsertNowAsync(introduce)).Entity;
         }
+
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [HttpPost(Name = "Update")]
         public async Task<Introduce> Update(Introduce introduce)
         {
             return (await _repository.UpdateNowAsync(introduce)).Entity;
         }
 
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [HttpGet(Name = "Delete")]
         public async Task<bool> Delete(int id)
         {

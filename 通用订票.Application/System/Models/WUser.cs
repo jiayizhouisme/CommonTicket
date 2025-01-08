@@ -1,4 +1,4 @@
-﻿namespace 通用订票.Web.Entry.Model
+﻿namespace 通用订票.Application.System.Models
 {
     public class WUser
     {

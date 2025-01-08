@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using 通用订票.Base.Entity;
 using 通用订票.Core.Entity;
 
 namespace 通用订票.Application.System.Models
@@ -14,5 +15,6 @@ namespace 通用订票.Application.System.Models
         public int count;
         public string tenant_id;
         public string exhibitionId;
+        public TicketStatus status;
     }
 }

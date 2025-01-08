@@ -26,7 +26,7 @@ namespace 通用订票.Application.System.Services.IService
         /// <param name="status"></param>
         /// <param name="otaType"></param>
         /// <returns></returns>
-        Task<List<Core.Entity.Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<long> order, long[] uid, string[] exhibitions,TicketStatus status,OTAType otaType = OTAType.Normal);
+        Task<List<Core.Entity.Ticket>> GenarateTickets(Guid exhibitionId,DateTime startTime, DateTime endTime, OrderBase<long> order, long[] uid, string[] exhibitions,TicketStatus status,OTAType otaType = OTAType.Normal);
         /// <summary>
         /// 匿名购买
         /// </summary>
@@ -37,8 +37,8 @@ namespace 通用订票.Application.System.Services.IService
         /// <param name="status"></param>
         /// <param name="otaType"></param>
         /// <returns></returns>
-        Task<Ticket> GenarateTicket(DateTime startTime, DateTime endTime, OrderBase<long> order, int number,TicketStatus status, string[] exhibitions = null,OTAType otaType = OTAType.Normal);
-        Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<long> order, int number,TicketStatus status, string[] exhibitions = null,OTAType otaType = OTAType.Normal);
+        Task<Ticket> GenarateTicket(Guid exhibitionId,DateTime startTime, DateTime endTime, OrderBase<long> order, int number,TicketStatus status, string[] exhibitions = null,OTAType otaType = OTAType.Normal);
+        Task<List<Ticket>> GenarateTickets(Guid exhibitionId,DateTime startTime, DateTime endTime, OrderBase<long> order, int number,TicketStatus status, string[] exhibitions = null,OTAType otaType = OTAType.Normal);
         Task<bool> Vaild(int[] uid, Core.Entity.Appointment stock);
         Task<ICollection<Core.Entity.Ticket>> GetTickets(long orderId);
         Task<Ticket> GetTicket(string ticket_number);

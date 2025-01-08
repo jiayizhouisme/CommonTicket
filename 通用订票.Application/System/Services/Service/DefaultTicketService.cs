@@ -45,6 +45,7 @@ namespace 通用订票.Application.System.Services.Service
         /// <param name="uids"></param>
         /// <returns></returns>
         public virtual async Task<List<Ticket>> GenarateTickets(
+            Guid exhibitionId,
             DateTime startTime,
             DateTime endTime, 
             OrderBase<long> order,
@@ -63,6 +64,7 @@ namespace 通用订票.Application.System.Services.Service
                 ticket.AppointmentId = order.objectId;
                 ticket.stauts = status;
                 ticket.ota = otaType;
+                ticket.exhibitionId = exhibitionId;
                 ticket.usedCount = 0;
                 ticket.totalCount = 1;
                 ticket.QRCode = QRHelper.QRHelper.CreateQRcode("https://ticket.z2ww.com/" +
@@ -92,7 +94,15 @@ namespace 通用订票.Application.System.Services.Service
             return result;
         }
 
-        public virtual async Task<Ticket> GenarateTicket(DateTime startTime, DateTime endTime, OrderBase<long> order, int number, TicketStatus status, string[] exhibitions, OTAType otaType = OTAType.Normal)
+        public virtual async Task<Ticket> GenarateTicket(
+            Guid exhibitionId,
+            DateTime startTime, 
+            DateTime endTime, 
+            OrderBase<long> order,
+            int number, 
+            TicketStatus status,
+            string[] exhibitions, 
+            OTAType otaType = OTAType.Normal)
         {
             var ticket = base.GenerateTicket(startTime, endTime);
             ticket.TUserId = -1;
@@ -101,6 +111,7 @@ namespace 通用订票.Application.System.Services.Service
             ticket.AppointmentId = order.objectId;
             ticket.stauts = status;
             ticket.ota = otaType;
+            ticket.exhibitionId = exhibitionId;
             ticket.usedCount = 0;
             ticket.totalCount = number;
             ticket.QRCode = QRHelper.QRHelper.CreateQRcode("https://ticket.z2ww.com/" +
@@ -118,7 +129,15 @@ namespace 通用订票.Application.System.Services.Service
             return ticket;
         }
 
-        public async Task<List<Ticket>> GenarateTickets(DateTime startTime, DateTime endTime, OrderBase<long> order, int number, TicketStatus status,string[] exhibitions, OTAType otaType = OTAType.Normal)
+        public async Task<List<Ticket>> GenarateTickets(
+            Guid exhibitionId,
+            DateTime startTime,
+            DateTime endTime, 
+            OrderBase<long> order, 
+            int number, 
+            TicketStatus status,
+            string[] exhibitions, 
+            OTAType otaType = OTAType.Normal)
         {
             List<Core.Entity.Ticket> result = new List<Core.Entity.Ticket>();
             for (int i = 0;i < number;i++)
@@ -130,6 +149,7 @@ namespace 通用订票.Application.System.Services.Service
                 ticket.stauts = status;
                 ticket.ota = otaType;
                 ticket.usedCount = 0;
+                ticket.exhibitionId = exhibitionId;
                 ticket.totalCount = 1;
                 ticket.QRCode = QRHelper.QRHelper.CreateQRcode("https://ticket.z2ww.com/" +
                     this.GetTenant() + "/huodong/#/verification?id=" + ticket.ticketNumber);
@@ -340,7 +360,15 @@ namespace 通用订票.Application.System.Services.Service
             }
             else
             {
-                return _TicketCheck(ticket, useCount);
+                if (ticket.exhibitionId.ToString().CompareTo(exhibition) == 0)
+                {
+                    return _TicketCheck(ticket, useCount);
+                }
+                else
+                {
+                    return new TicketVerifyResult {code = 0};
+                }
+                
             }
         }
 
