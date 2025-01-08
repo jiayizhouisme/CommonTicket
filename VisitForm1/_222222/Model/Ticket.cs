@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,11 +25,17 @@ namespace VisitForm1._222222.Model
         public DateTime StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public DateTime CreateTime { get; set; }
+        [ForeignKey("UserInfo")]
+        public long UserInfoId { get; set; }
 
-        public UserInfos UserInfo { get; set; }
-        
-        public string UserInfoId { get; set; }
+        public virtual UserInfos UserInfo { get; set; }
+        //public UserInfos UserInfo { get; set; }
+
+        //public string UserInfoId { get; set; }
+        // public Appointment Appointment { get; set; }
+        public Guid? AppointmentId { get; set; }
+        [ForeignKey("AppointmentId")]
         public Appointment Appointment { get; set; }
-     
     }
 }
+

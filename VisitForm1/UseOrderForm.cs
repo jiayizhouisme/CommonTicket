@@ -17,15 +17,16 @@ namespace VisitForm1
     public partial class UseOrderForm : Form
     {
         private Order _order;
+        private Action<Order> _onRefundSuccess;//
         private Form qrCodeForm;
         private Label qrCodeLabel;
         private Label scanInstructions;
         private List<GroupBox> groups = new List<GroupBox>();
 
-       
-        public UseOrderForm(Order order) : this()
+        public UseOrderForm(Order order, Action<Order> onRefundSuccess) : this()
         {
             _order = order;
+            _onRefundSuccess = onRefundSuccess; 
             LoadOrderDetails();
         }
         private void LoadOrderDetails()
@@ -82,7 +83,6 @@ namespace VisitForm1
                     Width = leftTextWidth,
                     Location = new Point(6, timeLabel.Bottom + 10)
                 };
-
                 int qrCodeTop = Math.Max(scanInstructions.Top + (scanInstructions.Height - qrCodeSize) / 2, timeLabel.Bottom + 10);
                 // Bitmap qrCodeImage = GenerateQrCodeImage(_order.Id.ToString(), qrCodeSize);
                 PictureBox qrCodePictureBox = new PictureBox
@@ -117,7 +117,7 @@ namespace VisitForm1
             QRCodeData qrCodeData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
             QRCode qrCode = new QRCode(qrCodeData);
             return qrCode.GetGraphic(size, Color.Black, Color.White, false);
-        }
+        }   
         private void QrCodeLabel_Click(object sender, EventArgs e)
         {
             ShowQrCodeFullScreen();
@@ -156,7 +156,6 @@ namespace VisitForm1
                 StringBuilder ticketInfo = new StringBuilder();
                 ticketInfo.AppendLine($"票数: {_order.Amount ?? 0}");   
                 ticketInfo.AppendLine($"入园时间: {_order.CreateTime?.ToString()}");
-
                 Label ticketInfoLabel = new Label
                 { 
                     Location = new Point(10, qrCodePictureBox.Bottom + 20),
@@ -177,17 +176,34 @@ namespace VisitForm1
             DialogResult result = MessageBox.Show("是否确认退款吗？", "确认退款", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result == DialogResult.Yes)
             {
-              
-                MessageBox.Show("退款成功！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
-           
+                try
+                {
+                    using (var db = new MyDbContext())
+                    {
+                        var dbOrder = db.Orders.Include(o => o.Appointment).FirstOrDefault(o => o.Id == _order.Id);
+                        if (dbOrder != null)
+                        {
+                            dbOrder.Status = OrderStatus.已退款;
+                            db.SaveChanges();
+                            _onRefundSuccess?.Invoke(_order);
+
+                            MessageBox.Show("退款成功！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        else
+                        {
+                            MessageBox.Show("订单未找到，无法退票。", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"退款时出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
-        }
-      
-    
+}      
     public UseOrderForm()
             {
                 InitializeComponent();
             }
         }
     }
-

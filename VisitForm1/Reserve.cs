@@ -1,5 +1,6 @@
 ﻿using _222222;
 using _222222.Model;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -27,6 +28,8 @@ namespace VisitForm1
         private List<Label> labels = new List<Label>();
         private List<GroupBox> groups = new List<GroupBox>();
         private List<CheckBox> checkboxes = new List<CheckBox>();
+        private int _currentUserId;
+
         public Reserve(Guid exhibitionId) : this()
         {
 
@@ -38,7 +41,6 @@ namespace VisitForm1
             LoadAppointments();
             //ClearLabels();
             ClearGroupBoxs();
-
         }   
         private void LoadAppointments()
         {
@@ -139,7 +141,7 @@ namespace VisitForm1
                 }
             }
         }
-
+     
         private void Submit_Click(object sender, EventArgs e)
         {
             DateTime selectedDate = SelectDate.Value.Date;
@@ -166,15 +168,13 @@ namespace VisitForm1
                 MessageBox.Show("您的预约选择无效或余票不足");
                 return;
             }
-            //if (selectedAppointment.StartTime < DateTime.Now)
-            //{                                                                                    
-            //    MessageBox.Show("购票时间已过。");
-            //    return;
-            //}
             long currentUserId = GetCurrentUserId();
             using (var context = new MyDbContext())
             {
-                var appointmentToUpdate = context.Appointments.FirstOrDefault(a => a.Id == selectedAppointment.Id);
+                // var appointmentToUpdate = context.Appointments.FirstOrDefault(a => a.Id == selectedAppointment.Id);
+                var appointmentToUpdate = context.Appointments
+              .Include(a => a.Orders)  
+              .FirstOrDefault(a => a.Id == selectedAppointment.Id);
                 if (appointmentToUpdate == null || appointmentToUpdate.amount <= 0)
                 {
                     MessageBox.Show("您的预约信息无效或余票不足");
@@ -192,7 +192,6 @@ namespace VisitForm1
                     MessageBox.Show("余票不足");
                     return;
                 }
-                // long UserId = GetCurrentUserId(); 
                 var existingOrder = context.Orders.Any(o => o.AppointmentId == selectedAppointment.Id && o.UserId == currentUserId);
                 if (existingOrder)
                 {
@@ -204,41 +203,47 @@ namespace VisitForm1
                     MessageBox.Show("新增游客的数量必须等于选择游客的数量");
                     return;
                 }
-                appointmentToUpdate.amount -= selectedTouristCount;//
-                                                                   // List<Appointment> appointmentsToAdd = new List<Appointment>();
-                context.Database.BeginTransaction();//
+                bool transactionStarted = false;
                 try
                 {
+                    context.Database.BeginTransaction();
                     Order order = new Order
                     {
                         UseStatus = TicketStatus.未使用,
                         TradeNo = GenerateTradeNo(),
-                        Status = 0,
+                        Status = OrderStatus.未付款,
                         UserId = currentUserId,
                         AppointmentId = selectedAppointment.Id,
                         CreateTime = DateTime.Now,
                     };
                     context.Orders.Add(order);
-                    List<Order> ordersToAdd = new List<Order>();
-                    List<Ticket> ticketsToAdd = new List<Ticket>();//
+                    context.SaveChanges();
+                    List<Ticket> ticketsToAdd = new List<Ticket>();
                     foreach (DataGridViewRow row in dataGridView1.Rows)
                     {
-                        if (row.Cells["Column6"].Value is bool && (bool)row.Cells["Column6"].Value)
+                       if (row.Cells["Column6"].Value is bool selected && selected)
+                      //  if (row.Cells["Column6"].Value is bool && (bool)row.Cells["Column6"].Value)
                         {
                             long userId = Convert.ToInt64(row.Cells["IDColumn"].Value);
-
+                            Ticket ticket = new Ticket
+                            {
+                                OrderId = order.Id,
+                                TUserId = (int)userId,
+                                Status = TicketStatus.未使用,
+                                StartTime = selectedAppointment.StartTime,
+                                EndTime = selectedAppointment.EndTime,
+                                CreateTime = DateTime.Now,
+                                UserInfoId = userId,
+                                AppointmentId = appointmentToUpdate.Id
+                            };
+                            ticketsToAdd.Add(ticket);
                         }
                     }
-                    appointmentToUpdate.amount -= selectedTouristCount;
-                    //try
-                    //{
-                    //    //context.Appointments.AddRange(appointmentsToAdd);
-                    //    context.Orders.AddRange(ordersToAdd);
-                    //    context.Tickets.AddRange(ticketsToAdd);
+                    appointmentToUpdate.amount -= selectedTouristCount;        
+                    context.Tickets.AddRange(ticketsToAdd);
                     context.SaveChanges();
                     context.Database.CommitTransaction();
                     MessageBox.Show($"成功预约了 {selectedTouristCount} 个游客");
-                    // this.Close();
                     DialogResult confirmResult = MessageBox.Show("成功预约门票，去使用？", "确认", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
                     if (confirmResult == DialogResult.Yes)
                     {
@@ -248,12 +253,11 @@ namespace VisitForm1
                 }
                 catch (Exception ex)
                 {
-                    context.Database.RollbackTransaction();//
-
-                    MessageBox.Show("预约失败！" + ex.Message);
+                    context.Database.RollbackTransaction();
+                    MessageBox.Show("预约失败！请稍后重试。" + Environment.NewLine + ex.Message);
                 }
             }
-        }
+        }  
         private long GetCurrentUserId()
         {
             return LogInInfo.id;

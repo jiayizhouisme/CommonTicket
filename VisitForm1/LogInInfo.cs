@@ -10,5 +10,6 @@ namespace VisitForm1
     {
         public static string username {  get; set; }
         public static int id{ get; set; }
-    }
+       
+}
 }

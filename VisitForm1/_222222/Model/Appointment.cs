@@ -18,5 +18,7 @@ namespace VisitForm1._222222.Model
         public DateTime? CreateTime { get; set; }
         public string ?StockName { get; set; }
         public int? amount { get; set; }
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }
+
