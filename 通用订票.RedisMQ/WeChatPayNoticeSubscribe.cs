@@ -90,7 +90,8 @@ namespace 通用订票.RedisMQ
                             {
                                 await s_service.SaleStockAndUpdate(order.objectId, order.GetExtraInfo().ids.Count());
                             }
-
+                            order.payedAmount = ((decimal)notify.TotalFee) / 100;
+                            order.payedTime = DateTime.Now.ToString() ;
                             var result = await o_service.PayFinished(order);
                             await wechatBillService.UpdateStatus(BillPaymentsStatus.Payed,order.trade_no,notify.TransactionId, notify.ResultCode);
 

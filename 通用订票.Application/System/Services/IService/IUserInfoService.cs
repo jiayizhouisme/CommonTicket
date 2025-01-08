@@ -11,7 +11,7 @@ namespace 通用订票.Application.System.Services.IService
 {
     public interface IUserInfoService : IBaseService<UserInfo>,IUserContext<long>
     {
-        public Task<UserInfo> GetUserInfoByID(int id);
+        public Task<UserInfo> GetUserInfoByID(long id);
 
         public Task<ICollection<UserInfo>> GetUserInfoByUser();
     }

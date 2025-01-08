@@ -21,7 +21,7 @@ namespace 通用订票.Web.Entry.Controllers
         [NonUnify]
         public async Task<PagedList<Introduce>> Get(int pageIndex = 1, int pageSize = 10, int ID = 0, int type = 0)
         {
-            var temp = _repository.AsQueryable(a => a.type == type);
+            var temp = _repository.AsQueryable();
             if (ID != 0)
             {
                 temp = temp.Where(a => a.id == ID);
@@ -30,16 +30,19 @@ namespace 通用订票.Web.Entry.Controllers
             return await temp.ToPagedListAsync(pageIndex,pageSize);
         }
 
+        [HttpPost(Name = "Add")]
         public async Task<Introduce> Add(Introduce introduce)
         {
+            
             return (await _repository.InsertNowAsync(introduce)).Entity;
         }
-
+        [HttpPost(Name = "Update")]
         public async Task<Introduce> Update(Introduce introduce)
         {
             return (await _repository.UpdateNowAsync(introduce)).Entity;
         }
 
+        [HttpGet(Name = "Delete")]
         public async Task<bool> Delete(int id)
         {
             await _repository.DeleteNowAsync(id);

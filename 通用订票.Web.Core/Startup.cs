@@ -141,7 +141,7 @@ namespace 通用订票.Web.Core
 
             //services.AddRabbitMQPlus();
             //services.AddHostedService<Worker>();
-
+            services.AddUserRateLimiter("order_create_rate_policy", 1,2);
             services.AddResponseCaching();
             services.AddCorsAccessor();
 
@@ -226,7 +226,7 @@ namespace 通用订票.Web.Core
 
             app.UseResponseCaching();
             app.UseRouting();
-            
+            app.UseRateLimiter();
             app.UseCorsAccessor();
 
             app.UseAuthentication();

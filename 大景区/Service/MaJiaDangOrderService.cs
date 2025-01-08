@@ -22,10 +22,10 @@ namespace 通用订票.大景区.Service
             _log = logger.CreateLogger("MaJiaDangOrder");
         }
 
-        public override Task<Core.Entity.Order> CreateOrder(string objectId, string name,int day, decimal amount, string extraInfo = null)
+        public override Task<Core.Entity.Order> CreateOrder(string objectId, string name,int day, decimal amount, int count,string extraInfo = null)
         {
             _log.Log(LogLevel.Information, "大景区订单开始下单");
-            return base.CreateOrder(objectId, name + "大景区",day, amount, extraInfo);
+            return base.CreateOrder(objectId, name + "大景区",day, amount,count, extraInfo);
         }
 
     }

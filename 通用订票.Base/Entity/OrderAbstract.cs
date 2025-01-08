@@ -17,6 +17,7 @@
         /// 已支付的金额
         /// </summary>
         public decimal payedAmount { get; set; }
+        public string payedTime { get; set; }
 
         /// <summary>
         /// 支付状态

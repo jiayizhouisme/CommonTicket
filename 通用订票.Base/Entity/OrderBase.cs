@@ -22,6 +22,10 @@ namespace 通用订票.Order.Entity
         /// 订单名称
         /// </summary>
         public string name { get; set; }
+        /// <summary>
+        /// 购买数量
+        /// </summary>
+        public int count { get; set; }
 
     }
 }

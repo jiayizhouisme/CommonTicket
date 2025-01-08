@@ -32,7 +32,15 @@ namespace 通用订票.JobTask
             var tenants = await te.AsQueryable().Select(a => a.Name).AsNoTracking().ToListAsync();
             foreach (var item in tenants)
             {
-                await RefreshStockByid(scope,item);
+                try
+                {
+                    await RefreshStockByid(scope, item);
+                }
+                catch
+                {
+                    continue;
+                }
+                
 
             }
             //_logger.LogInformation("每日刷新");

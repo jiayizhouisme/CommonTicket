@@ -24,10 +24,10 @@ namespace 通用订票.小景区.Service
             _log = logger.CreateLogger("ShagouOrder");
         }
 
-        public override Task<Core.Entity.Order> CreateOrder(string objectId, string name,int day, decimal amount, string extraInfo = null)
+        public override Task<Core.Entity.Order> CreateOrder(string objectId, string name,int day, decimal amount, int count,string extraInfo = null)
         {
             _log.Log(LogLevel.Information, "测试项目2订单开始下单");
-            return base.CreateOrder(objectId, name + "测试项目2", day,amount, extraInfo);
+            return base.CreateOrder(objectId, name + "测试项目2", day,amount,count, extraInfo);
         }
 
     }

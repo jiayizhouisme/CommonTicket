@@ -117,7 +117,6 @@ namespace 通用订票.Web.Entry.Controllers
         /// <param name="pageSize"></param>
         /// <returns></returns>
         [Authorize]
-        //[TypeFilter(typeof(SaaSAuthorizationFilter))]
         [NonUnify]
         [HttpGet(Name = "GetExhibitionList")]
         public async Task<object> GetExhibitionList([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
@@ -130,8 +129,6 @@ namespace 通用订票.Web.Entry.Controllers
         /// 获取景区
         /// </summary>
         /// <returns></returns>
-        [Authorize]
-        [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [NonUnify]
         [HttpGet(Name = "GetExhibitionById")]
         public async Task<object> GetExhibitionById([FromQuery] Guid id)

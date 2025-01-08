@@ -30,31 +30,31 @@ namespace 通用订票.Core.Entity
         /// </summary>
         [Display(Name = "售后单id")]
         [StringLength(20, ErrorMessage = "【{0}】不能超过{1}字符长度")]
-        public System.String aftersalesId { get; set; }
+        public System.String? aftersalesId { get; set; }
         /// <summary>
         /// 退款金额
         /// </summary>
         [Display(Name = "退款金额")]
         [Required(ErrorMessage = "请输入{0}")]
-        public System.Decimal money { get; set; }
+        public System.Decimal? money { get; set; }
         /// <summary>
         /// 用户ID 关联user.id
         /// </summary>
         [Display(Name = "用户ID 关联user.id")]
-        public System.Int32 userId { get; set; }
+        public System.Int32? userId { get; set; }
         /// <summary>
         /// 资源id，根据type不同而关联不同的表
         /// </summary>
         [Display(Name = "资源id，根据type不同而关联不同的表")]
         [StringLength(20, ErrorMessage = "【{0}】不能超过{1}字符长度")]
-        public System.String sourceId { get; set; }
+        public System.String? sourceId { get; set; }
 
         /// <summary>
         /// 退款支付类型编码 默认原路返回 关联支付单表支付编码
         /// </summary>
         [Display(Name = "退款支付类型编码 默认原路返回 关联支付单表支付编码")]
         [StringLength(50, ErrorMessage = "【{0}】不能超过{1}字符长度")]
-        public System.String paymentCode { get; set; }
+        public System.String? paymentCode { get; set; }
         /// <summary>
         /// 第三方平台交易流水号
         /// </summary>
@@ -66,18 +66,18 @@ namespace 通用订票.Core.Entity
         /// </summary>
         [Display(Name = "状态")]
         [Required(ErrorMessage = "请输入{0}")]
-        public RefundStatus status { get; set; }
+        public RefundStatus? status { get; set; }
         /// <summary>
         /// 退款失败原因
         /// </summary>
         [Display(Name = "退款失败原因")]
-        public System.String memo { get; set; }
+        public System.String? memo { get; set; }
         /// <summary>
         /// 创建时间
         /// </summary>
         [Display(Name = "创建时间")]
         [Required(ErrorMessage = "请输入{0}")]
-        public System.DateTime createTime { get; set; }
+        public System.DateTime? createTime { get; set; }
         /// <summary>
         /// 更新时间
         /// </summary>

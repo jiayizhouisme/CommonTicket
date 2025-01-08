@@ -40,7 +40,7 @@ namespace 通用订票.Application.System.Services.Service
             await this.UpdateNow(userinfo);
         }
 
-        public async Task<UserInfo> GetUserInfoByID(int id)
+        public async Task<UserInfo> GetUserInfoByID(long id)
         {
             var entity = this.GetQueryableNt(a => a.id == id);
             return await entity.FirstOrDefaultAsync();
