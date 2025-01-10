@@ -111,6 +111,7 @@ namespace 通用订票.OTA.携程.Service
                         var entity = await this._orderServices.CreateOrder(
                                 first.PLU,
                                 first.PLU,
+                                Guid.Parse(first.PLU),
                                 first.quantity,
                                 _orders.items.Length,
                                 OrderStatus.未付款

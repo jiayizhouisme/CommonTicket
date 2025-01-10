@@ -79,13 +79,14 @@ namespace 通用订票.Application.System.ServiceBases.Service
             return order;
         }
 
-        public virtual async Task<T> CreateOrder(string objectId, string name, decimal amount,int count, OrderStatus os, string extraInfo = null)
+        public virtual async Task<T> CreateOrder(string objectId, string name, Guid exhibitionId,decimal amount,int count, OrderStatus os, string extraInfo = null)
         {
             var order = await TakeOrder(amount, os, extraInfo);
             order.objectId = objectId;
             order.createTime = DateTime.Now;
             order.name = name;
             order.count = count;
+            order.exhibitionId = exhibitionId;
             order.extraInfo = extraInfo;
             if (order.amount == 0)
             {

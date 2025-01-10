@@ -210,7 +210,10 @@ namespace 通用订票.Application.System.Services.Service
             {
                 ticket = await this.GetQueryableNt(a => a.ticketNumber == ticket_number)
                 .OrderByDescending(a => a.createTime).FirstOrDefaultAsync();
-                await _cache.Set("Ticket:" + ticket_number,ticket,600);
+                if (ticket != null) {
+                    await _cache.Set("Ticket:" + ticket_number, ticket, 600);
+                }
+                
             }
             return ticket;
         }
@@ -342,12 +345,17 @@ namespace 通用订票.Application.System.Services.Service
             await _cache.Del(key);
         }
 
-        public async Task<TicketVerifyResult> TicketBeginCheck(string ticket_number, int useCount,string exhibition = null)
+        public async Task<TicketVerifyResult> TicketBeginCheck(string ticket_number, int useCount,string exhibition)
         {
+            exhibition = exhibition.ToLower();
             var ticket = await this.GetTicket(ticket_number);
             string key = "OrderLocker_" + ticket.objectId;
             await _cache.Lock(key, ticket_number, 30);
             ticket = await this.GetTicket(ticket_number);
+            if (ticket == null)
+            {
+                return new TicketVerifyResult() {code = 0,message = "未找到门票" };
+            }
             if (ticket.isMultiPart == true)
             {
                 var result =  _TicketCheck(ticket, useCount);

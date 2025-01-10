@@ -172,6 +172,7 @@ namespace 通用订票.Web.Entry.Controllers
                 var order = await myOrderService.CreateOrder(
                     stock.id,
                     exhibition.name,
+                    exhibition.id,
                     stock.day,
                     exhibition.basicPrice * oc.ids.Count,
                     oc.ids.Count,
@@ -190,7 +191,7 @@ namespace 通用订票.Web.Entry.Controllers
                 });
                 await _queue.PushMessage(CreateOrder);
 
-                return new { status = 1, message = "下单请求成功，请等待下单结果", data = new { order.name, isFree = order.amount == 0 ? true : false, order.trade_no } };
+                return new { status = 1, message = "下单请求成功，请等待下单结果", data = new { exhibition.name, isFree = order.amount == 0 ? true : false, order.trade_no } };
             }
             catch (Exception e)
             {
@@ -512,7 +513,6 @@ namespace 通用订票.Web.Entry.Controllers
             if (ticket.code == 0)
             {
                 ticket.code = 0;
-                ticket.message = "参数错误";
                 await ticketService.TicketEndCheck(ticket.ticket);
                 return ticket;
             }
@@ -637,14 +637,121 @@ namespace 通用订票.Web.Entry.Controllers
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [NonUnify]
-        public async Task<dynamic> GetOrders([FromQuery] Guid exhibitionId, [FromQuery] DateTime date,
-            [FromQuery] UserOrderQueryEnum status, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        public async Task<dynamic> GetOrders(
+            [FromQuery] UserOrderQueryEnum status,
+            [FromQuery] string exhibitionId = null,
+            [FromQuery] string date = null,
+            [FromQuery] int pageIndex = 1, 
+            [FromQuery] int pageSize = 10)
         {
             var order_query = myOrderService.GetQueryableNt(a => a != null)
-                .OrderByDescending(a => a.createTime).ToPagedListAsync(pageIndex,pageSize);
+                .OrderByDescending(a => a.createTime).AsQueryable();
+            if (!string.IsNullOrEmpty(exhibitionId))
+            {
+                Guid id;
+                Guid.TryParse(exhibitionId,out id);
 
+                order_query = order_query.Where(a => a.exhibitionId == id);
+            }
 
-            return null;
+            if (status == UserOrderQueryEnum.待付款)
+            {
+                order_query = order_query.Where(a => a.status == OrderStatus.未付款);
+            }else if (status == UserOrderQueryEnum.已退款)
+            {
+                order_query = order_query.Where(a => a.status == OrderStatus.已退款);
+            }
+            else if (status == UserOrderQueryEnum.待付款)
+            {
+                order_query = order_query.Where(a => a.status == OrderStatus.未付款);
+            }
+            else if (status == UserOrderQueryEnum.未使用)
+            {
+                order_query = order_query.Where(a => a.ticketStatus == TicketStatus.未使用 && a.status == OrderStatus.已付款);
+            }
+            else if (status == UserOrderQueryEnum.已使用)
+            {
+                order_query = order_query.Where(a => (a.ticketStatus == TicketStatus.未使用 || a.ticketStatus == TicketStatus.部分使用) 
+                && a.status == OrderStatus.已付款);
+            }
+
+            if (date != null)
+            {
+                DateTime now;
+                DateTime.TryParse(date,out now);
+
+                order_query = order_query.Where(a => a.createTime.Value.Date.CompareTo(now) == 0);
+            }
+            var orders = await order_query.Select(a => new GetOrdersModel(a)).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            return orders;
+        }
+
+        [HttpGet(Name = "GetTicketsDetail")]
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
+        [NonUnify]
+        public async Task<PagedList<GetTicketsModel>> GetTicketsDetail(
+            [FromQuery] UserOrderQueryEnum status,
+            [FromQuery] string exhibitionId = null,
+            [FromQuery] string date = null,
+            [FromQuery] int pageIndex = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var ticket_query = ticketService.GetQueryableNt(a => a != null)
+                .OrderByDescending(a => a.createTime).AsQueryable();
+            if (!string.IsNullOrEmpty(exhibitionId))
+            {
+                Guid id;
+                Guid.TryParse(exhibitionId, out id);
+
+                ticket_query = ticket_query.Where(a => a.exhibitionId == id);
+            }
+
+            if (status == UserOrderQueryEnum.未使用)
+            {
+                ticket_query = ticket_query.Where(a => a.stauts == TicketStatus.未使用);
+            }
+            else if (status == UserOrderQueryEnum.已使用)
+            {
+                ticket_query = ticket_query.Where(a => a.stauts == TicketStatus.已使用);
+            }
+            else if (status == UserOrderQueryEnum.已冻结)
+            {
+                ticket_query = ticket_query.Where(a => a.stauts == TicketStatus.已冻结);
+            }
+
+            if (date != null)
+            {
+                DateTime now;
+                DateTime.TryParse(date, out now);
+
+                ticket_query = ticket_query.Where(a => a.startTime.Date.CompareTo(now) == 0);
+            }
+            var _paged_tickets = await ticket_query.ToPagedListAsync(pageIndex, pageSize);
+            var tickets = _paged_tickets.Items.ToArray();
+            
+            List<GetTicketsModel> list = new List<GetTicketsModel>();
+            for (int i = 0; i < tickets.Length; i++)
+            {
+                var order = await myOrderService.GetOrderById(tickets[i].objectId);
+                var exhibition = await exhibitionService.GetExhibitionByID(order.exhibitionId);
+                var app = await stockService.GetAppointmentById(order.objectId);
+                var userinfo = await userinfoService.GetUserInfoByID(tickets[i].TUserId);
+                GetTicketsModel gtm = new GetTicketsModel(order, tickets[i],exhibition,app,userinfo);
+                list.Add(gtm);
+            }
+            PagedList<GetTicketsModel> pl = new PagedList<GetTicketsModel>();
+            pl.TotalCount = _paged_tickets.TotalCount;
+            pl.TotalPages = _paged_tickets.TotalPages;
+            pl.HasNextPages = _paged_tickets.HasNextPages;
+            pl.HasPrevPages = _paged_tickets.HasPrevPages;
+            pl.PageIndex = _paged_tickets.PageIndex;
+            pl.PageSize = _paged_tickets.PageSize;
+            pl.Items = list;
+            return pl;
+
         }
     }
 }

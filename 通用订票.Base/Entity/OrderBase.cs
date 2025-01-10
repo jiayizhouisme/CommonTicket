@@ -8,11 +8,8 @@ namespace 通用订票.Order.Entity
     /// <typeparam name="T"></typeparam>
     public abstract class OrderBase<T> : OrderAbstract
     {
-        /// <summary>
-        /// 关联ID
-        /// </summary>
         public string objectId { get; set; }
-
+        public Guid exhibitionId { get; set; }
         /// <summary>
         /// 下单用户ID
         /// </summary>

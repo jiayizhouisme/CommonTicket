@@ -23,14 +23,14 @@ namespace 通用订票.Application.System.Services.Service
             return order;
         }
 
-        public virtual async Task<Core.Entity.Order> CreateOrder(string objectId, string name, int day, decimal amount,int count, string extraInfo = null)
+        public virtual async Task<Core.Entity.Order> CreateOrder(string objectId, string name,Guid exhibitionId, int day, decimal amount,int count, string extraInfo = null)
         {
             OrderStatus os = OrderStatus.未付款;
             if (amount == 0)
             {
                 os = OrderStatus.已付款;
             }
-            var result = await base.CreateOrder(objectId, name, amount,count, os,extraInfo);
+            var result = await base.CreateOrder(objectId, name,exhibitionId, amount,count, os,extraInfo);
             result.ticketStatus = Base.Entity.TicketStatus.未使用;
             result.expireDate = DateTime.Now.Date.AddDays(day + 1);
             var r = await this._dal.InsertNowAsync(result);
@@ -39,9 +39,9 @@ namespace 通用订票.Application.System.Services.Service
             return r.Entity;
         }
 
-        public override async Task<Core.Entity.Order> CreateOrder(string objectId, string name, decimal amount,int count, OrderStatus os, string extraInfo = null)
+        public override async Task<Core.Entity.Order> CreateOrder(string objectId, string name,Guid exhibitionId, decimal amount,int count, OrderStatus os, string extraInfo = null)
         {
-            var result = await base.CreateOrder(objectId, name, amount, count,os, extraInfo);
+            var result = await base.CreateOrder(objectId, name, exhibitionId,amount, count,os, extraInfo);
             var r = await this._dal.InsertNowAsync(result);
             await SetOrderToCache(r.Entity);
             await AfterOrdered(objectId);
@@ -139,7 +139,8 @@ namespace 通用订票.Application.System.Services.Service
                 objectId = a.objectId,
                 extraInfo = a.extraInfo,
                 count = a.count,
-                payedTime = a.payedTime
+                payedTime = a.payedTime,
+                exhibitionId = a.exhibitionId
             });
             var _result = await result.FirstOrDefaultAsync();
             if (_result == null)
