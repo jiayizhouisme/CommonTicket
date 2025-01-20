@@ -368,7 +368,7 @@ namespace 通用订票.Application.System.Services.Service
             }
             else
             {
-                if (ticket.exhibitionId.ToString().CompareTo(exhibition) == 0)
+                if (exhibition == null || ticket.exhibitionId.ToString().CompareTo(exhibition) == 0)
                 {
                     return _TicketCheck(ticket, useCount);
                 }

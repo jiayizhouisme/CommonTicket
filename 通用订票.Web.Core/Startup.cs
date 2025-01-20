@@ -39,6 +39,7 @@ using 通用订票.Application.System.Services.Service;
 using 通用订票.EntityFramework.Core;
 using 通用订票.EventBus.Monitor;
 using 通用订票.JobTask;
+using 通用订票.MQTT;
 using 通用订票.RedisMQ;
 
 namespace 通用订票.Web.Core
@@ -97,7 +98,7 @@ namespace 通用订票.Web.Core
             services.AddSingleton<IUniqueCodeGenerater<long>,RedisUniqueCodeGenerator>();
             services.AddSingleton<ITradeNoGenerater<long>, TradeNoGenerater>();
             services.AddSingleton<IIdGenerater<long>, IdGenerater>();
-
+            services.AddHostedService<MqttHostService>();
             services.AddTransient<IWechatMerchantConfigService,WechatTenantMerchantConfigService>();
             services.AddSingleton<ConnectionMultiplexer>(sp =>
             {

@@ -6,9 +6,11 @@ using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Furion.EventBus;
 using Furion.JsonSerialization;
+using Furion.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using ProtoBuf.Meta;
 using StackExchange.Redis;
 using System;
@@ -164,7 +166,7 @@ namespace 通用订票.EventBus
                     continue;
                 }
             }
-
+            await cache.Del("Order:" + order.trade_no);
             await o_service.UpdateNow(order);
             await cache.ReleaseLock("OrderLocker_" + ticket.objectId,lockerId);
         }

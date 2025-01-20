@@ -97,16 +97,16 @@ namespace 通用订票.Application.System.Services.Service
                 NotifyUrl = weChatRefundUrl
             };
             var response = await _client.ExecuteAsync(request, _wechatpay);
-            refundInfo.memo = response.ErrCodeDes;
-            
             if (response.ReturnCode == WeChatPayCode.Success && response.ResultCode == WeChatPayCode.Success)
             {
+                refundInfo.memo = response.ErrCodeDes;
                 return refundInfo;
             }
             else
             {
                 return null;
             }
+                
         }
     }
 }

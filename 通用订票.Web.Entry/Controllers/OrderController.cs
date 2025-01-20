@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using ProtoBuf.Meta;
 using SqlSugar;
 using StackExchange.Redis;
@@ -126,7 +127,7 @@ namespace 通用订票.Web.Entry.Controllers
 
             UserOrdersCollectionSpecification us = new UserOrdersCollectionSpecification(userid, oc.appid);
             var orderCount = myOrderService.GetQueryableNt(us.ToExpression()).Select(a => a.userId);
-            if (await orderCount.CountAsync() >= 5)
+            if (await orderCount.CountAsync() >= 15)
             {
                 await myOrderService.OrderFail(oc.appid);
                 return new { status = 0, message = "购票数量达到上线" };
@@ -306,13 +307,18 @@ namespace 通用订票.Web.Entry.Controllers
                         throw new ArgumentException("订单无效");
                     }
 
-                    if (order.status == OrderStatus.已付款)
+                    if (order.status == OrderStatus.已付款 && order.ticketStatus != TicketStatus.部分使用 
+                        && order.ticketStatus != TicketStatus.已使用)
                     {
                         WechatBill bill = null;
                         WechatBillRefund billRefund = null;
                         if (order.amount > 0)
                         {
                             bill = await billService.GetWechatBill(order.trade_no);
+                            if (bill == null)
+                            {
+                                throw new Exception("退款失败，未找到微信订单");
+                            }
                             billRefund = await wechatRefundBillService.GenWechatRefundBill(bill);
                             if (billRefund == null)
                             {
@@ -342,7 +348,7 @@ namespace 通用订票.Web.Entry.Controllers
                 {
                     await myOrderService.AfterOrderToke(trade_no);
                     Log.Error(e.Message);
-                    return new { code = 0, message = "退款失败遇到错误" };
+                    return new { code = 0, message = e.Message };
                 }
                 finally
                 {
@@ -752,6 +758,37 @@ namespace 通用订票.Web.Entry.Controllers
             pl.Items = list;
             return pl;
 
+        }
+
+        [HttpPost(Name = "MachineCheckIdCard")]
+        public async Task<FaceDeviceVerifyResultReturn> MachineCheck([FromBody] FaceDeviceCallbackModel body)
+        {
+            var userinfo = (await userinfoService.GetWithConditionNt(a => a.idCard == body.data)).FirstOrDefault();
+            if (userinfo == null)
+            {
+                return new FaceDeviceVerifyResultReturn()
+                {
+                    cmd = 0,
+                    code = 0,
+                    message = "用户不存在",
+                    voiceData = "未找到游客信息"
+                };
+            }
+
+            var userticket = await ticketService.GetQueryableNt(
+                a => a.TUserId == userinfo.id && 
+                (a.stauts == TicketStatus.部分使用 ||
+                a.stauts == TicketStatus.未使用)
+            ).OrderByDescending(a => a.createTime).FirstOrDefaultAsync();
+
+            await CheckTicketAndUse(userticket.ticketNumber,1,null);
+            return new FaceDeviceVerifyResultReturn()
+            {
+                cmd = 1,
+                code = 1,
+                message = "验票成功",
+                voiceData = "验票成功"
+            };
         }
     }
 }

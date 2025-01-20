@@ -80,7 +80,7 @@ namespace 通用订票.Application.System.Services.Service
             {
                 
                 bill = await this.GetQueryableNt(a => a.tradeNo == trade_no).OrderByDescending(a => a.paymentId).FirstOrDefaultAsync();
-                if (bill != null && now.Subtract(bill.createTime).TotalHours < 2)
+                if (bill != null)
                 {
                     await _cache.Set(key,bill,600);
                 }
@@ -88,10 +88,6 @@ namespace 通用订票.Application.System.Services.Service
                 {
                     return null;
                 }
-            }
-            else if(now.Subtract(bill.createTime).TotalHours > 2)
-            {
-                return null;
             }
             return bill;
         }

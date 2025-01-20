@@ -16,9 +16,9 @@ namespace 通用订票.Application.System.Services.Service
             _cache = cache;
         }
 
-        public override async Task<Core.Entity.Order> TakeOrder(decimal amount,OrderStatus status, string extraInfo = null)
+        public override async Task<Core.Entity.Order> TakeOrder(decimal amount, OrderStatus status, string extraInfo = null)
         {
-            var order = await base.TakeOrder(amount, status,extraInfo);
+            var order = await base.TakeOrder(amount, status, extraInfo);
             order.userId = userId;
             return order;
         }
@@ -140,7 +140,8 @@ namespace 通用订票.Application.System.Services.Service
                 extraInfo = a.extraInfo,
                 count = a.count,
                 payedTime = a.payedTime,
-                exhibitionId = a.exhibitionId
+                exhibitionId = a.exhibitionId,
+                ticketStatus = a.ticketStatus
             });
             var _result = await result.FirstOrDefaultAsync();
             if (_result == null)

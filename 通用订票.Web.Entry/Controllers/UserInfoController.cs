@@ -51,7 +51,7 @@ namespace 通用订票.Web.Entry.Controllers
         [NonUnify]
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
-        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
+        //[TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [HttpPost]
         [Route("Add")]
         public async Task<SimpleRet> Add([FromBody]UserInfo userinfo)
@@ -74,7 +74,7 @@ namespace 通用订票.Web.Entry.Controllers
         [NonUnify]
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
-        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
+        //[TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [HttpPost]
         [Route("Update")]
         public async Task<SimpleRet> Update([FromBody] UserInfo userinfo)
@@ -98,7 +98,7 @@ namespace 通用订票.Web.Entry.Controllers
         [NonUnify]
         [Authorize]
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
-        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
+        //[TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [HttpGet]
         [Route("Delete")]
         public async Task<SimpleRet> Delete([FromQuery] long id)
