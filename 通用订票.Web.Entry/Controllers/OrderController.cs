@@ -62,6 +62,7 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IWechatMerchantConfigService wechatMerchantConfigService;
         private readonly IWechatRefundBillService wechatRefundBillService;
         private readonly IServiceProvider serviceProvider;
+        private readonly IDevicesService devicesService;
         public OrderController(IUserInfoService userinfoService,
             ICacheOperation _cache,
             IHttpContextUser httpContextUser,
@@ -78,7 +79,8 @@ namespace 通用订票.Web.Entry.Controllers
             IWechatMerchantConfigService wechatMerchantConfigService,
             IWechatRefundBillService wechatRefundBillService,
             IServiceProvider serviceProvider,
-            IMultiTicketService multiTicketService)
+            IMultiTicketService multiTicketService,
+            IDevicesService devicesService)
         {
             this._cache = _cache;
             this.httpContextUser = httpContextUser;
@@ -99,6 +101,7 @@ namespace 通用订票.Web.Entry.Controllers
             this.wechatPayService = wechatPayService;
             this.serviceProvider = serviceProvider;
             this.multiTicketService = multiTicketService;
+            this.devicesService = devicesService;
         }
 
 
@@ -763,7 +766,12 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpPost(Name = "MachineCheckIdCard")]
         public async Task<FaceDeviceVerifyResultReturn> MachineCheck([FromBody] FaceDeviceCallbackModel body)
         {
-            var userinfo = (await userinfoService.GetWithConditionNt(a => a.idCard == body.data)).FirstOrDefault();
+            Log.Information(JSON.Serialize(body));
+
+            int cmd = 0;
+            string message = "验票成功";
+
+            long? userinfo = await (userinfoService.GetQueryableNt(a => a.idCard == body.data).Select(a => a.id).FirstOrDefaultAsync());
             if (userinfo == null)
             {
                 return new FaceDeviceVerifyResultReturn()
@@ -776,19 +784,40 @@ namespace 通用订票.Web.Entry.Controllers
             }
 
             var userticket = await ticketService.GetQueryableNt(
-                a => a.TUserId == userinfo.id && 
+                a => a.TUserId == userinfo && 
                 (a.stauts == TicketStatus.部分使用 ||
                 a.stauts == TicketStatus.未使用)
             ).OrderByDescending(a => a.createTime).FirstOrDefaultAsync();
 
-            await CheckTicketAndUse(userticket.ticketNumber,1,null);
-            return new FaceDeviceVerifyResultReturn()
+            var exid = await devicesService.GetExhibitionIdBySn(body.deviceSn);
+            if (string.IsNullOrEmpty(exid))
             {
-                cmd = 1,
-                code = 1,
-                message = "验票成功",
-                voiceData = "验票成功"
-            };
+                return new FaceDeviceVerifyResultReturn()
+                {
+                    cmd = 0,
+                    code = 0,
+                    message = "验票失败",
+                    voiceData = "验票失败"
+                };
+            }
+            else
+            {
+                var result = await CheckTicketAndUse(userticket.ticketNumber, 1, exid);
+                if (result.code == 0)
+                {
+                    cmd = 0;
+                    message = "验票失败";
+                }
+                return new FaceDeviceVerifyResultReturn()
+                {
+                    cmd = cmd,
+                    code = result.code,
+                    message = message,
+                    voiceData = message
+                };
+            }
+
+            
         }
     }
 }

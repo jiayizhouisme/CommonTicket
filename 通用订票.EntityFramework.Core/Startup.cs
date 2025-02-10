@@ -13,6 +13,7 @@ namespace 通用订票.EntityFramework.Core
             services.AddDatabaseAccessor(options =>
             {
                 var dbType = Configration.DbType;
+
                 if (dbType == "SqlServer")
                 {
                     options.AddDb<MasterDbContext_SQL>();
