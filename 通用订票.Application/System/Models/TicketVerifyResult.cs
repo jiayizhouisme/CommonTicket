@@ -7,6 +7,7 @@ using 通用订票.Core.Entity;
 
 namespace 通用订票.Application.System.Models
 {
+
     public struct TicketVerifyResult
     {
         public int code { get; set; }

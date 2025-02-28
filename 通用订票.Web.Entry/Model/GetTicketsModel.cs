@@ -29,6 +29,7 @@ namespace 通用订票.Web.Entry.Model
             {
                 appTime = order.createTime.Value;
             }
+            createTime = DateTime.Now;
         }
 
         public string exhibitionName { get; set; }
@@ -39,6 +40,7 @@ namespace 通用订票.Web.Entry.Model
         public DateTime startTime { get; set; }
         public DateTime endTime { get; set; }
         public string status { get; set; }
+        public DateTime createTime { get; set; }
         
     }
 }

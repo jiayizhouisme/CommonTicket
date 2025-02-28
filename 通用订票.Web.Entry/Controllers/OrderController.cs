@@ -1,4 +1,5 @@
-﻿using Core.Auth;
+﻿using BeetleX.Redis.Commands;
+using Core.Auth;
 using Core.Cache;
 using Core.HttpTenant;
 using Core.MiddelWares;
@@ -9,6 +10,7 @@ using Furion.DependencyInjection;
 using Furion.DynamicApiController;
 using Furion.EventBus;
 using Furion.JsonSerialization;
+using Furion.LinqBuilder;
 using Furion.Logging;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +23,7 @@ using StackExchange.Redis;
 using System.Linq.Expressions;
 using System.Net.Sockets;
 using System.Transactions;
+using ThoughtWorks.QRCode.Geom;
 using 通用订票.Application.System.Factory.Service;
 using 通用订票.Application.System.Models;
 using 通用订票.Application.System.Services.IService;
@@ -63,6 +66,7 @@ namespace 通用订票.Web.Entry.Controllers
         private readonly IWechatRefundBillService wechatRefundBillService;
         private readonly IServiceProvider serviceProvider;
         private readonly IDevicesService devicesService;
+        private readonly IAnonymousTicketService anonymousTicketService;
         public OrderController(IUserInfoService userinfoService,
             ICacheOperation _cache,
             IHttpContextUser httpContextUser,
@@ -80,7 +84,8 @@ namespace 通用订票.Web.Entry.Controllers
             IWechatRefundBillService wechatRefundBillService,
             IServiceProvider serviceProvider,
             IMultiTicketService multiTicketService,
-            IDevicesService devicesService)
+            IDevicesService devicesService,
+            IAnonymousTicketService anonymousTicketService)
         {
             this._cache = _cache;
             this.httpContextUser = httpContextUser;
@@ -102,8 +107,58 @@ namespace 通用订票.Web.Entry.Controllers
             this.serviceProvider = serviceProvider;
             this.multiTicketService = multiTicketService;
             this.devicesService = devicesService;
+            this.anonymousTicketService = anonymousTicketService;
         }
 
+        [NonUnify]
+        [HttpPost]
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.LocalStaff } })]
+        [Route("CreateAnonymousTicket")]
+        public async Task<CreateAnonymousReturn> CreateAnonymousTicket(AddAnonymousTicket ticket)
+        {
+            var userid = long.Parse(httpContextUser.ID);
+            var ex = await exhibitionService.GetExhibitionByID(ticket.exhibitionId);
+            Ticket result = null;
+            userinfoService.SetUserContext(userid);
+            var user = (await userinfoService.GetWithConditionNt(a => a.idCard == ticket.idcard && a.isAnonymous == true && a.userID == userid)).FirstOrDefault();
+            if (user == null)
+            {
+                user = await userinfoService.Add(new UserInfo
+                {
+                    idCard = ticket.idcard,
+                    name = ticket.username,
+                    phoneNumber = ticket.phoneNumber,
+                    isAnonymous = true
+                });
+            }
+            else
+            {
+                await userinfoService.Update(new UserInfo
+                {
+                    id = user.id,
+                    idCard = ticket.idcard,
+                    name = ticket.username,
+                    phoneNumber = ticket.phoneNumber
+                });
+            }
+            if (ex.isMultiPart)
+            {
+                var exids = ex.exhibitions.Split(',').ToArray();
+                result = await anonymousTicketService.GenarateAnonymousTickets(ticket.exhibitionId, DateTime.Now, DateTime.Now.AddHours(24), user.id,  ticket.totalCount,exids);
+            }
+            else
+            {
+                result = await anonymousTicketService.GenarateAnonymousTickets(ticket.exhibitionId, DateTime.Now, DateTime.Now.AddHours(24), user.id,ticket.totalCount);
+            }
+
+            return new CreateAnonymousReturn() {amount = ticket.amount,exhibitionName = ex.name,
+                ticketNumber = result.ticketNumber,username = ticket.username,qrcode = result.QRCode,
+                createTime = result.createTime,startTime = result.startTime,endTime = result.endTime
+                
+            };
+        }
 
         /// <summary>
         /// 创建订单
@@ -514,10 +569,7 @@ namespace 通用订票.Web.Entry.Controllers
         public async Task<TicketVerifyResult> CheckTicketAndUse([FromQuery] string ticket_number, [FromQuery] int count = 1, [FromQuery] string exhibition = null)
         {
             var ticket = await ticketService.TicketBeginCheck(ticket_number, count, exhibition);
-            if (ticket.ticket != null)
-            {
-                ticket.order = await myOrderService.GetOrderById(ticket.ticket.objectId);
-            }
+            
 
             if (ticket.code == 0)
             {
@@ -526,18 +578,26 @@ namespace 通用订票.Web.Entry.Controllers
                 return ticket;
             }
 
-            if (ticket.order == null || ticket.order.status != OrderStatus.已付款)
+            if (ticket.ticket.isAnonymous == false)
             {
-                ticket.code = 0;
-                ticket.message = "订单已不可用";
-                await ticketService.TicketEndCheck(ticket.ticket);
-                return ticket;
+                if (ticket.ticket != null)
+                {
+                    ticket.order = await myOrderService.GetOrderById(ticket.ticket.objectId);
+                }
+
+                if (ticket.order == null || ticket.order.status != OrderStatus.已付款)
+                {
+                    ticket.code = 0;
+                    ticket.message = "订单已不可用";
+                    await ticketService.TicketEndCheck(ticket.ticket);
+                    return ticket;
+                }
             }
 
             if (ticket.code == 1)
             {
-                ticket.app = await stockService.GetAppointmentById(ticket.ticket.AppointmentId);
-                ticket.exhibition = await exhibitionService.GetExhibitionByID(ticket.app.objectId);
+                //ticket.app = await stockService.GetAppointmentById(ticket.ticket.AppointmentId);
+                //ticket.exhibition = await exhibitionService.GetExhibitionByID(ticket.app.objectId);
                 await eventPublisher.PublishAsync("TicketVerifyEvent", new TicketVerifyEventModel
                 {
                     type = ticket.ticket.ota,
@@ -646,7 +706,7 @@ namespace 通用订票.Web.Entry.Controllers
         [TypeFilter(typeof(SaaSAuthorizationFilter))]
         [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
         [NonUnify]
-        public async Task<dynamic> GetOrders(
+        public async Task<List<GetOrdersModel>> GetOrders(
             [FromQuery] UserOrderQueryEnum status,
             [FromQuery] string exhibitionId = null,
             [FromQuery] string date = null,
@@ -683,7 +743,7 @@ namespace 通用订票.Web.Entry.Controllers
                 order_query = order_query.Where(a => (a.ticketStatus == TicketStatus.未使用 || a.ticketStatus == TicketStatus.部分使用) 
                 && a.status == OrderStatus.已付款);
             }
-
+            
             if (date != null)
             {
                 DateTime now;
@@ -763,21 +823,138 @@ namespace 通用订票.Web.Entry.Controllers
 
         }
 
-        [HttpPost(Name = "MachineCheckIdCard")]
+        [HttpGet(Name = "GetTickets")]
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.Administrator } })]
+        [NonUnify]
+        public async Task<PagedList<GetTicketsModel>> GetTickets(
+            [FromQuery] UserOrderQueryEnum status,
+            [FromQuery] string exhibitionId = null,
+            [FromQuery] string date = null,
+            [FromQuery] string username = null,
+            [FromQuery] int pageIndex = 1,
+            [FromQuery] int pageSize = 10)
+        {
+
+            var ticket_query = _GetTickets(exhibitionId, status, date, pageIndex, pageSize).Include(a => a.userinfo).AsQueryable();
+            if (!string.IsNullOrEmpty(username))
+            {
+                ticket_query = ticket_query.Where(a => a.userinfo.name == username);
+            }
+            var tickets = await ticket_query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToArrayAsync();
+            List<GetTicketsModel> list = new List<GetTicketsModel>();
+            for (int i = 0; i < tickets.Length; i++)
+            {
+                var order = await myOrderService.GetOrderById(tickets[i].objectId);
+                if (order == null)
+                {
+                    continue;
+                }
+                var exhibition = await exhibitionService.GetExhibitionByID(order.exhibitionId);
+                var app = await stockService.GetAppointmentById(order.objectId);
+                if (app == null)
+                {
+                    continue;
+                }
+                GetTicketsModel gtm = new GetTicketsModel(order, tickets[i], exhibition, app, tickets[i].userinfo);
+                list.Add(gtm);
+            }
+            var __list = list.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+            PagedList<GetTicketsModel> pl = new PagedList<GetTicketsModel>();
+            pl.TotalCount = list.Count;
+            pl.TotalPages = list.Count / pageSize + 1;
+            pl.PageIndex = pageIndex;
+            pl.PageSize = pageSize;
+            pl.PageSize = pageSize;
+            pl.Items = __list;
+            return pl;
+
+        }
+
+        private IQueryable<Ticket> _GetTickets(string exhibitionId,UserOrderQueryEnum status,string date, int pageIndex,int pageSize)
+        {
+            var ticket_query = ticketService.GetQueryableNt(a => a != null)
+                .OrderByDescending(a => a.createTime).AsQueryable();
+            if (!string.IsNullOrEmpty(exhibitionId))
+            {
+                Guid id;
+                Guid.TryParse(exhibitionId, out id);
+
+                ticket_query = ticket_query.Where(a => a.exhibitionId == id);
+            }
+
+            if (status == UserOrderQueryEnum.未使用)
+            {
+                ticket_query = ticket_query.Where(a => a.stauts == TicketStatus.未使用);
+            }
+            else if (status == UserOrderQueryEnum.已使用)
+            {
+                ticket_query = ticket_query.Where(a => a.stauts == TicketStatus.已使用);
+            }
+            else if (status == UserOrderQueryEnum.已冻结)
+            {
+                ticket_query = ticket_query.Where(a => a.stauts == TicketStatus.已冻结);
+            }
+
+            if (date != null)
+            {
+                DateTime now;
+                DateTime.TryParse(date, out now);
+
+                ticket_query = ticket_query.Where(a => a.startTime.Date.CompareTo(now) == 0);
+            }
+            return ticket_query;
+        }
+
+        [NonUnify]
+        [HttpPost(Name = "MachineCheck")]
         public async Task<FaceDeviceVerifyResultReturn> MachineCheck([FromBody] FaceDeviceCallbackModel body)
         {
             Log.Information(JSON.Serialize(body));
-
-            int cmd = 0;
+            int cmd = 1;
+            int code = 1;
             string message = "验票成功";
+            var exid = await devicesService.GetExhibitionIdBySn(body.deviceSn);
+            if (exid.IsNullOrEmpty())
+            {
+                return new FaceDeviceVerifyResultReturn()
+                {
+                    cmd = -1,
+                    code = -1,
+                    message = "验证失败",
+                    voiceData = "验证失败"
+                };
+            }
+
+            if (body.type == 2)
+            {
+                var ticket_number = body.data.Split('=')[1];
+                var result = await CheckTicketAndUse(ticket_number, 1, exid.FirstOrDefault());
+                if (result.code == 0)
+                {
+                    cmd = -1;
+                    code = -1;
+                    message = "验票失败";
+                }
+                var _r = new FaceDeviceVerifyResultReturn()
+                {
+                    cmd = cmd,
+                    code = code,
+                    message = message,
+                    voiceData = message
+                };
+                Log.Information(JsonConvert.SerializeObject(_r));
+                return _r;
+            }
 
             long? userinfo = await (userinfoService.GetQueryableNt(a => a.idCard == body.data).Select(a => a.id).FirstOrDefaultAsync());
             if (userinfo == null)
             {
                 return new FaceDeviceVerifyResultReturn()
                 {
-                    cmd = 0,
-                    code = 0,
+                    cmd = -1,
+                    code = -1,
                     message = "用户不存在",
                     voiceData = "未找到游客信息"
                 };
@@ -789,35 +966,76 @@ namespace 通用订票.Web.Entry.Controllers
                 a.stauts == TicketStatus.未使用)
             ).OrderByDescending(a => a.createTime).FirstOrDefaultAsync();
 
-            var exid = await devicesService.GetExhibitionIdBySn(body.deviceSn);
-            if (string.IsNullOrEmpty(exid))
+            
+            if (userticket == null || string.IsNullOrEmpty(exid.FirstOrDefault()))
             {
                 return new FaceDeviceVerifyResultReturn()
                 {
-                    cmd = 0,
-                    code = 0,
+                    cmd = -1,
+                    code = -1,
                     message = "验票失败",
                     voiceData = "验票失败"
                 };
             }
             else
             {
-                var result = await CheckTicketAndUse(userticket.ticketNumber, 1, exid);
+                var result = await CheckTicketAndUse(userticket.ticketNumber, 1, exid.FirstOrDefault());
                 if (result.code == 0)
                 {
-                    cmd = 0;
+                    code = -1;
+                    cmd = -1;
                     message = "验票失败";
                 }
                 return new FaceDeviceVerifyResultReturn()
                 {
-                    cmd = cmd,
-                    code = result.code,
+                    cmd = code,
+                    code = cmd,
                     message = message,
                     voiceData = message
                 };
             }
 
             
+        }
+
+        [NonUnify]
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.LocalStaff } })]
+        [HttpGet(Name = "GetAnonymousTickets")]
+        public async Task<PagedList<GetAnonymousTicketReturn>> GetAnonymousTickets([FromQuery] int pageIndex = 1, [FromQuery]  int pageSize = 10)
+        {
+            var userid = long.Parse(httpContextUser.ID);
+            List<GetAnonymousTicketReturn> list = new List<GetAnonymousTicketReturn>();
+            var ts = await ticketService.GetQueryableNt(a => a.isAnonymous == true).OrderByDescending(a => a.createTime).ToPagedListAsync(pageIndex, pageSize);
+            foreach (var item in ts.Items)
+            {
+                var userinfo = (await userinfoService.GetWithConditionNt(a => a.id == item.TUserId && a.isAnonymous == true && a.userID == userid)).FirstOrDefault();
+                list.Add(new GetAnonymousTicketReturn() {
+                    createTime = item.createTime,
+                    exhibitionId = item.exhibitionId,
+                    qrcode = item.QRCode,
+                    ticketNumber = item.ticketNumber,
+                    totalCount = item.totalCount,
+                    usedCount = item.usedCount,
+                    startTime = item.startTime,
+                    endTime = item.endTime,
+                    phoneNumber = userinfo.phoneNumber,
+                    idCard = userinfo.idCard,
+                    name = userinfo.name
+                });
+            }
+
+            return new PagedList<GetAnonymousTicketReturn>()
+            {
+                HasNextPages = ts.HasNextPages,
+                HasPrevPages = ts.HasPrevPages,
+                Items = list,
+                PageIndex = ts.PageIndex,
+                PageSize = ts.PageSize,
+                TotalCount = ts.TotalCount,
+                TotalPages = ts.TotalPages
+            };
         }
     }
 }

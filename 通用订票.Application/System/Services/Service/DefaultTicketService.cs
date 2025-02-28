@@ -28,8 +28,8 @@ namespace 通用订票.Application.System.Services.Service
     public class DefaultTicketService : TicketBaseService<Ticket, MasterDbContextLocator>, IDefaultTicketService, ITransient
     {
         private long userId;
-        private readonly ICacheOperation _cache;
-        private readonly IMultiTicketService multiTicketService;
+        protected readonly ICacheOperation _cache;
+        protected readonly IMultiTicketService multiTicketService;
         public DefaultTicketService(IRepository<Ticket, MasterDbContextLocator> _dal, ICacheOperation _cache, IMultiTicketService multiTicketService) : base(_dal)
         {
             this._cache = _cache;
@@ -347,7 +347,6 @@ namespace 通用订票.Application.System.Services.Service
 
         public async Task<TicketVerifyResult> TicketBeginCheck(string ticket_number, int useCount,string exhibition)
         {
-            exhibition = exhibition.ToLower();
             var ticket = await this.GetTicket(ticket_number);
             string key = "OrderLocker_" + ticket.objectId;
             await _cache.Lock(key, ticket_number, 30);
@@ -356,6 +355,7 @@ namespace 通用订票.Application.System.Services.Service
             {
                 return new TicketVerifyResult() {code = 0,message = "未找到门票" };
             }
+            exhibition = exhibition.ToLower();
             if (ticket.isMultiPart == true)
             {
                 var result =  _TicketCheck(ticket, useCount);

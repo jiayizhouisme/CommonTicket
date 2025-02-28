@@ -31,7 +31,7 @@ namespace 通用订票.Application.System.Services.Service
                 { "name",_user.username }, // 存储用户名
                 { "tenant-id",extra_info},
                 { "loginType","normal"},
-                { "permissions",Permissions.Administrator}
+                { "permissions",_user.authLevel}
             }, 7200);
             // 获取刷新 token
             var refreshToken = JWTEncryption.GenerateRefreshToken(accessToken, 43200); // 第二个参数是刷新 token 的有效期（分钟），默认三十天
@@ -53,7 +53,7 @@ namespace 通用订票.Application.System.Services.Service
             if(user == null)
             {
                 var result = await "http://umplatform.z2ww.com/api/WechatUser/GetWechatUser".SetQueries(new { openid = originOpenid }).GetAsAsync<WUser>();
-                user = new User { username = result.NickName, password = "-1",openId = originOpenid };
+                user = new User { username = result.NickName, password = "-1",openId = originOpenid,authLevel = Permissions.Normal };
                 user = await this.RegisteNewUser(user);
             }
 
@@ -68,7 +68,7 @@ namespace 通用订票.Application.System.Services.Service
                 { "openid",user.openId},
                 { "loginType","wechat"},
                 { "tenant-id",extra_info},
-                { "permissions",Permissions.Normal}
+                { "permissions",user.authLevel}
             }, 7200);
             // 获取刷新 token
             var refreshToken = JWTEncryption.GenerateRefreshToken(accessToken, 43200); // 第二个参数是刷新 token 的有效期（分钟），默认三十天

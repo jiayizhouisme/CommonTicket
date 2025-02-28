@@ -4,6 +4,7 @@ using Core.EntityFrameWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace 通用订票.Database.Migrations.Migrations
 {
     [DbContext(typeof(MasterDbContext_SQL))]
-    partial class MasterDbContext_SQLModelSnapshot : ModelSnapshot
+    [Migration("20250225024436_v7.2.0")]
+    partial class v720
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,6 +44,37 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.HasKey("id");
 
                     b.ToTable("WebRouteConfig");
+                });
+
+            modelBuilder.Entity("通用订票.Core.Entity.AnonymousTicket", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<decimal>("amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("count")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("createTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("exhibitionId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ticketNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("username")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("id");
+
+                    b.ToTable("AnonymousTicket");
                 });
 
             modelBuilder.Entity("通用订票.Core.Entity.Appointment", b =>
@@ -321,9 +355,6 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<Guid>("exhibitionId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("isAnonymous")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("isMultiPart")
                         .HasColumnType("bit")
                         .HasComment("是否是联票");
@@ -426,9 +457,6 @@ namespace 通用订票.Database.Migrations.Migrations
                     b.Property<string>("idCard")
                         .HasColumnType("nvarchar(max)")
                         .HasComment("身份证");
-
-                    b.Property<bool>("isAnonymous")
-                        .HasColumnType("bit");
 
                     b.Property<string>("name")
                         .HasColumnType("nvarchar(max)")
@@ -770,17 +798,6 @@ namespace 通用订票.Database.Migrations.Migrations
                         .IsRequired();
 
                     b.Navigation("exhibition");
-                });
-
-            modelBuilder.Entity("通用订票.Core.Entity.Ticket", b =>
-                {
-                    b.HasOne("通用订票.Core.Entity.UserInfo", "userinfo")
-                        .WithMany()
-                        .HasForeignKey("TUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("userinfo");
                 });
 
             modelBuilder.Entity("通用订票.OTA.携程.Entity.XieChengTicket", b =>

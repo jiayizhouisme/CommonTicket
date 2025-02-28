@@ -151,6 +151,11 @@ namespace 通用订票.EventBus
             t_service = ServiceFactory.GetNamedSaasService<IDefaultTicketService, Ticket>(scope.ServiceProvider, t_service, data.tenant_id);
             #endregion
             var ticket = await t_service.GetTicket(data.ticketNumber);
+            if (ticket.isAnonymous == true)
+            {
+                await Task.CompletedTask;
+                return;
+            }
 
             string lockerId = Guid.NewGuid().ToString();
             await cache.Lock("OrderLocker_" + ticket.objectId, lockerId);

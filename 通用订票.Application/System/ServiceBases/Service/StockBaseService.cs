@@ -125,7 +125,11 @@ namespace 通用订票.Application.System.ServiceBases.Service
         {
             try
             {
-                await _cache.Set("stock:" + stock.id.ToString(), stock, 7200);
+                if (stock != null)
+                {
+                    await _cache.Set("stock:" + stock.id.ToString(), stock, 7200);
+                }
+                
             }
             catch (Exception e)
             {

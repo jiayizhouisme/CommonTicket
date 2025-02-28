@@ -23,7 +23,7 @@ namespace 通用订票.Core.Entity
         public DateTime createTime { get; set; }
         [Comment("用户ID")]
         public long userID { get; set; }
-
+        public bool isAnonymous { get; set; }
         public void Configure(EntityTypeBuilder<UserInfo> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
             entityBuilder.HasKey(a => a.id);

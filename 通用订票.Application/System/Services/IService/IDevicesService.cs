@@ -10,6 +10,6 @@ namespace 通用订票.Application.System.Services.IService
 {
     public interface IDevicesService : IBaseService<Devices>
     {
-        public Task<string> GetExhibitionIdBySn(string sn);
+        public Task<ICollection<string>> GetExhibitionIdBySn(string sn);
     }
 }

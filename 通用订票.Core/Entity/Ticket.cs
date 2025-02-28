@@ -32,6 +32,8 @@ namespace 通用订票.Core.Entity
         /// 购票人选择的用户
         /// </summary>
         public long TUserId { get; set; }
+        public bool isAnonymous { get; set; }
+        public UserInfo userinfo { get; set; }
 
         public void Configure(EntityTypeBuilder<Ticket> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
@@ -41,6 +43,7 @@ namespace 通用订票.Core.Entity
             entityBuilder.HasIndex(a => a.objectId);
 
             entityBuilder.Property(x => x._id).ValueGeneratedOnAdd();
+            entityBuilder.HasOne(a => a.userinfo).WithMany().HasForeignKey(a => a.TUserId);
         }
     }
 
