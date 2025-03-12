@@ -79,6 +79,7 @@ namespace 通用订票.Web.Core
             services.Configure<WeChatPayOptions>(App.Configuration.GetSection("WeChatPay"));
             services.AddSingleton<ICacheOperation, RedisOperationRepository>();
             services.AddSingleton<ISignalRUserService, JwtCacheUserService>();
+            services.AddSingleton<ILogin, LoginImpl>();
 
             Configration.ConfigInit();
 

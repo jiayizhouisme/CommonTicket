@@ -17,9 +17,9 @@ namespace 通用订票.Application.System.Services.Service
         {
             this._dal = _dal;
         }
-        public async Task<ICollection<string>> GetExhibitionIdBySn(string sn)
+        public async Task<ICollection<Devices>> GetDeviceBySn(string sn)
         {
-            return await this._dal.Where(a => a.deviceSn == sn).Select(a => a.exhibitionId).ToListAsync();
+            return await this.GetWithConditionNt(a => a.deviceSn == sn);
         }
     }
 }

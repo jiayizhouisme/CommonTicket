@@ -68,6 +68,7 @@ namespace 通用订票.Web.Entry.Controllers
         public async Task<Exhibition> UpdateExhibitions(Exhibition exhibition)
         {
             var _ex = await _exhibitionService.GetExhibitionByID(exhibition.id);
+
             var ex = await this._exhibitionService.UpdateExhibition(exhibition);
             var apps = await _defaultAppointmentService.GetWithCondition(a => a.objectId == exhibition.id);
             foreach (var app in apps)

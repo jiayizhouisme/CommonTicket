@@ -140,8 +140,9 @@ namespace 通用订票.Web.Entry.Controllers
                     id = user.id,
                     idCard = ticket.idcard,
                     name = ticket.username,
-                    phoneNumber = ticket.phoneNumber
-                });
+                    phoneNumber = ticket.phoneNumber,
+                    isAnonymous = true
+                }) ;
             }
             if (ex.isMultiPart)
             {
@@ -840,8 +841,9 @@ namespace 通用订票.Web.Entry.Controllers
             var ticket_query = _GetTickets(exhibitionId, status, date, pageIndex, pageSize).Include(a => a.userinfo).AsQueryable();
             if (!string.IsNullOrEmpty(username))
             {
-                ticket_query = ticket_query.Where(a => a.userinfo.name == username);
+                ticket_query = ticket_query.Where(a => a.userinfo != null && a.userinfo.name == username);
             }
+            var totalcount = await ticket_query.CountAsync();
             var tickets = await ticket_query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToArrayAsync();
             List<GetTicketsModel> list = new List<GetTicketsModel>();
             for (int i = 0; i < tickets.Length; i++)
@@ -860,21 +862,20 @@ namespace 通用订票.Web.Entry.Controllers
                 GetTicketsModel gtm = new GetTicketsModel(order, tickets[i], exhibition, app, tickets[i].userinfo);
                 list.Add(gtm);
             }
-            var __list = list.Skip((pageIndex - 1) * pageSize).Take(pageSize);
             PagedList<GetTicketsModel> pl = new PagedList<GetTicketsModel>();
-            pl.TotalCount = list.Count;
-            pl.TotalPages = list.Count / pageSize + 1;
+            pl.TotalCount = totalcount;
+            pl.TotalPages = totalcount / pageSize + 1;
             pl.PageIndex = pageIndex;
             pl.PageSize = pageSize;
             pl.PageSize = pageSize;
-            pl.Items = __list;
+            pl.Items = list;
             return pl;
 
         }
 
         private IQueryable<Ticket> _GetTickets(string exhibitionId,UserOrderQueryEnum status,string date, int pageIndex,int pageSize)
         {
-            var ticket_query = ticketService.GetQueryableNt(a => a != null)
+            var ticket_query = ticketService.GetQueryableNt(a => a.isAnonymous == false)
                 .OrderByDescending(a => a.createTime).AsQueryable();
             if (!string.IsNullOrEmpty(exhibitionId))
             {
@@ -890,14 +891,14 @@ namespace 通用订票.Web.Entry.Controllers
             }
             else if (status == UserOrderQueryEnum.已使用)
             {
-                ticket_query = ticket_query.Where(a => a.stauts == TicketStatus.已使用);
+                ticket_query = ticket_query.Where(a => a.stauts == TicketStatus.已使用 || a.stauts == TicketStatus.部分使用);
             }
-            else if (status == UserOrderQueryEnum.已冻结)
+            else if (status == UserOrderQueryEnum.已冻结 || status == UserOrderQueryEnum.已退款)
             {
                 ticket_query = ticket_query.Where(a => a.stauts == TicketStatus.已冻结);
             }
 
-            if (date != null)
+            if (!string.IsNullOrEmpty(date))
             {
                 DateTime now;
                 DateTime.TryParse(date, out now);
@@ -911,12 +912,12 @@ namespace 通用订票.Web.Entry.Controllers
         [HttpPost(Name = "MachineCheck")]
         public async Task<FaceDeviceVerifyResultReturn> MachineCheck([FromBody] FaceDeviceCallbackModel body)
         {
-            Log.Information(JSON.Serialize(body));
             int cmd = 1;
             int code = 1;
             string message = "验票成功";
-            var exid = await devicesService.GetExhibitionIdBySn(body.deviceSn);
-            if (exid.IsNullOrEmpty())
+            var exid = (await devicesService.GetDeviceBySn(body.deviceSn)).FirstOrDefault();
+
+            if (exid == null)
             {
                 return new FaceDeviceVerifyResultReturn()
                 {
@@ -927,73 +928,132 @@ namespace 通用订票.Web.Entry.Controllers
                 };
             }
 
-            if (body.type == 2)
+            if (exid.type == DeviceType.inDevice)
             {
-                var ticket_number = body.data.Split('=')[1];
-                var result = await CheckTicketAndUse(ticket_number, 1, exid.FirstOrDefault());
-                if (result.code == 0)
+                if (body.type == 2)
                 {
-                    cmd = -1;
-                    code = -1;
-                    message = "验票失败";
+                    var ticket_number = body.data.Split('=')[1];
+                    var result = await CheckTicketAndUse(ticket_number, 1, exid.exhibitionId);
+                    if (result.code == 0)
+                    {
+                        cmd = -1;
+                        code = -1;
+                        message = "验票失败";
+                    }
+                    var _r = new FaceDeviceVerifyResultReturn()
+                    {
+                        cmd = cmd,
+                        code = code,
+                        message = message,
+                        voiceData = message
+                    };
+                    if (result.code == 1)
+                    {
+                        await eventPublisher.PublishAsync(new OnMachineTicketVerifiedEvent(new OnMachineTicketVerified
+                        {
+                            tenantId = tenantGetSetor.Get(),
+                            Device = exid,
+                            userinfo_id = result.ticket.TUserId,
+                            updateTime = DateTime.Now
+                        }));
+                    }
+                    
+                    return _r;
                 }
-                var _r = new FaceDeviceVerifyResultReturn()
-                {
-                    cmd = cmd,
-                    code = code,
-                    message = message,
-                    voiceData = message
-                };
-                Log.Information(JsonConvert.SerializeObject(_r));
-                return _r;
-            }
 
-            long? userinfo = await (userinfoService.GetQueryableNt(a => a.idCard == body.data).Select(a => a.id).FirstOrDefaultAsync());
-            if (userinfo == null)
-            {
-                return new FaceDeviceVerifyResultReturn()
+                var userinfo = await (userinfoService.GetQueryableNt(a => a.idCard == body.data).Select(a => a.id).FirstOrDefaultAsync());
+                if (userinfo == null)
                 {
-                    cmd = -1,
-                    code = -1,
-                    message = "用户不存在",
-                    voiceData = "未找到游客信息"
-                };
-            }
-
-            var userticket = await ticketService.GetQueryableNt(
-                a => a.TUserId == userinfo && 
-                (a.stauts == TicketStatus.部分使用 ||
-                a.stauts == TicketStatus.未使用)
-            ).OrderByDescending(a => a.createTime).FirstOrDefaultAsync();
-
-            
-            if (userticket == null || string.IsNullOrEmpty(exid.FirstOrDefault()))
-            {
-                return new FaceDeviceVerifyResultReturn()
-                {
-                    cmd = -1,
-                    code = -1,
-                    message = "验票失败",
-                    voiceData = "验票失败"
-                };
-            }
-            else
-            {
-                var result = await CheckTicketAndUse(userticket.ticketNumber, 1, exid.FirstOrDefault());
-                if (result.code == 0)
-                {
-                    code = -1;
-                    cmd = -1;
-                    message = "验票失败";
+                    return new FaceDeviceVerifyResultReturn()
+                    {
+                        cmd = -1,
+                        code = -1,
+                        message = "用户不存在",
+                        voiceData = "未找到游客信息"
+                    };
                 }
+
+                var userticket = await ticketService.GetQueryableNt(
+                    a => a.TUserId == userinfo &&
+                    (a.stauts == TicketStatus.部分使用 ||
+                    a.stauts == TicketStatus.未使用)
+                ).OrderByDescending(a => a.createTime).FirstOrDefaultAsync();
+
+
+                if (userticket == null || string.IsNullOrEmpty(exid.exhibitionId))
+                {
+                    return new FaceDeviceVerifyResultReturn()
+                    {
+                        cmd = -1,
+                        code = -1,
+                        message = "验票失败",
+                        voiceData = "验票失败"
+                    };
+                }
+                else
+                {
+                    var result = await CheckTicketAndUse(userticket.ticketNumber, 1, exid.exhibitionId);
+                    if (result.code == 0)
+                    {
+                        code = -1;
+                        cmd = -1;
+                        message = "验票失败";
+                    }
+
+                    if (result.code == 1)
+                    {
+                        await eventPublisher.PublishAsync(new OnMachineTicketVerifiedEvent(new OnMachineTicketVerified
+                        {
+                            tenantId = tenantGetSetor.Get(),
+                            Device = exid,
+                            userinfo_id = userinfo,
+                            updateTime = DateTime.Now,
+                            
+                        }));
+                    }
+
+                    return new FaceDeviceVerifyResultReturn()
+                    {
+                        cmd = code,
+                        code = cmd,
+                        message = message,
+                        voiceData = message
+                    };
+                }
+            }else if (exid.type == DeviceType.outDevice)
+            {
+                long userinfo_id = 0;
+                if (body.type == 2)
+                {
+                    var ticket_number = body.data.Split('=')[1];
+                    var ticket = await ticketService.GetTicket(ticket_number);
+                    userinfo_id = ticket.TUserId;
+                }
+                else
+                {
+                    userinfo_id = await userinfoService.GetQueryableNt(a => a.idCard == body.data).Select(a => a.id).FirstOrDefaultAsync();
+                }
+                if (userinfo_id != 0)
+                {
+                    await eventPublisher.PublishAsync(new OnMachineTicketVerifiedEvent(new OnMachineTicketVerified
+                    {
+                        tenantId = tenantGetSetor.Get(),
+                        Device = exid,
+                        userinfo_id = userinfo_id,
+                        updateTime = DateTime.Now
+                    }));
+                }
+                
                 return new FaceDeviceVerifyResultReturn()
                 {
-                    cmd = code,
-                    code = cmd,
-                    message = message,
-                    voiceData = message
+                    cmd = 1,
+                    code = 1,
+                    message = "",
+                    voiceData = ""
                 };
             }
+
+            return null;
 
             
         }
@@ -1011,6 +1071,10 @@ namespace 通用订票.Web.Entry.Controllers
             foreach (var item in ts.Items)
             {
                 var userinfo = (await userinfoService.GetWithConditionNt(a => a.id == item.TUserId && a.isAnonymous == true && a.userID == userid)).FirstOrDefault();
+                if (userinfo == null)
+                {
+                    continue;
+                }
                 list.Add(new GetAnonymousTicketReturn() {
                     createTime = item.createTime,
                     exhibitionId = item.exhibitionId,
@@ -1036,6 +1100,49 @@ namespace 通用订票.Web.Entry.Controllers
                 TotalCount = ts.TotalCount,
                 TotalPages = ts.TotalPages
             };
+        }
+
+        [NonUnify]
+        [Authorize]
+        [TypeFilter(typeof(SaaSAuthorizationFilter))]
+        [TypeFilter(typeof(PermissionAuthFilter), Arguments = new object[] { new Permissions[] { Permissions.LocalStaff } })]
+        [HttpGet(Name = "GetTicketByTicketNumber")]
+        public async Task<List<GetAnonymousTicketReturn>> GetTicketByTicketNumber([FromQuery] string ticketNumber,[FromQuery] bool isAnonymous = false)
+        {
+            var userid = long.Parse(httpContextUser.ID);
+            List<GetAnonymousTicketReturn> list = new List<GetAnonymousTicketReturn>();
+
+            var _tn = long.Parse(ticketNumber);
+            var order = await myOrderService.GetOrderById(_tn);
+            if (order == null)
+            {
+                return new List<GetAnonymousTicketReturn>();
+            }
+            var ts = await ticketService.GetQueryableNt(a => a.isAnonymous == isAnonymous && a.objectId == _tn).ToListAsync();
+            foreach (var item in ts)
+            {
+                var userinfo = (await userinfoService.GetWithConditionNt(a => a.id == item.TUserId && a.isAnonymous == isAnonymous)).FirstOrDefault();
+                if (userinfo == null)
+                {
+                    continue;
+                }
+                list.Add(new GetAnonymousTicketReturn()
+                {
+                    createTime = item.createTime,
+                    exhibitionId = item.exhibitionId,
+                    qrcode = item.QRCode,
+                    ticketNumber = item.ticketNumber,
+                    totalCount = item.totalCount,
+                    usedCount = item.usedCount,
+                    startTime = item.startTime,
+                    endTime = item.endTime,
+                    phoneNumber = userinfo.phoneNumber,
+                    idCard = userinfo.idCard,
+                    name = userinfo.name
+                });
+            }
+
+            return list;
         }
     }
 }
